@@ -1,5 +1,4 @@
 export default function Home() {
-  // Pagaidu dati auto kartītēm
   const cars = [
     {
       id: 1,
@@ -8,7 +7,7 @@ export default function Home() {
       mileage: '185 000 km',
       engine: '3.0 Dīzelis',
       price: '21 500 €',
-      image: 'https://images.unsplash.com/photo-1555215695-3004980adade?w=600&q=80'
+      image: 'https://images.unsplash.com/photo-1556189250-72ba954cfc2b?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 2,
@@ -17,7 +16,7 @@ export default function Home() {
       mileage: '142 000 km',
       engine: '2.0 Dīzelis',
       price: '23 900 €',
-      image: 'https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?w=600&q=80'
+      image: 'https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&w=600&q=80'
     },
     {
       id: 3,
@@ -26,13 +25,12 @@ export default function Home() {
       mileage: '198 000 km',
       engine: '2.0 Dīzelis',
       price: '13 800 €',
-      image: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=600&q=80'
+      image: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=600&q=80'
     }
   ]
 
   return (
     <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
-      {/* Virsraksts un apakšvirsraksts */}
       <section style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <h1 style={{ fontSize: '2.5rem', color: '#0f172a', marginBottom: '0.5rem' }}>
           Atrodi savu nākamo auto
@@ -42,7 +40,6 @@ export default function Home() {
         </p>
       </section>
 
-      {/* Meklēšanas filtrs */}
       <div style={{
         backgroundColor: '#ffffff',
         padding: '2rem',
@@ -104,7 +101,6 @@ export default function Home() {
         </button>
       </div>
 
-      {/* Jaunākie sludinājumi */}
       <section>
         <h2 style={{ fontSize: '1.75rem', color: '#0f172a', marginBottom: '1.5rem' }}>
           Jaunākie sludinājumi
@@ -126,7 +122,7 @@ export default function Home() {
               <img 
                 src={car.image} 
                 alt={car.title} 
-                style={{ width: '100%', height: '200px', objectFit: 'cover' }} 
+                style={{ width: '100%', height: '200px', objectFit: 'cover', backgroundColor: '#f1f5f9' }} 
               />
               <div style={{ padding: '1.5rem' }}>
                 <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', color: '#0f172a' }}>
