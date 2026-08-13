@@ -1,4 +1,5 @@
 import React from 'react'
+import Header from './components/Header'
 
 export const metadata = {
   title: 'Tem-Auto Tirgus',
@@ -12,7 +13,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="lv">
-      <body>{children}</body>
+      <body style={{ margin: 0, padding: 0, fontFamily: 'system-ui, sans-serif', backgroundColor: '#f8fafc' }}>
+        <Header />
+        {children}
+      </body>
     </html>
   )
 }
