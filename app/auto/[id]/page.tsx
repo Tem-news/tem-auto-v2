@@ -22,6 +22,7 @@ export default function AutoLapa() {
   const [car, setCar] = useState<Car | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeImage, setActiveImage] = useState<string>('')
+  const [imageList, setImageList] = useState<string[]>([])
 
   useEffect(() => {
     async function fetchCar() {
@@ -37,8 +38,19 @@ export default function AutoLapa() {
         console.error('Kļūda ielādējot auto:', error)
       } else if (data) {
         setCar(data)
-        const allImages = data.images && data.images.length > 0 ? data.images : [data.image]
-        if (allImages[0]) setActiveImage(allImages[0])
+        
+        // Apkopojam visas bildes no 'images' vai 'image'
+        let imgs: string[] = []
+        if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+          imgs = data.images
+        } else if (data.image) {
+          imgs = [data.image]
+        }
+
+        setImageList(imgs)
+        if (imgs.length > 0) {
+          setActiveImage(imgs[0])
+        }
       }
       setLoading(false)
     }
@@ -66,8 +78,6 @@ export default function AutoLapa() {
   if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Ielādē sludinājumu...</div>
   if (!car) return <div style={{ padding: '2rem', textAlign: 'center' }}>Sludinājums netika atrasts.</div>
 
-  const carImages = car.images && car.images.length > 0 ? car.images : (car.image ? [car.image] : [])
-
   return (
     <main style={{ maxWidth: '900px', margin: '2rem auto', padding: '0 1rem', fontFamily: 'system-ui, sans-serif' }}>
       <Link href="/" style={{ color: '#64748b', textDecoration: 'none', marginBottom: '1rem', display: 'inline-block', fontWeight: 'bold' }}>
@@ -77,18 +87,23 @@ export default function AutoLapa() {
       <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
         
         {/* Lielā bilde */}
-        <div style={{ width: '100%', height: '400px', backgroundColor: '#e2e8f0', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+        <div style={{ width: '100%', height: '400px', backgroundColor: '#f1f5f9', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
           {activeImage ? (
-            <img src={activeImage} alt={car.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img 
+              src={activeImage} 
+              alt={car.title} 
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+              onError={() => setActiveImage('')}
+            />
           ) : (
-            <span style={{ color: '#94a3b8', fontWeight: 'bold' }}>Nav foto</span>
+            <span style={{ color: '#94a3b8', fontWeight: 'bold' }}>Nav foto jeb nepareiza saite</span>
           )}
         </div>
 
         {/* Mazās bildes (Galerija) */}
-        {carImages.length > 1 && (
+        {imageList.length > 1 && (
           <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', marginBottom: '1.5rem', paddingBottom: '0.5rem' }}>
-            {carImages.map((img, idx) => (
+            {imageList.map((img, idx) => (
               <img 
                 key={idx} 
                 src={img} 
