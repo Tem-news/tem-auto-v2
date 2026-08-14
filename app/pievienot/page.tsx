@@ -7,24 +7,53 @@ import { supabase } from '../../lib/supabase'
 export default function PievienotAuto() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null)
+  
   const [formData, setFormData] = useState({
     title: '',
     price: '',
     year: '',
     mileage: '',
-    engine: '',
-    image: ''
+    engine: ''
   })
 
-  const handleSave = async (e: React.MouseEvent<HTMLButtonElement> | React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    e.stopPropagation()
+    
+    if (!selectedFiles || selectedFiles.length === 0) {
+      alert('Lūdzu, izvēlies vismaz vienu foto attēlu!')
+      return
+    }
 
-    if (loading) return
     setLoading(true)
 
     try {
-      const { data, error } = await supabase
+      const imageUrls: string[] = []
+
+      // Augšupielādējam katru izvēlēto bildi uz Supabase Storage
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i]
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${Date.now()}_${i}.${fileExt}`
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('car-images')
+          .upload(fileName, file)
+
+        if (uploadError) {
+          throw new Error('Kļūda augšupielādējot bildi: ' + uploadError.message)
+        }
+
+        // Iegūstam publisko saiti
+        const { data: publicUrlData } = supabase.storage
+          .from('car-images')
+          .getPublicUrl(fileName)
+
+        imageUrls.push(publicUrlData.publicUrl)
+      }
+
+      // Saglabājam sludinājumu datubāzē
+      const { error: dbError } = await supabase
         .from('cars')
         .insert([
           {
@@ -33,19 +62,20 @@ export default function PievienotAuto() {
             year: Number(formData.year),
             mileage: formData.mileage,
             engine: formData.engine,
-            image: formData.image
+            image: imageUrls[0], // Galvenā bilde
+            images: imageUrls    // Visas bildes
           }
         ])
 
-      if (error) {
-        alert('Kļūda saglabājot datubāzē: ' + error.message)
+      if (dbError) {
+        alert('Kļūda saglabājot datubāzē: ' + dbError.message)
       } else {
         alert('Sludinājums veiksmīgi pievienots!')
         router.push('/')
         router.refresh()
       }
     } catch (err: any) {
-      alert('Sistēmas kļūda: ' + err.message)
+      alert('Kļūda: ' + err.message)
     } finally {
       setLoading(false)
     }
@@ -57,7 +87,7 @@ export default function PievienotAuto() {
         Pievienot jaunu auto sludinājumu
       </h1>
 
-      <form onSubmit={(e) => e.preventDefault()} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
+      <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
         
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#334155' }}>Nosaukums / Modelis</label>
@@ -122,24 +152,23 @@ export default function PievienotAuto() {
         </div>
 
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#334155' }}>Attēla saite (URL)</label>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#334155' }}>Pievienot fotogrāfijas (no ierīces)</label>
           <input 
-            type="url" 
-            required 
-            placeholder="https://images.unsplash.com/photo-1555215695-3004980ad54e" 
-            value={formData.image} 
-            onChange={(e) => setFormData({...formData, image: e.target.value})}
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', boxSizing: 'border-box' }}
+            type="file" 
+            multiple 
+            accept="image/*"
+            onChange={(e) => setSelectedFiles(e.target.files)}
+            style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', boxSizing: 'border-box' }}
           />
+          <small style={{ color: '#64748b', marginTop: '0.25rem', display: 'block' }}>Var izvēlēties vairākas bildes uzreiz.</small>
         </div>
 
         <button 
-          type="button" 
-          onClick={handleSave}
+          type="submit" 
           disabled={loading}
           style={{ backgroundColor: loading ? '#94a3b8' : '#22c55e', color: '#ffffff', padding: '0.875rem', borderRadius: '8px', border: 'none', fontSize: '1rem', fontWeight: 'bold', cursor: loading ? 'not-allowed' : 'pointer', marginTop: '1rem' }}
         >
-          {loading ? 'Saglabā...' : 'Publicēt sludinājumu'}
+          {loading ? 'Augšupielādē bildes un saglabā...' : 'Publicēt sludinājumu'}
         </button>
 
       </form>
