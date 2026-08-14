@@ -15,12 +15,32 @@ export default function PievienotAuto() {
     mileage: '',
     engine: '',
   })
-  const [files, setFiles] = useState<FileList | null>(null)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+
+  // Pievieno jaunos failus jau esošajam sarakstam
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files)
+      const totalFiles = [...selectedFiles, ...newFiles]
+
+      if (totalFiles.length > 10) {
+        alert('Var pievienot maksimāli 10 attēlus!')
+        setSelectedFiles(totalFiles.slice(0, 10))
+      } else {
+        setSelectedFiles(totalFiles)
+      }
+    }
+  }
+
+  // Noņem konkrētu bildi no saraksta
+  const handleRemoveFile = (indexToRemove: number) => {
+    setSelectedFiles(selectedFiles.filter((_, index) => index !== indexToRemove))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (files && files.length > 10) {
+    if (selectedFiles.length > 10) {
       alert('Var pievienot maksimāli 10 attēlus!')
       return
     }
@@ -30,34 +50,29 @@ export default function PievienotAuto() {
     try {
       const uploadedUrls: string[] = []
 
-      if (files && files.length > 0) {
-        // Apstrādājam ne vairāk kā 10 failus
-        const filesToUpload = Array.from(files).slice(0, 10)
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i]
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${Date.now()}_${i}.${fileExt}`
 
-        for (let i = 0; i < filesToUpload.length; i++) {
-          const file = filesToUpload[i]
-          const fileExt = file.name.split('.').pop()
-          const fileName = `${Date.now()}_${i}.${fileExt}`
+        const { error: uploadError } = await supabase.storage
+          .from('car-images')
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: true
+          })
 
-          const { error: uploadError } = await supabase.storage
-            .from('car-images')
-            .upload(fileName, file, {
-              cacheControl: '3600',
-              upsert: true
-            })
+        if (uploadError) {
+          console.error('Kļūda augšupielādējot bildi:', uploadError)
+          continue
+        }
 
-          if (uploadError) {
-            console.error('Kļūda augšupielādējot bildi:', uploadError)
-            continue
-          }
+        const { data: urlData } = supabase.storage
+          .from('car-images')
+          .getPublicUrl(fileName)
 
-          const { data: urlData } = supabase.storage
-            .from('car-images')
-            .getPublicUrl(fileName)
-
-          if (urlData && urlData.publicUrl) {
-            uploadedUrls.push(urlData.publicUrl)
-          }
+        if (urlData && urlData.publicUrl) {
+          uploadedUrls.push(urlData.publicUrl)
         }
       }
 
@@ -161,18 +176,58 @@ export default function PievienotAuto() {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem', color: '#334155' }}>Pievienot attēlus (līdz 10 bildēm)</label>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={(e) => setFiles(e.target.files)}
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
-            />
-            {files && files.length > 0 && (
-              <p style={{ fontSize: '0.85rem', color: files.length > 10 ? '#ef4444' : '#16a34a', marginTop: '0.25rem' }}>
-                Izvēlēti {files.length} attēli {files.length > 10 ? '(maksimāli atļauti 10!)' : ''}
-              </p>
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem', color: '#334155' }}>
+              Pievienot attēlus ({selectedFiles.length}/10)
+            </label>
+            
+            {selectedFiles.length < 10 && (
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleFileChange}
+                style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box', marginBottom: '0.75rem' }}
+              />
+            )}
+
+            {/* Auspildīto/izvēlēto bilžu saraksts un priekšskatījums */}
+            {selectedFiles.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
+                {selectedFiles.map((file, index) => (
+                  <div key={index} style={{ position: 'relative', width: '80px', height: '80px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #cbd5e1' }}>
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt="Priekšskatījums"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFile(index)}
+                      style={{
+                        position: 'absolute',
+                        top: '2px',
+                        right: '2px',
+                        backgroundColor: '#ef4444',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '20px',
+                        height: '20px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 0
+                      }}
+                      title="Dzēst bildi"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 
