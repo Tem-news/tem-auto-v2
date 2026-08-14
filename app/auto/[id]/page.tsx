@@ -81,7 +81,7 @@ export default function AutoDetalizeti() {
     )
   }
 
-  // Savācam visās iespējamās bilžu saites
+  // Apkopojam visas bildes
   let allImages: string[] = []
   if (car.images && Array.isArray(car.images) && car.images.length > 0) {
     allImages = car.images.filter(img => typeof img === 'string' && img.trim() !== '')
@@ -100,49 +100,38 @@ export default function AutoDetalizeti() {
 
       <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
         
-        {/* Attēlu galerija */}
-        <div style={{ width: '100%', height: '400px', backgroundColor: '#f1f5f9', borderRadius: '8px', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', position: 'relative' }}>
+        {/* Galvenais lielais attēls */}
+        <div style={{ width: '100%', height: '450px', backgroundColor: '#0f172a', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', position: 'relative' }}>
           {currentImage ? (
             <img 
               src={currentImage} 
               alt={car.title} 
               style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-              onError={(e) => {
-                // Ja bildes saite nedarbojas, parādām to lietotājam
-                e.currentTarget.style.display = 'none'
-                const parent = e.currentTarget.parentElement
-                if (parent) {
-                  const errorDiv = document.createElement('div')
-                  errorDiv.style.padding = '1rem'
-                  errorDiv.style.textAlign = 'center'
-                  errorDiv.style.color = '#ef4444'
-                  errorDiv.innerHTML = `<strong>Neizdevās ielādēt attēlu!</strong><br/><span style="font-size:12px; color:#64748b; word-break:break-all;">Saites URL: ${currentImage}</span>`
-                  parent.appendChild(errorDiv)
-                }
-              }}
             />
           ) : (
-            <div style={{ color: '#64748b', fontWeight: 'bold' }}>Šim sludinājumam nav pievienots neviens attēls</div>
+            <div style={{ color: '#94a3b8', fontWeight: 'bold' }}>Šim sludinājumam nav pievienots neviens attēls</div>
           )}
         </div>
 
-        {/* Mazās bildītes ja ir vairākas */}
+        {/* Mazo attēlu josla (Galerija zem galvenās bildes) */}
         {allImages.length > 1 && (
-          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
             {allImages.map((img, idx) => (
               <button
                 key={idx}
                 onClick={() => setActiveImageIndex(idx)}
                 style={{
-                  border: activeImageIndex === idx ? '2px solid #22c55e' : '2px solid transparent',
+                  border: activeImageIndex === idx ? '3px solid #22c55e' : '2px solid #e2e8f0',
                   borderRadius: '6px',
                   overflow: 'hidden',
                   cursor: 'pointer',
                   padding: 0,
-                  backgroundColor: 'transparent',
-                  width: '80px',
-                  height: '60px',
-                  flexShrink: 0
+                  backgroundColor: '#f8fafc',
+                  width: '90px',
+                  height: '65px',
+                  flexShrink: 0,
+                  opacity: activeImageIndex === idx ? 1 : 0.7,
+                  transition: 'opacity 0.2s, border 0.2s'
                 }}
               >
                 <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
