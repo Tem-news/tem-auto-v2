@@ -1,146 +1,86 @@
-'use client'
+import Link from 'next/link'
+import { supabase } from './lib/supabase'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { supabase } from '../lib/supabase'
+export const revalidate = 0
 
-export default function PievienotAuto() {
-  const router = useRouter()
-  const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    title: '',
-    price: '',
-    year: '',
-    mileage: '',
-    engine: '',
-    image: ''
-  })
+interface Car {
+  id: number
+  title: string
+  price: number
+  year: number
+  mileage: string
+  engine: string
+  image: string
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault() // Aptur lapas automātisko pārlādēšanos
-    setLoading(true)
+export default async function Home() {
+  const { data: cars, error } = await supabase
+    .from('cars')
+    .select('*')
+    .order('created_at', { ascending: false })
 
-    try {
-      const { data, error } = await supabase
-        .from('cars')
-        .insert([
-          {
-            title: formData.title,
-            price: Number(formData.price),
-            year: Number(formData.year),
-            mileage: formData.mileage,
-            engine: formData.engine,
-            image: formData.image
-          }
-        ])
-
-      if (error) {
-        console.error('Supabase kļūda:', error)
-        alert('Kļūda saglabājot: ' + error.message)
-      } else {
-        alert('Sludinājums veiksmīgi pievienots!')
-        router.push('/')
-        router.refresh()
-      }
-    } catch (err) {
-      console.error('Nezināma kļūda:', err)
-      alert('Sistēmas kļūda pievienojot sludinājumu.')
-    } finally {
-      setLoading(false)
-    }
+  if (error) {
+    console.error('Kļūda ielādējot auto:', error)
   }
 
   return (
-    <main style={{ maxWidth: '600px', margin: '2rem auto', padding: '0 1rem', fontFamily: 'system-ui, sans-serif' }}>
-      <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#0f172a', textAlign: 'center', marginBottom: '1.5rem' }}>
-        Pievienot jaunu auto sludinājumu
-      </h1>
-
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', backgroundColor: '#ffffff', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
-        
+    <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem', fontFamily: 'system-ui, sans-serif' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#334155' }}>Nosaukums / Modelis</label>
-          <input 
-            type="text" 
-            required 
-            placeholder="Piem., BMW 530d M-Sport" 
-            value={formData.title} 
-            onChange={(e) => setFormData({...formData, title: e.target.value})}
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', boxSizing: 'border-box' }}
-          />
+          <h1 style={{ fontSize: '2.25rem', fontWeight: 'bold', color: '#0f172a', margin: 0 }}>
+            Atrodi savu nākamo auto
+          </h1>
+          <p style={{ color: '#64748b', marginTop: '0.5rem', fontSize: '1.1rem' }}>
+            Lielākais lietoto un jauno automašīnu sludinājumu portāls
+          </p>
         </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#334155' }}>Cena (€)</label>
-            <input 
-              type="number" 
-              required 
-              placeholder="21500" 
-              value={formData.price} 
-              onChange={(e) => setFormData({...formData, price: e.target.value})}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', boxSizing: 'border-box' }}
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#334155' }}>Izlaiduma gads</label>
-            <input 
-              type="number" 
-              required 
-              placeholder="2018" 
-              value={formData.year} 
-              onChange={(e) => setFormData({...formData, year: e.target.value})}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', boxSizing: 'border-box' }}
-            />
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#334155' }}>Nobraukums (km)</label>
-            <input 
-              type="text" 
-              required 
-              placeholder="185 000 km" 
-              value={formData.mileage} 
-              onChange={(e) => setFormData({...formData, mileage: e.target.value})}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', boxSizing: 'border-box' }}
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#334155' }}>Motors</label>
-            <input 
-              type="text" 
-              required 
-              placeholder="3.0 Dīzelis" 
-              value={formData.engine} 
-              onChange={(e) => setFormData({...formData, engine: e.target.value})}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', boxSizing: 'border-box' }}
-            />
-          </div>
-        </div>
-
-        <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#334155' }}>Attēla saite (URL)</label>
-          <input 
-            type="url" 
-            required 
-            placeholder="https://images.unsplash.com/photo-1555215695-3004980ad54e" 
-            value={formData.image} 
-            onChange={(e) => setFormData({...formData, image: e.target.value})}
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', boxSizing: 'border-box' }}
-          />
-        </div>
-
-        <button 
-          type="submit" 
-          disabled={loading}
-          style={{ backgroundColor: loading ? '#94a3b8' : '#22c55e', color: '#ffffff', padding: '0.875rem', borderRadius: '8px', border: 'none', fontSize: '1rem', fontWeight: 'bold', cursor: loading ? 'not-allowed' : 'pointer', marginTop: '1rem' }}
+        <Link 
+          href="/pievienot" 
+          style={{ backgroundColor: '#22c55e', color: '#ffffff', padding: '0.75rem 1.5rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
         >
-          {loading ? 'Saglabā...' : 'Publicēt sludinājumu'}
-        </button>
+          + Pievienot sludinājumu
+        </Link>
+      </div>
 
-      </form>
+      <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1e293b', marginBottom: '1.5rem' }}>
+        Jaunākie sludinājumi
+      </h2>
+
+      {!cars || cars.length === 0 ? (
+        <div style={{ padding: '3rem', textAlign: 'center', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
+          <p style={{ color: '#64748b', fontSize: '1.1rem', marginBottom: '1rem' }}>Pašlaik nav pievienots neviens sludinājums.</p>
+          <Link href="/pievienot" style={{ color: '#22c55e', fontWeight: 'bold', textDecoration: 'none' }}>
+            Esi pirmais un pievieno auto!
+          </Link>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+          {cars.map((car: Car) => (
+            <div key={car.id} style={{ backgroundColor: '#ffffff', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
+              <div style={{ height: '200px', width: '100%', overflow: 'hidden', backgroundColor: '#f1f5f9' }}>
+                <img 
+                  src={car.image} 
+                  alt={car.title} 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              </div>
+              <div style={{ padding: '1.25rem' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f172a', margin: '0 0 0.5rem 0' }}>
+                  {car.title}
+                </h3>
+                <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#22c55e', margin: '0 0 1rem 0' }}>
+                  €{car.price.toLocaleString()}
+                </p>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', fontSize: '0.875rem', color: '#475569' }}>
+                  <span style={{ backgroundColor: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>{car.year}. g.</span>
+                  <span style={{ backgroundColor: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>{car.mileage}</span>
+                  <span style={{ backgroundColor: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>{car.engine}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </main>
   )
 }
