@@ -61,7 +61,7 @@ export default function Home() {
         </Link>
       </div>
 
-      <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1e293b', marginBottom: '1.5rem' }}>
+      <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color '#1e293b', marginBottom: '1.5rem' }}>
         Jaunākie sludinājumi
       </h2>
 
@@ -80,35 +80,41 @@ export default function Home() {
             const imageUrl = car.images && car.images.length > 0 ? car.images[0] : car.image
 
             return (
-              <div key={car.id} style={{ backgroundColor: '#ffffff', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
-                <div style={{ height: '200px', width: '100%', overflow: 'hidden', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {imageUrl ? (
-                    <img 
-                      src={imageUrl} 
-                      alt={car.title} 
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none'
-                      }}
-                    />
-                  ) : (
-                    <span style={{ color: '#94a3b8', fontWeight: 'bold' }}>Nav foto</span>
-                  )}
-                </div>
-                <div style={{ padding: '1.25rem' }}>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f172a', margin: '0 0 0.5rem 0' }}>
-                    {car.title}
-                  </h3>
-                  <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#22c55e', margin: '0 0 1rem 0' }}>
-                    €{car.price ? car.price.toLocaleString() : '0'}
-                  </p>
-                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', fontSize: '0.875rem', color: '#475569' }}>
-                    <span style={{ backgroundColor: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>{car.year}. g.</span>
-                    <span style={{ backgroundColor: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>{car.mileage}</span>
-                    <span style={{ backgroundColor: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>{car.engine}</span>
+              <Link 
+                key={car.id} 
+                href={`/auto/${car.id}`}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0', cursor: 'pointer', transition: 'transform 0.2s' }}>
+                  <div style={{ height: '200px', width: '100%', overflow: 'hidden', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {imageUrl ? (
+                      <img 
+                        src={imageUrl} 
+                        alt={car.title} 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none'
+                        }}
+                      />
+                    ) : (
+                      <span style={{ color: '#94a3b8', fontWeight: 'bold' }}>Nav foto</span>
+                    )}
+                  </div>
+                  <div style={{ padding: '1.25rem' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f172a', margin: '0 0 0.5rem 0' }}>
+                      {car.title}
+                    </h3>
+                    <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#22c55e', margin: '0 0 1rem 0' }}>
+                      €{car.price ? car.price.toLocaleString() : '0'}
+                    </p>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', fontSize: '0.875rem', color: '#475569' }}>
+                      <span style={{ backgroundColor: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>{car.year}. g.</span>
+                      <span style={{ backgroundColor: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>{car.mileage}</span>
+                      <span style={{ backgroundColor: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>{car.engine}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             )
           })}
         </div>
