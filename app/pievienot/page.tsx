@@ -19,18 +19,26 @@ export default function PievienotAuto() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (files && files.length > 10) {
+      alert('Var pievienot maksimāli 10 attēlus!')
+      return
+    }
+
     setLoading(true)
 
     try {
       const uploadedUrls: string[] = []
 
       if (files && files.length > 0) {
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i]
+        // Apstrādājam ne vairāk kā 10 failus
+        const filesToUpload = Array.from(files).slice(0, 10)
+
+        for (let i = 0; i < filesToUpload.length; i++) {
+          const file = filesToUpload[i]
           const fileExt = file.name.split('.').pop()
           const fileName = `${Date.now()}_${i}.${fileExt}`
 
-          // Izmantojam pareizo 'car-images' (ar mazajiem burtiem)
           const { error: uploadError } = await supabase.storage
             .from('car-images')
             .upload(fileName, file, {
@@ -40,11 +48,9 @@ export default function PievienotAuto() {
 
           if (uploadError) {
             console.error('Kļūda augšupielādējot bildi:', uploadError)
-            alert('Neizdevās augšupielādēt bildi: ' + uploadError.message)
             continue
           }
 
-          // Iegūstam pilno publisko saiti
           const { data: urlData } = supabase.storage
             .from('car-images')
             .getPublicUrl(fileName)
@@ -155,7 +161,7 @@ export default function PievienotAuto() {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem', color: '#334155' }}>Pievienot attēlus</label>
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem', color: '#334155' }}>Pievienot attēlus (līdz 10 bildēm)</label>
             <input
               type="file"
               multiple
@@ -163,6 +169,11 @@ export default function PievienotAuto() {
               onChange={(e) => setFiles(e.target.files)}
               style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
             />
+            {files && files.length > 0 && (
+              <p style={{ fontSize: '0.85rem', color: files.length > 10 ? '#ef4444' : '#16a34a', marginTop: '0.25rem' }}>
+                Izvēlēti {files.length} attēli {files.length > 10 ? '(maksimāli atļauti 10!)' : ''}
+              </p>
+            )}
           </div>
 
           <button
@@ -180,7 +191,7 @@ export default function PievienotAuto() {
               marginTop: '1rem',
             }}
           >
-            {loading ? 'Saglabā un ielādē bildes...' : 'Publicēt sludinājumu'}
+            {loading ? 'Pievieno sludinājumu un ielādē bildes...' : 'Publicēt sludinājumu'}
           </button>
         </form>
       </div>
