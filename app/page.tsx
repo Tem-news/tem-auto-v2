@@ -1,146 +1,89 @@
-export default function Home() {
-  const cars = [
-    {
-      id: 1,
-      title: 'BMW 530d M-Sport',
-      year: 2018,
-      mileage: '185 000 km',
-      engine: '3.0 Dīzelis',
-      price: '21 500 €',
-      image: 'https://images.unsplash.com/photo-1556189250-72ba954cfc2b?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 2,
-      title: 'Audi A6 Avant S-Line',
-      year: 2019,
-      mileage: '142 000 km',
-      engine: '2.0 Dīzelis',
-      price: '23 900 €',
-      image: 'https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 3,
-      title: 'Volkswagen Passat B8',
-      year: 2017,
-      mileage: '198 000 km',
-      engine: '2.0 Dīzelis',
-      price: '13 800 €',
-      image: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=600&q=80'
-    }
-  ]
+import Link from 'next/link'
+import { supabase } from './lib/supabase'
+
+export const revalidate = 0 // Nodrošina, ka dati vienmēr atjaunojas uzreiz
+
+interface Car {
+  id: number
+  title: string
+  price: number
+  year: number
+  mileage: string
+  engine: string
+  image: string
+}
+
+export default async function Home() {
+  // Saņemam visus auto no Supabase datubāzes
+  const { data: cars, error } = await supabase
+    .from('cars')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Kļūda ielādējot auto:', error)
+  }
 
   return (
-    <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
-      <section style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 style={{ fontSize: '2.5rem', color: '#0f172a', marginBottom: '0.5rem' }}>
-          Atrodi savu nākamo auto
-        </h1>
-        <p style={{ color: '#64748b', fontSize: '1.1rem' }}>
-          Lielākais un uzticamākais auto sludinājumu portāls
-        </p>
-      </section>
-
-      <div style={{
-        backgroundColor: '#ffffff',
-        padding: '2rem',
-        borderRadius: '12px',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '1rem',
-        alignItems: 'end',
-        marginBottom: '4rem'
-      }}>
+    <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem', fontFamily: 'system-ui, sans-serif' }}>
+      {/* Virsraksta un pogas sekcija */}
+      <div style={{ display: 'flex', justifyContent: 'space-[#0f172a]', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#334155', marginBottom: '0.5rem' }}>
-            Marka
-          </label>
-          <select style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', backgroundColor: '#fff' }}>
-            <option value="">Visas markas</option>
-            <option value="bmw">BMW</option>
-            <option value="audi">Audi</option>
-            <option value="vw">Volkswagen</option>
-            <option value="mercedes">Mercedes-Benz</option>
-            <option value="volvo">Volvo</option>
-          </select>
+          <h1 style={{ fontSize: '2.25rem', fontWeight: 'bold', color: '#0f172a', margin: 0 }}>
+            Atrodi savu nākamo auto
+          </h1>
+          <p style={{ color: '#64748b', marginTop: '0.5rem', fontSize: '1.1rem' }}>
+            Lielākais lietoto un jauno automašīnu sludinājumu portāls
+          </p>
         </div>
-
-        <div>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#334155', marginBottom: '0.5rem' }}>
-            Modelis
-          </label>
-          <input 
-            type="text" 
-            placeholder="Piem., 320, A4, Passat" 
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
-          />
-        </div>
-
-        <div>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#334155', marginBottom: '0.5rem' }}>
-            Cena līdz (€)
-          </label>
-          <input 
-            type="number" 
-            placeholder="Piem., 10000" 
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
-          />
-        </div>
-
-        <button style={{
-          backgroundColor: '#22c55e',
-          color: '#ffffff',
-          padding: '0.75rem 1.5rem',
-          borderRadius: '6px',
-          border: 'none',
-          fontWeight: '600',
-          fontSize: '1rem',
-          cursor: 'pointer'
-        }}>
-          Meklēt auto
-        </button>
+        <Link 
+          href="/pievienot" 
+          style={{ backgroundColor: '#22c55e', color: '#ffffff', padding: '0.75rem 1.5rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+        >
+          + Pievienot sludinājumu
+        </Link>
       </div>
 
-      <section>
-        <h2 style={{ fontSize: '1.75rem', color: '#0f172a', marginBottom: '1.5rem' }}>
-          Jaunākie sludinājumi
-        </h2>
+      {/* Auto saraksts */}
+      <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1e293b', marginBottom: '1.5rem' }}>
+        Jaunākie sludinājumi
+      </h2>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-          gap: '2rem'
-        }}>
-          {cars.map((car) => (
-            <div key={car.id} style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '12px',
-              overflow: 'hidden',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-              border: '1px solid #e2e8f0'
-            }}>
-              <img 
-                src={car.image} 
-                alt={car.title} 
-                style={{ width: '100%', height: '200px', objectFit: 'cover', backgroundColor: '#f1f5f9' }} 
-              />
-              <div style={{ padding: '1.5rem' }}>
-                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', color: '#0f172a' }}>
+      {!cars || cars.length === 0 ? (
+        <div style={{ padding: '3rem', textAlign: 'center', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
+          <p style={{ color: '#64748b', fontSize: '1.1rem', marginBottom: '1rem' }}>Pašlaik nav pievienots neviens sludinājums.</p>
+          <Link href="/pievienot" style={{ color: '#22c55e', fontWeight: 'bold', textDecoration: 'none' }}>
+            Esi pirmais un pievieno auto!
+          </Link>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+          {cars.map((car: Car) => (
+            <div key={car.id} style={{ backgroundColor: '#ffffff', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
+              <div style={{ height: '200px', width: '100%', overflow: 'hidden', backgroundColor: '#f1f5f9' }}>
+                <img 
+                  src={car.image} 
+                  alt={car.title} 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              </div>
+              <div style={{ padding: '1.25rem' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f172a', margin: '0 0 0.5rem 0' }}>
                   {car.title}
                 </h3>
-                <p style={{ color: '#22c55e', fontSize: '1.5rem', fontWeight: 'bold', margin: '0 0 1rem 0' }}>
-                  {car.price}
+                <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#22c55e', margin: '0 0 1rem 0' }}>
+                  €{car.price.toLocaleString()}
                 </p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontSize: '0.875rem' }}>
-                  <span>{car.year}. g.</span>
-                  <span>{car.mileage}</span>
-                  <span>{car.engine}</span>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', fontSize: '0.875rem', color: '#475569' }}>
+                  <span style={{ backgroundColor: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>{car.year}. g.</span>
+                  <span style={{ backgroundColor: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>{car.mileage}</span>
+                  <span style={{ backgroundColor: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>{car.engine}</span>
                 </div>
               </div>
             </div>
           ))}
         </div>
-      </section>
-    </main>
+      )}
+ main   </main>
   )
 }
