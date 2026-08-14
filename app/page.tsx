@@ -61,7 +61,7 @@ export default function Home() {
         </Link>
       </div>
 
-      <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color '#1e293b', marginBottom: '1.5rem' }}>
+      <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1e293b', marginBottom: '1.5rem' }}>
         Jaunākie sludinājumi
       </h2>
 
@@ -85,7 +85,7 @@ export default function Home() {
                 href={`/auto/${car.id}`}
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
-                <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0', cursor: 'pointer', transition: 'transform 0.2s' }}>
+                <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0', cursor: 'pointer' }}>
                   <div style={{ height: '200px', width: '100%', overflow: 'hidden', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {imageUrl ? (
                       <img 
