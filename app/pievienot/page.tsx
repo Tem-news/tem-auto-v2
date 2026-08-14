@@ -30,26 +30,27 @@ export default function PievienotAuto() {
           const fileExt = file.name.split('.').pop()
           const fileName = `${Date.now()}_${i}.${fileExt}`
 
-          // Augšupielādējam uz CAR-IMAGES (ar lielajiem burtiem)
+          // Izmantojam pareizo 'car-images' (ar mazajiem burtiem)
           const { error: uploadError } = await supabase.storage
-            .from('CAR-IMAGES')
+            .from('car-images')
             .upload(fileName, file, {
               cacheControl: '3600',
-              upsert: false,
+              upsert: true
             })
 
           if (uploadError) {
-            console.error('Kļūda augšupielādējot:', uploadError)
+            console.error('Kļūda augšupielādējot bildi:', uploadError)
+            alert('Neizdevās augšupielādēt bildi: ' + uploadError.message)
             continue
           }
 
-          // Dabonam publisko URL
-          const { data } = supabase.storage
-            .from('CAR-IMAGES')
+          // Iegūstam pilno publisko saiti
+          const { data: urlData } = supabase.storage
+            .from('car-images')
             .getPublicUrl(fileName)
 
-          if (data?.publicUrl) {
-            uploadedUrls.push(data.publicUrl)
+          if (urlData && urlData.publicUrl) {
+            uploadedUrls.push(urlData.publicUrl)
           }
         }
       }
