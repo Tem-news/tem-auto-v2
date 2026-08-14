@@ -21,96 +21,107 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchCars() {
-      try {
-        const { data, error } = await supabase
-          .from('cars')
-          .select('*')
-          .order('created_at', { ascending: false })
+      const { data, error } = await supabase
+        .from('cars')
+        .select('*')
+        .order('id', { ascending: false })
 
-        if (error) {
-          console.error('Kļūda saņemot datus:', error)
-        } else if (data) {
-          setCars(data)
-        }
-      } catch (err) {
-        console.error('Kļūda:', err)
-      } finally {
-        setLoading(false)
+      if (error) {
+        console.error('Kļūda ielādējot sludinājumus:', error)
+      } else if (data) {
+        setCars(data)
       }
+      setLoading(false)
     }
 
     fetchCars()
   }, [])
 
+  // Palīgfunkcija korektas bildes saites iegūšanai
+  const getCarImage = (car: Car) => {
+    if (car.images && Array.isArray(car.images) && car.images.length > 0 && car.images[0]) {
+      return car.images[0]
+    }
+    if (car.image && typeof car.image === 'string' && car.image.trim() !== '') {
+      return car.image
+    }
+    return null
+  }
+
+  if (loading) {
+    return <div style={{ padding: '2rem', textAlign: 'center' }}>Ielādē sludinājumus...</div>
+  }
+
   return (
-    <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem', fontFamily: 'system-ui, sans-serif' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h1 style={{ fontSize: '2.25rem', fontWeight: 'bold', color: '#0f172a', margin: 0 }}>
-            Atrodi savu nākamo auto
-          </h1>
-          <p style={{ color: '#64748b', marginTop: '0.5rem', fontSize: '1.1rem' }}>
-            Lielākais lietoto un jauno automašīnu sludinājumu portāls
-          </p>
-        </div>
+    <main style={{ maxWidth: '1200px', margin: '2rem auto', padding: '0 1rem', fontFamily: 'system-ui, sans-serif' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#0f172a', margin: 0 }}>Jaunākie sludinājumi</h1>
         <Link 
           href="/pievienot" 
-          style={{ backgroundColor: '#22c55e', color: '#ffffff', padding: '0.75rem 1.5rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+          style={{ 
+            backgroundColor: '#22c55e', 
+            color: '#ffffff', 
+            padding: '0.75rem 1.25rem', 
+            borderRadius: '8px', 
+            textDecoration: 'none', 
+            fontWeight: 'bold',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)' 
+          }}
         >
           + Pievienot sludinājumu
         </Link>
       </div>
 
-      <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1e293b', marginBottom: '1.5rem' }}>
-        Jaunākie sludinājumi
-      </h2>
-
-      {loading ? (
-        <p style={{ color: '#64748b' }}>Ielādē sludinājumus...</p>
-      ) : cars.length === 0 ? (
-        <div style={{ padding: '3rem', textAlign: 'center', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
-          <p style={{ color: '#64748b', fontSize: '1.1rem', marginBottom: '1rem' }}>Pašlaik nav pievienots neviens sludinājums.</p>
-          <Link href="/pievienot" style={{ color: '#22c55e', fontWeight: 'bold', textDecoration: 'none' }}>
-            Esi pirmais un pievieno auto!
-          </Link>
+      {cars.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b', backgroundColor: '#f8fafc', borderRadius: '12px' }}>
+          Pašlaik nav neviena sludinājuma. Būss pirmais, kas tādu pievieno!
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
           {cars.map((car) => {
-            const imageUrl = car.images && car.images.length > 0 ? car.images[0] : car.image
+            const imageUrl = getCarImage(car)
 
             return (
               <Link 
                 key={car.id} 
-                href={`/auto/${car.id}`}
+                href={`/auto/${car.id}`} 
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
-                <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0', cursor: 'pointer' }}>
-                  <div style={{ height: '200px', width: '100%', overflow: 'hidden', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div 
+                  style={{ 
+                    backgroundColor: '#ffffff', 
+                    borderRadius: '12px', 
+                    overflow: 'hidden', 
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 2px 4px -1px rgba(0,0,0,0.06)',
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ width: '100%', height: '200px', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                     {imageUrl ? (
                       <img 
                         src={imageUrl} 
                         alt={car.title} 
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none'
-                        }}
                       />
                     ) : (
-                      <span style={{ color: '#94a3b8', fontWeight: 'bold' }}>Nav foto</span>
+                      <span style={{ color: '#64748b', fontSize: '0.875rem', fontWeight: 'bold' }}>Nav foto</span>
                     )}
                   </div>
+
                   <div style={{ padding: '1.25rem' }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f172a', margin: '0 0 0.5rem 0' }}>
-                      {car.title}
-                    </h3>
-                    <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#22c55e', margin: '0 0 1rem 0' }}>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: '0 0 0.5rem 0', color: '#0f172a' }}>{car.title}</h2>
+                    <p style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#22c55e', margin: '0 0 1rem 0' }}>
                       €{car.price ? car.price.toLocaleString() : '0'}
                     </p>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', fontSize: '0.875rem', color: '#475569' }}>
-                      <span style={{ backgroundColor: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>{car.year}. g.</span>
-                      <span style={{ backgroundColor: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>{car.mileage}</span>
-                      <span style={{ backgroundColor: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>{car.engine}</span>
+                    
+                    <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.85rem', color: '#64748b', flexWrap: 'wrap' }}>
+                      <span>{car.year}. g.</span>
+                      <span>•</span>
+                      <span>{car.mileage}</span>
+                      <span>•</span>
+                      <span>{car.engine}</span>
                     </div>
                   </div>
                 </div>
