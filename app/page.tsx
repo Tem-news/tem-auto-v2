@@ -1,7 +1,8 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '../lib/supabase'
-
-export const revalidate = 0
 
 interface Car {
   id: number
@@ -14,15 +15,32 @@ interface Car {
   images?: string[]
 }
 
-export default async function Home() {
-  const { data: cars, error } = await supabase
-    .from('cars')
-    .select('*')
-    .order('created_at', { ascending: false })
+export default function Home() {
+  const [cars, setCars] = useState<Car[]>([])
+  const [loading, setLoading] = useState(true)
 
-  if (error) {
-    console.error('Kļūda ielādējot auto:', error)
-  }
+  useEffect(() => {
+    async function fetchCars() {
+      try {
+        const { data, error } = await supabase
+          .from('cars')
+          .select('*')
+          .order('created_at', { ascending: false })
+
+        if (error) {
+          console.error('Kļūda saņemot datus:', error)
+        } else if (data) {
+          setCars(data)
+        }
+      } catch (err) {
+        console.error('Kļūda:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCars()
+  }, [])
 
   return (
     <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem', fontFamily: 'system-ui, sans-serif' }}>
@@ -47,7 +65,9 @@ export default async function Home() {
         Jaunākie sludinājumi
       </h2>
 
-      {!cars || cars.length === 0 ? (
+      {loading ? (
+        <p style={{ color: '#64748b' }}>Ielādē sludinājumus...</p>
+      ) : cars.length === 0 ? (
         <div style={{ padding: '3rem', textAlign: 'center', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
           <p style={{ color: '#64748b', fontSize: '1.1rem', marginBottom: '1rem' }}>Pašlaik nav pievienots neviens sludinājums.</p>
           <Link href="/pievienot" style={{ color: '#22c55e', fontWeight: 'bold', textDecoration: 'none' }}>
@@ -56,8 +76,7 @@ export default async function Home() {
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-          {cars.map((car: Car) => {
-            // Atlasām pirmo pieejamo bildi
+          {cars.map((car) => {
             const imageUrl = car.images && car.images.length > 0 ? car.images[0] : car.image
 
             return (
@@ -69,7 +88,6 @@ export default async function Home() {
                       alt={car.title} 
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       onError={(e) => {
-                        // Ja bildes saite nedarbojas, parādām neitrālu fonu
                         e.currentTarget.style.display = 'none'
                       }}
                     />
