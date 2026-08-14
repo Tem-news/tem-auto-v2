@@ -24,35 +24,37 @@ export default function PievienotAuto() {
     try {
       const uploadedUrls: string[] = []
 
-      // 1. Augšupielādējam visas atlasītās bildes uz Supabase Storage
       if (files && files.length > 0) {
         for (let i = 0; i < files.length; i++) {
           const file = files[i]
           const fileExt = file.name.split('.').pop()
-          const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
-          const filePath = `${fileName}`
+          const fileName = `${Date.now()}_${i}.${fileExt}`
 
+          // 1. Augšupielādējam failu
           const { error: uploadError } = await supabase.storage
             .from('car-images')
-            .upload(filePath, file)
+            .upload(fileName, file, {
+              cacheControl: '3600',
+              upsert: false
+            })
 
           if (uploadError) {
-            console.error('Kļūda augšupielādējot bildi:', uploadError)
+            console.error('Kļūda augšupielādējot:', uploadError)
             continue
           }
 
-          // Dabonam publisko URL
-          const { data: publicUrlData } = supabase.storage
+          // 2. Iegūstam pilnu publisko saiti
+          const { data } = supabase.storage
             .from('car-images')
-            .getPublicUrl(filePath)
+            .getPublicUrl(fileName)
 
-          if (publicUrlData?.publicUrl) {
-            uploadedUrls.push(publicUrlData.publicUrl)
+          if (data?.publicUrl) {
+            uploadedUrls.push(data.publicUrl)
           }
         }
       }
 
-      // 2. Saglabājam datus un bilžu saites datubāzē
+      // 3. Saglabājam datubāzē
       const { error: insertError } = await supabase
         .from('cars')
         .insert([
@@ -62,14 +64,12 @@ export default function PievienotAuto() {
             year: Number(formData.year),
             mileage: formData.mileage,
             engine: formData.engine,
-            image: uploadedUrls[0] || '', // pirmā bilde kā galvenā
-            images: uploadedUrls,          // viss masīvs ar bildēm
+            image: uploadedUrls[0] || '',
+            images: uploadedUrls,
           },
         ])
 
-      if (insertError) {
-        throw insertError
-      }
+      if (insertError) throw insertError
 
       alert('Sludinājums veiksmīgi pievienots!')
       router.push('/')
