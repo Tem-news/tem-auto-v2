@@ -64,7 +64,7 @@ export default function AutoDetalizeti() {
 
   if (loading) {
     return (
-      <div style={{ maxWidth: '800px', margin: '40px auto', padding: '0 20px', textFont: 'sans-serif' }}>
+      <div style={{ maxWidth: '800px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
         <p>Lādējas sludinājuma dati...</p>
       </div>
     )
