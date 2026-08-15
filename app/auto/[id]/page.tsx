@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../lib/supabase'
 
@@ -18,10 +18,8 @@ interface Car {
 
 export default function AutoDetalizeti() {
   const params = useParams()
-  const router = useRouter()
   const [car, setCar] = useState<Car | null>(null)
   const [loading, setLoading] = useState(true)
-  const [deleting, setDeleting] = useState(false)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
 
   useEffect(() => {
@@ -45,23 +43,6 @@ export default function AutoDetalizeti() {
     fetchCar()
   }, [params])
 
-  const handleDelete = async () => {
-    if (!confirm('Vai tiešām vēlies dzēst šo sludinājumu?')) return
-
-    setDeleting(true)
-    const { error } = await supabase
-      .from('cars')
-      .delete()
-      .eq('id', params.id)
-
-    if (error) {
-      alert('Kļūda dzēšot sludinājumu: ' + error.message)
-      setDeleting(false)
-    } else {
-      router.push('/auto')
-    }
-  }
-
   if (loading) {
     return (
       <div style={{ maxWidth: '800px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
@@ -81,7 +62,6 @@ export default function AutoDetalizeti() {
     )
   }
 
-  // Apvienojam galveno attēlu ar papildu attēlu masīvu (ja tādi ir)
   const allImages: string[] = []
   if (car.image) allImages.push(car.image)
   if (car.images && Array.isArray(car.images)) {
@@ -108,39 +88,21 @@ export default function AutoDetalizeti() {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1 style={{ margin: 0, fontSize: '28px' }}>{car.title}</h1>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <Link
-            href={`/auto/${car.id}/edit`}
-            style={{
-              padding: '10px 18px',
-              backgroundColor: '#28a745',
-              color: '#fff',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontWeight: 'bold'
-            }}
-          >
-            ✏️ Rediģēt
-          </Link>
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            style={{
-              padding: '10px 18px',
-              backgroundColor: '#dc3545',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '6px',
-              fontWeight: 'bold',
-              cursor: deleting ? 'not-allowed' : 'pointer'
-            }}
-          >
-            {deleting ? 'Dzēš...' : '🗑️ Dzēst'}
-          </button>
-        </div>
+        <Link
+          href={`/auto/${car.id}/edit`}
+          style={{
+            padding: '10px 18px',
+            backgroundColor: '#28a745',
+            color: '#fff',
+            borderRadius: '6px',
+            textDecoration: 'none',
+            fontWeight: 'bold'
+          }}
+        >
+          ✏️ Rediģēt
+        </Link>
       </div>
 
-      {/* FOTO GALERIJA AR BULTIŅĀM */}
       {allImages.length > 0 ? (
         <div style={{ marginBottom: '30px' }}>
           <div style={{ position: 'relative', width: '100%', height: '480px', backgroundColor: '#f0f0f0', borderRadius: '10px', overflow: 'hidden' }}>
@@ -169,8 +131,7 @@ export default function AutoDetalizeti() {
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'background-color 0.2s'
+                    justifyContent: 'center'
                   }}
                   title="Iepriekšējais attēls"
                 >
@@ -193,8 +154,7 @@ export default function AutoDetalizeti() {
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'background-color 0.2s'
+                    justifyContent: 'center'
                   }}
                   title="Nākamais attēls"
                 >
@@ -216,7 +176,6 @@ export default function AutoDetalizeti() {
             )}
           </div>
 
-          {/* SĪKATTIĒLI (THUMBNAILS) */}
           {allImages.length > 1 && (
             <div style={{ display: 'flex', gap: '10px', marginTop: '12px', overflowX: 'auto', paddingBottom: '5px' }}>
               {allImages.map((img, idx) => (
@@ -255,7 +214,6 @@ export default function AutoDetalizeti() {
         </div>
       )}
 
-      {/* SLUDINĀJUMA INFORMĀCIJA */}
       <div style={{
         backgroundColor: '#f8f9fa',
         padding: '25px',
