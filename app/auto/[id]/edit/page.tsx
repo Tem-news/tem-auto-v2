@@ -5,17 +5,6 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../../lib/supabase'
 
-interface Car {
-  id: number
-  title: string
-  price: number
-  year: number
-  mileage: string
-  engine: string
-  image?: string
-  images?: string[]
-}
-
 export default function EditAuto() {
   const params = useParams()
   const router = useRouter()
@@ -23,6 +12,7 @@ export default function EditAuto() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [uploading, setUploading] = useState(false)
 
   // Formas lauki
   const [title, setTitle] = useState('')
@@ -30,8 +20,9 @@ export default function EditAuto() {
   const [year, setYear] = useState('')
   const [mileage, setMileage] = useState('')
   const [engine, setEngine] = useState('')
-  const [mainImage, setMainImage] = useState('')
-  const [additionalImages, setAdditionalImages] = useState('')
+
+  // Vizuālais attēlu saraksts
+  const [imagesList, setImagesList] = useState<string[]>([])
 
   useEffect(() => {
     async function fetchCar() {
@@ -51,8 +42,16 @@ export default function EditAuto() {
         setYear(data.year ? String(data.year) : '')
         setMileage(data.mileage || '')
         setEngine(data.engine || '')
-        setMainImage(data.image || '')
-        setAdditionalImages(data.images && Array.isArray(data.images) ? data.images.join('\n') : '')
+
+        // Apvienojam galveno bildi un papildu bildes vienā sarakstā
+        const imgs: string[] = []
+        if (data.image) imgs.push(data.image)
+        if (data.images && Array.isArray(data.images)) {
+          data.images.forEach((img: string) => {
+            if (img && !imgs.includes(img)) imgs.push(img)
+          })
+        }
+        setImagesList(imgs)
       }
       setLoading(false)
     }
@@ -60,15 +59,51 @@ export default function EditAuto() {
     fetchCar()
   }, [params])
 
+  // Augšupielādē jaunu bildi uz Supabase Storage
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    setUploading(true)
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`
+
+      const { data, error } = await supabase.storage
+        .from('car-images')
+        .upload(fileName, file)
+
+      if (error) {
+        alert('Kļūda augšupielādējot attēlu: ' + error.message)
+      } else if (data) {
+        const { data: publicUrlData } = supabase.storage
+          .from('car-images')
+          .getPublicUrl(data.path)
+
+        if (publicUrlData?.publicUrl) {
+          setImagesList((prev) => [...prev, publicUrlData.publicUrl])
+        }
+      }
+    }
+
+    setUploading(false)
+    e.target.value = '' // Nometam ievades lauku
+  }
+
+  // Izdzēš bildi no vizuālā saraksta
+  const handleRemoveImage = (indexToRemove: number) => {
+    setImagesList((prev) => prev.filter((_, idx) => idx !== indexToRemove))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
 
-    // Attēlu masīva sagatavošana no teksta lauka
-    const imagesArray = additionalImages
-      .split('\n')
-      .map((url) => url.trim())
-      .filter((url) => url.length > 0)
+    // Pirmā bilde kļūst par galveno `image`, pārējās aiziet uz `images` masīvu
+    const mainImg = imagesList.length > 0 ? imagesList[0] : ''
+    const extraImgs = imagesList.length > 1 ? imagesList.slice(1) : []
 
     const updatedCar = {
       title,
@@ -76,8 +111,8 @@ export default function EditAuto() {
       year: Number(year),
       mileage,
       engine,
-      image: mainImage,
-      images: imagesArray
+      image: mainImg,
+      images: extraImgs
     }
 
     const { error } = await supabase
@@ -112,14 +147,14 @@ export default function EditAuto() {
 
   if (loading) {
     return (
-      <div style={{ maxWidth: '600px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+      <div style={{ maxWidth: '650px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
         <p>Ielādē sludinājuma datus...</p>
       </div>
     )
   }
 
   return (
-    <div style={{ maxWidth: '600px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '650px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
       <Link href={`/auto/${params.id}`} style={{ color: '#0066cc', textDecoration: 'none', display: 'inline-block', marginBottom: '20px' }}>
         ← Atpakaļ uz sludinājumu
       </Link>
@@ -182,31 +217,77 @@ export default function EditAuto() {
           />
         </div>
 
-        <div>
-          <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold' }}>Galvenā attēla URL saite:</label>
-          <input
-            type="url"
-            value={mainImage}
-            onChange={(e) => setMainImage(e.target.value)}
-            placeholder="https://..."
-            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}
-          />
-        </div>
+        {/* VIZUĀLĀ ATTĒLU PĀRVALDĪBAS SADAĻA */}
+        <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '8px', border: '1px solid #e9ecef' }}>
+          <label style={{ display: 'block', marginBottom: '12px', fontWeight: 'bold', fontSize: '16px' }}>
+            Sludinājuma attēli ({imagesList.length}):
+          </label>
 
-        <div>
-          <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold' }}>Papildu attēlu URL saites (katru savā rindiņā):</label>
-          <textarea
-            rows={4}
-            value={additionalImages}
-            onChange={(e) => setAdditionalImages(e.target.value)}
-            placeholder="https://...\nhttps://..."
-            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}
-          />
+          {imagesList.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: '12px', marginBottom: '15px' }}>
+              {imagesList.map((url, idx) => (
+                <div key={idx} style={{ position: 'relative', borderRadius: '6px', overflow: 'hidden', border: '1px solid #ddd', backgroundColor: '#fff' }}>
+                  <img
+                    src={url}
+                    alt={`Bilde ${idx + 1}`}
+                    style={{ width: '100%', height: '85px', objectFit: 'cover', display: 'block' }}
+                  />
+                  {idx === 0 && (
+                    <span style={{ position: 'absolute', top: '4px', left: '4px', backgroundColor: '#0066cc', color: '#fff', fontSize: '10px', padding: '2px 5px', borderRadius: '4px' }}>
+                      Galvenā
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(idx)}
+                    style={{
+                      width: '100%',
+                      padding: '4px',
+                      backgroundColor: '#dc3545',
+                      color: '#fff',
+                      border: 'none',
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    🗑️ Dzēst
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ color: '#6c757d', fontSize: '14px', marginBottom: '15px' }}>Pagaidām nav pievienots neviens attēls.</p>
+          )}
+
+          {/* ATTĒLU PIEVIENOŠANAS POGA */}
+          <label
+            style={{
+              display: 'inline-block',
+              padding: '10px 16px',
+              backgroundColor: uploading ? '#6c757d' : '#0066cc',
+              color: '#fff',
+              borderRadius: '6px',
+              cursor: uploading ? 'not-allowed' : 'pointer',
+              fontWeight: 'bold',
+              fontSize: '14px'
+            }}
+          >
+            {uploading ? 'Augšupielādē attēlus...' : '➕ Pievienot jaunu attēlu'}
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleFileUpload}
+              disabled={uploading}
+              style={{ display: 'none' }}
+            />
+          </label>
         </div>
 
         <button
           type="submit"
-          disabled={saving}
+          disabled={saving || uploading}
           style={{
             marginTop: '10px',
             padding: '12px',
@@ -216,7 +297,7 @@ export default function EditAuto() {
             borderRadius: '6px',
             fontWeight: 'bold',
             fontSize: '16px',
-            cursor: saving ? 'not-allowed' : 'pointer'
+            cursor: saving || uploading ? 'not-allowed' : 'pointer'
           }}
         >
           {saving ? 'Saglabā izmaiņas...' : '💾 Saglabā izmaiņas'}
@@ -230,6 +311,7 @@ export default function EditAuto() {
           Ja vēlies pavisam izdzēst šo sludinājumu no datubāzes:
         </p>
         <button
+          type="button"
           onClick={handleDelete}
           disabled={deleting}
           style={{
