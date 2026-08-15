@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../../lib/supabase'
+
 interface Car {
   id: number
   title: string
@@ -15,12 +16,22 @@ interface Car {
   images?: string[]
 }
 
-export default function AutoDetalizeti() {
+export default function EditAuto() {
   const params = useParams()
   const router = useRouter()
-  const [car, setCar] = useState<Car | null>(null)
+
   const [loading, setLoading] = useState(true)
-  const [activeImageIndex, setActiveImageIndex] = useState(0)
+  const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
+  // Formas lauki
+  const [title, setTitle] = useState('')
+  const [price, setPrice] = useState('')
+  const [year, setYear] = useState('')
+  const [mileage, setMileage] = useState('')
+  const [engine, setEngine] = useState('')
+  const [mainImage, setMainImage] = useState('')
+  const [additionalImages, setAdditionalImages] = useState('')
 
   useEffect(() => {
     async function fetchCar() {
@@ -33,224 +44,209 @@ export default function AutoDetalizeti() {
         .single()
 
       if (error) {
-        console.error('Kļūda iegūstot auto:', error)
-      } else {
-        setCar(data)
+        alert('Kļūda iegūstot datus: ' + error.message)
+      } else if (data) {
+        setTitle(data.title || '')
+        setPrice(data.price ? String(data.price) : '')
+        setYear(data.year ? String(data.year) : '')
+        setMileage(data.mileage || '')
+        setEngine(data.engine || '')
+        setMainImage(data.image || '')
+        setAdditionalImages(data.images && Array.isArray(data.images) ? data.images.join('\n') : '')
       }
       setLoading(false)
     }
 
     fetchCar()
-  }, [params?.id])
+  }, [params])
 
-  if (loading) {
-    return <div style={{ padding: '2rem', textAlign: 'center' }}>Ielādē sludinājumu...</div>
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSaving(true)
+
+    // Attēlu masīva sagatavošana no teksta lauka
+    const imagesArray = additionalImages
+      .split('\n')
+      .map((url) => url.trim())
+      .filter((url) => url.length > 0)
+
+    const updatedCar = {
+      title,
+      price: Number(price),
+      year: Number(year),
+      mileage,
+      engine,
+      image: mainImage,
+      images: imagesArray
+    }
+
+    const { error } = await supabase
+      .from('cars')
+      .update(updatedCar)
+      .eq('id', params.id)
+
+    if (error) {
+      alert('Kļūda saglabājot izmaiņas: ' + error.message)
+      setSaving(false)
+    } else {
+      router.push(`/auto/${params.id}`)
+    }
   }
 
-  if (!car) {
+  const handleDelete = async () => {
+    if (!confirm('Vai tiešām vēlies neatgriezeniski dzēst šo sludinājumu?')) return
+
+    setDeleting(true)
+    const { error } = await supabase
+      .from('cars')
+      .delete()
+      .eq('id', params.id)
+
+    if (error) {
+      alert('Kļūda dzēšot sludinājumu: ' + error.message)
+      setDeleting(false)
+    } else {
+      router.push('/auto')
+    }
+  }
+
+  if (loading) {
     return (
-      <div style={{ maxWidth: '800px', margin: '2rem auto', padding: '0 1rem', textAlign: 'center' }}>
-        <h2>Sludinājums nav atrasts!</h2>
-        <Link href="/" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 'bold' }}>
-          ← Atpakaļ uz sākumu
-        </Link>
+      <div style={{ maxWidth: '600px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+        <p>Ielādē sludinājuma datus...</p>
       </div>
     )
   }
 
-  // Apkopojam visas bildes
-  let allImages: string[] = []
-  if (car.images && Array.isArray(car.images) && car.images.length > 0) {
-    allImages = car.images.filter(img => typeof img === 'string' && img.trim() !== '')
-  }
-  if (allImages.length === 0 && car.image && typeof car.image === 'string' && car.image.trim() !== '') {
-    allImages = [car.image]
-  }
-
-  const currentImage = allImages[activeImageIndex] || null
-
-  // Pāreja uz iepriekšējo bildi
-  const handlePrevImage = () => {
-    setActiveImageIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1))
-  }
-
-  // Pāreja uz nākamo bildi
-  const handleNextImage = () => {
-    setActiveImageIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1))
-  }
-
   return (
-    <main style={{ maxWidth: '900px', margin: '2rem auto', padding: '0 1rem', fontFamily: 'system-ui, sans-serif' }}>
-      
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <Link href="/" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 'bold' }}>
-          ← Atpakaļ uz sludinājumiem
-        </Link>
+    <div style={{ maxWidth: '600px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+      <Link href={`/auto/${params.id}`} style={{ color: '#0066cc', textDecoration: 'none', display: 'inline-block', marginBottom: '20px' }}>
+        ← Atpakaļ uz sludinājumu
+      </Link>
 
-        {/* Pārvaldības poga īpašniekam / moderatoram */}
-        <Link 
-          href={`/auto/${car.id}/edit`}
+      <h1 style={{ marginBottom: '30px', fontSize: '26px' }}>Rediģēt sludinājumu</h1>
+
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+        <div>
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold' }}>Nosaukums / Marka un Modelis:</label>
+          <input
+            type="text"
+            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}
+          />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold' }}>Cena (€):</label>
+          <input
+            type="number"
+            required
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}
+          />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold' }}>Izlaiduma gads:</label>
+          <input
+            type="number"
+            required
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}
+          />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold' }}>Nobraukums (piem., 180 000 km):</label>
+          <input
+            type="text"
+            required
+            value={mileage}
+            onChange={(e) => setMileage(e.target.value)}
+            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}
+          />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold' }}>Dzinējs (piem., 2.0 Dīzelis):</label>
+          <input
+            type="text"
+            required
+            value={engine}
+            onChange={(e) => setEngine(e.target.value)}
+            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}
+          />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold' }}>Galvenā attēla URL saite:</label>
+          <input
+            type="url"
+            value={mainImage}
+            onChange={(e) => setMainImage(e.target.value)}
+            placeholder="https://..."
+            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}
+          />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold' }}>Papildu attēlu URL saites (katru savā rindiņā):</label>
+          <textarea
+            rows={4}
+            value={additionalImages}
+            onChange={(e) => setAdditionalImages(e.target.value)}
+            placeholder="https://...\nhttps://..."
+            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={saving}
           style={{
-            backgroundColor: '#0f172a',
-            color: '#ffffff',
-            padding: '0.625rem 1.25rem',
-            borderRadius: '8px',
-            textDecoration: 'none',
+            marginTop: '10px',
+            padding: '12px',
+            backgroundColor: '#28a745',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '6px',
             fontWeight: 'bold',
-            fontSize: '0.875rem',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            fontSize: '16px',
+            cursor: saving ? 'not-allowed' : 'pointer'
           }}
         >
-          ⚙️ Rediģēt sludinājumu / Pārvaldīt
-        </Link>
+          {saving ? 'Saglabā izmaiņas...' : '💾 Saglabā izmaiņas'}
+        </button>
+      </form>
+
+      {/* DZĒŠANAS SADAĻA FORMAS APAKŠĀ */}
+      <div style={{ marginTop: '50px', paddingTop: '20px', borderTop: '2px solid #fee2e2' }}>
+        <h3 style={{ color: '#dc3545', marginTop: 0, fontSize: '18px' }}>Bīstamā zona</h3>
+        <p style={{ color: '#6c757d', fontSize: '14px', marginBottom: '15px' }}>
+          Ja vēlies pavisam izdzēst šo sludinājumu no datubāzes:
+        </p>
+        <button
+          onClick={handleDelete}
+          disabled={deleting}
+          style={{
+            width: '100%',
+            padding: '12px',
+            backgroundColor: '#dc3545',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '6px',
+            fontWeight: 'bold',
+            fontSize: '16px',
+            cursor: deleting ? 'not-allowed' : 'pointer'
+          }}
+        >
+          {deleting ? 'Dzēš sludinājumu...' : '🗑️ Dzēst sludinājumu'}
+        </button>
       </div>
-
-      <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
-        
-        {/* Galvenais lielais attēls ar bultiņām */}
-        <div style={{ width: '100%', height: '480px', backgroundColor: '#0f172a', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', position: 'relative' }}>
-          
-          {currentImage ? (
-            <img 
-              src={currentImage} 
-              alt={car.title} 
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-            />
-          ) : (
-            <div style={{ color: '#94a3b8', fontWeight: 'bold' }}>Šim sludinājumam nav pievienots neviens attēls</div>
-          )}
-
-          {/* Navigācijas Bultiņas uz Pašas Bildes */}
-          {allImages.length > 1 && (
-            <>
-              {/* Bultiņa pa kreisi */}
-              <button
-                onClick={handlePrevImage}
-                style={{
-                  position: 'absolute',
-                  left: '1rem',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  backgroundColor: 'rgba(15, 23, 42, 0.65)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '50%',
-                  width: '44px',
-                  height: '44px',
-                  fontSize: '1.5rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'background-color 0.2s',
-                  userSelect: 'none',
-                }}
-                title="Iepriekšējā bilde"
-              >
-                ‹
-              </button>
-
-              {/* Bultiņa pa labi */}
-              <button
-                onClick={handleNextImage}
-                style={{
-                  position: 'absolute',
-                  right: '1rem',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  backgroundColor: 'rgba(15, 23, 42, 0.65)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '50%',
-                  width: '44px',
-                  height: '44px',
-                  fontSize: '1.5rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'background-color 0.2s',
-                  userSelect: 'none',
-                }}
-                title="Nākamā bilde"
-              >
-                ›
-              </button>
-
-              {/* Bilžu skaitītājs bildes stūrī (piem. 2/5) */}
-              <div style={{
-                position: 'absolute',
-                bottom: '1rem',
-                right: '1rem',
-                backgroundColor: 'rgba(15, 23, 42, 0.75)',
-                color: 'white',
-                padding: '0.25rem 0.75rem',
-                borderRadius: '12px',
-                fontSize: '0.85rem',
-                fontWeight: 'bold'
-              }}>
-                {activeImageIndex + 1} / {allImages.length}
-              </div>
-            </>
-          )}
-
-        </div>
-
-        {/* Mazo attēlu josla (Thumbnails) */}
-        {allImages.length > 1 && (
-          <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
-            {allImages.map((img, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActiveImageIndex(idx)}
-                style={{
-                  border: activeImageIndex === idx ? '3px solid #22c55e' : '2px solid #e2e8f0',
-                  borderRadius: '6px',
-                  overflow: 'hidden',
-                  cursor: 'pointer',
-                  padding: 0,
-                  backgroundColor: '#f8fafc',
-                  width: '90px',
-                  height: '65px',
-                  flexShrink: 0,
-                  opacity: activeImageIndex === idx ? 1 : 0.6,
-                  transition: 'opacity 0.2s, border 0.2s'
-                }}
-              >
-                <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div style={{ marginTop: '1rem' }}>
-          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0 0 0.5rem 0', color: '#0f172a' }}>{car.title}</h1>
-          <p style={{ fontSize: '1.75rem', fontWeight: 'bold', color: '#22c55e', margin: 0 }}>
-            €{car.price ? car.price.toLocaleString() : '0'}
-          </p>
-        </div>
-
-        <hr style={{ border: 'none', borderTop: '1px solid #e2e8f0', margin: '1.5rem 0' }} />
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-          <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '8px' }}>
-            <span style={{ fontSize: '0.875rem', color: '#64748b', display: 'block' }}>Izlaiduma gads</span>
-            <strong style={{ fontSize: '1.125rem', color: '#0f172a' }}>{car.year}. gads</strong>
-          </div>
-          <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '8px' }}>
-            <span style={{ fontSize: '0.875rem', color: '#64748b', display: 'block' }}>Nobraukums</span>
-            <strong style={{ fontSize: '1.125rem', color: '#0f172a' }}>{car.mileage}</strong>
-          </div>
-          <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '8px' }}>
-            <span style={{ fontSize: '0.875rem', color: '#64748b', display: 'block' }}>Motors</span>
-            <strong style={{ fontSize: '1.125rem', color: '#0f172a' }}>{car.engine}</strong>
-          </div>
-        </div>
-
-      </div>
-    </main>
+    </div>
   )
 }
