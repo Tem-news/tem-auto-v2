@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { supabase } from '../lib/supabase' // Pielāgo: '../lib/supabase' ja app/page.tsx vai '../../lib/supabase' ja app/auto/page.tsx
+import { supabase } from '../lib/supabase'.
 
 interface Car {
   id: number
