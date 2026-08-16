@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../lib/supabase'
+
 export default function AutoLapa() {
   const params = useParams()
   const id = params?.id
@@ -36,165 +37,133 @@ export default function AutoLapa() {
   }, [id])
 
   if (loading) {
-    return (
-      <div style={{ maxWidth: '900px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
-        <p>Ielādē sludinājumu...</p>
-      </div>
-    )
+    return <div className="p-8 text-center text-gray-500">Ielādē datus...</div>
   }
 
   if (!car) {
-    return (
-      <div style={{ maxWidth: '900px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
-        <p>Sludinājums netika atrasts.</p>
-        <Link href="/">← Atpakaļ uz sarakstu</Link>
-      </div>
-    )
+    return <div className="p-8 text-center text-red-500">Auto netika atrasts!</div>
   }
 
-  // Apstrādājam bildes galerijai
-  let imagesList: string[] = []
-  if (car.images && Array.isArray(car.images) && car.images.length > 0) {
-    imagesList = car.images
-  } else if (car.image) {
-    imagesList = [car.image]
+  // Izveidojam pilnu attēlu sarakstu (titulbilde + pārējās)
+  const allImages: string[] = []
+  if (car.image) allImages.push(car.image)
+  if (Array.isArray(car.images)) {
+    car.images.forEach((img: string) => {
+      if (img && !allImages.includes(img)) {
+        allImages.push(img)
+      }
+    })
+  }
+
+  const currentIndex = allImages.indexOf(selectedImage)
+
+  const handlePrev = () => {
+    if (allImages.length === 0) return
+    const prevIndex = (currentIndex - 1 + allImages.length) % allImages.length
+    setSelectedImage(allImages[prevIndex])
+  }
+
+  const handleNext = () => {
+    if (allImages.length === 0) return
+    const nextIndex = (currentIndex + 1) % allImages.length
+    setSelectedImage(allImages[nextIndex])
   }
 
   return (
-    <div style={{ maxWidth: '900px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif', color: '#333' }}>
-      
-      {/* Augšējā navigācija */}
-      <div style={{ marginBottom: '20px' }}>
-        <Link href="/" style={{ color: '#0066cc', textDecoration: 'none', fontWeight: 'bold' }}>
-          ← Atpakaļ uz sludinājumiem
-        </Link>
+    <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-6">
+      <Link href="/" className="inline-block text-blue-600 hover:underline mb-2">
+        ← Atpakaļ uz sarakstu
+      </Link>
+
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {car.make} {car.model} ({car.year})
+          </h1>
+          <p className="text-gray-500">{car.location || 'Latvija'}</p>
+        </div>
+        <div className="text-right">
+          <div className="text-3xl font-bold text-green-600">€ {car.price}</div>
+          <Link
+            href={`/auto/${id}/edit`}
+            className="inline-block mt-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition"
+          >
+            Rediģēt sludinājumu
+          </Link>
+        </div>
       </div>
 
-      {/* Virsraksts un Cena */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '20px' }}>
-        <h1 style={{ margin: 0, fontSize: '28px' }}>{car.title || `${car.make} ${car.model}`}</h1>
-        <span style={{ fontSize: '28px', fontWeight: 'bold', color: '#2e7d32' }}>
-          {car.price ? `${car.price} €` : 'Cena pēc vienošanās'}
-        </span>
-      </div>
-
-      {/* Galvenā Bilde un Galerija */}
-      {imagesList.length > 0 && (
-        <div style={{ marginBottom: '30px' }}>
-          <div style={{
-            width: '100%',
-            height: '450px',
-            backgroundColor: '#000',
-            borderRadius: '10px',
-            overflow: 'hidden',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: '12px'
-          }}>
+      {/* Attēlu galerija ar bultiņām */}
+      <div className="space-y-4">
+        <div className="relative w-full h-[350px] md:h-[500px] bg-black rounded-xl overflow-hidden flex items-center justify-center group">
+          {selectedImage ? (
             <img
-              src={selectedImage || imagesList[0]}
-              alt={car.title || 'Auto bildes'}
-              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+              src={selectedImage}
+              alt={`${car.make} ${car.model}`}
+              className="w-full h-full object-contain"
             />
-          </div>
+          ) : (
+            <div className="text-gray-400">Nav attēla</div>
+          )}
 
-          {/* Maziņie attēli (Thumbnails) */}
-          {imagesList.length > 1 && (
-            <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
-              {imagesList.map((imgUrl, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(imgUrl)}
-                  style={{
-                    border: (selectedImage || imagesList[0]) === imgUrl ? '3px solid #0066cc' : '1px solid #ccc',
-                    borderRadius: '6px',
-                    padding: 0,
-                    cursor: 'pointer',
-                    background: 'none',
-                    overflow: 'hidden',
-                    width: '90px',
-                    height: '60px',
-                    flexShrink: 0
-                  }}
-                >
-                  <img src={imgUrl} alt={`Foto ${index + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </button>
-              ))}
-            </div>
+          {/* Sānu bultiņas */}
+          {allImages.length > 1 && (
+            <>
+              <button
+                onClick={handlePrev}
+                className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white p-3 rounded-full transition opacity-80 group-hover:opacity-100"
+                aria-label="Iepriekšējais attēls"
+              >
+                ❮
+              </button>
+              <button
+                onClick={handleNext}
+                className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white p-3 rounded-full transition opacity-80 group-hover:opacity-100"
+                aria-label="Nākamais attēls"
+              >
+                ❯
+              </button>
+            </>
           )}
         </div>
-      )}
 
-      {/* Informācijas bloki */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
-        
-        {/* Tehniskā specifikācija */}
-        <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px', border: '1px solid #e9ecef' }}>
-          <h3 style={{ marginTop: 0, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            📋 Tehniskā specifikācija
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {car.make && <div><strong>Marka:</strong> {car.make}</div>}
-            {car.model && <div><strong>Modelis:</strong> {car.model}</div>}
-            <div><strong>Gads:</strong> {car.year || '-'}</div>
-            <div><strong>Nobraukums:</strong> {car.mileage || '-'}</div>
-            <div><strong>Dzinējs:</strong> {car.engine || '-'}</div>
-            <div><strong>Degvielas tips:</strong> {car.fuel_type || car.fuelType || '-'}</div>
+        {/* Mazās bildes (iekļaujot titulbildi) */}
+        {allImages.length > 1 && (
+          <div className="flex gap-3 overflow-x-auto pb-2">
+            {allImages.map((img, idx) => (
+              <button
+                key={idx}
+                onClick={() => setSelectedImage(img)}
+                className={`relative flex-shrink-0 w-24 h-20 rounded-lg overflow-hidden border-2 transition ${
+                  selectedImage === img ? 'border-blue-600 scale-105' : 'border-transparent opacity-70 hover:opacity-100'
+                }`}
+              >
+                <img src={img} alt="Sīktēls" className="w-full h-full object-cover" />
+              </button>
+            ))}
           </div>
-        </div>
-
-        {/* Kontakti */}
-        <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px', border: '1px solid #e9ecef' }}>
-          <h3 style={{ marginTop: 0, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            📞 Pārdevēja kontakti
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div>
-              <span style={{ color: '#666', fontSize: '14px', display: 'block' }}>Tālrunis:</span>
-              <strong style={{ fontSize: '18px', color: '#0066cc' }}>
-                {car.phone ? car.phone : 'Tālruņa numurs nav norādīts'}
-              </strong>
-            </div>
-            {car.location && (
-              <div>
-                <span style={{ color: '#666', fontSize: '14px', display: 'block' }}>Atrašanās vieta:</span>
-                <strong>📍 {car.location}</strong>
-              </div>
-            )}
-          </div>
-        </div>
-
+        )}
       </div>
 
-      {/* Apraksta sekcija */}
-      {car.description && (
-        <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '10px', border: '1px solid #e9ecef', marginBottom: '30px' }}>
-          <h3 style={{ marginTop: 0, marginBottom: '12px' }}>📝 Apraksts</h3>
-          <p style={{ whiteSpace: 'pre-line', lineHeight: '1.6', margin: 0, color: '#444' }}>
-            {car.description}
+      {/* Informācija un apraksts */}
+      <div className="grid md:grid-cols-3 gap-6 pt-4">
+        <div className="md:col-span-2 space-y-4">
+          <h2 className="text-xl font-semibold text-gray-800">Apraksts</h2>
+          <p className="text-gray-700 whitespace-pre-line leading-relaxed bg-gray-50 p-4 rounded-xl border">
+            {car.description || 'Apraksts nav pievienots.'}
           </p>
         </div>
-      )}
 
-      {/* Rediģēšanas poga */}
-      <div style={{ marginTop: '20px' }}>
-        <Link
-          href={`/auto/${id}/edit`}
-          style={{
-            display: 'inline-block',
-            padding: '12px 24px',
-            backgroundColor: '#ffc107',
-            color: '#212529',
-            textDecoration: 'none',
-            borderRadius: '6px',
-            fontWeight: 'bold'
-          }}
-        >
-          ✏️ Rediģēt sludinājumu
-        </Link>
+        <div className="bg-gray-50 p-5 rounded-xl border space-y-3 h-fit">
+          <h3 className="font-semibold text-gray-800 border-b pb-2">Specifikācija</h3>
+          <div className="text-sm space-y-2 text-gray-600">
+            <div className="flex justify-between"><span>Nobraukums:</span> <span className="font-medium text-gray-900">{car.mileage ? `${car.mileage} km` : '-'}</span></div>
+            <div className="flex justify-between"><span>Dzinējs:</span> <span className="font-medium text-gray-900">{car.engine || '-'}</span></div>
+            <div className="flex justify-between"><span>Degviela:</span> <span className="font-medium text-gray-900">{car.fuelType || '-'}</span></div>
+            <div className="flex justify-between"><span>Tālrunis:</span> <span className="font-medium text-gray-900">{car.phone || '-'}</span></div>
+          </div>
+        </div>
       </div>
-
     </div>
   )
 }
