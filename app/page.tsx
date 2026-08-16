@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
 import { supabase } from '../lib/supabase'
 
@@ -11,6 +11,7 @@ interface Car {
   year: number
   mileage: string
   engine: string
+  fuelType?: string
   image?: string
   images?: string[]
 }
@@ -18,6 +19,12 @@ interface Car {
 export default function AutoSaraksts() {
   const [cars, setCars] = useState<Car[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Filtru stāvokļi (states)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
+  const [minYear, setMinYear] = useState('')
+  const [selectedFuel, setSelectedFuel] = useState('Visi')
 
   useEffect(() => {
     async function fetchCars() {
@@ -37,6 +44,7 @@ export default function AutoSaraksts() {
     fetchCars()
   }, [])
 
+  // Attēla ieguve
   const getDisplayImage = (car: Car) => {
     if (car.image && car.image.trim() !== '') {
       return car.image
@@ -50,6 +58,47 @@ export default function AutoSaraksts() {
     return null
   }
 
+  // Filtrēšanas loģika
+  const filteredCars = useMemo(() => {
+    return cars.filter((car) => {
+      // 1. Meklēšanas frāze nosaukumā
+      if (
+        searchQuery &&
+        !car.title.toLowerCase().includes(searchQuery.toLowerCase())
+      ) {
+        return false
+      }
+
+      // 2. Maksomālā cena
+      if (maxPrice && car.price > Number(maxPrice)) {
+        return false
+      }
+
+      // 3. Minimālais gads
+      if (minYear && car.year < Number(minYear)) {
+        return false
+      }
+
+      // 4. Degvielas tips (ja norādīts sludinājumā vai dzinēja aprakstā)
+      if (selectedFuel !== 'Visi') {
+        const fuel = (car.fuelType || car.engine || '').toLowerCase()
+        if (!fuel.includes(selectedFuel.toLowerCase())) {
+          return false
+        }
+      }
+
+      return true
+    })
+  }, [cars, searchQuery, maxPrice, minYear, selectedFuel])
+
+  // Filtru notīrīšana
+  const handleClearFilters = () => {
+    setSearchQuery('')
+    setMaxPrice('')
+    setMinYear('')
+    setSelectedFuel('Visi')
+  }
+
   if (loading) {
     return (
       <div style={{ maxWidth: '1000px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
@@ -60,7 +109,8 @@ export default function AutoSaraksts() {
 
   return (
     <div style={{ maxWidth: '1000px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+      {/* Galvene */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <h1 style={{ margin: 0, fontSize: '28px' }}>TemAuto Sludinājumi</h1>
         <Link
           href="/auto/new"
@@ -77,11 +127,166 @@ export default function AutoSaraksts() {
         </Link>
       </div>
 
-      {cars.length === 0 ? (
-        <p>Pagaidām nav pievienots neviens sludinājums.</p>
+      {/* Meklēšanas un filtrēšanas josla */}
+      <div
+        style={{
+          backgroundColor: '#f8f9fa',
+          border: '1px solid #e9ecef',
+          borderRadius: '10px',
+          padding: '20px',
+          marginBottom: '30px',
+          boxShadow: '0 2px 5px rgba(0,0,0,0.03)'
+        }}
+      >
+        <div style={{ fontWeight: 'bold', marginBottom: '12px', fontSize: '16px', color: '#333' }}>
+          🔍 Meklēt un filtrēt
+        </div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: '12px',
+            alignItems: 'end'
+          }}
+        >
+          {/* Meklēšana pēc nosaukuma */}
+          <div>
+            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>
+              Marka / Modelis
+            </label>
+            <input
+              type="text"
+              placeholder="Pim., Audi A4..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                border: '1px solid #ccc',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+
+          {/* Maksomālā cena */}
+          <div>
+            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>
+              Cena līdz (€)
+            </label>
+            <input
+              type="number"
+              placeholder="Pim., 5000"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                border: '1px solid #ccc',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+
+          {/* Minimālais gads */}
+          <div>
+            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>
+              Gads no
+            </label>
+            <input
+              type="number"
+              placeholder="Pim., 2015"
+              value={minYear}
+              onChange={(e) => setMinYear(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                border: '1px solid #ccc',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+
+          {/* Degviela */}
+          <div>
+            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>
+              Degviela
+            </label>
+            <select
+              value={selectedFuel}
+              onChange={(e) => setSelectedFuel(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                border: '1px solid #ccc',
+                fontSize: '14px',
+                backgroundColor: '#fff',
+                boxSizing: 'border-box'
+              }}
+            >
+              <option value="Visi">Visi dzinēji</option>
+              <option value="Dīzelis">Dīzelis</option>
+              <option value="Benzīns">Benzīns</option>
+              <option value="Hibrīds">Hibrīds</option>
+              <option value="Elektro">Elektro</option>
+            </select>
+          </div>
+
+          {/* Pogas resetam */}
+          <div>
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                border: '1px solid #ccc',
+                backgroundColor: '#e9ecef',
+                color: '#333',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                cursor: 'pointer'
+              }}
+            >
+              Notīrīt
+            </button>
+          </div>
+        </div>
+
+        <div style={{ marginTop: '12px', fontSize: '13px', color: '#666' }}>
+          Atrodis {filteredCars.length} no {cars.length} sludinājumiem
+        </div>
+      </div>
+
+      {/* Sludinājumu saraksts */}
+      {filteredCars.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '40px 0', color: '#666' }}>
+          <p style={{ fontSize: '18px', margin: '0 0 10px 0' }}>Saskaņā ar izvēlētajiem filtriem neviens auto netika atrasts.</p>
+          <button
+            onClick={handleClearFilters}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#0066cc',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: 'bold'
+            }}
+          >
+            Rādīt visus sludinājumus
+          </button>
+        </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
-          {cars.map((car) => {
+          {filteredCars.map((car) => {
             const displayImg = getDisplayImage(car)
 
             return (
@@ -98,8 +303,7 @@ export default function AutoSaraksts() {
                   overflow: 'hidden',
                   backgroundColor: '#fff',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                  cursor: 'pointer',
-                  transition: 'transform 0.15s ease, box-shadow 0.15s ease'
+                  cursor: 'pointer'
                 }}
               >
                 {/* Attēls */}
@@ -130,7 +334,6 @@ export default function AutoSaraksts() {
                     <div><strong>Dzinējs:</strong> {car.engine}</div>
                   </div>
 
-                  {/* Vizuālā poga (tagad visa karte strādā kā saite) */}
                   <div
                     style={{
                       marginTop: 'auto',
