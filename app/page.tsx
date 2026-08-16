@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { supabase } from '../../lib/supabase' // Ja pamatlapā app/page.tsx, tad parādi '../lib/supabase'
+import { supabase } from '../lib/supabase'
 
 interface Car {
   id: number
