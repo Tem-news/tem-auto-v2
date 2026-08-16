@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../lib/supabase' // Pielāgo: '../lib/supabase' ja app/page.tsx vai '../../lib/supabase' ja app/auto/page.tsx
 
 interface Car {
   id: number
@@ -37,13 +37,10 @@ export default function AutoSaraksts() {
     fetchCars()
   }, [])
 
-  // Funkcija, kas atrod un atgriež pirmo pieejamo bildi
   const getDisplayImage = (car: Car) => {
-    // 1. Pārbaudām pamata `image` lauku
     if (car.image && car.image.trim() !== '') {
       return car.image
     }
-    // 2. Ja `image` nav, ņemam pirmo no `images` masīva
     if (car.images && Array.isArray(car.images) && car.images.length > 0) {
       const firstExtra = car.images[0]
       if (firstExtra && firstExtra.trim() !== '') {
@@ -88,18 +85,24 @@ export default function AutoSaraksts() {
             const displayImg = getDisplayImage(car)
 
             return (
-              <div
+              <Link
                 key={car.id}
+                href={`/auto/${car.id}`}
                 style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  display: 'flex',
+                  flexDirection: 'column',
                   border: '1px solid #e0e0e0',
                   borderRadius: '10px',
                   overflow: 'hidden',
                   backgroundColor: '#fff',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                  display: 'flex',
-                  flexDirection: 'column'
+                  cursor: 'pointer',
+                  transition: 'transform 0.15s ease, box-shadow 0.15s ease'
                 }}
               >
+                {/* Attēls */}
                 <div style={{ height: '180px', width: '100%', backgroundColor: '#f0f0f0', overflow: 'hidden' }}>
                   {displayImg ? (
                     <img
@@ -114,8 +117,9 @@ export default function AutoSaraksts() {
                   )}
                 </div>
 
+                {/* Dati */}
                 <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-                  <h3 style={{ margin: '0 0 10px 0', fontSize: '18px' }}>{car.title}</h3>
+                  <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', color: '#111' }}>{car.title}</h3>
                   <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#28a745', marginBottom: '12px' }}>
                     {car.price} €
                   </div>
@@ -126,8 +130,8 @@ export default function AutoSaraksts() {
                     <div><strong>Dzinējs:</strong> {car.engine}</div>
                   </div>
 
-                  <Link
-                    href={`/auto/${car.id}`}
+                  {/* Vizuālā poga (tagad visa karte strādā kā saite) */}
+                  <div
                     style={{
                       marginTop: 'auto',
                       padding: '10px',
@@ -135,14 +139,13 @@ export default function AutoSaraksts() {
                       color: '#fff',
                       textAlign: 'center',
                       borderRadius: '6px',
-                      textDecoration: 'none',
                       fontWeight: 'bold'
                     }}
                   >
                     Apskatīt
-                  </Link>
+                  </div>
                 </div>
-              </div>
+              </Link>
             )
           })}
         </div>
