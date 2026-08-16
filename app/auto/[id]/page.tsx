@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '../../lib/supabase'
+import { supabase } from '@/lib/supabase'
 export default function AutoLapa() {
   const params = useParams()
   const id = params?.id
