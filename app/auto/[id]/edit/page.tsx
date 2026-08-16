@@ -27,33 +27,39 @@ export default function RedigetAuto() {
     if (!id) return
 
     async function fetchCar() {
-      const { data, error } = await supabase
-        .from('cars')
-        .select('*')
-        .eq('id', id)
-        .single()
+      try {
+        const { data, error } = await supabase
+          .from('cars')
+          .select('*')
+          .eq('id', id)
+          .single()
 
-      if (error) {
-        console.error('Kļūda ielādējot auto:', error)
-      } else if (data) {
-        setMake(data.make || '')
-        setModel(data.model || '')
-        setYear(data.year || '')
-        setPrice(data.price || '')
-        setPhone(data.phone || '')
-        setDescription(data.description || '')
+        if (error) {
+          console.error('Kļūda ielādējot auto:', error)
+          alert('Kļūda ielādējot datus: ' + error.message)
+        } else if (data) {
+          setMake(data.make || '')
+          setModel(data.model || '')
+          setYear(data.year || '')
+          setPrice(data.price ? String(data.price) : '')
+          setPhone(data.phone || '')
+          setDescription(data.description || '')
 
-        // Apvienojam galveno bildi un pārējās bildes masīvā
-        const allImgs: string[] = []
-        if (data.image) allImgs.push(data.image)
-        if (Array.isArray(data.images)) {
-          data.images.forEach((img: string) => {
-            if (img && !allImgs.includes(img)) allImgs.push(img)
-          })
+          // Apvienojam galveno bildi un pārējās bildes masīvā
+          const allImgs: string[] = []
+          if (data.image) allImgs.push(data.image)
+          if (Array.isArray(data.images)) {
+            data.images.forEach((img: string) => {
+              if (img && !allImgs.includes(img)) allImgs.push(img)
+            })
+          }
+          setImages(allImgs)
         }
-        setImages(allImgs)
+      } catch (err: any) {
+        console.error('Neidentificēta kļūda:', err)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
 
     fetchCar()
@@ -79,6 +85,7 @@ export default function RedigetAuto() {
 
       if (error) {
         console.error('Kļūda augšupielādējot bildi:', error)
+        alert('Kļūda augšupielādējot attēlu: ' + error.message)
       } else {
         const { data: publicUrlData } = supabase.storage
           .from('car-images')
@@ -112,26 +119,36 @@ export default function RedigetAuto() {
     e.preventDefault()
     setSaving(true)
 
-    const mainImage = images.length > 0 ? images[0] : ''
-    const otherImages = images.length > 1 ? images.slice(1) : []
+    try {
+      const mainImage = images.length > 0 ? images[0] : ''
+      const otherImages = images.length > 1 ? images.slice(1) : []
 
-    const { error } = await supabase
-      .from('cars')
-      .update({
-        price: Number(price),
+      const updatedFields: any = {
+        price: price ? Number(price) : null,
         phone,
         description,
         image: mainImage,
         images: otherImages
-      })
-      .eq('id', id)
+      }
 
-    setSaving(false)
+      const { error } = await supabase
+        .from('cars')
+        .update(updatedFields)
+        .eq('id', id)
 
-    if (error) {
-      alert('Kļūda saglabājot izmaiņas: ' + error.message)
-    } else {
-      router.push(`/auto/${id}`)
+      if (error) {
+        console.error('Supabase atjaunināšanas kļūda:', error)
+        alert('Kļūda saglabājot izmaiņas: ' + error.message)
+      } else {
+        alert('Izmaiņas veiksmīgi saglabātas!')
+        router.push(`/auto/${id}`)
+        router.refresh()
+      }
+    } catch (err: any) {
+      console.error('Kļūda saglabāšanas laikā:', err)
+      alert('Nezināma kļūda saglabājot: ' + (err.message || err))
+    } finally {
+      setSaving(false)
     }
   }
 
