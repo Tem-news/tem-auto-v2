@@ -44,7 +44,6 @@ export default function AutoLapa() {
     return <div style={{ padding: '32px', textAlign: 'center', color: '#ef4444' }}>Auto netika atrasts!</div>
   }
 
-  // Apvienojam visas bildes vienā masīvā
   const allImages: string[] = []
   if (car.image) allImages.push(car.image)
   if (Array.isArray(car.images)) {
@@ -75,7 +74,6 @@ export default function AutoLapa() {
         ← Atpakaļ uz sarakstu
       </Link>
 
-      {/* Virsraksts un Cena */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e7eb', paddingBottom: '16px', marginBottom: '20px' }}>
         <div>
           <h1 style={{ fontSize: '28px', margin: 0, color: '#111827' }}>
@@ -94,9 +92,8 @@ export default function AutoLapa() {
         </div>
       </div>
 
-      {/* Galvenais attēls ar bultiņām */}
       <div style={{ marginBottom: '20px' }}>
-        <div style={{ position: 'relative', width: '100%', height: '450px', backgroundColor: '#000', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyCenter: 'center' }}>
+        <div style={{ position: 'relative', width: '100%', height: '450px', backgroundColor: '#000', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {selectedImage ? (
             <img
               src={selectedImage}
@@ -125,7 +122,6 @@ export default function AutoLapa() {
           )}
         </div>
 
-        {/* Mazās bildes apačā */}
         {allImages.length > 1 && (
           <div style={{ display: 'flex', gap: '10px', marginTop: '12px', overflowX: 'auto', paddingBottom: '8px' }}>
             {allImages.map((img, idx) => (
@@ -151,7 +147,6 @@ export default function AutoLapa() {
         )}
       </div>
 
-      {/* Apraksts un Dati */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', paddingTop: '16px' }}>
         <div style={{ backgroundColor: '#f9fafb', padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
           <h2 style={{ fontSize: '18px', marginTop: 0, color: '#1f2937' }}>Apraksts</h2>
