@@ -40,17 +40,28 @@ export default function EditAuto() {
         alert('Kļūda iegūstot datus: ' + error.message)
       } else if (data) {
         // Mēģinām sadalīt title, ja tur bija "Marka Modelis"
-        const titleParts = (data.title || '').split(' ')
+        const titleParts = (data.title || '').trim().split(' ')
         setMake(data.make || titleParts[0] || '')
         setModel(data.model || titleParts.slice(1).join(' ') || '')
 
         setPrice(data.price ? String(data.price) : '')
         setYear(data.year ? String(data.year) : '')
         setMileage(data.mileage || '')
-        
-        // Mēģinām atdalīt engine no fuelType, ja tie bija apvienoti
-        setEngineSize(data.engine_size || data.engine || '')
-        setFuelType(data.fuel_type || 'Dīzelis')
+
+        // Mēģinām sadalīt engine (piem., "2.0 Dīzelis")
+        const engineStr = data.engine_size || data.engine || ''
+        setEngineSize(engineStr.replace(/Dīzelis|Benzīns|Hibrīds|Elektro|Benzīns \/ Gāze/gi, '').trim())
+        if (data.fuel_type) {
+          setFuelType(data.fuel_type)
+        } else if (engineStr.includes('Benzīns')) {
+          setFuelType('Benzīns')
+        } else if (engineStr.includes('Hibrīds')) {
+          setFuelType('Hibrīds')
+        } else if (engineStr.includes('Elektro')) {
+          setFuelType('Elektro')
+        } else {
+          setFuelType('Dīzelis')
+        }
 
         // Attēlu ielāde
         const imgs: string[] = []
@@ -106,7 +117,7 @@ export default function EditAuto() {
     setImagesList((prev) => prev.filter((_, idx) => idx !== indexToRemove))
   }
 
-  // Bīdīt bildi pa kreisi (uz labāku pozīciju)
+  // Bīdīt bildi pa kreisi
   const moveImageLeft = (index: number) => {
     if (index === 0) return
     const updated = [...imagesList]
@@ -130,25 +141,26 @@ export default function EditAuto() {
     e.preventDefault()
     setSaving(true)
 
-    // Pirmā bilde vienmēr kļūst par galveno titulbildi
+    // Pirmā bilde kļūst par galveno
     const mainImg = imagesList.length > 0 ? imagesList[0] : ''
     const extraImgs = imagesList.length > 1 ? imagesList.slice(1) : []
 
     const fullTitle = `${make} ${model}`.trim()
     const fullEngine = `${engineSize} ${fuelType}`.trim()
 
-    const updatedCar = {
+    // Pamata dati, kas garantēti ir datubāzē
+    const updatedCar: Record<string, any> = {
       title: fullTitle,
-      make,
-      model,
       price: Number(price),
       year: Number(year),
-      mileage,
+      mileage: mileage,
       engine: fullEngine,
-      engine_size: engineSize,
-      fuel_type: fuelType,
       image: mainImg,
-      images: extraImgs
+      images: extraImgs,
+      make: make,
+      model: model,
+      engine_size: engineSize,
+      fuel_type: fuelType
     }
 
     const { error } = await supabase
@@ -161,6 +173,7 @@ export default function EditAuto() {
       setSaving(false)
     } else {
       router.push(`/auto/${params.id}`)
+      router.refresh()
     }
   }
 
@@ -178,6 +191,7 @@ export default function EditAuto() {
       setDeleting(false)
     } else {
       router.push('/auto')
+      router.refresh()
     }
   }
 
@@ -265,7 +279,7 @@ export default function EditAuto() {
               required
               value={engineSize}
               onChange={(e) => setEngineSize(e.target.value)}
-              placeholder="Piem., 2.0 TDI"
+              placeholder="Piem., 2.0"
               style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}
             />
           </div>
@@ -309,7 +323,6 @@ export default function EditAuto() {
                     </span>
                   )}
 
-                  {/* Bultiņas secības mainīšanai */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#eee', padding: '2px' }}>
                     <button
                       type="button"
