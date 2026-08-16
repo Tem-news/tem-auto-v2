@@ -22,9 +22,9 @@ export default function AutoSaraksts() {
   const [cars, setCars] = useState<Car[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Filtru stāvokļi (states)
-  const [selectedMake, setSelectedMake] = useState('Visas markas')
-  const [selectedModel, setSelectedModel] = useState('Visi modeļi')
+  // Filtru stāvokļi (states) - tagad tie ir tekstveida lauki ar rakstīšanas iespēju!
+  const [searchMake, setSearchMake] = useState('')
+  const [searchModel, setSearchModel] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
   const [minYear, setMinYear] = useState('')
   const [selectedFuel, setSelectedFuel] = useState('Visi dzinēji')
@@ -61,11 +61,11 @@ export default function AutoSaraksts() {
     return null
   }
 
-  // 1. Dinamiski iegūstam visas unikālās Markas no esošajiem sludinājumiem
+  // Populsārākās/datubāzē esošās Markas priekšā teikšanai
   const availableMakes = useMemo(() => {
-    const makesSet = new Set<string>()
+    const defaultMakes = ['Audi', 'BMW', 'Ford', 'Honda', 'Hyundai', 'Kia', 'Lexus', 'Mazda', 'Mercedes-Benz', 'Nissan', 'Opel', 'Peugeot', 'Porsche', 'Renault', 'Seat', 'Skoda', 'Subaru', 'Toyota', 'Volkswagen', 'Volvo']
+    const makesSet = new Set<string>(defaultMakes)
     cars.forEach((car) => {
-      // Izmantojam lauku `make` vai mēģinām paņemt pirmo vārdu no `title`
       const makeName = car.make || car.title.split(' ')[0]
       if (makeName) {
         makesSet.add(makeName.trim())
@@ -74,15 +74,12 @@ export default function AutoSaraksts() {
     return Array.from(makesSet).sort()
   }, [cars])
 
-  // 2. Dinamiski iegūstam Modeļus atkarībā no izvēlētās markas
+  // Modeļi priekšā teikšanai no esošajiem auto
   const availableModels = useMemo(() => {
-    if (selectedMake === 'Visas markas') return []
-
     const modelsSet = new Set<string>()
     cars.forEach((car) => {
       const carMake = car.make || car.title.split(' ')[0]
-      if (carMake && carMake.toLowerCase() === selectedMake.toLowerCase()) {
-        // Izmantojam lauku `model` vai atlikušo no `title`
+      if (!searchMake || (carMake && carMake.toLowerCase().includes(searchMake.toLowerCase()))) {
         const carModel = car.model || car.title.replace(carMake, '').trim()
         if (carModel) {
           modelsSet.add(carModel)
@@ -90,27 +87,21 @@ export default function AutoSaraksts() {
       }
     })
     return Array.from(modelsSet).sort()
-  }, [cars, selectedMake])
+  }, [cars, searchMake])
 
   // Filtrēšanas loģika
   const filteredCars = useMemo(() => {
     return cars.filter((car) => {
       const carMake = (car.make || car.title.split(' ')[0] || '').toLowerCase()
-      const carModel = (car.model || car.title || '').toLowerCase()
+      const carTitle = car.title.toLowerCase()
 
-      // Markas filtrs
-      if (
-        selectedMake !== 'Visas markas' &&
-        carMake !== selectedMake.toLowerCase()
-      ) {
+      // Markas filtrs (pārbauda vai satur ierakstīto tekstu)
+      if (searchMake && !carMake.includes(searchMake.toLowerCase()) && !carTitle.includes(searchMake.toLowerCase())) {
         return false
       }
 
       // Modeļa filtrs
-      if (
-        selectedModel !== 'Visi modeļi' &&
-        !carModel.includes(selectedModel.toLowerCase())
-      ) {
+      if (searchModel && !carTitle.includes(searchModel.toLowerCase())) {
         return false
       }
 
@@ -134,12 +125,12 @@ export default function AutoSaraksts() {
 
       return true
     })
-  }, [cars, selectedMake, selectedModel, maxPrice, minYear, selectedFuel])
+  }, [cars, searchMake, searchModel, maxPrice, minYear, selectedFuel])
 
   // Filtru notīrīšana
   const handleClearFilters = () => {
-    setSelectedMake('Visas markas')
-    setSelectedModel('Visi modeļi')
+    setSearchMake('')
+    setSearchModel('')
     setMaxPrice('')
     setMinYear('')
     setSelectedFuel('Visi dzinēji')
@@ -185,7 +176,7 @@ export default function AutoSaraksts() {
         }}
       >
         <div style={{ fontWeight: 'bold', marginBottom: '12px', fontSize: '16px', color: '#333' }}>
-          🔍 Priekšā teikšanas filtrs
+          🔍 Meklēšana ar auto-pabeigšanu (ieraksti tekstu)
         </div>
         <div
           style={{
@@ -195,17 +186,17 @@ export default function AutoSaraksts() {
             alignItems: 'end'
           }}
         >
-          {/* Markas izvēle */}
+          {/* Markas ievade ar datalist priekšā teikšanai */}
           <div>
             <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>
-              Marka
+              Marka (piem., Ford)
             </label>
-            <select
-              value={selectedMake}
-              onChange={(e) => {
-                setSelectedMake(e.target.value)
-                setSelectedModel('Visi modeļi') // Nomainot marku, atiestata modeli
-              }}
+            <input
+              type="text"
+              list="makes-list"
+              placeholder="Ieraksti marku..."
+              value={searchMake}
+              onChange={(e) => setSearchMake(e.target.value)}
               style={{
                 width: '100%',
                 padding: '8px 12px',
@@ -215,43 +206,40 @@ export default function AutoSaraksts() {
                 backgroundColor: '#fff',
                 boxSizing: 'border-box'
               }}
-            >
-              <option value="Visas markas">Visas markas</option>
+            />
+            <datalist id="makes-list">
               {availableMakes.map((make) => (
-                <option key={make} value={make}>
-                  {make}
-                </option>
+                <option key={make} value={make} />
               ))}
-            </select>
+            </datalist>
           </div>
 
-          {/* Modeļa izvēle (aktīva tikai ja izvēlēta marka) */}
+          {/* Modeļa ievade ar datalist */}
           <div>
             <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>
               Modelis
             </label>
-            <select
-              value={selectedModel}
-              disabled={selectedMake === 'Visas markas'}
-              onChange={(e) => setSelectedModel(e.target.value)}
+            <input
+              type="text"
+              list="models-list"
+              placeholder="Ieraksti modeli..."
+              value={searchModel}
+              onChange={(e) => setSearchModel(e.target.value)}
               style={{
                 width: '100%',
                 padding: '8px 12px',
                 borderRadius: '6px',
                 border: '1px solid #ccc',
                 fontSize: '14px',
-                backgroundColor: selectedMake === 'Visas markas' ? '#e9ecef' : '#fff',
-                cursor: selectedMake === 'Visas markas' ? 'not-allowed' : 'pointer',
+                backgroundColor: '#fff',
                 boxSizing: 'border-box'
               }}
-            >
-              <option value="Visi modeļi">Visi modeļi</option>
+            />
+            <datalist id="models-list">
               {availableModels.map((model) => (
-                <option key={model} value={model}>
-                  {model}
-                </option>
+                <option key={model} value={model} />
               ))}
-            </select>
+            </datalist>
           </div>
 
           {/* Maksomālā cena */}
