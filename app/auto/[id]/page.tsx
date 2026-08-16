@@ -37,14 +37,14 @@ export default function AutoLapa() {
   }, [id])
 
   if (loading) {
-    return <div className="p-8 text-center text-gray-500">Ielādē datus...</div>
+    return <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280' }}>Ielādē datus...</div>
   }
 
   if (!car) {
-    return <div className="p-8 text-center text-red-500">Auto netika atrasts!</div>
+    return <div style={{ padding: '32px', textAlign: 'center', color: '#ef4444' }}>Auto netika atrasts!</div>
   }
 
-  // Izveidojam pilnu attēlu sarakstu (titulbilde + pārējās)
+  // Apvienojam visas bildes vienā masīvā
   const allImages: string[] = []
   if (car.image) allImages.push(car.image)
   if (Array.isArray(car.images)) {
@@ -70,56 +70,54 @@ export default function AutoLapa() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-6">
-      <Link href="/" className="inline-block text-blue-600 hover:underline mb-2">
+    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
+      <Link href="/" style={{ color: '#2563eb', textDecoration: 'none', display: 'inline-block', marginBottom: '16px' }}>
         ← Atpakaļ uz sarakstu
       </Link>
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-4">
+      {/* Virsraksts un Cena */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e7eb', paddingBottom: '16px', marginBottom: '20px' }}>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 style={{ fontSize: '28px', margin: 0, color: '#111827' }}>
             {car.make} {car.model} ({car.year})
           </h1>
-          <p className="text-gray-500">{car.location || 'Latvija'}</p>
+          <p style={{ margin: '4px 0 0 0', color: '#6b7280' }}>{car.location || 'Latvija'}</p>
         </div>
-        <div className="text-right">
-          <div className="text-3xl font-bold text-green-600">€ {car.price}</div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#16a34a' }}>€ {car.price}</div>
           <Link
             href={`/auto/${id}/edit`}
-            className="inline-block mt-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition"
+            style={{ display: 'inline-block', marginTop: '8px', padding: '8px 16px', backgroundColor: '#f3f4f6', color: '#374151', borderRadius: '6px', textDecoration: 'none', fontSize: '14px' }}
           >
             Rediģēt sludinājumu
           </Link>
         </div>
       </div>
 
-      {/* Attēlu galerija ar bultiņām */}
-      <div className="space-y-4">
-        <div className="relative w-full h-[350px] md:h-[500px] bg-black rounded-xl overflow-hidden flex items-center justify-center group">
+      {/* Galvenais attēls ar bultiņām */}
+      <div style={{ marginBottom: '20px' }}>
+        <div style={{ position: 'relative', width: '100%', height: '450px', backgroundColor: '#000', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyCenter: 'center' }}>
           {selectedImage ? (
             <img
               src={selectedImage}
               alt={`${car.make} ${car.model}`}
-              className="w-full h-full object-contain"
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
             />
           ) : (
-            <div className="text-gray-400">Nav attēla</div>
+            <div style={{ color: '#9ca3af', width: '100%', textAlign: 'center' }}>Nav attēla</div>
           )}
 
-          {/* Sānu bultiņas */}
           {allImages.length > 1 && (
             <>
               <button
                 onClick={handlePrev}
-                className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white p-3 rounded-full transition opacity-80 group-hover:opacity-100"
-                aria-label="Iepriekšējais attēls"
+                style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', fontSize: '18px' }}
               >
                 ❮
               </button>
               <button
                 onClick={handleNext}
-                className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white p-3 rounded-full transition opacity-80 group-hover:opacity-100"
-                aria-label="Nākamais attēls"
+                style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', fontSize: '18px' }}
               >
                 ❯
               </button>
@@ -127,40 +125,48 @@ export default function AutoLapa() {
           )}
         </div>
 
-        {/* Mazās bildes (iekļaujot titulbildi) */}
+        {/* Mazās bildes apačā */}
         {allImages.length > 1 && (
-          <div className="flex gap-3 overflow-x-auto pb-2">
+          <div style={{ display: 'flex', gap: '10px', marginTop: '12px', overflowX: 'auto', paddingBottom: '8px' }}>
             {allImages.map((img, idx) => (
               <button
                 key={idx}
                 onClick={() => setSelectedImage(img)}
-                className={`relative flex-shrink-0 w-24 h-20 rounded-lg overflow-hidden border-2 transition ${
-                  selectedImage === img ? 'border-blue-600 scale-105' : 'border-transparent opacity-70 hover:opacity-100'
-                }`}
+                style={{
+                  border: selectedImage === img ? '3px solid #2563eb' : '1px solid #d1d5db',
+                  borderRadius: '8px',
+                  padding: 0,
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  width: '90px',
+                  height: '65px',
+                  flexShrink: 0,
+                  backgroundColor: '#fff'
+                }}
               >
-                <img src={img} alt="Sīktēls" className="w-full h-full object-cover" />
+                <img src={img} alt="Sīktēls" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* Informācija un apraksts */}
-      <div className="grid md:grid-cols-3 gap-6 pt-4">
-        <div className="md:col-span-2 space-y-4">
-          <h2 className="text-xl font-semibold text-gray-800">Apraksts</h2>
-          <p className="text-gray-700 whitespace-pre-line leading-relaxed bg-gray-50 p-4 rounded-xl border">
+      {/* Apraksts un Dati */}
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', paddingTop: '16px' }}>
+        <div style={{ backgroundColor: '#f9fafb', padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
+          <h2 style={{ fontSize: '18px', marginTop: 0, color: '#1f2937' }}>Apraksts</h2>
+          <p style={{ color: '#4b5563', lineHeight: '1.6', whiteSpace: 'pre-line', margin: 0 }}>
             {car.description || 'Apraksts nav pievienots.'}
           </p>
         </div>
 
-        <div className="bg-gray-50 p-5 rounded-xl border space-y-3 h-fit">
-          <h3 className="font-semibold text-gray-800 border-b pb-2">Specifikācija</h3>
-          <div className="text-sm space-y-2 text-gray-600">
-            <div className="flex justify-between"><span>Nobraukums:</span> <span className="font-medium text-gray-900">{car.mileage ? `${car.mileage} km` : '-'}</span></div>
-            <div className="flex justify-between"><span>Dzinējs:</span> <span className="font-medium text-gray-900">{car.engine || '-'}</span></div>
-            <div className="flex justify-between"><span>Degviela:</span> <span className="font-medium text-gray-900">{car.fuelType || '-'}</span></div>
-            <div className="flex justify-between"><span>Tālrunis:</span> <span className="font-medium text-gray-900">{car.phone || '-'}</span></div>
+        <div style={{ backgroundColor: '#f9fafb', padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', height: 'fit-content' }}>
+          <h3 style={{ fontSize: '16px', marginTop: 0, borderBottom: '1px solid #e5e7eb', paddingBottom: '8px', color: '#1f2937' }}>Specifikācija</h3>
+          <div style={{ fontSize: '14px', color: '#4b5563', lineHeight: '2' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Nobraukums:</span> <strong>{car.mileage ? `${car.mileage} km` : '-'}</strong></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Dzinējs:</span> <strong>{car.engine || '-'}</strong></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Degviela:</span> <strong>{car.fuelType || '-'}</strong></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Tālrunis:</span> <strong>{car.phone || '-'}</strong></div>
           </div>
         </div>
       </div>
