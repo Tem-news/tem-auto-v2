@@ -56,7 +56,7 @@ export default function PievienotAuto() {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
-      if (!file.type.startsWith('image/')) continue // Tikai bildes
+      if (!file.type.startsWith('image/')) continue
 
       const fileExt = file.name.split('.').pop()
       const fileName = `${Math.random()}.${fileExt}`
@@ -138,20 +138,23 @@ export default function PievienotAuto() {
     try {
       const mainImage = images.length > 0 ? images[0] : ''
       const otherImages = images.length > 1 ? images.slice(1) : []
+      const autoTitle = `${make.trim()} ${model.trim()}${year ? ` (${year})` : ''}`
 
       const newCar: any = {
-  make: make.trim(),
-  model: model.trim(),
-  year: year ? Number(year) : null,
-  price: Number(price),
-  mileage: mileage ? Number(mileage) : null,
-  engine: engine.trim(),
-  fuel_type: fuelType, // Nomainām 'fuelType' uz 'fuel_type'
-  phone: phone.trim(),
-  description: description.trim(),
-  image: mainImage,
-  images: otherImages
-}
+        title: autoTitle,
+        make: make.trim(),
+        model: model.trim(),
+        year: year ? Number(year) : null,
+        price: Number(price),
+        mileage: mileage ? Number(mileage) : null,
+        engine: engine.trim(),
+        fuelType: fuelType,
+        fuel_type: fuelType,
+        phone: phone.trim(),
+        description: description.trim(),
+        image: mainImage,
+        images: otherImages
+      }
 
       const { data, error } = await supabase
         .from('cars')
