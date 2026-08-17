@@ -140,18 +140,18 @@ export default function PievienotAuto() {
       const otherImages = images.length > 1 ? images.slice(1) : []
 
       const newCar: any = {
-        make: make.trim(),
-        model: model.trim(),
-        year: year ? Number(year) : null,
-        price: Number(price),
-        mileage: mileage ? Number(mileage) : null,
-        engine: engine.trim(),
-        fuelType,
-        phone: phone.trim(),
-        description: description.trim(),
-        image: mainImage,
-        images: otherImages
-      }
+  make: make.trim(),
+  model: model.trim(),
+  year: year ? Number(year) : null,
+  price: Number(price),
+  mileage: mileage ? Number(mileage) : null,
+  engine: engine.trim(),
+  fuel_type: fuelType, // Nomainām 'fuelType' uz 'fuel_type'
+  phone: phone.trim(),
+  description: description.trim(),
+  image: mainImage,
+  images: otherImages
+}
 
       const { data, error } = await supabase
         .from('cars')
