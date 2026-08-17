@@ -37,7 +37,11 @@ export default function PievienotAutoPage() {
   const [gearbox, setGearbox] = useState('Automāts')
   const [description, setDescription] = useState('')
 
-  // Vairāku bilžu stāvoklis
+  // Kontakti
+  const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
+
+  // Bildes
   const [images, setImages] = useState<{ file: File; preview: string }[]>([])
   const [isDragging, setIsDragging] = useState(false)
 
@@ -47,6 +51,7 @@ export default function PievienotAutoPage() {
         router.push('/login')
       } else {
         setUser(session.user)
+        if (session.user.email) setEmail(session.user.email)
       }
     })
   }, [router])
@@ -95,7 +100,6 @@ export default function PievienotAutoPage() {
 
       const uploadedUrls: string[] = []
 
-      // Augšupielādē visas bildes
       for (const img of images) {
         const fileExt = img.file.name.split('.').pop()
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
@@ -127,8 +131,10 @@ export default function PievienotAutoPage() {
           fuel,
           gearbox,
           description,
-          image_url: mainImageUrl, // Titulbilde (pirmā bilde)
-          images: uploadedUrls,    // Visi fotoattēli
+          phone,
+          email,
+          image_url: mainImageUrl,
+          images: uploadedUrls,
           user_id: user.id,
         },
       ])
@@ -152,7 +158,7 @@ export default function PievienotAutoPage() {
         Pievienot jaunu auto sludinājumu
       </h1>
       <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>
-        Aizpildiet informāciju par savu spēkratu un pievienojiet fotoattēlus.
+        Aizpildiet informāciju par spēkratu un pārdevēja kontaktus.
       </p>
 
       {errorMsg && (
@@ -262,7 +268,36 @@ export default function PievienotAutoPage() {
           </div>
         </div>
 
-        {/* VAIRĀKU BILŽU IELĀDES ZONA */}
+        {/* KONTAKTINFORMĀCIJA */}
+        <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+          <h3 style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '12px', color: '#0f172a' }}>Pārdevēja kontakti</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '13px', color: '#334155' }}>Tālruņa numurs</label>
+              <input
+                type="tel"
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+371 20000000"
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '13px', color: '#334155' }}>E-pasts</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="vards@epasts.lv"
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* BILŽU IELĀDE */}
         <div>
           <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>
             Auto fotoattēli (Pirmā būs titulbilde)
@@ -301,9 +336,8 @@ export default function PievienotAutoPage() {
             </label>
           </div>
 
-          {/* BILŽU SARAKSTS UN SECĪBAS MAIŅA */}
           {images.length > 0 && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '12px' }}>
               {images.map((img, index) => (
                 <div
                   key={index}
@@ -317,25 +351,25 @@ export default function PievienotAutoPage() {
                   }}
                 >
                   {index === 0 && (
-                    <span style={{ position: 'absolute', top: '8px', left: '8px', backgroundColor: '#16a34a', color: '#fff', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold', zIndex: 2 }}>
+                    <span style={{ position: 'absolute', top: '6px', left: '6px', backgroundColor: '#16a34a', color: '#fff', fontSize: '9px', padding: '2px 4px', borderRadius: '4px', fontWeight: 'bold', zIndex: 2 }}>
                       Titulbilde
                     </span>
                   )}
-                  <img src={img.preview} alt={`Foto ${index + 1}`} style={{ width: '100%', height: '90px', objectFit: 'cover', borderRadius: '4px' }} />
+                  <img src={img.preview} alt={`Foto ${index + 1}`} style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '4px' }} />
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
                     <button
                       type="button"
                       disabled={index === 0}
                       onClick={() => moveImage(index, 'left')}
-                      style={{ padding: '2px 6px', fontSize: '12px', cursor: index === 0 ? 'default' : 'pointer', opacity: index === 0 ? 0.3 : 1 }}
+                      style={{ padding: '2px 6px', fontSize: '11px', cursor: index === 0 ? 'default' : 'pointer', opacity: index === 0 ? 0.3 : 1 }}
                     >
                       ←
                     </button>
                     <button
                       type="button"
                       onClick={() => removeImage(index)}
-                      style={{ color: '#ef4444', border: 'none', background: 'none', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold' }}
+                      style={{ color: '#ef4444', border: 'none', background: 'none', fontSize: '11px', cursor: 'pointer', fontWeight: 'bold' }}
                     >
                       ✕
                     </button>
@@ -343,7 +377,7 @@ export default function PievienotAutoPage() {
                       type="button"
                       disabled={index === images.length - 1}
                       onClick={() => moveImage(index, 'right')}
-                      style={{ padding: '2px 6px', fontSize: '12px', cursor: index === images.length - 1 ? 'default' : 'pointer', opacity: index === images.length - 1 ? 0.3 : 1 }}
+                      style={{ padding: '2px 6px', fontSize: '11px', cursor: index === images.length - 1 ? 'default' : 'pointer', opacity: index === images.length - 1 ? 0.3 : 1 }}
                     >
                       →
                     </button>
