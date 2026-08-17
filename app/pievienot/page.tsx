@@ -4,23 +4,23 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
-// Marku un modeļu datubāze
+// Marku un modeļu datubāze ar pareizi noformētām atslēgām
 const CAR_DATA: Record<string, string[]> = {
-  Audi: ['A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'Q3', 'Q5', 'Q7', 'Q8', 'TT', 'E-Tron'],
-  BMW: ['1. sērija', '2. sērija', '3. sērija', '4. sērija', '5. sērija', '6. sērija', '7. sērija', 'X1', 'X3', 'X5', 'X6', 'X7', 'i4', 'iX'],
-  Mercedes-Benz: ['A-Klase', 'C-Klase', 'E-Klase', 'S-Klase', 'CLA', 'CLS', 'GLA', 'GLC', 'GLE', 'GLS', 'G-Klase', 'EQE', 'EQS'],
-  Volkswagen: ['Golf', 'Passat', 'Arteon', 'Tiguan', 'Touareg', 'Touran', 'Sharan', 'Polo', 'ID.3', 'ID.4'],
-  Volvo: ['S60', 'S90', 'V60', 'V90', 'XC40', 'XC60', 'XC90'],
-  Toyota: ['Avensis', 'Camry', 'Corolla', 'RAV4', 'Land Cruiser', 'Yaris', 'C-HR', 'Prius'],
-  Honda: ['Accord', 'Civic', 'CR-V', 'HR-V'],
-  Ford: ['Focus', 'Mondeo', 'Fiesta', 'Kuga', 'Mustang', 'Explorer', 'Galaxy', 'S-Max'],
-  Skoda: ['Octavia', 'Superb', 'Kodiaq', 'Karoq', 'Fabia'],
-  Hyundai: ['i30', 'i40', 'Tucson', 'Santa Fe', 'Ioniq 5', 'Kona'],
-  Kia: ['Ceed', 'Optima', 'Sportage', 'Sorento', 'EV6'],
-  Nissan: ['Qashqai', 'X-Trail', 'Juke', 'Leaf'],
-  Opel: ['Astra', 'Insignia', 'Zafira', 'Mokka', 'Corsa'],
-  Lexus: ['IS', 'GS', 'LS', 'RX', 'NX', 'UX'],
-  Porsche: ['911', 'Cayenne', 'Panamera', 'Macan', 'Taycan']
+  "Audi": ["A3", "A4", "A5", "A6", "A7", "A8", "Q3", "Q5", "Q7", "Q8", "TT", "E-Tron"],
+  "BMW": ["1. sērija", "2. sērija", "3. sērija", "4. sērija", "5. sērija", "6. sērija", "7. sērija", "X1", "X3", "X5", "X6", "X7", "i4", "iX"],
+  "Mercedes-Benz": ["A-Klase", "C-Klase", "E-Klase", "S-Klase", "CLA", "CLS", "GLA", "GLC", "GLE", "GLS", "G-Klase", "EQE", "EQS"],
+  "Volkswagen": ["Golf", "Passat", "Arteon", "Tiguan", "Touareg", "Touran", "Sharan", "Polo", "ID.3", "ID.4"],
+  "Volvo": ["S60", "S90", "V60", "V90", "XC40", "XC60", "XC90"],
+  "Toyota": ["Avensis", "Camry", "Corolla", "RAV4", "Land Cruiser", "Yaris", "C-HR", "Prius"],
+  "Honda": ["Accord", "Civic", "CR-V", "HR-V"],
+  "Ford": ["Focus", "Mondeo", "Fiesta", "Kuga", "Mustang", "Explorer", "Galaxy", "S-Max"],
+  "Skoda": ["Octavia", "Superb", "Kodiaq", "Karoq", "Fabia"],
+  "Hyundai": ["i30", "i40", "Tucson", "Santa Fe", "Ioniq 5", "Kona"],
+  "Kia": ["Ceed", "Optima", "Sportage", "Sorento", "EV6"],
+  "Nissan": ["Qashqai", "X-Trail", "Juke", "Leaf"],
+  "Opel": ["Astra", "Insignia", "Zafira", "Mokka", "Corsa"],
+  "Lexus": ["IS", "GS", "LS", "RX", "NX", "UX"],
+  "Porsche": ["911", "Cayenne", "Panamera", "Macan", "Taycan"]
 }
 
 export default function PievienotAutoPage() {
@@ -54,7 +54,6 @@ export default function PievienotAutoPage() {
     })
   }, [router])
 
-  // Kad nomaina Marku, automātiski iestata pirmo Modeli no saraksta
   const handleMakeChange = (selectedMake: string) => {
     setMake(selectedMake)
     if (CAR_DATA[selectedMake] && CAR_DATA[selectedMake].length > 0) {
@@ -64,7 +63,6 @@ export default function PievienotAutoPage() {
     }
   }
 
-  // Bilžu apstrāde (Drag & Drop vai Click)
   const handleFileSelect = (file: File) => {
     if (file && file.type.startsWith('image/')) {
       setImageFile(file)
