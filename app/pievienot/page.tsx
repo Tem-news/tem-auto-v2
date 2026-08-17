@@ -43,12 +43,12 @@ export default function PievienotAuto() {
   const [description, setDescription] = useState('')
   const [images, setImages] = useState<string[]>([])
 
+  const [isDragging, setIsDragging] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
 
-  // Attēlu augšupielāde
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
+  // Failu apstrāde (izmantojama gan no pogas, gan ievelkot)
+  const processFiles = async (files: FileList | File[]) => {
     if (!files || files.length === 0) return
 
     setUploading(true)
@@ -56,6 +56,8 @@ export default function PievienotAuto() {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
+      if (!file.type.startsWith('image/')) continue // Tikai bildes
+
       const fileExt = file.name.split('.').pop()
       const fileName = `${Math.random()}.${fileExt}`
       const filePath = `cars/${fileName}`
@@ -80,6 +82,32 @@ export default function PievienotAuto() {
 
     setImages((prev) => [...prev, ...newUploadedUrls])
     setUploading(false)
+  }
+
+  // Izvēlas caur pogu
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      processFiles(e.target.files)
+    }
+  }
+
+  // Drag & Drop notikumi
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFiles(e.dataTransfer.files)
+    }
   }
 
   // Attēla dzēšana
@@ -111,7 +139,7 @@ export default function PievienotAuto() {
       const mainImage = images.length > 0 ? images[0] : ''
       const otherImages = images.length > 1 ? images.slice(1) : []
 
-      const newCar = {
+      const newCar: any = {
         make: make.trim(),
         model: model.trim(),
         year: year ? Number(year) : null,
@@ -132,7 +160,7 @@ export default function PievienotAuto() {
 
       if (error) {
         console.error('Kļūda saglabājot sludinājumu:', error)
-        alert('Kļūda saglabājot sludinājumu: ' + error.message)
+        alert('Neizdevās saglabāt sludinājumu: ' + error.message)
       } else if (data && data.length > 0) {
         alert('Sludinājums veiksmīgi pievienots!')
         router.push(`/auto/${data[0].id}`)
@@ -172,7 +200,7 @@ export default function PievienotAuto() {
             value={make}
             onChange={(e) => {
               setMake(e.target.value)
-              setModel('') // Nulējam modeli, ja maina marku
+              setModel('')
             }}
             placeholder="Izvēlies vai ieraksti marku (piem., BMW, Audi)"
             required
@@ -281,20 +309,55 @@ export default function PievienotAuto() {
           </div>
         </div>
 
-        {/* Attēli */}
+        {/* Moderns Drag & Drop Attēlu laukums */}
         <div>
           <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: 'bold' }}>Attēli (Pirmā bilde būs titulbilde)</label>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleFileUpload}
-            disabled={uploading}
-            style={{ marginBottom: '10px', display: 'block' }}
-          />
-          {uploading && <p style={{ fontSize: '13px', color: '#2563eb' }}>Augšupielādē attēlus...</p>}
+          
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            style={{
+              border: `2px dashed ${isDragging ? '#2563eb' : '#d1d5db'}`,
+              backgroundColor: isDragging ? '#eff6ff' : '#f9fafb',
+              borderRadius: '8px',
+              padding: '24px',
+              textAlign: 'center',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s, border-color 0.2s',
+              position: 'relative'
+            }}
+          >
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleFileUpload}
+              disabled={uploading}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                opacity: 0,
+                cursor: 'pointer'
+              }}
+            />
+            <div style={{ pointerEvents: 'none' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: 'bold', color: '#374151' }}>
+                📁 Ievelc bildes šeit vai uzklikšķini, lai izvēlētos
+              </p>
+              <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>
+                Atbalstītie formāti: JPG, PNG, WEBP (var izvēlēties vairākus)
+              </p>
+            </div>
+          </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '10px' }}>
+          {uploading && <p style={{ fontSize: '13px', color: '#2563eb', marginTop: '8px' }}>Augšupielādē attēlus...</p>}
+
+          {/* Sīktēlu saraksts */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '14px' }}>
             {images.map((img, idx) => (
               <div
                 key={idx}
@@ -311,7 +374,7 @@ export default function PievienotAuto() {
                 <img src={img} alt={`Bilde ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
 
                 {idx === 0 && (
-                  <span style={{ position: 'absolute', top: '2px', left: '2px', backgroundColor: '#2563eb', color: '#fff', fontSize: '10px', padding: '2px 4px', borderRadius: '4px' }}>
+                  <span style={{ position: 'absolute', top: '2px', left: '2px', backgroundColor: '#2563eb', color: '#fff', fontSize: '10px', padding: '2px 4px', borderRadius: '4px', fontWeight: 'bold' }}>
                     Titulbilde
                   </span>
                 )}
