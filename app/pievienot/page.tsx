@@ -32,6 +32,7 @@ export default function PievienotAutoPage() {
   const [model, setModel] = useState('3. sērija')
   const [year, setYear] = useState(2018)
   const [price, setPrice] = useState('')
+  const [mileage, setMileage] = useState('')
   const [engine, setEngine] = useState('')
   const [fuel, setFuel] = useState('Dīzelis')
   const [gearbox, setGearbox] = useState('Automāts')
@@ -127,6 +128,7 @@ export default function PievienotAutoPage() {
           model,
           year: Number(year),
           price: Number(price),
+          mileage: mileage ? Number(mileage) : 0,
           engine,
           fuel,
           gearbox,
@@ -198,10 +200,10 @@ export default function PievienotAutoPage() {
           </div>
         </div>
 
-        {/* Gads & Cena */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        {/* Gads, Cena un Nobraukums */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Izlaiduma gads</label>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Gads</label>
             <input
               type="number"
               required
@@ -222,6 +224,18 @@ export default function PievienotAutoPage() {
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               placeholder="3500"
+              style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '15px' }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Nobraukums (km)</label>
+            <input
+              type="number"
+              min="0"
+              value={mileage}
+              onChange={(e) => setMileage(e.target.value)}
+              placeholder="180000"
               style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '15px' }}
             />
           </div>
