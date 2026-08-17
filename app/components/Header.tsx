@@ -10,12 +10,10 @@ export default function Header() {
   const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
-    // Pārbaudām, vai lietotājs ir ielogojies
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
     })
 
-    // Klausāmies autorizācijas statusa izmaiņas
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
@@ -31,46 +29,41 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-slate-900 text-white shadow-md">
-      <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold text-green-500 hover:text-green-400">
-          TemAuto
+    <header style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Link href="/" style={{ fontSize: '20px', fontWeight: 'bold', color: '#22c55e', textDecoration: 'none' }}>
+        TemAuto
+      </Link>
+
+      <nav style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <Link href="/" style={{ color: '#ffffff', textDecoration: 'none' }}>
+          Sākums
         </Link>
 
-        <nav className="flex items-center gap-6">
-          <Link href="/" className="hover:text-green-400 transition">
-            Sākums
-          </Link>
-
-          {user ? (
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-slate-300 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
-                {user.email}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="text-sm text-red-400 hover:text-red-300 transition"
-              >
-                Izlogoties
-              </button>
-            </div>
-          ) : (
-            <Link
-              href="/login"
-              className="text-sm font-medium hover:text-green-400 transition"
+        {user ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontSize: '14px', color: '#cbd5e1', backgroundColor: '#1e293b', padding: '4px 12px', borderRadius: '16px' }}>
+              {user.email}
+            </span>
+            <button
+              onClick={handleLogout}
+              style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: '14px' }}
             >
-              Ielogoties
-            </Link>
-          )}
-
-          <Link
-            href={user ? "/pievienot" : "/login"}
-            className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg font-medium transition"
-          >
-            + Pievienot auto
+              Izlogoties
+            </button>
+          </div>
+        ) : (
+          <Link href="/login" style={{ color: '#ffffff', textDecoration: 'none' }}>
+            Ielogoties
           </Link>
-        </nav>
-      </div>
+        )}
+
+        <Link
+          href={user ? "/pievienot" : "/login"}
+          style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}
+        >
+          + Pievienot auto
+        </Link>
+      </nav>
     </header>
   )
 }
