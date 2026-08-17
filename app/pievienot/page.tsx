@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
-// Marku un modeļu datubāze ar pareizi noformētām atslēgām
 const CAR_DATA: Record<string, string[]> = {
   "Audi": ["A3", "A4", "A5", "A6", "A7", "A8", "Q3", "Q5", "Q7", "Q8", "TT", "E-Tron"],
   "BMW": ["1. sērija", "2. sērija", "3. sērija", "4. sērija", "5. sērija", "6. sērija", "7. sērija", "X1", "X3", "X5", "X6", "X7", "i4", "iX"],
@@ -29,7 +28,6 @@ export default function PievienotAutoPage() {
   const [user, setUser] = useState<any>(null)
   const [errorMsg, setErrorMsg] = useState('')
 
-  // Forma valstis & lauki
   const [make, setMake] = useState('BMW')
   const [model, setModel] = useState('3. sērija')
   const [year, setYear] = useState(2018)
@@ -38,10 +36,9 @@ export default function PievienotAutoPage() {
   const [fuel, setFuel] = useState('Dīzelis')
   const [gearbox, setGearbox] = useState('Automāts')
   const [description, setDescription] = useState('')
-  
-  // Bildes un Drag & Drop
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
+
+  // Vairāku bilžu stāvoklis
+  const [images, setImages] = useState<{ file: File; preview: string }[]>([])
   const [isDragging, setIsDragging] = useState(false)
 
   useEffect(() => {
@@ -63,28 +60,29 @@ export default function PievienotAutoPage() {
     }
   }
 
-  const handleFileSelect = (file: File) => {
-    if (file && file.type.startsWith('image/')) {
-      setImageFile(file)
-      setImagePreview(URL.createObjectURL(file))
-    }
+  const addFiles = (files: FileList | File[]) => {
+    const newImages = Array.from(files)
+      .filter((file) => file.type.startsWith('image/'))
+      .map((file) => ({
+        file,
+        preview: URL.createObjectURL(file),
+      }))
+
+    setImages((prev) => [...prev, ...newImages])
   }
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(true)
+  const removeImage = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const handleDragLeave = () => {
-    setIsDragging(false)
-  }
+  const moveImage = (index: number, direction: 'left' | 'right') => {
+    const targetIndex = direction === 'left' ? index - 1 : index + 1
+    if (targetIndex < 0 || targetIndex >= images.length) return
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(false)
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileSelect(e.dataTransfer.files[0])
-    }
+    const updated = [...images]
+    const [moved] = updated.splice(index, 1)
+    updated.splice(targetIndex, 0, moved)
+    setImages(updated)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -95,15 +93,16 @@ export default function PievienotAutoPage() {
     try {
       if (!user) throw new Error('Jums jābūt ielogotamies!')
 
-      let imageUrl = ''
+      const uploadedUrls: string[] = []
 
-      if (imageFile) {
-        const fileExt = imageFile.name.split('.').pop()
+      // Augšupielādē visas bildes
+      for (const img of images) {
+        const fileExt = img.file.name.split('.').pop()
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
 
         const { error: uploadError } = await supabase.storage
           .from('car-images')
-          .upload(fileName, imageFile)
+          .upload(fileName, img.file)
 
         if (uploadError) {
           throw new Error('Kļūda augšupielādējot attēlu: ' + uploadError.message)
@@ -113,8 +112,10 @@ export default function PievienotAutoPage() {
           .from('car-images')
           .getPublicUrl(fileName)
 
-        imageUrl = publicUrlData.publicUrl
+        uploadedUrls.push(publicUrlData.publicUrl)
       }
+
+      const mainImageUrl = uploadedUrls.length > 0 ? uploadedUrls[0] : ''
 
       const { error: insertError } = await supabase.from('cars').insert([
         {
@@ -126,7 +127,8 @@ export default function PievienotAutoPage() {
           fuel,
           gearbox,
           description,
-          image_url: imageUrl,
+          image_url: mainImageUrl, // Titulbilde (pirmā bilde)
+          images: uploadedUrls,    // Visi fotoattēli
           user_id: user.id,
         },
       ])
@@ -145,12 +147,12 @@ export default function PievienotAutoPage() {
   }
 
   return (
-    <div style={{ maxWidth: '650px', margin: '40px auto', padding: '28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.08)' }}>
+    <div style={{ maxWidth: '700px', margin: '40px auto', padding: '28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.08)' }}>
       <h1 style={{ fontSize: '26px', fontWeight: 'bold', marginBottom: '8px', color: '#0f172a' }}>
         Pievienot jaunu auto sludinājumu
       </h1>
       <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>
-        Aizpildiet informāciju par savu spēkratu un pievienojiet fotoattēlu.
+        Aizpildiet informāciju par savu spēkratu un pievienojiet fotoattēlus.
       </p>
 
       {errorMsg && (
@@ -164,9 +166,7 @@ export default function PievienotAutoPage() {
         {/* Marka & Modelis */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>
-              Marka
-            </label>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Marka</label>
             <select
               value={make}
               onChange={(e) => handleMakeChange(e.target.value)}
@@ -179,9 +179,7 @@ export default function PievienotAutoPage() {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>
-              Modelis
-            </label>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Modelis</label>
             <select
               value={model}
               onChange={(e) => setModel(e.target.value)}
@@ -197,9 +195,7 @@ export default function PievienotAutoPage() {
         {/* Gads & Cena */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>
-              Izlaiduma gads
-            </label>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Izlaiduma gads</label>
             <input
               type="number"
               required
@@ -212,9 +208,7 @@ export default function PievienotAutoPage() {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>
-              Cena (€)
-            </label>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Cena (€)</label>
             <input
               type="number"
               required
@@ -230,9 +224,7 @@ export default function PievienotAutoPage() {
         {/* Motors, Degviela & Ātrumkārba */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>
-              Motors (piem., 2.0)
-            </label>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Motors</label>
             <input
               type="text"
               value={engine}
@@ -243,9 +235,7 @@ export default function PievienotAutoPage() {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>
-              Degviela
-            </label>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Degviela</label>
             <select
               value={fuel}
               onChange={(e) => setFuel(e.target.value)}
@@ -260,9 +250,7 @@ export default function PievienotAutoPage() {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>
-              Ātrumkārba
-            </label>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Ātrumkārba</label>
             <select
               value={gearbox}
               onChange={(e) => setGearbox(e.target.value)}
@@ -274,73 +262,106 @@ export default function PievienotAutoPage() {
           </div>
         </div>
 
-        {/* DRAG & DROP BILDES LAUKS */}
+        {/* VAIRĀKU BILŽU IELĀDES ZONA */}
         <div>
           <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>
-            Auto fotoattēls (Ievilkt vai izvēlēties)
+            Auto fotoattēli (Pirmā būs titulbilde)
           </label>
+
           <div
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
+            onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault()
+              setIsDragging(false)
+              if (e.dataTransfer.files) addFiles(e.dataTransfer.files)
+            }}
             style={{
               border: `2px dashed ${isDragging ? '#16a34a' : '#cbd5e1'}`,
               backgroundColor: isDragging ? '#f0fdf4' : '#f8fafc',
               borderRadius: '12px',
-              padding: '24px',
+              padding: '20px',
               textAlign: 'center',
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
+              marginBottom: '16px'
             }}
           >
-            {imagePreview ? (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                <img
-                  src={imagePreview}
-                  alt="Priekšskatījums"
-                  style={{ maxHeight: '180px', borderRadius: '8px', objectFit: 'cover' }}
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setImageFile(null)
-                    setImagePreview(null)
-                  }}
-                  style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '13px', cursor: 'pointer', fontWeight: '600' }}
-                >
-                  ✕ Noņemt bildi
-                </button>
-              </div>
-            ) : (
-              <label style={{ cursor: 'pointer', display: 'block' }}>
-                <div style={{ fontSize: '32px', marginBottom: '8px' }}>📷</div>
-                <p style={{ fontSize: '14px', fontWeight: '600', color: '#334155', margin: '0 0 4px 0' }}>
-                  Ievelciet bildi šeit vai noklikšķiniet, lai izvēlētos
-                </p>
-                <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>
-                  Atbalstīti formāti: JPG, PNG, WEBP
-                </p>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
-                  style={{ display: 'none' }}
-                />
-              </label>
-            )}
+            <label style={{ cursor: 'pointer', display: 'block' }}>
+              <div style={{ fontSize: '28px', marginBottom: '6px' }}>📷</div>
+              <p style={{ fontSize: '14px', fontWeight: '600', color: '#334155', margin: '0 0 4px 0' }}>
+                Ievelciet bildes šeit vai noklikšķiniet, lai izvēlētos vairākas
+              </p>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={(e) => e.target.files && addFiles(e.target.files)}
+                style={{ display: 'none' }}
+              />
+            </label>
           </div>
+
+          {/* BILŽU SARAKSTS UN SECĪBAS MAIŅA */}
+          {images.length > 0 && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px' }}>
+              {images.map((img, index) => (
+                <div
+                  key={index}
+                  style={{
+                    position: 'relative',
+                    border: index === 0 ? '2px solid #16a34a' : '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    overflow: 'hidden',
+                    padding: '4px',
+                    backgroundColor: '#fff'
+                  }}
+                >
+                  {index === 0 && (
+                    <span style={{ position: 'absolute', top: '8px', left: '8px', backgroundColor: '#16a34a', color: '#fff', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold', zIndex: 2 }}>
+                      Titulbilde
+                    </span>
+                  )}
+                  <img src={img.preview} alt={`Foto ${index + 1}`} style={{ width: '100%', height: '90px', objectFit: 'cover', borderRadius: '4px' }} />
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
+                    <button
+                      type="button"
+                      disabled={index === 0}
+                      onClick={() => moveImage(index, 'left')}
+                      style={{ padding: '2px 6px', fontSize: '12px', cursor: index === 0 ? 'default' : 'pointer', opacity: index === 0 ? 0.3 : 1 }}
+                    >
+                      ←
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      style={{ color: '#ef4444', border: 'none', background: 'none', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold' }}
+                    >
+                      ✕
+                    </button>
+                    <button
+                      type="button"
+                      disabled={index === images.length - 1}
+                      onClick={() => moveImage(index, 'right')}
+                      style={{ padding: '2px 6px', fontSize: '12px', cursor: index === images.length - 1 ? 'default' : 'pointer', opacity: index === images.length - 1 ? 0.3 : 1 }}
+                    >
+                      →
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Apraksts */}
         <div>
-          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>
-            Papildus apraksts
-          </label>
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Apraksts</label>
           <textarea
             rows={4}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Aprakstiet auto stāvokli, komplektāciju..."
+            placeholder="Aprakstiet auto stāvokli..."
             style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '15px' }}
           />
         </div>
@@ -356,9 +377,7 @@ export default function PievienotAutoPage() {
             fontWeight: 'bold',
             fontSize: '16px',
             border: 'none',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            marginTop: '8px',
-            boxShadow: '0 4px 12px rgba(22, 163, 74, 0.2)'
+            cursor: loading ? 'not-allowed' : 'pointer'
           }}
         >
           {loading ? 'Saglabā sludinājumu...' : 'Publicēt sludinājumu'}
