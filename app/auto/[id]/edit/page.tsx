@@ -1,299 +1,438 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { supabase } from '../../../../lib/supabase'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { supabase } from '../../../lib/supabase'
 
-export default function RedigetAuto() {
-  const params = useParams()
+export default function RedigetAutoPage() {
   const router = useRouter()
-  const id = params?.id
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [uploading, setUploading] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const [errorMsg, setErrorMsg] = useState('')
+  const [carId, setCarId] = useState<string | null>(null)
 
-  // Auto dati
+  // Nemainīgie lauki (Marka un Modelis)
   const [make, setMake] = useState('')
   const [model, setModel] = useState('')
-  const [year, setYear] = useState('')
+
+  // Labojamie lauki
+  const [year, setYear] = useState<string | number>('')
   const [price, setPrice] = useState('')
-  const [phone, setPhone] = useState('')
+  const [mileage, setMileage] = useState('')
+  const [engine, setEngine] = useState('')
+  const [fuel, setFuel] = useState('Dīzelis')
+  const [gearbox, setGearbox] = useState('Automāts')
   const [description, setDescription] = useState('')
-  const [images, setImages] = useState<string[]>([])
+  const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
+
+  // Bildes
+  const [existingImages, setExistingImages] = useState<string[]>([])
+  const [newImages, setNewImages] = useState<{ file: File; preview: string }[]>([])
+  const [isDragging, setIsDragging] = useState(false)
 
   useEffect(() => {
-    if (!id) return
+    async function init() {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        router.push('/login')
+        return
+      }
+      setUser(session.user)
 
-    async function fetchCar() {
-      try {
-        const { data, error } = await supabase
-          .from('cars')
-          .select('*')
-          .eq('id', id)
-          .single()
+      // Paņemam ID no URL adreses (piemēram, ja URL ir /auto/edit?id=xyz vai caur citu parametru)
+      const params = new URLSearchParams(window.location.search)
+      const id = params.get('id')
 
-        if (error) {
-          console.error('Kļūda ielādējot auto:', error)
-          alert('Kļūda ielādējot datus: ' + error.message)
-        } else if (data) {
-          setMake(data.make || '')
-          setModel(data.model || '')
-          setYear(data.year || '')
-          setPrice(data.price ? String(data.price) : '')
-          setPhone(data.phone || '')
-          setDescription(data.description || '')
-
-          // Apvienojam galveno bildi un pārējās bildes masīvā
-          const allImgs: string[] = []
-          if (data.image) allImgs.push(data.image)
-          if (Array.isArray(data.images)) {
-            data.images.forEach((img: string) => {
-              if (img && !allImgs.includes(img)) allImgs.push(img)
-            })
-          }
-          setImages(allImgs)
-        }
-      } catch (err: any) {
-        console.error('Neidentificēta kļūda:', err)
-      } finally {
+      if (!id) {
+        setErrorMsg('Nav norādīts sludinājuma ID.')
         setLoading(false)
+        return
       }
+
+      setCarId(id)
+
+      const { data: car, error } = await supabase
+        .from('cars')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      if (error || !car) {
+        setErrorMsg('Sludinājums netika atrasts.')
+        setLoading(false)
+        return
+      }
+
+      if (car.user_id !== session.user.id) {
+        setErrorMsg('Jums nav tiesību rediģēt šo sludinājumu.')
+        setLoading(false)
+        return
+      }
+
+      setMake(car.make || '')
+      setModel(car.model || '')
+      setYear(car.year || '')
+      setPrice(car.price ? String(car.price) : '')
+      setMileage(car.mileage ? String(car.mileage) : '')
+      setEngine(car.engine || '')
+      setFuel(car.fuel || 'Dīzelis')
+      setGearbox(car.gearbox || 'Automāts')
+      setDescription(car.description || '')
+      setPhone(car.phone || '')
+      setEmail(car.email || session.user.email || '')
+
+      if (car.images && car.images.length > 0) {
+        setExistingImages(car.images)
+      } else if (car.image_url || car.image) {
+        setExistingImages([car.image_url || car.image])
+      }
+
+      setLoading(false)
     }
 
-    fetchCar()
-  }, [id])
+    init()
+  }, [router])
 
-  // Attēlu augšupielāde
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (!files || files.length === 0) return
+  const addNewFiles = (files: FileList | File[]) => {
+    const added = Array.from(files)
+      .filter((file) => file.type.startsWith('image/'))
+      .map((file) => ({
+        file,
+        preview: URL.createObjectURL(file),
+      }))
 
-    setUploading(true)
-    const newUploadedUrls: string[] = []
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${Math.random()}.${fileExt}`
-      const filePath = `cars/${fileName}`
-
-      const { error } = await supabase.storage
-        .from('car-images')
-        .upload(filePath, file)
-
-      if (error) {
-        console.error('Kļūda augšupielādējot bildi:', error)
-        alert('Kļūda augšupielādējot attēlu: ' + error.message)
-      } else {
-        const { data: publicUrlData } = supabase.storage
-          .from('car-images')
-          .getPublicUrl(filePath)
-
-        if (publicUrlData?.publicUrl) {
-          newUploadedUrls.push(publicUrlData.publicUrl)
-        }
-      }
-    }
-
-    setImages((prev) => [...prev, ...newUploadedUrls])
-    setUploading(false)
+    setNewImages((prev) => [...prev, ...added])
   }
 
-  // Attēla dzēšana
-  const handleRemoveImage = (indexToRemove: number) => {
-    setImages((prev) => prev.filter((_, idx) => idx !== indexToRemove))
+  const removeExistingImage = (index: number) => {
+    setExistingImages((prev) => prev.filter((_, i) => i !== index))
   }
 
-  // Attēla pārvietošana (secības maiņa)
-  const handleMoveImage = (fromIndex: number, toIndex: number) => {
-    if (toIndex < 0 || toIndex >= images.length) return
-    const updated = [...images]
-    const [movedItem] = updated.splice(fromIndex, 1)
-    updated.splice(toIndex, 0, movedItem)
-    setImages(updated)
+  const removeNewImage = (index: number) => {
+    setNewImages((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!carId) return
     setSaving(true)
+    setErrorMsg('')
 
     try {
-      const mainImage = images.length > 0 ? images[0] : ''
-      const otherImages = images.length > 1 ? images.slice(1) : []
+      if (!user) throw new Error('Jums jābūt ielogotamies!')
+      if (!email) throw new Error('E-pasts ir obligāts kontakts!')
 
-      const updatedFields: any = {
-        price: price ? Number(price) : null,
-        phone,
-        description,
-        image: mainImage,
-        images: otherImages
+      const uploadedUrls: string[] = []
+      for (const img of newImages) {
+        const fileExt = img.file.name.split('.').pop()
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+
+        const { error: uploadError } = await supabase.storage
+          .from('car-images')
+          .upload(fileName, img.file)
+
+        if (uploadError) {
+          throw new Error('Kļūda augšupielādējot attēlu: ' + uploadError.message)
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from('car-images')
+          .getPublicUrl(fileName)
+
+        uploadedUrls.push(publicUrlData.publicUrl)
       }
 
-      const { error } = await supabase
+      const allImages = [...existingImages, ...uploadedUrls]
+      const mainImageUrl = allImages.length > 0 ? allImages[0] : null
+
+      const { error: updateError } = await supabase
         .from('cars')
-        .update(updatedFields)
-        .eq('id', id)
+        .update({
+          // Marku un modeli APZINĀTI neļaujam mainīt
+          year: year ? Number(year) : null,
+          price: price ? Number(price) : null,
+          mileage: mileage ? Number(mileage) : null,
+          engine: engine || null,
+          fuel,
+          gearbox,
+          description: description || null,
+          phone: phone || null,
+          email,
+          image: mainImageUrl,
+          image_url: mainImageUrl,
+          images: allImages,
+        })
+        .eq('id', carId)
 
-      if (error) {
-        console.error('Supabase atjaunināšanas kļūda:', error)
-        alert('Kļūda saglabājot izmaiņas: ' + error.message)
-      } else {
-        alert('Izmaiņas veiksmīgi saglabātas!')
-        router.push(`/auto/${id}`)
-        router.refresh()
+      if (updateError) {
+        throw new Error('Kļūda atjauninot sludinājumu: ' + updateError.message)
       }
+
+      router.push(`/auto/${carId}`)
+      router.refresh()
     } catch (err: any) {
-      console.error('Kļūda saglabāšanas laikā:', err)
-      alert('Nezināma kļūda saglabājot: ' + (err.message || err))
+      setErrorMsg(err.message || 'Kaut kas nogāja greizi!')
     } finally {
       setSaving(false)
     }
   }
 
   if (loading) {
-    return <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280' }}>Ielādē datus...</div>
+    return <div style={{ textAlign: 'center', padding: '50px' }}>Ielādē datus...</div>
   }
 
   return (
-    <div style={{ maxWidth: '650px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
-      <Link href={`/auto/${id}`} style={{ color: '#2563eb', textDecoration: 'none', display: 'inline-block', marginBottom: '16px' }}>
-        ← Atpakaļ uz sludinājumu
-      </Link>
-
-      <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px', color: '#111827' }}>
+    <div style={{ maxWidth: '700px', margin: '40px auto', padding: '28px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.08)' }}>
+      <h1 style={{ fontSize: '26px', fontWeight: 'bold', marginBottom: '8px', color: '#0f172a' }}>
         Rediģēt sludinājumu
       </h1>
+      <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>
+        Marku un modeli mainīt nevar. Pārējos datus un bildes varat brīvi precizēt.
+      </p>
 
-      <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {errorMsg && (
+        <div style={{ backgroundColor: '#fee2e2', color: '#dc2626', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', fontSize: '14px' }}>
+          {errorMsg}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
-        {/* Bloķētie lauki drošībai */}
-        <div style={{ backgroundColor: '#f3f4f6', padding: '14px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-          <p style={{ margin: 0, fontSize: '13px', color: '#6b7280', marginBottom: '4px' }}>Auto marka, modelis un gads (nav maināmi):</p>
-          <strong style={{ color: '#111827', fontSize: '18px' }}>{make} {model} ({year})</strong>
+        {/* Marka & Modelis (BLOCKED / READONLY) */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Marka</label>
+            <input
+              type="text"
+              value={make}
+              disabled
+              style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: '#f1f5f9', color: '#64748b', fontSize: '15px', cursor: 'not-allowed' }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Modelis</label>
+            <input
+              type="text"
+              value={model}
+              disabled
+              style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: '#f1f5f9', color: '#64748b', fontSize: '15px', cursor: 'not-allowed' }}
+            />
+          </div>
         </div>
 
-        <div>
-          <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: 'bold' }}>Cena (€)</label>
-          <input
-            type="number"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            required
-            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
-          />
+        {/* Gads, Cena un Nobraukums */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Gads</label>
+            <input
+              type="number"
+              min="1950"
+              max="2027"
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '15px' }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Cena (€)</label>
+            <input
+              type="number"
+              min="0"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '15px' }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Nobraukums (km)</label>
+            <input
+              type="number"
+              min="0"
+              value={mileage}
+              onChange={(e) => setMileage(e.target.value)}
+              style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '15px' }}
+            />
+          </div>
         </div>
 
-        <div>
-          <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: 'bold' }}>Tālruņa numurs</label>
-          <input
-            type="text"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="+371 20000000"
-            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
-          />
+        {/* Motors, Degviela & Ātrumkārba */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Motors</label>
+            <input
+              type="text"
+              value={engine}
+              onChange={(e) => setEngine(e.target.value)}
+              style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '15px' }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Degviela</label>
+            <select
+              value={fuel}
+              onChange={(e) => setFuel(e.target.value)}
+              style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: '#fff', fontSize: '15px' }}
+            >
+              <option value="Dīzelis">Dīzelis</option>
+              <option value="Benzīns">Benzīns</option>
+              <option value="Benzīns/Gāze">Benzīns / Gāze</option>
+              <option value="Hibrīds">Hibrīds</option>
+              <option value="Elektriskais">Elektriskais</option>
+            </select>
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Ātrumkārba</label>
+            <select
+              value={gearbox}
+              onChange={(e) => setGearbox(e.target.value)}
+              style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: '#fff', fontSize: '15px' }}
+            >
+              <option value="Automāts">Automāts</option>
+              <option value="Manuālis">Manuālis</option>
+            </select>
+          </div>
         </div>
 
-        {/* Attēlu pārvaldība */}
+        {/* KONTAKTINFORMĀCIJA */}
+        <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+          <h3 style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '12px', color: '#0f172a' }}>Pārdevēja kontakti</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '13px', color: '#334155' }}>
+                E-pasts <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '13px', color: '#334155' }}>Tālruņa numurs</label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* BILDES */}
         <div>
-          <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: 'bold' }}>Attēli (Pirmā bilde ir titulbilde)</label>
-          
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleFileUpload}
-            disabled={uploading}
-            style={{ marginBottom: '12px', display: 'block' }}
-          />
-          {uploading && <p style={{ fontSize: '13px', color: '#2563eb' }}>Lādē bildes...</p>}
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>
+            Fotoattēli
+          </label>
 
-          {/* Sīktēlu saraksts ar bultiņām un dzēšanu */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '10px' }}>
-            {images.map((img, idx) => (
-              <div
-                key={idx}
-                style={{
-                  position: 'relative',
-                  width: '120px',
-                  height: '90px',
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                  border: idx === 0 ? '3px solid #2563eb' : '1px solid #d1d5db',
-                  backgroundColor: '#f9fafb'
-                }}
-              >
-                <img src={img} alt={`Bilde ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-
-                {idx === 0 && (
-                  <span style={{ position: 'absolute', top: '2px', left: '2px', backgroundColor: '#2563eb', color: '#fff', fontSize: '10px', padding: '2px 4px', borderRadius: '4px' }}>
-                    Titulbilde
-                  </span>
-                )}
-
-                {/* Vadības pogas */}
-                <div style={{ position: 'absolute', bottom: '2px', right: '2px', display: 'flex', gap: '2px', backgroundColor: 'rgba(0,0,0,0.6)', padding: '2px', borderRadius: '4px' }}>
-                  {idx > 0 && (
+          {existingImages.length > 0 && (
+            <div style={{ marginBottom: '16px' }}>
+              <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>Esošās bildes:</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '10px' }}>
+                {existingImages.map((url, idx) => (
+                  <div key={idx} style={{ position: 'relative', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+                    <img src={url} alt={`Esošā bilde ${idx + 1}`} style={{ width: '100%', height: '70px', objectFit: 'cover' }} />
                     <button
                       type="button"
-                      onClick={() => handleMoveImage(idx, idx - 1)}
-                      style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '12px', padding: '0 3px' }}
-                      title="Pārvietot pa kreisi"
+                      onClick={() => removeExistingImage(idx)}
+                      style={{ position: 'absolute', top: '4px', right: '4px', backgroundColor: 'rgba(239, 68, 68, 0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '12px' }}
                     >
-                      ◄
+                      ✕
                     </button>
-                  )}
-                  {idx < images.length - 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleMoveImage(idx, idx + 1)}
-                      style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '12px', padding: '0 3px' }}
-                      title="Pārvietot pa labi"
-                    >
-                      ►
-                    </button>
-                  )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div
+            onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault()
+              setIsDragging(false)
+              if (e.dataTransfer.files) addNewFiles(e.dataTransfer.files)
+            }}
+            style={{
+              border: `2px dashed ${isDragging ? '#16a34a' : '#cbd5e1'}`,
+              backgroundColor: isDragging ? '#f0fdf4' : '#f8fafc',
+              borderRadius: '12px',
+              padding: '16px',
+              textAlign: 'center',
+              cursor: 'pointer',
+              marginBottom: '12px'
+            }}
+          >
+            <label style={{ cursor: 'pointer', display: 'block' }}>
+              <div style={{ fontSize: '24px', marginBottom: '4px' }}>➕📷</div>
+              <p style={{ fontSize: '13px', fontWeight: '600', color: '#334155', margin: 0 }}>
+                Pievienot vēl citas bildes
+              </p>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={(e) => e.target.files && addNewFiles(e.target.files)}
+                style={{ display: 'none' }}
+              />
+            </label>
+          </div>
+
+          {newImages.length > 0 && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '10px' }}>
+              {newImages.map((img, idx) => (
+                <div key={idx} style={{ position: 'relative', border: '1px solid #16a34a', borderRadius: '8px', overflow: 'hidden' }}>
+                  <img src={img.preview} alt={`Jaunā bilde ${idx + 1}`} style={{ width: '100%', height: '70px', objectFit: 'cover' }} />
                   <button
                     type="button"
-                    onClick={() => handleRemoveImage(idx)}
-                    style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', padding: '0 3px' }}
-                    title="Dzēst bildi"
+                    onClick={() => removeNewImage(idx)}
+                    style={{ position: 'absolute', top: '4px', right: '4px', backgroundColor: 'rgba(239, 68, 68, 0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '12px' }}
                   >
                     ✕
                   </button>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
+        {/* Apraksts */}
         <div>
-          <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: 'bold' }}>Apraksts</label>
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Apraksts</label>
           <textarea
+            rows={4}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            rows={5}
-            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontFamily: 'inherit' }}
+            style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '15px' }}
           />
         </div>
 
         <button
           type="submit"
-          disabled={saving || uploading}
+          disabled={saving}
           style={{
-            padding: '12px',
-            backgroundColor: saving ? '#9ca3af' : '#2563eb',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '16px',
+            backgroundColor: saving ? '#94a3b8' : '#2563eb',
+            color: '#ffffff',
+            padding: '14px',
+            borderRadius: '10px',
             fontWeight: 'bold',
+            fontSize: '16px',
+            border: 'none',
             cursor: saving ? 'not-allowed' : 'pointer'
           }}
         >
-          {saving ? 'Saglabā...' : 'Saglabāt izmaiņas'}
+          {saving ? 'Saglabā izmaiņas...' : 'Saglabāt izmaiņas'}
         </button>
       </form>
     </div>
