@@ -121,7 +121,7 @@ export default function PievienotAutoPage() {
         uploadedUrls.push(publicUrlData.publicUrl)
       }
 
-      const mainImageUrl = uploadedUrls.length > 0 ? uploadedUrls[0] : ''
+      const mainImageUrl = uploadedUrls.length > 0 ? uploadedUrls[0] : null
 
       const { error: insertError } = await supabase.from('cars').insert([
         {
@@ -135,8 +135,9 @@ export default function PievienotAutoPage() {
           gearbox,
           description: description || null,
           phone: phone || null,
-          email, // OBLIGĀTS
-          image_url: mainImageUrl,
+          email,
+          image: mainImageUrl, // Saglabājam gan 'image'
+          image_url: mainImageUrl, // gan 'image_url' saderībai ar galveno lapu
           images: uploadedUrls,
           user_id: user.id,
         },
@@ -172,7 +173,7 @@ export default function PievienotAutoPage() {
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
-        {/* Marka & Modelis (OBLIGĀTI) */}
+        {/* Marka & Modelis */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           <div>
             <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>
@@ -205,7 +206,7 @@ export default function PievienotAutoPage() {
           </div>
         </div>
 
-        {/* Gads, Cena un Nobraukums (NEOBLIGĀTI) */}
+        {/* Gads, Cena un Nobraukums */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
           <div>
             <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Gads</label>
