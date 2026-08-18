@@ -25,7 +25,7 @@ export default function RedigetAuto() {
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
 
-  // Bilžu state: glabājam vienotā masīvā, kur pirmajam vienmēr ir jābūt titulbildei
+  // Bilžu state
   const [images, setImages] = useState<{ url: string; isNew: boolean; file?: File }[]>([])
 
   useEffect(() => {
@@ -53,11 +53,13 @@ export default function RedigetAuto() {
     loadCar()
   }, [id])
 
-  // Pārvietot bildi uz pirmo vietu (padarīt par titulu)
-  const setAsMain = (index: number) => {
+  // Pārvietot bildi ar bultiņām
+  const moveImage = (index: number, direction: 'left' | 'right') => {
+    const newIndex = direction === 'left' ? index - 1 : index + 1
+    if (newIndex < 0 || newIndex >= images.length) return
     const updated = [...images]
     const [moved] = updated.splice(index, 1)
-    updated.unshift(moved)
+    updated.splice(newIndex, 0, moved)
     setImages(updated)
   }
 
@@ -93,7 +95,7 @@ export default function RedigetAuto() {
       phone,
       email,
       images: finalUrls,
-      image: finalUrls[0] || null // Pirmā bilde automātiski kļūst par galveno/titulbildi sarakstam
+      image: finalUrls[0] || null // Pirmā bilde automātiski ir titulbilde
     }).eq('id', id)
 
     router.push(`/auto/${id}`)
@@ -164,11 +166,11 @@ export default function RedigetAuto() {
           <input type="email" placeholder="Piem. epasts@inbox.lv" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
         </div>
 
-        {/* BILŽU SADAĻA AR TITULBIĻDI UN DZĒŠANU */}
+        {/* BILŽU SADAĻA AR ARROW BULTIŅĀM UN TITULBIĻDI */}
         <div style={{ marginTop: '10px', borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Bildes (pirmā ir galvenā titulbilde):</label>
           <span style={{ fontSize: '13px', color: '#64748b', display: 'block', marginBottom: '10px' }}>
-            Spied pogu "Tituls" uz jebkuras bildes, lai to pārvietotu uz sākumu.
+            Izmanto bultiņas <b>← →</b>, lai mainītu bilžu secību.
           </span>
           
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '15px' }}>
@@ -177,55 +179,51 @@ export default function RedigetAuto() {
               const isMain = i === 0
 
               return (
-                <div key={i} style={{ position: 'relative', width: '110px', height: '110px' }}>
-                  <img 
-                    src={previewUrl} 
-                    style={{ 
-                      width: '100%', 
-                      height: '100%', 
-                      objectFit: 'cover', 
-                      borderRadius: '8px', 
-                      border: isMain ? '3px solid #2563eb' : '1px solid #cbd5e1' 
-                    }} 
-                  />
+                <div key={i} style={{ position: 'relative', width: '120px', height: '120px', background: '#f1f5f9', borderRadius: '8px', overflow: 'hidden', border: isMain ? '3px solid #2563eb' : '1px solid #cbd5e1' }}>
+                  <img src={previewUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   
                   {/* Dzēšanas poga (X) */}
                   <button 
                     type="button" 
                     onClick={() => removeImage(i)} 
                     style={{ 
-                      position: 'absolute', top: '-6px', right: '-6px', 
+                      position: 'absolute', top: '4px', right: '4px', 
                       background: '#ef4444', color: 'white', border: 'none', 
-                      borderRadius: '50%', width: '24px', height: '24px', 
+                      borderRadius: '50%', width: '22px', height: '22px', 
                       cursor: 'pointer', fontWeight: 'bold', display: 'flex', 
-                      alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' 
+                      alignItems: 'center', justifyContent: 'center', fontSize: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' 
                     }}
                   >
                     ×
                   </button>
 
-                  {/* Titulbilde rādītājs vai poga */}
-                  {isMain ? (
-                    <span style={{ 
-                      position: 'absolute', bottom: '4px', left: '4px', right: '4px',
-                      background: '#2563eb', color: 'white', fontSize: '10px', 
-                      textAlign: 'center', borderRadius: '4px', padding: '2px 0', fontWeight: '600'
-                    }}>
-                      Tituls
-                    </span>
-                  ) : (
+                  {/* Bultiņu vadība apakšdaļā */}
+                  <div style={{ 
+                    position: 'absolute', bottom: '0', left: '0', right: '0', 
+                    background: 'rgba(0,0,0,0.75)', display: 'flex', justifyContent: 'space-between', padding: '3px 6px', alignItems: 'center' 
+                  }}>
                     <button 
                       type="button" 
-                      onClick={() => setAsMain(i)} 
-                      style={{ 
-                        position: 'absolute', bottom: '4px', left: '4px', right: '4px',
-                        background: 'rgba(0,0,0,0.7)', color: 'white', fontSize: '10px', 
-                        border: 'none', borderRadius: '4px', padding: '3px 0', cursor: 'pointer', fontWeight: '500'
-                      }}
+                      onClick={() => moveImage(i, 'left')} 
+                      disabled={i === 0}
+                      style={{ background: 'none', border: 'none', color: i === 0 ? '#64748b' : '#fff', cursor: i === 0 ? 'default' : 'pointer', fontSize: '14px', fontWeight: 'bold' }}
                     >
-                      Uzstādīt par titulu
+                      ◀
                     </button>
-                  )}
+                    
+                    <span style={{ color: '#fff', fontSize: '10px', fontWeight: '600' }}>
+                      {isMain ? 'Tituls' : `${i + 1}.`}
+                    </span>
+
+                    <button 
+                      type="button" 
+                      onClick={() => moveImage(i, 'right')} 
+                      disabled={i === images.length - 1}
+                      style={{ background: 'none', border: 'none', color: i === images.length - 1 ? '#64748b' : '#fff', cursor: i === images.length - 1 ? 'default' : 'pointer', fontSize: '14px', fontWeight: 'bold' }}
+                    >
+                      ▶
+                    </button>
+                  </div>
                 </div>
               )
             })}
