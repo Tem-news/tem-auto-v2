@@ -123,7 +123,7 @@ export default function AutoLapa() {
       </div>
 
       <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 16px 0', color: '#111827' }}>
-        {car.make} {car.model} ({car.year})
+        {car.make} {car.model} {car.year ? `(${car.year})` : ''}
       </h1>
 
       {/* Lielais attēls */}
@@ -156,24 +156,31 @@ export default function AutoLapa() {
         </div>
       )}
 
-      {/* Auto parametri un cena */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f9fafb', padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb', marginBottom: '20px' }}>
+      {/* Auto parametri un cena / kontakti */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f9fafb', padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
         <div>
-          <span style={{ fontSize: '28px', fontWeight: 'bold', color: '#16a34a' }}>€{car.price}</span>
+          <span style={{ fontSize: '28px', fontWeight: 'bold', color: '#16a34a' }}>{car.price ? `€${car.price}` : 'Cena nav norādīta'}</span>
         </div>
-        {car.phone && (
-          <div>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          {car.phone && (
             <a href={`tel:${car.phone}`} style={{ padding: '10px 16px', backgroundColor: '#16a34a', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', display: 'inline-block' }}>
               📞 {car.phone}
             </a>
-          </div>
-        )}
+          )}
+          {car.email && (
+            <a href={`mailto:${car.email}`} style={{ padding: '10px 16px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', display: 'inline-block' }}>
+              ✉️ {car.email}
+            </a>
+          )}
+        </div>
       </div>
 
-      {/* Parametru tabula */}
+      {/* Parametru tabula ar visiem datiem */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '24px' }}>
+        {car.year && <div style={{ background: '#f3f4f6', padding: '12px', borderRadius: '6px' }}><strong>Gads:</strong> {car.year}</div>}
         {car.engine && <div style={{ background: '#f3f4f6', padding: '12px', borderRadius: '6px' }}><strong>Dzinējs:</strong> {car.engine}</div>}
-        {car.fuelType && <div style={{ background: '#f3f4f6', padding: '12px', borderRadius: '6px' }}><strong>Degviela:</strong> {car.fuelType}</div>}
+        {car.fuel && <div style={{ background: '#f3f4f6', padding: '12px', borderRadius: '6px' }}><strong>Degviela:</strong> {car.fuel}</div>}
+        {car.gearbox && <div style={{ background: '#f3f4f6', padding: '12px', borderRadius: '6px' }}><strong>Ātrumkārba:</strong> {car.gearbox}</div>}
         {car.mileage && <div style={{ background: '#f3f4f6', padding: '12px', borderRadius: '6px' }}><strong>Nobraukums:</strong> {car.mileage} km</div>}
       </div>
 
