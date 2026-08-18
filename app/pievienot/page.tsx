@@ -30,7 +30,7 @@ export default function PievienotAutoPage() {
 
   const [make, setMake] = useState('BMW')
   const [model, setModel] = useState('3. sērija')
-  const [year, setYear] = useState(2018)
+  const [year, setYear] = useState<string | number>(2018)
   const [price, setPrice] = useState('')
   const [mileage, setMileage] = useState('')
   const [engine, setEngine] = useState('')
@@ -38,7 +38,7 @@ export default function PievienotAutoPage() {
   const [gearbox, setGearbox] = useState('Automāts')
   const [description, setDescription] = useState('')
 
-  // Kontakti
+  // Kontakti (E-pasts ir obligāts, Tālrunis neobligāts)
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
 
@@ -98,6 +98,7 @@ export default function PievienotAutoPage() {
 
     try {
       if (!user) throw new Error('Jums jābūt ielogotamies!')
+      if (!email) throw new Error('E-pasts ir obligāts kontakts!')
 
       const uploadedUrls: string[] = []
 
@@ -126,15 +127,15 @@ export default function PievienotAutoPage() {
         {
           make,
           model,
-          year: Number(year),
-          price: Number(price),
-          mileage: mileage ? Number(mileage) : 0,
-          engine,
+          year: year ? Number(year) : null,
+          price: price ? Number(price) : null,
+          mileage: mileage ? Number(mileage) : null,
+          engine: engine || null,
           fuel,
           gearbox,
-          description,
-          phone,
-          email,
+          description: description || null,
+          phone: phone || null,
+          email, // OBLIGĀTS
           image_url: mainImageUrl,
           images: uploadedUrls,
           user_id: user.id,
@@ -160,7 +161,7 @@ export default function PievienotAutoPage() {
         Pievienot jaunu auto sludinājumu
       </h1>
       <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>
-        Aizpildiet informāciju par spēkratu un pārdevēja kontaktus.
+        Aizpildiet informāciju par auto. Lauki nav obligāti, izņemot marku, modeli un e-pastu.
       </p>
 
       {errorMsg && (
@@ -171,10 +172,12 @@ export default function PievienotAutoPage() {
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
-        {/* Marka & Modelis */}
+        {/* Marka & Modelis (OBLIGĀTI) */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Marka</label>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>
+              Marka <span style={{ color: '#ef4444' }}>*</span>
+            </label>
             <select
               value={make}
               onChange={(e) => handleMakeChange(e.target.value)}
@@ -187,7 +190,9 @@ export default function PievienotAutoPage() {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Modelis</label>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>
+              Modelis <span style={{ color: '#ef4444' }}>*</span>
+            </label>
             <select
               value={model}
               onChange={(e) => setModel(e.target.value)}
@@ -200,17 +205,17 @@ export default function PievienotAutoPage() {
           </div>
         </div>
 
-        {/* Gads, Cena un Nobraukums */}
+        {/* Gads, Cena un Nobraukums (NEOBLIGĀTI) */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
           <div>
             <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Gads</label>
             <input
               type="number"
-              required
               min="1950"
               max="2027"
               value={year}
-              onChange={(e) => setYear(Number(e.target.value))}
+              onChange={(e) => setYear(e.target.value)}
+              placeholder="piem., 2018"
               style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '15px' }}
             />
           </div>
@@ -219,11 +224,10 @@ export default function PievienotAutoPage() {
             <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>Cena (€)</label>
             <input
               type="number"
-              required
               min="0"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              placeholder="3500"
+              placeholder="Pēc vienošanās"
               style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '15px' }}
             />
           </div>
@@ -235,7 +239,7 @@ export default function PievienotAutoPage() {
               min="0"
               value={mileage}
               onChange={(e) => setMileage(e.target.value)}
-              placeholder="180000"
+              placeholder="piem., 180000"
               style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '15px' }}
             />
           </div>
@@ -249,7 +253,7 @@ export default function PievienotAutoPage() {
               type="text"
               value={engine}
               onChange={(e) => setEngine(e.target.value)}
-              placeholder="2.0 D"
+              placeholder="piem., 2.0 D"
               style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '15px' }}
             />
           </div>
@@ -287,18 +291,9 @@ export default function PievienotAutoPage() {
           <h3 style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '12px', color: '#0f172a' }}>Pārdevēja kontakti</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '13px', color: '#334155' }}>Tālruņa numurs</label>
-              <input
-                type="tel"
-                required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+371 20000000"
-                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '13px', color: '#334155' }}>E-pasts</label>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '13px', color: '#334155' }}>
+                E-pasts <span style={{ color: '#ef4444' }}>*</span>
+              </label>
               <input
                 type="email"
                 required
@@ -308,13 +303,26 @@ export default function PievienotAutoPage() {
                 style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
               />
             </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '13px', color: '#334155' }}>
+                Tālruņa numurs <span style={{ color: '#94a3b8', fontWeight: 'normal' }}>(neobligāts)</span>
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+371 20000000"
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
+              />
+            </div>
           </div>
         </div>
 
         {/* BILŽU IELĀDE */}
         <div>
           <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>
-            Auto fotoattēli (Pirmā būs titulbilde)
+            Auto fotoattēli <span style={{ color: '#94a3b8', fontWeight: 'normal' }}>(neobligāti)</span>
           </label>
 
           <div
@@ -338,7 +346,7 @@ export default function PievienotAutoPage() {
             <label style={{ cursor: 'pointer', display: 'block' }}>
               <div style={{ fontSize: '28px', marginBottom: '6px' }}>📷</div>
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#334155', margin: '0 0 4px 0' }}>
-                Ievelciet bildes šeit vai noklikšķiniet, lai izvēlētos vairākas
+                Ievelciet bildes šeit vai noklikšķiniet, lai izvēlētos
               </p>
               <input
                 type="file"
@@ -409,7 +417,7 @@ export default function PievienotAutoPage() {
             rows={4}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Aprakstiet auto stāvokli..."
+            placeholder="Aprakstiet auto stāvokli (neobligāts)..."
             style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '15px' }}
           />
         </div>
