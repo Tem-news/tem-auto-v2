@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
-// Plašs pasaules valodu saraksts ar SVG karodziņu kodiem (ISO 3166-1 alpha-2 mazajiem burtiem)
+// Plašs pasaules valodu saraksts ar SVG karodziņu kodiem
 const LANGUAGES = [
   { code: 'LV', name: 'Latviešu', flagCode: 'lv' },
   { code: 'EN', name: 'English', flagCode: 'gb' },
@@ -149,7 +149,21 @@ export default function Header() {
   const currentRegionObj = REGIONS.find(r => r.name === currentRegion)
 
   return (
-    <header style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', position: 'relative', zIndex: 50 }}>
+    <header 
+      style={{ 
+        backgroundColor: '#0f172a', 
+        color: '#ffffff', 
+        padding: '12px 24px', 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        flexWrap: 'wrap', 
+        gap: '12px', 
+        position: 'sticky', 
+        top: 0, 
+        zIndex: 1000 
+      }}
+    >
       
       {/* Kreisā puse: Logo un Skaitītājs */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
