@@ -322,12 +322,8 @@ export default function Header() {
           )}
         </div>
 
-        {/* Navigācija */}
+        {/* Navigācija (bez Sākums pogas) */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <Link href="/" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '14px' }}>
-            Sākums
-          </Link>
-
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ fontSize: '12px', color: '#cbd5e1', backgroundColor: '#1e293b', padding: '3px 10px', borderRadius: '12px', border: '1px solid #334155' }}>
