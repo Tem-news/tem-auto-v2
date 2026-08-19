@@ -5,75 +5,75 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
-// Plašs pasaules valodu saraksts
+// Plašs pasaules valodu saraksts ar SVG karodziņu kodiem (ISO 3166-1 alpha-2 mazajiem burtiem)
 const LANGUAGES = [
-  { code: 'LV', name: 'Latviešu' },
-  { code: 'EN', name: 'English' },
-  { code: 'RU', name: 'Русский' },
-  { code: 'DE', name: 'Deutsch' },
-  { code: 'ES', name: 'Español' },
-  { code: 'FR', name: 'Français' },
-  { code: 'IT', name: 'Italiano' },
-  { code: 'PL', name: 'Polski' },
-  { code: 'EE', name: 'Eesti' },
-  { code: 'LT', name: 'Lietuvių' },
-  { code: 'FI', name: 'Suomi' },
-  { code: 'SV', name: 'Svenska' },
-  { code: 'NO', name: 'Norsk' },
-  { code: 'DA', name: 'Dansk' },
-  { code: 'NL', name: 'Nederlands' },
-  { code: 'PT', name: 'Português' },
-  { code: 'CS', name: 'Čeština' },
-  { code: 'SK', name: 'Slovenčina' },
-  { code: 'HU', name: 'Magyar' },
-  { code: 'RO', name: 'Română' },
-  { code: 'BG', name: 'Български' },
-  { code: 'EL', name: 'Ελληνικά' },
-  { code: 'UK', name: 'Українська' },
-  { code: 'TR', name: 'Türkçe' },
-  { code: 'ZH', name: '中文 (Chinese)' },
-  { code: 'JA', name: '日本語 (Japanese)' },
-  { code: 'KO', name: '한국어 (Korean)' },
-  { code: 'HI', name: 'हिन्दी (Hindi)' },
-  { code: 'AR', name: 'العربية (Arabic)' },
-  { code: 'HE', name: 'עברית (Hebrew)' }
+  { code: 'LV', name: 'Latviešu', flagCode: 'lv' },
+  { code: 'EN', name: 'English', flagCode: 'gb' },
+  { code: 'RU', name: 'Русский', flagCode: 'ru' },
+  { code: 'DE', name: 'Deutsch', flagCode: 'de' },
+  { code: 'ES', name: 'Español', flagCode: 'es' },
+  { code: 'FR', name: 'Français', flagCode: 'fr' },
+  { code: 'IT', name: 'Italiano', flagCode: 'it' },
+  { code: 'PL', name: 'Polski', flagCode: 'pl' },
+  { code: 'EE', name: 'Eesti', flagCode: 'ee' },
+  { code: 'LT', name: 'Lietuvių', flagCode: 'lt' },
+  { code: 'FI', name: 'Suomi', flagCode: 'fi' },
+  { code: 'SV', name: 'Svenska', flagCode: 'se' },
+  { code: 'NO', name: 'Norsk', flagCode: 'no' },
+  { code: 'DA', name: 'Dansk', flagCode: 'dk' },
+  { code: 'NL', name: 'Nederlands', flagCode: 'nl' },
+  { code: 'PT', name: 'Português', flagCode: 'pt' },
+  { code: 'CS', name: 'Čeština', flagCode: 'cz' },
+  { code: 'SK', name: 'Slovenčina', flagCode: 'sk' },
+  { code: 'HU', name: 'Magyar', flagCode: 'hu' },
+  { code: 'RO', name: 'Română', flagCode: 'ro' },
+  { code: 'BG', name: 'Български', flagCode: 'bg' },
+  { code: 'EL', name: 'Ελληνικά', flagCode: 'gr' },
+  { code: 'UK', name: 'Українська', flagCode: 'ua' },
+  { code: 'TR', name: 'Türkçe', flagCode: 'tr' },
+  { code: 'ZH', name: '中文 (Chinese)', flagCode: 'cn' },
+  { code: 'JA', name: '日本語 (Japanese)', flagCode: 'jp' },
+  { code: 'KO', name: '한국어 (Korean)', flagCode: 'kr' },
+  { code: 'HI', name: 'हिन्दी (Hindi)', flagCode: 'in' },
+  { code: 'AR', name: 'العربية (Arabic)', flagCode: 'sa' },
+  { code: 'HE', name: 'עברית (Hebrew)', flagCode: 'il' }
 ]
 
-// Izvērsts pasaules reģionu un valstu saraksts
+// Izvērsts pasaules reģionu un valstu saraksts ar SVG karodziņiem
 const REGIONS = [
-  { name: 'Eiropa (EUR)', group: 'Kontinents' },
-  { name: 'Latvija (EUR)', group: 'Baltija' },
-  { name: 'Lietuva (EUR)', group: 'Baltija' },
-  { name: 'Igaunija (EUR)', group: 'Baltija' },
-  { name: 'Vācija (EUR)', group: 'Centrāleiropa' },
-  { name: 'Apvienotā Karaliste (GBP)', group: 'Eiropa' },
-  { name: 'Francija (EUR)', group: 'Eiropa' },
-  { name: 'Spānija (EUR)', group: 'Eiropa' },
-  { name: 'Itālija (EUR)', group: 'Eiropa' },
-  { name: 'Polija (PLN)', group: 'Eiropa' },
-  { name: 'Zviedrija (SEK)', group: 'Skandināvija' },
-  { name: 'Norvēģija (NOK)', group: 'Skandināvija' },
-  { name: 'Somija (EUR)', group: 'Skandināvija' },
-  { name: 'Dānija (DKK)', group: 'Skandināvija' },
-  { name: 'Nīderlande (EUR)', group: 'Eiropa' },
-  { name: 'Beļģija (EUR)', group: 'Eiropa' },
-  { name: 'Austrija (EUR)', group: 'Eiropa' },
-  { name: 'Šveice (CHF)', group: 'Eiropa' },
-  { name: 'Čehija (CZK)', group: 'Eiropa' },
-  { name: 'Ukraina (UAH)', group: 'Austrumeiropa' },
-  { name: 'Turcija (TRY)', group: 'Eirāzija' },
-  { name: 'ASV & Ziemeļamerika (USD)', group: 'Ziemeļamerika' },
-  { name: 'Kanāda (CAD)', group: 'Ziemeļamerika' },
-  { name: 'Meksika (MXN)', group: 'Ziemeļamerika' },
-  { name: 'Brazīlija (BRL)', group: 'Dienvidamerika' },
-  { name: 'Argentīna (ARS)', group: 'Dienvidamerika' },
-  { name: 'Austrālija (AUD)', group: 'Okeānija' },
-  { name: 'Jaunzēlande (NZD)', group: 'Okeānija' },
-  { name: 'Japāna (JPY)', group: 'Āzija' },
-  { name: 'Ķīna (CNY)', group: 'Āzija' },
-  { name: 'Dienvidkoreja (KRW)', group: 'Āzija' },
-  { name: 'Indija (INR)', group: 'Āzija' },
-  { name: 'Apvienotie Arābu Emirāti (AED)', group: 'Tuvie Austrumi' }
+  { name: 'Eiropa (EUR)', flagCode: 'eu', group: 'Kontinents' },
+  { name: 'Latvija (EUR)', flagCode: 'lv', group: 'Baltija' },
+  { name: 'Lietuva (EUR)', flagCode: 'lt', group: 'Baltija' },
+  { name: 'Igaunija (EUR)', flagCode: 'ee', group: 'Baltija' },
+  { name: 'Vācija (EUR)', flagCode: 'de', group: 'Centrāleiropa' },
+  { name: 'Apvienotā Karaliste (GBP)', flagCode: 'gb', group: 'Eiropa' },
+  { name: 'Francija (EUR)', flagCode: 'fr', group: 'Eiropa' },
+  { name: 'Spānija (EUR)', flagCode: 'es', group: 'Eiropa' },
+  { name: 'Itālija (EUR)', flagCode: 'it', group: 'Eiropa' },
+  { name: 'Polija (PLN)', flagCode: 'pl', group: 'Eiropa' },
+  { name: 'Zviedrija (SEK)', flagCode: 'se', group: 'Skandināvija' },
+  { name: 'Norvēģija (NOK)', flagCode: 'no', group: 'Skandināvija' },
+  { name: 'Somija (EUR)', flagCode: 'fi', group: 'Skandināvija' },
+  { name: 'Dānija (DKK)', flagCode: 'dk', group: 'Skandināvija' },
+  { name: 'Nīderlande (EUR)', flagCode: 'nl', group: 'Eiropa' },
+  { name: 'Beļģija (EUR)', flagCode: 'be', group: 'Eiropa' },
+  { name: 'Austrija (EUR)', flagCode: 'at', group: 'Eiropa' },
+  { name: 'Šveice (CHF)', flagCode: 'ch', group: 'Eiropa' },
+  { name: 'Čehija (CZK)', flagCode: 'cz', group: 'Eiropa' },
+  { name: 'Ukraina (UAH)', flagCode: 'ua', group: 'Austrumeiropa' },
+  { name: 'Turcija (TRY)', flagCode: 'tr', group: 'Eirāzija' },
+  { name: 'ASV & Ziemeļamerika (USD)', flagCode: 'us', group: 'Ziemeļamerika' },
+  { name: 'Kanāda (CAD)', flagCode: 'ca', group: 'Ziemeļamerika' },
+  { name: 'Meksika (MXN)', flagCode: 'mx', group: 'Ziemeļamerika' },
+  { name: 'Brazīlija (BRL)', flagCode: 'br', group: 'Dienvidamerika' },
+  { name: 'Argentīna (ARS)', flagCode: 'ar', group: 'Dienvidamerika' },
+  { name: 'Austrālija (AUD)', flagCode: 'au', group: 'Okeānija' },
+  { name: 'Jaunzēlande (NZD)', flagCode: 'nz', group: 'Okeānija' },
+  { name: 'Japāna (JPY)', flagCode: 'jp', group: 'Āzija' },
+  { name: 'Ķīna (CNY)', flagCode: 'cn', group: 'Āzija' },
+  { name: 'Dienvidkoreja (KRW)', flagCode: 'kr', group: 'Āzija' },
+  { name: 'Indija (INR)', flagCode: 'in', group: 'Āzija' },
+  { name: 'Apvienotie Arābu Emirāti (AED)', flagCode: 'ae', group: 'Tuvie Austrumi' }
 ]
 
 export default function Header() {
@@ -81,11 +81,9 @@ export default function Header() {
   const [user, setUser] = useState<any>(null)
   const [visitCount, setVisitCount] = useState<number>(0)
 
-  // Stāvokļi valodai un reģionam
   const [currentLang, setCurrentLang] = useState('LV')
   const [currentRegion, setCurrentRegion] = useState('Eiropa (EUR)')
 
-  // Izlecošo logu un meklēšanas stāvokļi
   const [langOpen, setLangOpen] = useState(false)
   const [regionOpen, setRegionOpen] = useState(false)
   const [langSearch, setLangSearch] = useState('')
@@ -138,7 +136,6 @@ export default function Header() {
     router.refresh()
   }
 
-  // Filtrētie saraksti meklēšanai
   const filteredLanguages = LANGUAGES.filter(l => 
     l.name.toLowerCase().includes(langSearch.toLowerCase()) || 
     l.code.toLowerCase().includes(langSearch.toLowerCase())
@@ -148,16 +145,18 @@ export default function Header() {
     r.name.toLowerCase().includes(regionSearch.toLowerCase())
   )
 
+  const currentLangObj = LANGUAGES.find(l => l.code === currentLang)
+  const currentRegionObj = REGIONS.find(r => r.name === currentRegion)
+
   return (
     <header style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', position: 'relative', zIndex: 50 }}>
       
-      {/* Kreisā puse: Logo un Skaitītājs vienā rindā */}
+      {/* Kreisā puse: Logo un Skaitītājs */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
         <Link href="/" style={{ fontSize: '20px', fontWeight: 'bold', color: '#22c55e', textDecoration: 'none' }}>
           TemAuto
         </Link>
 
-        {/* Apmeklētāju skaitītājs */}
         <button
           onClick={() => alert(`Kopējie unikālie apmeklējumi pēdējajās 24h: ${visitCount}`)}
           title="Apmeklētāju skaits pēdējo 24 stundu laikā"
@@ -180,10 +179,10 @@ export default function Header() {
         </button>
       </div>
 
-      {/* Vidus/Labā puse: Valoda, Reģions un Navigācija vienā rindā */}
+      {/* Labā puse: Valoda, Reģions un Navigācija */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
         
-        {/* 1. VALODAS IZVĒLNE AR MEKLĒŠANU */}
+        {/* 1. VALODAS IZVĒLNE AR SVG KAROGIEM */}
         <div style={{ position: 'relative' }} ref={langRef}>
           <button
             onClick={() => { setLangOpen(!langOpen); setRegionOpen(false); }}
@@ -198,14 +197,21 @@ export default function Header() {
               color: '#fff',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '8px'
             }}
           >
-            <span>🌐</span> Valoda: {currentLang} ▾
+            {currentLangObj && (
+              <img 
+                src={`https://flagcdn.com/20x15/${currentLangObj.flagCode}.png`} 
+                alt="" 
+                style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} 
+              />
+            )}
+            Valoda: {currentLang} ▾
           </button>
 
           {langOpen && (
-            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '220px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
+            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '230px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
               <input
                 type="text"
                 placeholder="Sāc rakstīt valodu..."
@@ -219,12 +225,19 @@ export default function Header() {
                   <div
                     key={l.code}
                     onClick={() => { setCurrentLang(l.code); setLangOpen(false); setLangSearch(''); }}
-                    style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: currentLang === l.code ? '#22c55e' : '#e2e8f0', backgroundColor: currentLang === l.code ? '#334155' : 'transparent' }}
+                    style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: currentLang === l.code ? '#22c55e' : '#e2e8f0', backgroundColor: currentLang === l.code ? '#334155' : 'transparent' }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentLang === l.code ? '#334155' : 'transparent'}
                   >
-                    <span>{l.name}</span>
-                    <span style={{ fontSize: '11px', color: '#94a3b8', backgroundColor: '#0f172a', padding: '2px 6px', borderRadius: '4px' }}>{l.code}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <img 
+                        src={`https://flagcdn.com/20x15/${l.flagCode}.png`} 
+                        alt="" 
+                        style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} 
+                      />
+                      <span>{l.name}</span>
+                    </div>
+                    <span style={{ fontSize: '10px', color: '#94a3b8', backgroundColor: '#0f172a', padding: '2px 5px', borderRadius: '3px' }}>{l.code}</span>
                   </div>
                 ))}
               </div>
@@ -232,7 +245,7 @@ export default function Header() {
           )}
         </div>
 
-        {/* 2. REĢIONA IZVĒLNE AR MEKLĒŠANU */}
+        {/* 2. REĢIONA IZVĒLNE AR SVG KAROGIEM */}
         <div style={{ position: 'relative' }} ref={regionRef}>
           <button
             onClick={() => { setRegionOpen(!regionOpen); setLangOpen(false); }}
@@ -247,10 +260,17 @@ export default function Header() {
               color: '#fff',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '8px'
             }}
           >
-            <span>🌍</span> Reģions: {currentRegion} ▾
+            {currentRegionObj && (
+              <img 
+                src={`https://flagcdn.com/20x15/${currentRegionObj.flagCode}.png`} 
+                alt="" 
+                style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} 
+              />
+            )}
+            Reģions: {currentRegion} ▾
           </button>
 
           {regionOpen && (
@@ -268,11 +288,18 @@ export default function Header() {
                   <div
                     key={r.name}
                     onClick={() => { setCurrentRegion(r.name); setRegionOpen(false); setRegionSearch(''); }}
-                    style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: currentRegion === r.name ? '#22c55e' : '#e2e8f0', backgroundColor: currentRegion === r.name ? '#334155' : 'transparent' }}
+                    style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: currentRegion === r.name ? '#22c55e' : '#e2e8f0', backgroundColor: currentRegion === r.name ? '#334155' : 'transparent' }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentRegion === r.name ? '#334155' : 'transparent'}
                   >
-                    <span>{r.name}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <img 
+                        src={`https://flagcdn.com/20x15/${r.flagCode}.png`} 
+                        alt="" 
+                        style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} 
+                      />
+                      <span>{r.name}</span>
+                    </div>
                     <span style={{ fontSize: '10px', color: '#94a3b8' }}>{r.group}</span>
                   </div>
                 ))}
@@ -281,7 +308,7 @@ export default function Header() {
           )}
         </div>
 
-        {/* Standarta navigācija */}
+        {/* Navigācija */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <Link href="/" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '14px' }}>
             Sākums
