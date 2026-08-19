@@ -106,31 +106,32 @@ export default function Header() {
   return (
     <header style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', position: 'relative', zIndex: 50 }}>
       
-      {/* Kreisā puse: Logo un 24h Skaitītājs vienā rindā */}
+      {/* Kreisā puse: Logo un Skaitītājs vienā rindā */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
         <Link href="/" style={{ fontSize: '20px', fontWeight: 'bold', color: '#22c55e', textDecoration: 'none' }}>
           TemAuto
         </Link>
 
-        {/* 24h apmeklētāju poga */}
+        {/* Uzlabota apmeklētāju skaitītāja poga */}
         <button
           onClick={() => alert(`Kopējie unikālie apmeklējumi pēdējajās 24h: ${visitCount}`)}
+          title="Apmeklētāju skaits pēdējo 24 stundu laikā"
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            padding: '4px 10px',
+            padding: '5px 12px',
             backgroundColor: '#1e293b',
             border: '1px solid #334155',
             borderRadius: '20px',
             cursor: 'pointer',
-            fontSize: '12px',
-            color: '#cbd5e1',
+            fontSize: '13px',
+            color: '#e2e8f0',
             fontWeight: '500'
           }}
         >
-          <span style={{ width: '7px', height: '7px', backgroundColor: '#22c55e', borderRadius: '50%', display: 'inline-block' }}></span>
-          <span>24h: <strong>{visitCount}</strong></span>
+          <span style={{ fontSize: '14px' }}>👥</span>
+          <span>Apmeklētāji 24h: <strong style={{ color: '#22c55e' }}>{visitCount}</strong></span>
         </button>
       </div>
 
