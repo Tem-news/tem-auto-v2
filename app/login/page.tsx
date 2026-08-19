@@ -9,7 +9,7 @@ export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false) // Acs stāvoklis
+  const [showPassword, setShowPassword] = useState(false)
   const [isRegistering, setIsRegistering] = useState(false)
   const [message, setMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
   const [loading, setLoading] = useState(false)
@@ -31,7 +31,15 @@ export default function LoginPage() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
-        router.push('/')
+
+        // Pārbaudām, vai ir saglabāta lapa, uz kuru lietotājs gribēja iet
+        const redirectUrl = sessionStorage.getItem('redirectAfterLogin')
+        if (redirectUrl) {
+          sessionStorage.removeItem('redirectAfterLogin') // Notīrām, lai nepaliek atmiņā
+          router.push(redirectUrl)
+        } else {
+          router.push('/')
+        }
         router.refresh()
       }
     } catch (err: any) {
