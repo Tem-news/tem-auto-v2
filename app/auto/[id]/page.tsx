@@ -60,6 +60,30 @@ export default function AutoLapa() {
     }
   }
 
+  // Apvienojam visas bildes sarakstā galerijai
+  const allImages: string[] = []
+  if (car?.image) allImages.push(car.image)
+  if (Array.isArray(car?.images)) {
+    car.images.forEach((img: string) => {
+      if (img && !allImages.includes(img)) allImages.push(img)
+    })
+  }
+
+  // Funkcijas bilžu pārslēgšanai uz riņķi
+  const handlePrevImage = () => {
+    if (allImages.length <= 1) return
+    const currentIndex = allImages.indexOf(activeImage)
+    const newIndex = currentIndex === 0 ? allImages.length - 1 : currentIndex - 1
+    setActiveImage(allImages[newIndex])
+  }
+
+  const handleNextImage = () => {
+    if (allImages.length <= 1) return
+    const currentIndex = allImages.indexOf(activeImage)
+    const newIndex = currentIndex === allImages.length - 1 ? 0 : currentIndex + 1
+    setActiveImage(allImages[newIndex])
+  }
+
   if (loading) {
     return <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280' }}>Ielādē datus...</div>
   }
@@ -71,15 +95,6 @@ export default function AutoLapa() {
         <Link href="/" style={{ color: '#2563eb', textDecoration: 'underline' }}>Atpakaļ uz sarakstu</Link>
       </div>
     )
-  }
-
-  // Apvienojam visas bildes sarakstā galerijai
-  const allImages: string[] = []
-  if (car.image) allImages.push(car.image)
-  if (Array.isArray(car.images)) {
-    car.images.forEach((img: string) => {
-      if (img && !allImages.includes(img)) allImages.push(img)
-    })
   }
 
   return (
@@ -126,10 +141,59 @@ export default function AutoLapa() {
         {car.make} {car.model} {car.year ? `(${car.year})` : ''}
       </h1>
 
-      {/* Lielais attēls */}
+      {/* Lielais attēls ar bultciņām */}
       {activeImage && (
-        <div style={{ width: '100%', height: '400px', borderRadius: '12px', overflow: 'hidden', backgroundColor: '#f3f4f6', marginBottom: '12px' }}>
+        <div style={{ position: 'relative', width: '100%', height: '400px', borderRadius: '12px', overflow: 'hidden', backgroundColor: '#f3f4f6', marginBottom: '12px' }}>
           <img src={activeImage} alt={`${car.make} ${car.model}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          
+          {allImages.length > 1 && (
+            <>
+              <button
+                onClick={handlePrevImage}
+                style={{
+                  position: 'absolute',
+                  left: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '40px',
+                  height: '40px',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                ❮
+              </button>
+              <button
+                onClick={handleNextImage}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '40px',
+                  height: '40px',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                ❯
+              </button>
+            </>
+          )}
         </div>
       )}
 
