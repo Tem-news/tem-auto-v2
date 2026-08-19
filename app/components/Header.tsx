@@ -136,6 +136,17 @@ export default function Header() {
     router.refresh()
   }
 
+  // Pievienota funkcija, kas saglabā ceļu un aizved uz login, ja nav ielogojies
+  const handleAddCarClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    if (!user) {
+      sessionStorage.setItem('redirectAfterLogin', '/pievienot')
+      router.push('/login')
+    } else {
+      router.push('/pievienot')
+    }
+  }
+
   const filteredLanguages = LANGUAGES.filter(l => 
     l.name.toLowerCase().includes(langSearch.toLowerCase()) || 
     l.code.toLowerCase().includes(langSearch.toLowerCase())
@@ -322,7 +333,7 @@ export default function Header() {
           )}
         </div>
 
-        {/* Navigācija (bez Sākums pogas) */}
+        {/* Navigācija */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -342,12 +353,13 @@ export default function Header() {
             </Link>
           )}
 
-          <Link
-            href={user ? "/pievienot" : "/login"}
-            style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}
+          <a
+            href="/pievienot"
+            onClick={handleAddCarClick}
+            style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', display: 'inline-block', cursor: 'pointer' }}
           >
             + Pievienot auto
-          </Link>
+          </a>
         </nav>
       </div>
     </header>
