@@ -33,16 +33,13 @@ export default function RedigetAuto() {
     if (!id) return
 
     async function checkAuthAndLoadCar() {
-      // Meklē rindu 36:
-async function checkAuthAndLoadCar() {
-  // 1. Pārbaudām, vai lietotājs ir ielogojies
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
-    // NOMAINI ŠO RINDU (ap 39. rindu) UZ ŠO:
-    sessionStorage.setItem('redirectAfterLogin', window.location.pathname)
-    router.push('/login')
-    return
-  }
+      // 1. Pārbaudām, vai lietotājs ir ielogojies
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        sessionStorage.setItem('redirectAfterLogin', window.location.pathname)
+        router.push('/login')
+        return
+      }
 
       // 2. Ielādējam sludinājumu
       const { data, error } = await supabase.from('cars').select('*').eq('id', id).single()
