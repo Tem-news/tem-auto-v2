@@ -11,6 +11,7 @@ export default function RedigetAuto() {
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
 
   // Visi lauki
   const [make, setMake] = useState('')
@@ -30,28 +31,52 @@ export default function RedigetAuto() {
 
   useEffect(() => {
     if (!id) return
-    async function loadCar() {
-      const { data } = await supabase.from('cars').select('*').eq('id', id).single()
-      if (data) {
-        setMake(data.make || '')
-        setModel(data.model || '')
-        setYear(data.year ? String(data.year) : '')
-        setPrice(data.price ? String(data.price) : '')
-        setMileage(data.mileage ? String(data.mileage) : '')
-        setEngine(data.engine || '')
-        setFuel(data.fuel || 'Dīzelis')
-        setGearbox(data.gearbox || 'Automāts')
-        setDescription(data.description || '')
-        setPhone(data.phone || '')
-        setEmail(data.email || '')
-        
-        const existing = Array.isArray(data.images) ? data.images : (data.images ? [data.images] : [])
-        setImages(existing.map(url => ({ url, isNew: false })))
+
+    async function checkAuthAndLoadCar() {
+      // 1. Pārbaudām, vai lietotājs ir ielogojies
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        router.push('/login')
+        return
       }
+
+      // 2. Ielādējam sludinājumu
+      const { data, error } = await supabase.from('cars').select('*').eq('id', id).single()
+
+      if (error || !data) {
+        setErrorMsg('Sludinājums nav atrasts.')
+        setLoading(false)
+        return
+      }
+
+      // 3. Pārbaudām, vai ielogotais lietotājs ir šī sludinājuma īpašnieks
+      if (data.user_id && data.user_id !== session.user.id) {
+        setErrorMsg('Tev nav tiesību rediģēt šo sludinājumu!')
+        setLoading(false)
+        return
+      }
+
+      // Ja viss kārtībā, aizpildām datus
+      setMake(data.make || '')
+      setModel(data.model || '')
+      setYear(data.year ? String(data.year) : '')
+      setPrice(data.price ? String(data.price) : '')
+      setMileage(data.mileage ? String(data.mileage) : '')
+      setEngine(data.engine || '')
+      setFuel(data.fuel || 'Dīzelis')
+      setGearbox(data.gearbox || 'Automāts')
+      setDescription(data.description || '')
+      setPhone(data.phone || '')
+      setEmail(data.email || '')
+      
+      const existing = Array.isArray(data.images) ? data.images : (data.images ? [data.images] : [])
+      setImages(existing.map(url => ({ url, isNew: false })))
+      
       setLoading(false)
     }
-    loadCar()
-  }, [id])
+
+    checkAuthAndLoadCar()
+  }, [id, router])
 
   // Pārvietot bildi ar bultiņām
   const moveImage = (index: number, direction: 'left' | 'right') => {
@@ -95,13 +120,25 @@ export default function RedigetAuto() {
       phone,
       email,
       images: finalUrls,
-      image: finalUrls[0] || null // Pirmā bilde automātiski ir titulbilde
+      image: finalUrls[0] || null
     }).eq('id', id)
 
     router.push(`/auto/${id}`)
   }
 
-  if (loading) return <div style={{textAlign: 'center', padding: '50px', fontSize: '18px'}}>Ielādē datus...</div>
+  if (loading) return <div style={{textAlign: 'center', padding: '50px', fontSize: '18px'}}>Pārbauda piekļuves tiesības...</div>
+
+  if (errorMsg) {
+    return (
+      <div style={{ maxWidth: '600px', margin: '60px auto', padding: '30px', background: '#fff', borderRadius: '15px', textAlign: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
+        <h2 style={{ color: '#ef4444', marginBottom: '15px' }}>Piekļuve liegta</h2>
+        <p style={{ color: '#334155', marginBottom: '20px' }}>{errorMsg}</p>
+        <button onClick={() => router.push('/')} style={{ padding: '10px 20px', background: '#0f172a', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+          Atgriezties sākumā
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div style={{ maxWidth: '800px', margin: '40px auto', padding: '30px', background: '#fff', borderRadius: '15px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
@@ -166,7 +203,7 @@ export default function RedigetAuto() {
           <input type="email" placeholder="Piem. epasts@inbox.lv" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
         </div>
 
-        {/* BILŽU SADAĻA AR ARROW BULTIŅĀM UN TITULBIĻDI */}
+        {/* BILŽU SADAĻA */}
         <div style={{ marginTop: '10px', borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Bildes (pirmā ir galvenā titulbilde):</label>
           <span style={{ fontSize: '13px', color: '#64748b', display: 'block', marginBottom: '10px' }}>
@@ -182,7 +219,6 @@ export default function RedigetAuto() {
                 <div key={i} style={{ position: 'relative', width: '120px', height: '120px', background: '#f1f5f9', borderRadius: '8px', overflow: 'hidden', border: isMain ? '3px solid #2563eb' : '1px solid #cbd5e1' }}>
                   <img src={previewUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   
-                  {/* Dzēšanas poga (X) */}
                   <button 
                     type="button" 
                     onClick={() => removeImage(i)} 
@@ -197,7 +233,6 @@ export default function RedigetAuto() {
                     ×
                   </button>
 
-                  {/* Bultiņu vadība apakšdaļā */}
                   <div style={{ 
                     position: 'absolute', bottom: '0', left: '0', right: '0', 
                     background: 'rgba(0,0,0,0.75)', display: 'flex', justifyContent: 'space-between', padding: '3px 6px', alignItems: 'center' 
