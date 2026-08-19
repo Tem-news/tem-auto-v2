@@ -30,7 +30,7 @@ export default function Sakumlapa() {
         setCars(carsData || [])
       }
 
-      // 3. Saskaitām apmeklējumus pēdējās 24 stundās
+      // 3. Saskaitām apmeklējumus pēdējajās 24 stundās
       const twentyFourHoursAgo = new Date(new Date().getTime() - 24 * 60 * 60 * 1000).toISOString()
       const { count, error: countError } = await supabase
         .from('site_visits')
@@ -59,9 +59,9 @@ export default function Sakumlapa() {
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
       
-      {/* Augšējā josla */}
+      {/* Augšējā josla (atstāta tikai virsraksta un skaitītāja daļa, dubultā poga noņemta) */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
           <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
           
           {/* Apmeklētāju skaitītāja poga */}
@@ -85,20 +85,6 @@ export default function Sakumlapa() {
             <span>Apmeklētāji 24h: <strong>{visitCount}</strong></span>
           </button>
         </div>
-
-        <Link
-          href="/pievienot"
-          style={{
-            padding: '10px 18px',
-            backgroundColor: '#16a34a',
-            color: '#fff',
-            borderRadius: '6px',
-            textDecoration: 'none',
-            fontWeight: 'bold'
-          }}
-        >
-          + Pievienot auto
-        </Link>
       </div>
 
       {/* Meklēšanas un Filtru josla */}
