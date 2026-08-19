@@ -7,27 +7,44 @@ import { supabase } from '../lib/supabase'
 export default function Sakumlapa() {
   const [cars, setCars] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [visitCount, setVisitCount] = useState<number>(0)
 
   // Filtri
   const [search, setSearch] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
 
   useEffect(() => {
-    async function fetchCars() {
-      const { data, error } = await supabase
+    async function fetchData() {
+      // 1. Reģistrējam pašreizējo apmeklējumu
+      await supabase.from('site_visits').insert([{ region: 'Rīga un apkārtne' }])
+
+      // 2. Ielādējam auto sludinājumus
+      const { data: carsData, error: carsError } = await supabase
         .from('cars')
         .select('*')
         .order('created_at', { ascending: false })
 
-      if (error) {
-        console.error('Kļūda ielādējot auto:', error)
+      if (carsError) {
+        console.error('Kļūda ielādējot auto:', carsError)
       } else {
-        setCars(data || [])
+        setCars(carsData || [])
       }
+
+      // 3. Saskaitām apmeklējumus pēdējās 24 stundās
+      const twentyFourHoursAgo = new Date(new Date().getTime() - 24 * 60 * 60 * 1000).toISOString()
+      const { count, error: countError } = await supabase
+        .from('site_visits')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', twentyFourHoursAgo)
+
+      if (!countError && count !== null) {
+        setVisitCount(count)
+      }
+
       setLoading(false)
     }
 
-    fetchCars()
+    fetchData()
   }, [])
 
   // Filtrēšanas loģika
@@ -43,8 +60,32 @@ export default function Sakumlapa() {
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
       
       {/* Augšējā josla */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
+          
+          {/* Apmeklētāju skaitītāja poga */}
+          <button
+            onClick={() => alert(`Kopējie unikālie apmeklējumi pēdējajās 24h: ${visitCount}\nReģionu detalizētā statistika tiks atvērta drīzumā!`)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 12px',
+              backgroundColor: '#f3f4f6',
+              border: '1px solid #d1d5db',
+              borderRadius: '20px',
+              cursor: 'pointer',
+              fontSize: '13px',
+              color: '#374151',
+              fontWeight: '500'
+            }}
+          >
+            <span style={{ width: '8px', height: '8px', backgroundColor: '#16a34a', borderRadius: '50%', display: 'inline-block' }}></span>
+            <span>Apmeklētāji 24h: <strong>{visitCount}</strong></span>
+          </button>
+        </div>
+
         <Link
           href="/pievienot"
           style={{
