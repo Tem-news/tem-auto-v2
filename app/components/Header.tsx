@@ -5,27 +5,42 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
-// Saraksti pasaulei
+// Plašāks pasaules valodu saraksts ar karodziņiem
 const LANGUAGES = [
-  { code: 'LV', name: 'Latviešu' },
-  { code: 'EN', name: 'English' },
-  { code: 'ES', name: 'Español' },
-  { code: 'ZH', name: '中文 (Chinese)' },
-  { code: 'JA', name: '日本語 (Japanese)' },
-  { code: 'HI', name: 'हिन्दी (Hindi)' },
-  { code: 'DE', name: 'Deutsch' },
-  { code: 'FR', name: 'Français' },
-  { code: 'AR', name: 'العربية (Arabic)' }
+  { code: 'LV', name: 'Latviešu', flag: '🇱🇻' },
+  { code: 'EN', name: 'English', flag: '🇬🇧' },
+  { code: 'RU', name: 'Русский', flag: '🇷🇺' },
+  { code: 'DE', name: 'Deutsch', flag: '🇩🇪' },
+  { code: 'ES', name: 'Español', flag: '🇪🇸' },
+  { code: 'FR', name: 'Français', flag: '🇫🇷' },
+  { code: 'IT', name: 'Italiano', flag: '🇮🇹' },
+  { code: 'PL', name: 'Polski', flag: '🇵🇱' },
+  { code: 'EE', name: 'Eesti', flag: '🇪🇪' },
+  { code: 'LT', name: 'Lietuvių', flag: '🇱🇹' },
+  { code: 'FI', name: 'Suomi', flag: '🇫🇮' },
+  { code: 'SV', name: 'Svenska', flag: '🇸🇪' },
+  { code: 'ZH', name: '中文 (Chinese)', flag: '🇨🇳' },
+  { code: 'JA', name: '日本語 (Japanese)', flag: '🇯🇵' },
+  { code: 'HI', name: 'हिन्दी (Hindi)', flag: '🇮🇳' },
+  { code: 'AR', name: 'العربية (Arabic)', flag: '🇸🇦' }
 ]
 
+// Pasaules biežākie reģioni / valstis ar valūtām un karodziņiem
 const REGIONS = [
-  { name: 'Eiropa (EUR)', country: 'Eiropa' },
-  { name: 'ASV & Ziemeļamerika (USD)', country: 'ASV' },
-  { name: 'Ķīna (CNY)', country: 'Ķīna' },
-  { name: 'Japāna (JPY)', country: 'Japāna' },
-  { name: 'Indija (INR)', country: 'Indija' },
-  { name: 'Dienvidamerika (USD/BRL)', country: 'Dienvidamerika' },
-  { name: 'Apvienotā Karaliste (GBP)', country: 'UK' }
+  { name: 'Eiropa (EUR)', flag: '🇪🇺' },
+  { name: 'Latvija (EUR)', flag: '🇱🇻' },
+  { name: 'Lietuva (EUR)', flag: '🇱🇹' },
+  { name: 'Igaunija (EUR)', flag: '🇪🇪' },
+  { name: 'Vācija (EUR)', flag: '🇩🇪' },
+  { name: 'Apvienotā Karaliste (GBP)', flag: '🇬🇧' },
+  { name: 'ASV & Ziemeļamerika (USD)', flag: '🇺🇸' },
+  { name: 'Skandināvija (SEK/NOK/EUR)', flag: '🇸🇪' },
+  { name: 'Polija (PLN)', flag: '🇵🇱' },
+  { name: 'Austrālija (AUD)', flag: '🇦🇺' },
+  { name: 'Japāna (JPY)', flag: '🇯🇵' },
+  { name: 'Ķīna (CNY)', flag: '🇨🇳' },
+  { name: 'Indija (INR)', flag: '🇮🇳' },
+  { name: 'Dienvidamerika (USD/BRL)', flag: '🇧🇷' }
 ]
 
 export default function Header() {
@@ -103,6 +118,10 @@ export default function Header() {
     r.name.toLowerCase().includes(regionSearch.toLowerCase())
   )
 
+  // Atrast pašreizējos karodziņus pogām
+  const currentLangObj = LANGUAGES.find(l => l.code === currentLang)
+  const currentRegionObj = REGIONS.find(r => r.name === currentRegion)
+
   return (
     <header style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', position: 'relative', zIndex: 50 }}>
       
@@ -112,7 +131,7 @@ export default function Header() {
           TemAuto
         </Link>
 
-        {/* Uzlabota apmeklētāju skaitītāja poga */}
+        {/* Apmeklētāju skaitītājs */}
         <button
           onClick={() => alert(`Kopējie unikālie apmeklējumi pēdējajās 24h: ${visitCount}`)}
           title="Apmeklētāju skaits pēdējo 24 stundu laikā"
@@ -138,7 +157,7 @@ export default function Header() {
       {/* Vidus/Labā puse: Valoda, Reģions un Navigācija vienā rindā */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
         
-        {/* 1. VALODAS IZVĒLNE AR MEKLĒŠANU */}
+        {/* 1. VALODAS IZVĒLNE AR KAROGU UN MEKLĒŠANU */}
         <div style={{ position: 'relative' }} ref={langRef}>
           <button
             onClick={() => { setLangOpen(!langOpen); setRegionOpen(false); }}
@@ -156,29 +175,29 @@ export default function Header() {
               gap: '6px'
             }}
           >
-            🌐 Valoda: {currentLang} ▾
+            <span>{currentLangObj?.flag || '🌐'}</span> Valoda: {currentLang} ▾
           </button>
 
           {langOpen && (
-            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '200px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
+            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '220px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
               <input
                 type="text"
-                placeholder="Sāc rakstīt..."
+                placeholder="Sāc rakstīt valodu..."
                 value={langSearch}
                 onChange={(e) => setLangSearch(e.target.value)}
                 autoFocus
                 style={{ width: '100%', padding: '6px', backgroundColor: '#0f172a', border: '1px solid #475569', borderRadius: '4px', color: '#fff', fontSize: '12px', boxSizing: 'border-box', marginBottom: '6px' }}
               />
-              <div style={{ maxHeight: '180px', overflowY: 'auto' }}>
+              <div style={{ maxHeight: '220px', overflowY: 'auto' }}>
                 {filteredLanguages.map((l) => (
                   <div
                     key={l.code}
                     onClick={() => { setCurrentLang(l.code); setLangOpen(false); setLangSearch(''); }}
-                    style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', color: currentLang === l.code ? '#22c55e' : '#e2e8f0', backgroundColor: currentLang === l.code ? '#334155' : 'transparent' }}
+                    style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', color: currentLang === l.code ? '#22c55e' : '#e2e8f0', backgroundColor: currentLang === l.code ? '#334155' : 'transparent' }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentLang === l.code ? '#334155' : 'transparent'}
                   >
-                    {l.name} ({l.code})
+                    <span>{l.flag}</span> <span>{l.name} ({l.code})</span>
                   </div>
                 ))}
               </div>
@@ -186,7 +205,7 @@ export default function Header() {
           )}
         </div>
 
-        {/* 2. REĢIONA IZVĒLNE AR MEKLĒŠANU */}
+        {/* 2. REĢIONA IZVĒLNE AR KAROGU UN MEKLĒŠANU */}
         <div style={{ position: 'relative' }} ref={regionRef}>
           <button
             onClick={() => { setRegionOpen(!regionOpen); setLangOpen(false); }}
@@ -204,29 +223,29 @@ export default function Header() {
               gap: '6px'
             }}
           >
-            🌍 Reģions: {currentRegion} ▾
+            <span>{currentRegionObj?.flag || '🌍'}</span> Reģions: {currentRegion} ▾
           </button>
 
           {regionOpen && (
-            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '220px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
+            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '250px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
               <input
                 type="text"
-                placeholder="Meklēt reģionu..."
+                placeholder="Meklēt reģionu / valsti..."
                 value={regionSearch}
                 onChange={(e) => setRegionSearch(e.target.value)}
                 autoFocus
                 style={{ width: '100%', padding: '6px', backgroundColor: '#0f172a', border: '1px solid #475569', borderRadius: '4px', color: '#fff', fontSize: '12px', boxSizing: 'border-box', marginBottom: '6px' }}
               />
-              <div style={{ maxHeight: '180px', overflowY: 'auto' }}>
+              <div style={{ maxHeight: '220px', overflowY: 'auto' }}>
                 {filteredRegions.map((r) => (
                   <div
                     key={r.name}
                     onClick={() => { setCurrentRegion(r.name); setRegionOpen(false); setRegionSearch(''); }}
-                    style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', color: currentRegion === r.name ? '#22c55e' : '#e2e8f0', backgroundColor: currentRegion === r.name ? '#334155' : 'transparent' }}
+                    style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', color: currentRegion === r.name ? '#22c55e' : '#e2e8f0', backgroundColor: currentRegion === r.name ? '#334155' : 'transparent' }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentRegion === r.name ? '#334155' : 'transparent'}
                   >
-                    {r.name}
+                    <span>{r.flag}</span> <span>{r.name}</span>
                   </div>
                 ))}
               </div>
