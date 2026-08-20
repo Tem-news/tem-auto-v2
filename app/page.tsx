@@ -136,7 +136,7 @@ export default function Sakumlapa() {
             {(search || minPrice || maxPrice) && (
               <button
                 onClick={() => { setSearch(''); setMinPrice(''); setMaxPrice(''); }}
-                style={{ padding: '10px 14px', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight:: 'bold' }}
+                style={{ padding: '10px 14px', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
               >
                 Notīrīt
               </button>
