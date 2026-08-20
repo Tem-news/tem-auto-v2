@@ -8,9 +8,10 @@ export default function Sakumlapa() {
   const [cars, setCars] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Filtri
+  // Filtri (pievienots minPrice un iestatīti noklusējuma lauki)
   const [search, setSearch] = useState('')
-  const [maxPrice, setMaxPrice] = useState('')
+  const [minPrice, setMinPrice] = useState('1500')
+  const [maxPrice, setMaxPrice] = useState('3500')
 
   useEffect(() => {
     async function fetchData() {
@@ -32,13 +33,16 @@ export default function Sakumlapa() {
     fetchData()
   }, [])
 
-  // Filtrēšanas loģika
+  // Filtrēšanas loģika (ņem vērā gan nosaukumu, gan cenu robežas)
   const filteredCars = cars.filter((car) => {
     const fullTitle = `${car.make || ''} ${car.model || ''}`.toLowerCase()
     const matchesSearch = fullTitle.includes(search.toLowerCase())
-    const matchesPrice = maxPrice ? Number(car.price) <= Number(maxPrice) : true
+    
+    const carPrice = Number(car.price)
+    const matchesMinPrice = minPrice ? carPrice >= Number(minPrice) : true
+    const matchesMaxPrice = maxPrice ? carPrice <= Number(maxPrice) : true
 
-    return matchesSearch && matchesPrice
+    return matchesSearch && matchesMinPrice && matchesMaxPrice
   })
 
   return (
@@ -56,7 +60,7 @@ export default function Sakumlapa() {
         <div style={{ flex: 1, minWidth: 0 }}>
           
           {/* Meklēšanas un Filtru josla */}
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', backgroundColor: '#f3f4f6', padding: '16px', borderRadius: '8px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', backgroundColor: '#f3f4f6', padding: '16px', borderRadius: '8px', marginBottom: '24px', alignItems: 'center' }}>
             <div style={{ flex: '1', minWidth: '180px' }}>
               <input
                 type="text"
@@ -66,18 +70,32 @@ export default function Sakumlapa() {
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
               />
             </div>
-            <div style={{ width: '140px' }}>
+            
+            <div style={{ width: '130px' }}>
               <input
                 type="number"
-                placeholder="Maks. cena (€)"
+                placeholder="Min. €"
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <span style={{ color: '#4b5563', fontSize: '14px' }}>līdz</span>
+
+            <div style={{ width: '130px' }}>
+              <input
+                type="number"
+                placeholder="Maks. €"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
               />
             </div>
-            {(search || maxPrice) && (
+
+            {(search || minPrice || maxPrice) && (
               <button
-                onClick={() => { setSearch(''); setMaxPrice(''); }}
+                onClick={() => { setSearch(''); setMinPrice(''); setMaxPrice(''); }}
                 style={{ padding: '10px 14px', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
               >
                 Notīrīt
@@ -89,7 +107,7 @@ export default function Sakumlapa() {
           {loading ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Ielādē sludinājumus...</div>
           ) : filteredCars.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Nav atrasts neviens auto.</div>
+            <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Nav atrasts neviens auto šajās cenu robežās.</div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '20px' }}>
               {filteredCars.map((car) => (
