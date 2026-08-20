@@ -50,109 +50,124 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-      <div style={{ width: '100%', maxWidth: '400px', backgroundColor: '#ffffff', padding: '32px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-        <Link href="/" style={{ color: '#3b82f6', textDecoration: 'none', fontSize: '14px', marginBottom: '20px', display: 'inline-block' }}>
-          ← Atpakaļ uz sākumlapu
-        </Link>
+    <div style={{ maxWidth: '1000px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+      
+      {/* Divu kolonnu izkārtojums: Kreisajā pusē ielogošanās forma, labajā - reklāma */}
+      <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', justifyContent: 'center' }}>
+        
+        {/* Kreisā puse: Forma */}
+        <div style={{ flex: 1, maxWidth: '480px', backgroundColor: '#ffffff', padding: '32px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb' }}>
+          <Link href="/" style={{ color: '#2563eb', textDecoration: 'none', fontSize: '14px', marginBottom: '20px', display: 'inline-block' }}>
+            ← Atpakaļ uz sākumlapu
+          </Link>
 
-        <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px', color: '#0f172a' }}>
-          {isRegistering ? 'Reģistrēties' : 'Ielogoties'}
-        </h1>
-        <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>
-          {isRegistering ? 'Izveido savu TemAuto kontu' : 'Ienāc savā kontā'}
-        </p>
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px', color: '#0f172a' }}>
+            {isRegistering ? 'Reģistrēties' : 'Ielogoties'}
+          </h1>
+          <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>
+            {isRegistering ? 'Izveido savu TemAuto kontu' : 'Ienāc savā kontā'}
+          </p>
 
-        {message && (
-          <div style={{
-            padding: '12px',
-            borderRadius: '8px',
-            marginBottom: '16px',
-            fontSize: '14px',
-            backgroundColor: message.type === 'error' ? '#fee2e2' : '#dcfce7',
-            color: message.type === 'error' ? '#dc2626' : '#15803d'
-          }}>
-            {message.text}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
-              E-pasts
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="vards@epasts.lv"
-              style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-            />
-          </div>
-
-          <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
-              Parole
-            </label>
-            <div style={{ position: 'relative' }}>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                style={{ width: '100%', padding: '10px 40px 10px 10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute',
-                  right: '10px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontSize: '16px'
-                }}
-                title={showPassword ? 'Paslēpt paroli' : 'Rādīt paroli'}
-              >
-                {showPassword ? '👁️' : '🙈'}
-              </button>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              backgroundColor: '#2563eb',
-              color: '#ffffff',
+          {message && (
+            <div style={{
               padding: '12px',
-              borderRadius: '6px',
-              border: 'none',
-              fontWeight: '600',
-              cursor: 'pointer',
-              marginTop: '8px'
-            }}
-          >
-            {loading ? 'Lūdzu, uzgaidiet...' : isRegistering ? 'Reģistrēties' : 'Ielogoties'}
-          </button>
-        </form>
+              borderRadius: '8px',
+              marginBottom: '16px',
+              fontSize: '14px',
+              backgroundColor: message.type === 'error' ? '#fee2e2' : '#dcfce7',
+              color: message.type === 'error' ? '#dc2626' : '#15803d'
+            }}>
+              {message.text}
+            </div>
+          )}
 
-        <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '14px' }}>
-          <button
-            onClick={() => {
-              setIsRegistering(!isRegistering)
-              setMessage(null)
-            }}
-            style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer' }}
-          >
-            {isRegistering ? 'Jau ir konts? Ielogoties' : 'Nav konta? Reģistrēties'}
-          </button>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                E-pasts
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="vards@epasts.lv"
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                Parole
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  style={{ width: '100%', padding: '10px 40px 10px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '16px'
+                  }}
+                  title={showPassword ? 'Paslēpt paroli' : 'Rādīt paroli'}
+                >
+                  {showPassword ? '👁️' : '🙈'}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                backgroundColor: '#2563eb',
+                color: '#ffffff',
+                padding: '12px',
+                borderRadius: '6px',
+                border: 'none',
+                fontWeight: '600',
+                cursor: 'pointer',
+                marginTop: '8px'
+              }}
+            >
+              {loading ? 'Lūdzu, uzgaidiet...' : isRegistering ? 'Reģistrēties' : 'Ielogoties'}
+            </button>
+          </form>
+
+          <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '14px' }}>
+            <button
+              onClick={() => {
+                setIsRegistering(!isRegistering)
+                setMessage(null)
+              }}
+              style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer' }}
+            >
+              {isRegistering ? 'Jau ir konts? Ielogoties' : 'Nav konta? Reģistrēties'}
+            </button>
+          </div>
         </div>
+
+        {/* Labā puse: Reklāmas baneris */}
+        <div style={{ width: '260px', flexShrink: 0 }}>
+          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '380px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
+            <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Ekskluzīvs baneris šeit!<br/><span style={{ fontSize: '12px' }}>(Maksimāla uzmanība)</span></p>
+          </div>
+        </div>
+
       </div>
     </div>
   )
