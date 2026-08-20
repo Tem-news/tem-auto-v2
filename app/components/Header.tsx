@@ -161,7 +161,7 @@ export default function Header() {
       style={{ 
         backgroundColor: '#0f172a', 
         color: '#ffffff', 
-        padding: '12px 24px', 
+        padding: '12px 20px', 
         position: 'sticky', 
         top: 0, 
         zIndex: 1000,
@@ -169,11 +169,11 @@ export default function Header() {
         boxSizing: 'border-box'
       }}
     >
-      {/* Galvenā josla, kas izstiepjas pa visu ekrānu, bet saturam ir malējā atdalīšana */}
-      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
+      {/* Izmantojam pilnu platumu (bez max-width ierobežojuma) un space-between, lai elementa malas iet pa pašu ekrāna malu */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
         
         {/* KREISĀ PUSE: Logo un Apmeklētāji */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <Link 
             href="/" 
             style={{ fontSize: '20px', fontWeight: 'bold', color: '#22c55e', textDecoration: 'none' }}
@@ -200,8 +200,8 @@ export default function Header() {
           </div>
         </div>
 
-        {/* LABĀ PUSE: Valodas, Reģioni un Navigācija (piespiesti pie labās malas) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', flexShrink: 0 }}>
+        {/* LABĀ PUSE: Valodas, Reģioni un Navigācija */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
           
           {/* Valodas izvēlne */}
           <div style={{ position: 'relative' }} ref={langRef}>
