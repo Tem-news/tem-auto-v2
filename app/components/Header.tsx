@@ -136,7 +136,6 @@ export default function Header() {
     router.refresh()
   }
 
-  // Pievienota funkcija, kas saglabā ceļu un aizved uz login, ja nav ielogojies
   const handleAddCarClick = (e: React.MouseEvent) => {
     e.preventDefault()
     if (!user) {
@@ -178,9 +177,16 @@ export default function Header() {
       
       {/* Kreisā puse: Logo un Skaitītājs */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-        <Link href="/" style={{ fontSize: '20px', fontWeight: 'bold', color: '#22c55e', textDecoration: 'none' }}>
+        <a 
+          href="/" 
+          style={{ fontSize: '20px', fontWeight: 'bold', color: '#22c55e', textDecoration: 'none', cursor: 'pointer' }}
+          onClick={(e) => {
+            e.preventDefault()
+            window.location.href = '/'
+          }}
+        >
           TemAuto
-        </Link>
+        </a>
 
         <button
           onClick={() => alert(`Kopējie unikālie apmeklējumi pēdējajās 24h: ${visitCount}`)}
