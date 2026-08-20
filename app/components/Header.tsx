@@ -169,7 +169,6 @@ export default function Header() {
         boxSizing: 'border-box'
       }}
     >
-      {/* Šis iekšējais konteiners nodrošina maksimālo platumu un centrējumu ekrānā, bet elements izkārtojas no malām (space-between) */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', width: '100%' }}>
         
         {/* Kreisā puse: Logo un Skaitītājs */}
