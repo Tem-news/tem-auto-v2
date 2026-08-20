@@ -19,6 +19,10 @@ export default function AutoLapa() {
     if (!id) return
 
     async function fetchCar() {
+      // 1. Palielinām skatījumu skaitu datubāzē
+      await supabase.rpc('increment_view', { car_id: id })
+
+      // 2. Ielādējam auto datus
       const { data, error } = await supabase
         .from('cars')
         .select('*')
@@ -144,9 +148,17 @@ export default function AutoLapa() {
         
         {/* Kreisā puse: Viss par auto */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 16px 0', color: '#111827' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 6px 0', color: '#111827' }}>
             {car.make} {car.model} {car.year ? `(${car.year})` : ''}
           </h1>
+
+          {/* Publicēšanas datums un skatījumu skaits */}
+          <div style={{ display: 'flex', gap: '16px', color: '#6b7280', fontSize: '14px', marginBottom: '16px' }}>
+            {car.created_at && (
+              <span>📅 Publicēts: {new Date(car.created_at).toLocaleDateString('lv-LV')}</span>
+            )}
+            <span>👁️ Skatījumi: <strong>{car.views ?? 0}</strong></span>
+          </div>
 
           {/* Lielais attēls ar bultciņām */}
           {activeImage && (
