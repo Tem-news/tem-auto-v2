@@ -10,8 +10,32 @@ const LANGUAGES = [
   { code: 'EN', name: 'English', flagCode: 'gb' },
   { code: 'RU', name: 'Русский', flagCode: 'ru' },
   { code: 'DE', name: 'Deutsch', flagCode: 'de' },
+  { code: 'ES', name: 'Español', flagCode: 'es' },
+  { code: 'FR', name: 'Français', flagCode: 'fr' },
+  { code: 'IT', name: 'Italiano', flagCode: 'it' },
+  { code: 'PL', name: 'Polski', flagCode: 'pl' },
   { code: 'EE', name: 'Eesti', flagCode: 'ee' },
-  { code: 'LT', name: 'Lietuvių', flagCode: 'lt' }
+  { code: 'LT', name: 'Lietuvių', flagCode: 'lt' },
+  { code: 'FI', name: 'Suomi', flagCode: 'fi' },
+  { code: 'SV', name: 'Svenska', flagCode: 'se' },
+  { code: 'NO', name: 'Norsk', flagCode: 'no' },
+  { code: 'DA', name: 'Dansk', flagCode: 'dk' },
+  { code: 'NL', name: 'Nederlands', flagCode: 'nl' },
+  { code: 'PT', name: 'Português', flagCode: 'pt' },
+  { code: 'CS', name: 'Čeština', flagCode: 'cz' },
+  { code: 'SK', name: 'Slovenčina', flagCode: 'sk' },
+  { code: 'HU', name: 'Magyar', flagCode: 'hu' },
+  { code: 'RO', name: 'Română', flagCode: 'ro' },
+  { code: 'BG', name: 'Български', flagCode: 'bg' },
+  { code: 'EL', name: 'Ελληνικά', flagCode: 'gr' },
+  { code: 'UK', name: 'Українська', flagCode: 'ua' },
+  { code: 'TR', name: 'Türkçe', flagCode: 'tr' },
+  { code: 'ZH', name: '中文 (Chinese)', flagCode: 'cn' },
+  { code: 'JA', name: '日本語 (Japanese)', flagCode: 'jp' },
+  { code: 'KO', name: '한국어 (Korean)', flagCode: 'kr' },
+  { code: 'HI', name: 'हिन्दी (Hindi)', flagCode: 'in' },
+  { code: 'AR', name: 'العربية (Arabic)', flagCode: 'sa' },
+  { code: 'HE', name: 'עברית (Hebrew)', flagCode: 'il' }
 ]
 
 const REGIONS = [
@@ -19,7 +43,35 @@ const REGIONS = [
   { name: 'Latvija (EUR)', flagCode: 'lv', group: 'Baltija' },
   { name: 'Lietuva (EUR)', flagCode: 'lt', group: 'Baltija' },
   { name: 'Igaunija (EUR)', flagCode: 'ee', group: 'Baltija' },
-  { name: 'Vācija (EUR)', flagCode: 'de', group: 'Centrāleiropa' }
+  { name: 'Vācija (EUR)', flagCode: 'de', group: 'Centrāleiropa' },
+  { name: 'Apvienotā Karaliste (GBP)', flagCode: 'gb', group: 'Eiropa' },
+  { name: 'Francija (EUR)', flagCode: 'fr', group: 'Eiropa' },
+  { name: 'Spānija (EUR)', flagCode: 'es', group: 'Eiropa' },
+  { name: 'Itālija (EUR)', flagCode: 'it', group: 'Eiropa' },
+  { name: 'Polija (PLN)', flagCode: 'pl', group: 'Eiropa' },
+  { name: 'Zviedrija (SEK)', flagCode: 'se', group: 'Skandināvija' },
+  { name: 'Norvēģija (NOK)', flagCode: 'no', group: 'Skandināvija' },
+  { name: 'Somija (EUR)', flagCode: 'fi', group: 'Skandināvija' },
+  { name: 'Dānija (DKK)', flagCode: 'dk', group: 'Skandināvija' },
+  { name: 'Nīderlande (EUR)', flagCode: 'nl', group: 'Eiropa' },
+  { name: 'Beļģija (EUR)', flagCode: 'be', group: 'Eiropa' },
+  { name: 'Austrija (EUR)', flagCode: 'at', group: 'Eiropa' },
+  { name: 'Šveice (CHF)', flagCode: 'ch', group: 'Eiropa' },
+  { name: 'Čehija (CZK)', flagCode: 'cz', group: 'Eiropa' },
+  { name: 'Ukraina (UAH)', flagCode: 'ua', group: 'Austrumeiropa' },
+  { name: 'Turcija (TRY)', flagCode: 'tr', group: 'Eirāzija' },
+  { name: 'ASV & Ziemeļamerika (USD)', flagCode: 'us', group: 'Ziemeļamerika' },
+  { name: 'Kanāda (CAD)', flagCode: 'ca', group: 'Ziemeļamerika' },
+  { name: 'Meksika (MXN)', flagCode: 'mx', group: 'Ziemeļamerika' },
+  { name: 'Brazīlija (BRL)', flagCode: 'br', group: 'Dienvidamerika' },
+  { name: 'Argentīna (ARS)', flagCode: 'ar', group: 'Dienvidamerika' },
+  { name: 'Austrālija (AUD)', flagCode: 'au', group: 'Okeānija' },
+  { name: 'Jaunzēlande (NZD)', flagCode: 'nz', group: 'Okeānija' },
+  { name: 'Japāna (JPY)', flagCode: 'jp', group: 'Āzija' },
+  { name: 'Ķīna (CNY)', flagCode: 'cn', group: 'Āzija' },
+  { name: 'Dienvidkoreja (KRW)', flagCode: 'kr', group: 'Āzija' },
+  { name: 'Indija (INR)', flagCode: 'in', group: 'Āzija' },
+  { name: 'Apvienotie Arābu Emirāti (AED)', flagCode: 'ae', group: 'Tuvie Austrumi' }
 ]
 
 export default function Header() {
@@ -117,6 +169,7 @@ export default function Header() {
         boxSizing: 'border-box'
       }}
     >
+      {/* Šis iekšējais konteiners nodrošina maksimālo platumu un centrējumu ekrānā, bet elements izkārtojas no malām (space-between) */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', width: '100%' }}>
         
         {/* Kreisā puse: Logo un Skaitītājs */}
@@ -179,7 +232,7 @@ export default function Header() {
             </button>
 
             {langOpen && (
-              <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '220px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
+              <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '230px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
                 <input
                   type="text"
                   placeholder="Meklēt valodu..."
@@ -188,17 +241,20 @@ export default function Header() {
                   autoFocus
                   style={{ width: '100%', padding: '6px', backgroundColor: '#0f172a', border: '1px solid #475569', borderRadius: '4px', color: '#fff', fontSize: '12px', boxSizing: 'border-box', marginBottom: '6px' }}
                 />
-                <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
                   {filteredLanguages.map((l) => (
                     <div
                       key={l.code}
                       onClick={() => { setCurrentLang(l.code); setLangOpen(false); setLangSearch(''); }}
                       style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: currentLang === l.code ? '#22c55e' : '#e2e8f0', backgroundColor: currentLang === l.code ? '#334155' : 'transparent' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentLang === l.code ? '#334155' : 'transparent'}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <img src={`https://flagcdn.com/20x15/${l.flagCode}.png`} alt="" style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} />
                         <span>{l.name}</span>
                       </div>
+                      <span style={{ fontSize: '10px', color: '#94a3b8', backgroundColor: '#0f172a', padding: '2px 5px', borderRadius: '3px' }}>{l.code}</span>
                     </div>
                   ))}
                 </div>
@@ -235,26 +291,29 @@ export default function Header() {
             </button>
 
             {regionOpen && (
-              <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '240px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
+              <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '260px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
                 <input
                   type="text"
-                  placeholder="Meklēt reģionu..."
+                  placeholder="Meklēt reģionu / valsti..."
                   value={regionSearch}
                   onChange={(e) => setRegionSearch(e.target.value)}
                   autoFocus
                   style={{ width: '100%', padding: '6px', backgroundColor: '#0f172a', border: '1px solid #475569', borderRadius: '4px', color: '#fff', fontSize: '12px', boxSizing: 'border-box', marginBottom: '6px' }}
                 />
-                <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
                   {filteredRegions.map((r) => (
                     <div
                       key={r.name}
                       onClick={() => { setCurrentRegion(r.name); setRegionOpen(false); setRegionSearch(''); }}
                       style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: currentRegion === r.name ? '#22c55e' : '#e2e8f0', backgroundColor: currentRegion === r.name ? '#334155' : 'transparent' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentRegion === r.name ? '#334155' : 'transparent'}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <img src={`https://flagcdn.com/20x15/${r.flagCode}.png`} alt="" style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} />
                         <span>{r.name}</span>
                       </div>
+                      <span style={{ fontSize: '10px', color: '#94a3b8' }}>{r.group}</span>
                     </div>
                   ))}
                 </div>
