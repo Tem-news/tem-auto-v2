@@ -13,9 +13,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="lv">
-      <body style={{ margin: 0, padding: 0, fontFamily: 'system-ui, sans-serif', backgroundColor: '#f8fafc' }}>
-        <Header />
-        {children}
+      <body style={{ margin: 0, padding: 0, fontFamily: 'system-ui, sans-serif', backgroundColor: '#f8fafc', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ width: '100%', maxWidth: '1200px' }}>
+          <Header />
+          {children}
+        </div>
       </body>
     </html>
   )
