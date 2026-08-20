@@ -11,6 +11,7 @@ export default function AutoLapa() {
   const id = params?.id
 
   const [car, setCar] = useState<any>(null)
+  const [modelCount, setModelCount] = useState<number>(0)
   const [loading, setLoading] = useState(true)
   const [activeImage, setActiveImage] = useState<string>('')
   const [deleting, setDeleting] = useState(false)
@@ -18,41 +19,48 @@ export default function AutoLapa() {
   useEffect(() => {
     if (!id) return
 
-    async function fetchCar() {
-      // 1. Palielinām skatījumu skaitu datubāzē
+    async function fetchCarData() {
+      // 1. Palielinām skatījumu skaitu
       await supabase.rpc('increment_view', { car_id: id })
 
-      // 2. Ielādējam auto datus
-      const { data, error } = await supabase
+      // 2. Ielādējam konkrēto auto
+      const { data: carData, error: carError } = await supabase
         .from('cars')
         .select('*')
         .eq('id', id)
         .single()
 
-      if (error) {
-        console.error('Kļūda ielādējot auto:', error)
-      } else if (data) {
-        setCar(data)
-        const mainImg = data.image || (data.images && data.images[0]) || ''
+      if (carError) {
+        console.error('Kļūda ielādējot auto:', carError)
+      } else if (carData) {
+        setCar(carData)
+        const mainImg = carData.image || (carData.images && carData.images[0]) || ''
         setActiveImage(mainImg)
+
+        // 3. Saskaitām, cik pavisam ir šāda modeļa auto datubāzē
+        if (carData.model) {
+          const { data: allCars } = await supabase
+            .from('cars')
+            .select('model')
+            .ilike('model', carData.model.trim())
+
+          if (allCars) {
+            setModelCount(allCars.length)
+          }
+        }
       }
       setLoading(false)
     }
 
-    fetchCar()
+    fetchCarData()
   }, [id])
 
-  // Dzēšanas funkcija
   const handleDelete = async () => {
-    const confirmDelete = window.confirm('Vai tiešām vēlaties dzēst šo sludinājumu? Šo darbību nevar atcelt.')
+    const confirmDelete = window.confirm('Vai tiešām vēlaties dzēst šo sludinājumu?')
     if (!confirmDelete) return
 
     setDeleting(true)
-    const { error } = await supabase
-      .from('cars')
-      .delete()
-      .eq('id', id)
-
+    const { error } = await supabase.from('cars').delete().eq('id', id)
     setDeleting(false)
 
     if (error) {
@@ -64,7 +72,6 @@ export default function AutoLapa() {
     }
   }
 
-  // Apvienojam visas bildes sarakstā galerijai
   const allImages: string[] = []
   if (car?.image) allImages.push(car.image)
   if (Array.isArray(car?.images)) {
@@ -73,7 +80,6 @@ export default function AutoLapa() {
     })
   }
 
-  // Funkcijas bilžu pārslēgšanai uz riņķi
   const handlePrevImage = () => {
     if (allImages.length <= 1) return
     const currentIndex = allImages.indexOf(activeImage)
@@ -103,57 +109,29 @@ export default function AutoLapa() {
 
   return (
     <div style={{ maxWidth: '1150px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
-      
-      {/* Galvenais centts divu kolonnu izkārtojums: Kreisajā pusē auto, labajā - baneris */}
       <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', justifyContent: 'center' }}>
         
-        {/* Kreisā puse: Viss par auto */}
         <div style={{ flex: 1, maxWidth: '800px', minWidth: 0 }}>
           
-          {/* Augšējā navigācijas josla un pogas */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <Link href="/" style={{ color: '#2563eb', textDecoration: 'none' }}>
               ← Atpakaļ uz sarakstu
             </Link>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <Link
-                href={`/auto/${id}/edit`}
-                style={{
-                  padding: '8px 14px',
-                  backgroundColor: '#2563eb',
-                  color: '#fff',
-                  borderRadius: '6px',
-                  textDecoration: 'none',
-                  fontSize: '14px',
-                  fontWeight: 'bold'
-                }}
-              >
+              <Link href={`/auto/${id}/edit`} style={{ padding: '8px 14px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold' }}>
                 ✏️ Rediģēt
               </Link>
-              <button
-                onClick={handleDelete}
-                disabled={deleting}
-                style={{
-                  padding: '8px 14px',
-                  backgroundColor: deleting ? '#9ca3af' : '#dc2626',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: deleting ? 'not-allowed' : 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 'bold'
-                }}
-              >
+              <button onClick={handleDelete} disabled={deleting} style={{ padding: '8px 14px', backgroundColor: deleting ? '#9ca3af' : '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', cursor: deleting ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: 'bold' }}>
                 {deleting ? 'Dzēš...' : '🗑️ Dzēst'}
               </button>
             </div>
           </div>
 
+          {/* Virsraksts, kur iekavās tagad rādās modelim atbilstošo auto skaits */}
           <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 6px 0', color: '#111827' }}>
-            {car.make} {car.model} {car.year ? `(${car.year})` : ''}
+            {car.make} {car.model} <span style={{ color: '#6b7280', fontWeight: 'normal', fontSize: '20px' }}>({modelCount})</span>
           </h1>
 
-          {/* Publicēšanas datums un skatījumu skaits */}
           <div style={{ display: 'flex', gap: '16px', color: '#6b7280', fontSize: '14px', marginBottom: '16px' }}>
             {car.created_at && (
               <span>📅 Publicēts: {new Date(car.created_at).toLocaleDateString('lv-LV')}</span>
@@ -161,55 +139,16 @@ export default function AutoLapa() {
             <span>👁️ Skatījumi: <strong>{car.views ?? 0}</strong></span>
           </div>
 
-          {/* Lielais attēls ar bultciņām */}
           {activeImage && (
             <div style={{ position: 'relative', width: '100%', height: '380px', borderRadius: '12px', overflow: 'hidden', backgroundColor: '#f3f4f6', marginBottom: '12px' }}>
               <img src={activeImage} alt={`${car.make} ${car.model}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               
               {allImages.length > 1 && (
                 <>
-                  <button
-                    onClick={handlePrevImage}
-                    style={{
-                      position: 'absolute',
-                      left: '12px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '50%',
-                      width: '40px',
-                      height: '40px',
-                      fontSize: '18px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
+                  <button onClick={handlePrevImage} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '40px', height: '40px', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     ❮
                   </button>
-                  <button
-                    onClick={handleNextImage}
-                    style={{
-                      position: 'absolute',
-                      right: '12px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '50%',
-                      width: '40px',
-                      height: '40px',
-                      fontSize: '18px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
+                  <button onClick={handleNextImage} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '40px', height: '40px', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     ❯
                   </button>
                 </>
@@ -217,7 +156,6 @@ export default function AutoLapa() {
             </div>
           )}
 
-          {/* Mazie sīktēli */}
           {allImages.length > 1 && (
             <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '20px' }}>
               {allImages.map((img, idx) => (
@@ -226,21 +164,12 @@ export default function AutoLapa() {
                   src={img}
                   alt=""
                   onClick={() => setActiveImage(img)}
-                  style={{
-                    width: '80px',
-                    height: '60px',
-                    objectFit: 'cover',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    border: activeImage === img ? '3px solid #2563eb' : '1px solid #d1d5db',
-                    opacity: activeImage === img ? 1 : 0.7
-                  }}
+                  style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '6px', cursor: 'pointer', border: activeImage === img ? '3px solid #2563eb' : '1px solid #d1d5db', opacity: activeImage === img ? 1 : 0.7 }}
                 />
               ))}
             </div>
           )}
 
-          {/* Auto parametri un cena / kontakti */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f9fafb', padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
             <div>
               <span style={{ fontSize: '28px', fontWeight: 'bold', color: '#16a34a' }}>{car.price ? `€${car.price}` : 'Cena nav norādīta'}</span>
@@ -259,7 +188,6 @@ export default function AutoLapa() {
             </div>
           </div>
 
-          {/* Parametru tabula ar visiem datiem */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '24px' }}>
             {car.year && <div style={{ background: '#f3f4f6', padding: '12px', borderRadius: '6px' }}><strong>Gads:</strong> {car.year}</div>}
             {car.engine && <div style={{ background: '#f3f4f6', padding: '12px', borderRadius: '6px' }}><strong>Dzinējs:</strong> {car.engine}</div>}
@@ -268,7 +196,6 @@ export default function AutoLapa() {
             {car.mileage && <div style={{ background: '#f3f4f6', padding: '12px', borderRadius: '6px' }}><strong>Nobraukums:</strong> {car.mileage} km</div>}
           </div>
 
-          {/* Apraksts */}
           {car.description && (
             <div style={{ marginTop: '20px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>Apraksts</h3>
@@ -277,7 +204,6 @@ export default function AutoLapa() {
           )}
         </div>
 
-        {/* Labā puse: Reklāmas baneris (vienādā platumā ar pārējām lapām) */}
         <div style={{ width: '260px', flexShrink: 0, position: 'sticky', top: '20px' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
