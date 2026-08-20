@@ -39,11 +39,13 @@ export default function Sakumlapa() {
   })
 
   return (
-    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '40px 20px', fontFamily: 'sans-serif' }}>
-      <div style={{ maxWidth: '1150px', width: '100%', display: 'flex', gap: '32px', alignItems: 'flex-start', justifyContent: 'center' }}>
+    <div style={{ width: '100%', padding: '40px 20px', fontFamily: 'sans-serif', boxSizing: 'border-box' }}>
+      
+      {/* Centrālais konteiners, kas piespiedu kārtā nostāda visu bloku vidū */}
+      <div style={{ maxWidth: '1150px', margin: '0 auto', display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
         
-        {/* Kreisā puse: Saraksts */}
-        <div style={{ flex: 1, maxWidth: '800px', minWidth: 0 }}>
+        {/* Kreisā puse: Saraksts (ņem visu atlikušo vietu līdz banerim) */}
+        <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ marginBottom: '24px' }}>
             <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
           </div>
@@ -55,7 +57,7 @@ export default function Sakumlapa() {
                 placeholder="Meklēt pēc markas vai modeļa..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
               />
             </div>
             <div style={{ width: '130px' }}>
@@ -64,7 +66,7 @@ export default function Sakumlapa() {
                 placeholder="Min. €"
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
               />
             </div>
             <span style={{ color: '#4b5563', fontSize: '14px' }}>līdz</span>
@@ -74,7 +76,7 @@ export default function Sakumlapa() {
                 placeholder="Maks. €"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
               />
             </div>
             {(search || minPrice || maxPrice) && (
@@ -111,7 +113,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* Labā puse: Reklāma */}
+        {/* Labā puse: Reklāma (stingri fiksēta platumā, stabili pa labi no saraksta) */}
         <div style={{ width: '260px', flexShrink: 0, position: 'sticky', top: '20px' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
