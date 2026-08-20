@@ -8,14 +8,12 @@ export default function Sakumlapa() {
   const [cars, setCars] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Filtri (pievienots minPrice un iestatīti noklusējuma lauki)
   const [search, setSearch] = useState('')
   const [minPrice, setMinPrice] = useState('1500')
   const [maxPrice, setMaxPrice] = useState('3500')
 
   useEffect(() => {
     async function fetchData() {
-      // 1. Ielādējam auto sludinājumus
       const { data: carsData, error: carsError } = await supabase
         .from('cars')
         .select('*')
@@ -33,7 +31,6 @@ export default function Sakumlapa() {
     fetchData()
   }, [])
 
-  // Filtrēšanas loģika (ņem vērā gan nosaukumu, gan cenu robežas)
   const filteredCars = cars.filter((car) => {
     const fullTitle = `${car.make || ''} ${car.model || ''}`.toLowerCase()
     const matchesSearch = fullTitle.includes(search.toLowerCase())
@@ -46,18 +43,17 @@ export default function Sakumlapa() {
   })
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '1150px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
       
-      {/* Galvenais virsraksts */}
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
-      </div>
-
-      {/* Galvenais izkārtojums: Saturs pa kreisi, Reklāma pa labi */}
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
+      {/* Galvenais izkārtojums: Kreisajā pusē saraksts, labajā reklāma, viss centrēts */}
+      <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', justifyContent: 'center' }}>
         
-        {/* Kreisā puse: Meklētājs un Sludinājumi */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Kreisā puse: Virsraksts, meklētājs un sludinājumi */}
+        <div style={{ flex: 1, maxWidth: '800px', minWidth: 0 }}>
+          
+          <div style={{ marginBottom: '24px' }}>
+            <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
+          </div>
           
           {/* Meklēšanas un Filtru josla */}
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', backgroundColor: '#f3f4f6', padding: '16px', borderRadius: '8px', marginBottom: '24px', alignItems: 'center' }}>
@@ -153,7 +149,7 @@ export default function Sakumlapa() {
         </div>
 
         {/* Labā puse: Reklāmas josla */}
-        <div style={{ width: '260px', position: 'sticky', top: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ width: '260px', flexShrink: 0, position: 'sticky', top: '20px' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Globālais baneris šeit!<br/><span style={{ fontSize: '12px' }}>(Pielāgots reģionam)</span></p>
