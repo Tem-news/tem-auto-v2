@@ -41,10 +41,10 @@ export default function Sakumlapa() {
   return (
     <div style={{ width: '100%', padding: '40px 20px', fontFamily: 'sans-serif', boxSizing: 'border-box' }}>
       
-      {/* Centrālais konteiners, kas piespiedu kārtā nostāda visu bloku vidū */}
-      <div style={{ maxWidth: '1150px', margin: '0 auto', display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
+      {/* Stingri centrēts galvenais bloks */}
+      <div style={{ maxWidth: '1150px', marginLeft: 'auto', marginRight: 'auto', display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
         
-        {/* Kreisā puse: Saraksts (ņem visu atlikušo vietu līdz banerim) */}
+        {/* Kreisā puse: Saraksts */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ marginBottom: '24px' }}>
             <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
@@ -113,7 +113,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* Labā puse: Reklāma (stingri fiksēta platumā, stabili pa labi no saraksta) */}
+        {/* Labā puse: Reklāma */}
         <div style={{ width: '260px', flexShrink: 0, position: 'sticky', top: '20px' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
