@@ -39,9 +39,9 @@ export default function Sakumlapa() {
   })
 
   return (
-    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', backgroundColor: '#f8fafc', padding: '40px 20px', boxSizing: 'border-box' }}>
+    <div style={{ width: '100%', padding: '40px 20px', fontFamily: 'sans-serif', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
       
-      {/* Centrālais bloks, kurš satur sarakstu un reklāmu un turas strikti vidū */}
+      {/* Centrālais bloks ar stingru maksimālo platumu */}
       <div style={{ width: '100%', maxWidth: '1150px', display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
         
         {/* Kreisā puse: Saraksts */}
