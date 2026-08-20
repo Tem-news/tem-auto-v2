@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
 import { supabase } from '../lib/supabase'
 
@@ -29,6 +29,28 @@ export default function Sakumlapa() {
     fetchData()
   }, [])
 
+  // Aprēķina modeļu skaitu un izveido sarakstu ar skaitļiem iekavās (Piemēram: Ford (254))
+  const modelCountsWithNames = useMemo(() => {
+    const counts: { [key: string]: number } = {}
+    cars.forEach((car) => {
+      if (car.model) {
+        const modelName = car.model.trim()
+        counts[modelName] = (counts[modelName] || 0) + 1
+      }
+    })
+    return Object.entries(counts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count) // Sakārto no lielākā uz mazāko
+  }, [cars])
+
+  // Filtrētie modeļi, ko rādīt nolaižamajā izvēlnē, ja lietotājs kaut ko raksta
+  const filteredModelSuggestions = useMemo(() => {
+    if (!search.trim()) return []
+    return modelCountsWithNames.filter((item) =>
+      item.name.toLowerCase().includes(search.toLowerCase())
+    )
+  }, [search, modelCountsWithNames])
+
   const filteredCars = cars.filter((car) => {
     const fullTitle = `${car.make || ''} ${car.model || ''}`.toLowerCase()
     const matchesSearch = fullTitle.includes(search.toLowerCase())
@@ -50,8 +72,10 @@ export default function Sakumlapa() {
             <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', backgroundColor: '#f3f4f6', padding: '16px', borderRadius: '8px', marginBottom: '24px', alignItems: 'center' }}>
-            <div style={{ flex: '1', minWidth: '180px' }}>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', backgroundColor: '#f3f4f6', padding: '16px', borderRadius: '8px', marginBottom: '24px', alignItems: 'center', position: 'relative' }}>
+            
+            {/* Meklētāja lauks ar iespēju rādīt ieteikumus */}
+            <div style={{ flex: '1', minWidth: '180px', position: 'relative' }}>
               <input
                 type="text"
                 placeholder="Meklēt pēc markas vai modeļa..."
@@ -59,7 +83,28 @@ export default function Sakumlapa() {
                 onChange={(e) => setSearch(e.target.value)}
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
               />
+
+              {/* Nolaižamais ieteikumu saraksts ar modeļu skaitu */}
+              {filteredModelSuggestions.length > 0 && (
+                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', marginTop: '4px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', zIndex: 50, maxHeight: '200px', overflowY: 'auto' }}>
+                  {filteredModelSuggestions.map((item) => (
+                    <div
+                      key={item.name}
+                      onClick={() => {
+                        setSearch(item.name)
+                      }}
+                      style={{ padding: '8px 12px', cursor: 'pointer', fontSize: '14px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                    >
+                      <span>{item.name}</span>
+                      <span style={{ color: '#6b7280', fontWeight: 'bold' }}>({item.count})</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+
             <div style={{ width: '130px' }}>
               <input
                 type="number"
