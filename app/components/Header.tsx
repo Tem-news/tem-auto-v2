@@ -169,10 +169,11 @@ export default function Header() {
         boxSizing: 'border-box'
       }}
     >
-      <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', width: '100%' }}>
+      {/* Galvenā josla, kas izstiepjas pa visu ekrānu, bet saturam ir malējā atdalīšana */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
         
-        {/* Kreisā puse: Logo un Skaitītājs */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        {/* KREISĀ PUSE: Logo un Apmeklētāji */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexShrink: 0 }}>
           <Link 
             href="/" 
             style={{ fontSize: '20px', fontWeight: 'bold', color: '#22c55e', textDecoration: 'none' }}
@@ -199,8 +200,8 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Labā puse: Valodas, Reģioni un Navigācija */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+        {/* LABĀ PUSE: Valodas, Reģioni un Navigācija (piespiesti pie labās malas) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', flexShrink: 0 }}>
           
           {/* Valodas izvēlne */}
           <div style={{ position: 'relative' }} ref={langRef}>
