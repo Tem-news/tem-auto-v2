@@ -29,7 +29,7 @@ export default function Sakumlapa() {
     fetchData()
   }, [])
 
-  // Aprēķina modeļu skaitu
+  // Aprēķina modeļu skaitu datubāzē
   const modelCounts = useMemo(() => {
     const counts: { [key: string]: number } = {}
     cars.forEach((car) => {
@@ -59,6 +59,15 @@ export default function Sakumlapa() {
     return matchesSearch && matchesMinPrice && matchesMaxPrice
   })
 
+  // Enter taustiņa apstrāde meklētājā (atver pirmo atrasto auto)
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      if (filteredCars.length > 0) {
+        window.location.href = `/auto/${filteredCars[0].id}`
+      }
+    }
+  }
+
   return (
     <div style={{ width: '100%', padding: '40px 20px', fontFamily: 'sans-serif', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
       <div style={{ width: '100%', maxWidth: '1150px', display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
@@ -70,13 +79,14 @@ export default function Sakumlapa() {
 
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', backgroundColor: '#f3f4f6', padding: '16px', borderRadius: '8px', marginBottom: '24px', alignItems: 'center' }}>
             
-            {/* Meklētājs ar ieteikumiem */}
+            {/* Meklētājs ar ieteikumiem un Enter atbalstu */}
             <div style={{ flex: '1', minWidth: '180px', position: 'relative' }}>
               <input
                 type="text"
-                placeholder="Meklēt pēc markas vai modeļa..."
+                placeholder="Meklēt un spied Enter..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleKeyDown}
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
               />
 
