@@ -102,52 +102,53 @@ export default function AutoLapa() {
   }
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '1150px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
       
-      {/* Augšējā navigācijas josla */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <Link href="/" style={{ color: '#2563eb', textDecoration: 'none' }}>
-          ← Atpakaļ uz sarakstu
-        </Link>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <Link
-            href={`/auto/${id}/edit`}
-            style={{
-              padding: '8px 14px',
-              backgroundColor: '#2563eb',
-              color: '#fff',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontSize: '14px',
-              fontWeight: 'bold'
-            }}
-          >
-            ✏️ Rediģēt
-          </Link>
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            style={{
-              padding: '8px 14px',
-              backgroundColor: deleting ? '#9ca3af' : '#dc2626',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: deleting ? 'not-allowed' : 'pointer',
-              fontSize: '14px',
-              fontWeight: 'bold'
-            }}
-          >
-            {deleting ? 'Dzēš...' : '🗑️ Dzēst'}
-          </button>
-        </div>
-      </div>
-
-      {/* Galvenais divu kolonnu izkārtojums: Kreisajā pusē auto informācija, labajā - baneris */}
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
+      {/* Galvenais centts divu kolonnu izkārtojums: Kreisajā pusē auto, labajā - baneris */}
+      <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', justifyContent: 'center' }}>
         
         {/* Kreisā puse: Viss par auto */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ flex: 1, maxWidth: '800px', minWidth: 0 }}>
+          
+          {/* Augšējā navigācijas josla un pogas */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <Link href="/" style={{ color: '#2563eb', textDecoration: 'none' }}>
+              ← Atpakaļ uz sarakstu
+            </Link>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <Link
+                href={`/auto/${id}/edit`}
+                style={{
+                  padding: '8px 14px',
+                  backgroundColor: '#2563eb',
+                  color: '#fff',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: 'bold'
+                }}
+              >
+                ✏️ Rediģēt
+              </Link>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                style={{
+                  padding: '8px 14px',
+                  backgroundColor: deleting ? '#9ca3af' : '#dc2626',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: deleting ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold'
+                }}
+              >
+                {deleting ? 'Dzēš...' : '🗑️ Dzēst'}
+              </button>
+            </div>
+          </div>
+
           <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 6px 0', color: '#111827' }}>
             {car.make} {car.model} {car.year ? `(${car.year})` : ''}
           </h1>
@@ -276,8 +277,8 @@ export default function AutoLapa() {
           )}
         </div>
 
-        {/* Labā puse: Reklāmas baneris sludinājuma lapā */}
-        <div style={{ width: '260px', position: 'sticky', top: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* Labā puse: Reklāmas baneris (vienādā platumā ar pārējām lapām) */}
+        <div style={{ width: '260px', flexShrink: 0, position: 'sticky', top: '20px' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Ekskluzīvs baneris šeit!<br/><span style={{ fontSize: '12px' }}>(Maksimāla uzmanība)</span></p>
