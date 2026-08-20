@@ -1,4 +1,164 @@
-return (
+'use client'
+
+import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { supabase } from '../../lib/supabase'
+
+// Plašs pasaules valodu saraksts ar SVG karodziņu kodiem
+const LANGUAGES = [
+  { code: 'LV', name: 'Latviešu', flagCode: 'lv' },
+  { code: 'EN', name: 'English', flagCode: 'gb' },
+  { code: 'RU', name: 'Русский', flagCode: 'ru' },
+  { code: 'DE', name: 'Deutsch', flagCode: 'de' },
+  { code: 'ES', name: 'Español', flagCode: 'es' },
+  { code: 'FR', name: 'Français', flagCode: 'fr' },
+  { code: 'IT', name: 'Italiano', flagCode: 'it' },
+  { code: 'PL', name: 'Polski', flagCode: 'pl' },
+  { code: 'EE', name: 'Eesti', flagCode: 'ee' },
+  { code: 'LT', name: 'Lietuvių', flagCode: 'lt' },
+  { code: 'FI', name: 'Suomi', flagCode: 'fi' },
+  { code: 'SV', name: 'Svenska', flagCode: 'se' },
+  { code: 'NO', name: 'Norsk', flagCode: 'no' },
+  { code: 'DA', name: 'Dansk', flagCode: 'dk' },
+  { code: 'NL', name: 'Nederlands', flagCode: 'nl' },
+  { code: 'PT', name: 'Português', flagCode: 'pt' },
+  { code: 'CS', name: 'Čeština', flagCode: 'cz' },
+  { code: 'SK', name: 'Slovenčina', flagCode: 'sk' },
+  { code: 'HU', name: 'Magyar', flagCode: 'hu' },
+  { code: 'RO', name: 'Română', flagCode: 'ro' },
+  { code: 'BG', name: 'Български', flagCode: 'bg' },
+  { code: 'EL', name: 'Ελληνικά', flagCode: 'gr' },
+  { code: 'UK', name: 'Українська', flagCode: 'ua' },
+  { code: 'TR', name: 'Türkçe', flagCode: 'tr' },
+  { code: 'ZH', name: '中文 (Chinese)', flagCode: 'cn' },
+  { code: 'JA', name: '日本語 (Japanese)', flagCode: 'jp' },
+  { code: 'KO', name: '한국어 (Korean)', flagCode: 'kr' },
+  { code: 'HI', name: 'हिन्दी (Hindi)', flagCode: 'in' },
+  { code: 'AR', name: 'العربية (Arabic)', flagCode: 'sa' },
+  { code: 'HE', name: 'עברית (Hebrew)', flagCode: 'il' }
+]
+
+// Izvērsts pasaules reģionu un valstu saraksts ar SVG karodziņiem
+const REGIONS = [
+  { name: 'Eiropa (EUR)', flagCode: 'eu', group: 'Kontinents' },
+  { name: 'Latvija (EUR)', flagCode: 'lv', group: 'Baltija' },
+  { name: 'Lietuva (EUR)', flagCode: 'lt', group: 'Baltija' },
+  { name: 'Igaunija (EUR)', flagCode: 'ee', group: 'Baltija' },
+  { name: 'Vācija (EUR)', flagCode: 'de', group: 'Centrāleiropa' },
+  { name: 'Apvienotā Karaliste (GBP)', flagCode: 'gb', group: 'Eiropa' },
+  { name: 'Francija (EUR)', flagCode: 'fr', group: 'Eiropa' },
+  { name: 'Spānija (EUR)', flagCode: 'es', group: 'Eiropa' },
+  { name: 'Itālija (EUR)', flagCode: 'it', group: 'Eiropa' },
+  { name: 'Polija (PLN)', flagCode: 'pl', group: 'Eiropa' },
+  { name: 'Zviedrija (SEK)', flagCode: 'se', group: 'Skandināvija' },
+  { name: 'Norvēģija (NOK)', flagCode: 'no', group: 'Skandināvija' },
+  { name: 'Somija (EUR)', flagCode: 'fi', group: 'Skandināvija' },
+  { name: 'Dānija (DKK)', flagCode: 'dk', group: 'Skandināvija' },
+  { name: 'Nīderlande (EUR)', flagCode: 'nl', group: 'Eiropa' },
+  { name: 'Beļģija (EUR)', flagCode: 'be', group: 'Eiropa' },
+  { name: 'Austrija (EUR)', flagCode: 'at', group: 'Eiropa' },
+  { name: 'Šveice (CHF)', flagCode: 'ch', group: 'Eiropa' },
+  { name: 'Čehija (CZK)', flagCode: 'cz', group: 'Eiropa' },
+  { name: 'Ukraina (UAH)', flagCode: 'ua', group: 'Austrumeiropa' },
+  { name: 'Turcija (TRY)', flagCode: 'tr', group: 'Eirāzija' },
+  { name: 'ASV & Ziemeļamerika (USD)', flagCode: 'us', group: 'Ziemeļamerika' },
+  { name: 'Kanāda (CAD)', flagCode: 'ca', group: 'Ziemeļamerika' },
+  { name: 'Meksika (MXN)', flagCode: 'mx', group: 'Ziemeļamerika' },
+  { name: 'Brazīlija (BRL)', flagCode: 'br', group: 'Dienvidamerika' },
+  { name: 'Argentīna (ARS)', flagCode: 'ar', group: 'Dienvidamerika' },
+  { name: 'Austrālija (AUD)', flagCode: 'au', group: 'Okeānija' },
+  { name: 'Jaunzēlande (NZD)', flagCode: 'nz', group: 'Okeānija' },
+  { name: 'Japāna (JPY)', flagCode: 'jp', group: 'Āzija' },
+  { name: 'Ķīna (CNY)', flagCode: 'cn', group: 'Āzija' },
+  { name: 'Dienvidkoreja (KRW)', flagCode: 'kr', group: 'Āzija' },
+  { name: 'Indija (INR)', flagCode: 'in', group: 'Āzija' },
+  { name: 'Apvienotie Arābu Emirāti (AED)', flagCode: 'ae', group: 'Tuvie Austrumi' }
+]
+
+export default function Header() {
+  const router = useRouter()
+  const [user, setUser] = useState<any>(null)
+  const [visitCount, setVisitCount] = useState<number>(0)
+
+  const [currentLang, setCurrentLang] = useState('LV')
+  const [currentRegion, setCurrentRegion] = useState('Eiropa (EUR)')
+
+  const [langOpen, setLangOpen] = useState(false)
+  const [regionOpen, setRegionOpen] = useState(false)
+  const [langSearch, setLangSearch] = useState('')
+  const [regionSearch, setRegionSearch] = useState('')
+
+  const langRef = useRef<HTMLDivElement>(null)
+  const regionRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    async function fetchVisits() {
+      const twentyFourHoursAgo = new Date(new Date().getTime() - 24 * 60 * 60 * 1000).toISOString()
+      const { count, error } = await supabase
+        .from('site_visits')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', twentyFourHoursAgo)
+
+      if (!error && count !== null) {
+        setVisitCount(count)
+      }
+    }
+    fetchVisits()
+
+    function handleClickOutside(event: MouseEvent) {
+      if (langRef.current && !langRef.current.contains(event.target as Node)) {
+        setLangOpen(false)
+      }
+      if (regionRef.current && !regionRef.current.contains(event.target as Node)) {
+        setRegionOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      subscription.unsubscribe()
+    }
+  }, [])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    setUser(null)
+    router.push('/')
+    router.refresh()
+  }
+
+  const handleAddCarClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    if (!user) {
+      sessionStorage.setItem('redirectAfterLogin', '/pievienot')
+      router.push('/login')
+    } else {
+      router.push('/pievienot')
+    }
+  }
+
+  const filteredLanguages = LANGUAGES.filter(l => 
+    l.name.toLowerCase().includes(langSearch.toLowerCase()) || 
+    l.code.toLowerCase().includes(langSearch.toLowerCase())
+  )
+
+  const filteredRegions = REGIONS.filter(r => 
+    r.name.toLowerCase().includes(regionSearch.toLowerCase())
+  )
+
+  const currentLangObj = LANGUAGES.find(l => l.code === currentLang)
+  const currentRegionObj = REGIONS.find(r => r.name === currentRegion)
+
+  return (
     <header 
       style={{ 
         backgroundColor: '#0f172a', 
@@ -212,3 +372,4 @@ return (
       </div>
     </header>
   )
+}
