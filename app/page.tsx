@@ -29,7 +29,7 @@ export default function Sakumlapa() {
     fetchData()
   }, [])
 
-  // 1. Aprēķina, cik kopumā ir katra modeļa auto datubāzē
+  // Aprēķina modeļu skaitu
   const modelCounts = useMemo(() => {
     const counts: { [key: string]: number } = {}
     cars.forEach((car) => {
@@ -41,22 +41,14 @@ export default function Sakumlapa() {
     return counts
   }, [cars])
 
-  // 2. Sagatavo unikālos modeļus priekš meklēšanas ieteikumiem (auto-complete)
-  const uniqueModels = useMemo(() => {
-    const modelsSet = new Set<string>()
-    cars.forEach((car) => {
-      if (car.model) modelsSet.add(car.model.trim())
-    })
-    return Array.from(modelsSet)
-  }, [cars])
-
-  // 3. Filtrē ieteikumus, kad lietotājs raksta meklētājā
+  // Ieteikumi meklētājam
   const filteredSuggestions = useMemo(() => {
     if (!search.trim()) return []
-    return uniqueModels.filter((model) =>
+    const uniqueModels = Array.from(new Set(cars.map(c => c.model).filter(Boolean)))
+    return uniqueModels.filter((model: string) =>
       model.toLowerCase().includes(search.toLowerCase())
     )
-  }, [search, uniqueModels])
+  }, [search, cars])
 
   const filteredCars = cars.filter((car) => {
     const fullTitle = `${car.make || ''} ${car.model || ''}`.toLowerCase()
@@ -69,10 +61,8 @@ export default function Sakumlapa() {
 
   return (
     <div style={{ width: '100%', padding: '40px 20px', fontFamily: 'sans-serif', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
-      
       <div style={{ width: '100%', maxWidth: '1150px', display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
         
-        {/* Kreisā puse: Saraksts */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ marginBottom: '24px' }}>
             <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
@@ -80,7 +70,7 @@ export default function Sakumlapa() {
 
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', backgroundColor: '#f3f4f6', padding: '16px', borderRadius: '8px', marginBottom: '24px', alignItems: 'center' }}>
             
-            {/* Meklētājs ar ieteikumiem (Auto-complete) */}
+            {/* Meklētājs ar ieteikumiem */}
             <div style={{ flex: '1', minWidth: '180px', position: 'relative' }}>
               <input
                 type="text"
@@ -90,26 +80,20 @@ export default function Sakumlapa() {
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
               />
 
-              {/* Ieteikumu lodziņš, kas saka priekšā un rāda skaitu iekavās */}
               {filteredSuggestions.length > 0 && (
                 <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', marginTop: '4px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', zIndex: 50, maxHeight: '200px', overflowY: 'auto' }}>
-                  {filteredSuggestions.map((modelName) => {
-                    const count = modelCounts[modelName] || 0
-                    return (
-                      <div
-                        key={modelName}
-                        onClick={() => {
-                          setSearch(modelName)
-                        }}
-                        style={{ padding: '8px 12px', cursor: 'pointer', fontSize: '14px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                      >
-                        <span>{modelName}</span>
-                        <span style={{ color: '#6b7280', fontWeight: 'bold' }}>({count})</span>
-                      </div>
-                    )
-                  })}
+                  {filteredSuggestions.map((modelName: string) => (
+                    <div
+                      key={modelName}
+                      onClick={() => setSearch(modelName)}
+                      style={{ padding: '8px 12px', cursor: 'pointer', fontSize: '14px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                    >
+                      <span>{modelName}</span>
+                      <span style={{ color: '#6b7280', fontWeight: 'bold' }}>({modelCounts[modelName] || 0})</span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -172,7 +156,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* Labā puse: Reklāma */}
+        {/* Reklāma */}
         <div style={{ width: '260px', flexShrink: 0, position: 'sticky', top: '20px' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
