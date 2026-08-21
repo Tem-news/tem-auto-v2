@@ -10,7 +10,8 @@ export default function Sakumlapa() {
   const [cars, setCars] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  const [search, setSearch] = useState('')
+  const [searchMake, setSearchMake] = useState('')
+  const [searchModel, setSearchModel] = useState('')
   const [minPrice, setMinPrice] = useState('1500')
   const [maxPrice, setMaxPrice] = useState('3500')
 
@@ -31,33 +32,57 @@ export default function Sakumlapa() {
     fetchData()
   }, [])
 
-  const filteredSuggestions = useMemo(() => {
-    if (!search.trim()) return []
-    const query = search.toLowerCase()
+  // Ieteikumi markām
+  const filteredMakeSuggestions = useMemo(() => {
+    if (!searchMake.trim()) return []
+    const query = searchMake.toLowerCase()
     const matches = new Set<string>()
     cars.forEach(car => {
       if (car.make && car.make.toLowerCase().includes(query)) matches.add(car.make)
+    })
+    return Array.from(matches).slice(0, 5)
+  }, [searchMake, cars])
+
+  // Ieteikumi modeļiem
+  const filteredModelSuggestions = useMemo(() => {
+    if (!searchModel.trim()) return []
+    const query = searchModel.toLowerCase()
+    const matches = new Set<string>()
+    cars.forEach(car => {
+      // Ja ir ievadīta marka, rādām modeļus tikai šai markai, pretējā gadījumā visus
+      if (searchMake.trim() && car.make && car.make.toLowerCase() !== searchMake.toLowerCase()) {
+        return
+      }
       if (car.model && car.model.toLowerCase().includes(query)) matches.add(car.model)
     })
     return Array.from(matches).slice(0, 5)
-  }, [search, cars])
+  }, [searchModel, searchMake, cars])
 
   const filteredCars = cars.filter((car) => {
-    const fullTitle = `${car.make || ''} ${car.model || ''}`.toLowerCase()
-    const matchesSearch = fullTitle.includes(search.toLowerCase())
+    const matchesMake = searchMake ? (car.make || '').toLowerCase().includes(searchMake.toLowerCase()) : true
+    const matchesModel = searchModel ? (car.model || '').toLowerCase().includes(searchModel.toLowerCase()) : true
+    
     const carPrice = Number(car.price)
     const matchesMinPrice = minPrice ? carPrice >= Number(minPrice) : true
     const matchesMaxPrice = maxPrice ? carPrice <= Number(maxPrice) : true
-    return matchesSearch && matchesMinPrice && matchesMaxPrice
+
+    return matchesMake && matchesModel && matchesMinPrice && matchesMaxPrice
   })
 
-  // Funkcija, kas atver sludinājumu uzreiz pēc klikšķa uz ieteikuma
-  const handleSuggestionClick = (suggestion: string) => {
-    const foundCar = cars.find(c => c.make === suggestion || c.model === suggestion)
+  // Klikšķis uz markas ieteikuma
+  const handleMakeSelect = (make: string) => {
+    setSearchMake(make)
+  }
+
+  // Klikšķis uz modeļa ieteikuma (atver uzreiz sludinājumu, ja atrasts)
+  const handleModelSelect = (model: string) => {
+    setSearchModel(model)
+    const foundCar = cars.find(c => 
+      (!searchMake || c.make?.toLowerCase() === searchMake.toLowerCase()) && 
+      c.model?.toLowerCase() === model.toLowerCase()
+    )
     if (foundCar) {
       router.push(`/auto/${foundCar.id}`)
-    } else {
-      setSearch(suggestion)
     }
   }
 
@@ -76,24 +101,26 @@ export default function Sakumlapa() {
             <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
           </div>
 
+          {/* Meklēšanas un filtru panelis */}
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', backgroundColor: '#f3f4f6', padding: '16px', borderRadius: '8px', marginBottom: '24px', alignItems: 'center' }}>
             
-            <div style={{ flex: '1', minWidth: '180px', position: 'relative' }}>
+            {/* Markas meklētājs */}
+            <div style={{ flex: '1', minWidth: '150px', position: 'relative' }}>
               <input
                 type="text"
-                placeholder="Meklēt marku vai modeli..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Meklēt marku (piem. Ford)..."
+                value={searchMake}
+                onChange={(e) => setSearchMake(e.target.value)}
                 onKeyDown={handleKeyDown}
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
               />
 
-              {filteredSuggestions.length > 0 && (
+              {filteredMakeSuggestions.length > 0 && (
                 <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', marginTop: '4px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', zIndex: 50, overflowY: 'auto' }}>
-                  {filteredSuggestions.map((item: string) => (
+                  {filteredMakeSuggestions.map((item: string) => (
                     <div
                       key={item}
-                      onClick={() => handleSuggestionClick(item)}
+                      onClick={() => handleMakeSelect(item)}
                       style={{ padding: '10px 12px', cursor: 'pointer', fontSize: '14px', borderBottom: '1px solid #f3f4f6' }}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
@@ -105,7 +132,36 @@ export default function Sakumlapa() {
               )}
             </div>
 
-            <div style={{ width: '130px' }}>
+            {/* Modeļa meklētājs */}
+            <div style={{ flex: '1', minWidth: '150px', position: 'relative' }}>
+              <input
+                type="text"
+                placeholder="Meklēt modeli (piem. Kuga)..."
+                value={searchModel}
+                onChange={(e) => setSearchModel(e.target.value)}
+                onKeyDown={handleKeyDown}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
+              />
+
+              {filteredModelSuggestions.length > 0 && (
+                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', marginTop: '4px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', zIndex: 50, overflowY: 'auto' }}>
+                  {filteredModelSuggestions.map((item: string) => (
+                    <div
+                      key={item}
+                      onClick={() => handleModelSelect(item)}
+                      style={{ padding: '10px 12px', cursor: 'pointer', fontSize: '14px', borderBottom: '1px solid #f3f4f6' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                    >
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Cenu filtri */}
+            <div style={{ width: '110px' }}>
               <input
                 type="number"
                 placeholder="Min. €"
@@ -115,7 +171,7 @@ export default function Sakumlapa() {
               />
             </div>
             <span style={{ color: '#4b5563', fontSize: '14px' }}>līdz</span>
-            <div style={{ width: '130px' }}>
+            <div style={{ width: '110px' }}>
               <input
                 type="number"
                 placeholder="Maks. €"
@@ -124,9 +180,10 @@ export default function Sakumlapa() {
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
               />
             </div>
-            {(search || minPrice || maxPrice) && (
+
+            {(searchMake || searchModel || minPrice || maxPrice) && (
               <button
-                onClick={() => { setSearch(''); setMinPrice(''); setMaxPrice(''); }}
+                onClick={() => { setSearchMake(''); setSearchModel(''); setMinPrice(''); setMaxPrice(''); }}
                 style={{ padding: '10px 14px', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
               >
                 Notīrīt
