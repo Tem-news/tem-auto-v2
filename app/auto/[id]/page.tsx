@@ -11,7 +11,6 @@ export default function AutoLapa() {
   const id = params?.id
 
   const [car, setCar] = useState<any>(null)
-  const [modelCount, setModelCount] = useState<number>(0)
   const [loading, setLoading] = useState(true)
   const [activeImage, setActiveImage] = useState<string>('')
   const [deleting, setDeleting] = useState(false)
@@ -36,18 +35,6 @@ export default function AutoLapa() {
         setCar(carData)
         const mainImg = carData.image || (carData.images && carData.images[0]) || ''
         setActiveImage(mainImg)
-
-        // 3. Saskaitām modeļu kopējo skaitu datubāzē
-        if (carData.model) {
-          const { data: allCars } = await supabase
-            .from('cars')
-            .select('model')
-            .ilike('model', carData.model.trim())
-
-          if (allCars) {
-            setModelCount(allCars.length)
-          }
-        }
       }
       setLoading(false)
     }
@@ -127,9 +114,9 @@ export default function AutoLapa() {
             </div>
           </div>
 
-          {/* Virsraksts: Marka Modelis un skats iekavās (bez gada) */}
+          {/* Tīrs virsraksts bez iekavām un gadiem */}
           <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 6px 0', color: '#111827' }}>
-            {car.make} {car.model} <span style={{ color: '#6b7280', fontWeight: 'normal', fontSize: '20px' }}>({modelCount})</span>
+            {car.make} {car.model}
           </h1>
 
           <div style={{ display: 'flex', gap: '16px', color: '#6b7280', fontSize: '14px', marginBottom: '16px' }}>
