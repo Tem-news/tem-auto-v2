@@ -2,9 +2,11 @@
 
 import { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 
 export default function Sakumlapa() {
+  const router = useRouter()
   const [cars, setCars] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -29,19 +31,15 @@ export default function Sakumlapa() {
     fetchData()
   }, [])
 
-  // Ieteikumi meklētājam (meklē gan pēc markas, gan modeļa, lai rādītu priekšā variantus)
   const filteredSuggestions = useMemo(() => {
     if (!search.trim()) return []
     const query = search.toLowerCase()
-    
-    // Savācam unikālas markas un modeļus, kas sakrīt ar ierakstīto
     const matches = new Set<string>()
     cars.forEach(car => {
       if (car.make && car.make.toLowerCase().includes(query)) matches.add(car.make)
       if (car.model && car.model.toLowerCase().includes(query)) matches.add(car.model)
     })
-    
-    return Array.from(matches).slice(0, 5) // Atgriežam līdz 5 ieteikumiem
+    return Array.from(matches).slice(0, 5)
   }, [search, cars])
 
   const filteredCars = cars.filter((car) => {
@@ -53,12 +51,19 @@ export default function Sakumlapa() {
     return matchesSearch && matchesMinPrice && matchesMaxPrice
   })
 
-  // Enter taustiņa apstrāde meklētājā (atver pirmo atrasto auto)
+  // Funkcija, kas atver sludinājumu uzreiz pēc klikšķa uz ieteikuma
+  const handleSuggestionClick = (suggestion: string) => {
+    const foundCar = cars.find(c => c.make === suggestion || c.model === suggestion)
+    if (foundCar) {
+      router.push(`/auto/${foundCar.id}`)
+    } else {
+      setSearch(suggestion)
+    }
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      if (filteredCars.length > 0) {
-        window.location.href = `/auto/${filteredCars[0].id}`
-      }
+    if (e.key === 'Enter' && filteredCars.length > 0) {
+      router.push(`/auto/${filteredCars[0].id}`)
     }
   }
 
@@ -73,7 +78,6 @@ export default function Sakumlapa() {
 
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', backgroundColor: '#f3f4f6', padding: '16px', borderRadius: '8px', marginBottom: '24px', alignItems: 'center' }}>
             
-            {/* Meklētājs ar ieteikumiem un Enter atbalstu */}
             <div style={{ flex: '1', minWidth: '180px', position: 'relative' }}>
               <input
                 type="text"
@@ -89,7 +93,7 @@ export default function Sakumlapa() {
                   {filteredSuggestions.map((item: string) => (
                     <div
                       key={item}
-                      onClick={() => setSearch(item)}
+                      onClick={() => handleSuggestionClick(item)}
                       style={{ padding: '10px 12px', cursor: 'pointer', fontSize: '14px', borderBottom: '1px solid #f3f4f6' }}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
@@ -136,33 +140,28 @@ export default function Sakumlapa() {
             <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Nav atrasts neviens auto.</div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '20px' }}>
-              {filteredCars.map((car) => {
-                return (
-                  <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <div style={{ border: '1px solid #e5e7eb', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                      <div style={{ height: '160px', backgroundColor: '#f3f4f6' }}>
-                        {car.image ? <img src={car.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af' }}>Nav attēla</div>}
-                      </div>
-                      <div style={{ padding: '14px' }}>
-                        <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 6px 0' }}>
-                          {car.make} {car.model}
-                        </h2>
-                        <p style={{ fontSize: '13px', color: '#6b7280', margin: '0 0 8px 0' }}>{car.year} g. {car.engine ? `• ${car.engine}` : ''}</p>
-                        <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#16a34a', margin: 0 }}>€{car.price}</p>
-                      </div>
+              {filteredCars.map((car) => (
+                <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <div style={{ border: '1px solid #e5e7eb', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <div style={{ height: '160px', backgroundColor: '#f3f4f6' }}>
+                      {car.image ? <img src={car.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af' }}>Nav attēla</div>}
                     </div>
-                  </Link>
-                )
-              })}
+                    <div style={{ padding: '14px' }}>
+                      <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 6px 0' }}>{car.make} {car.model}</h2>
+                      <p style={{ fontSize: '13px', color: '#6b7280', margin: '0 0 8px 0' }}>{car.year} g. {car.engine ? `• ${car.engine}` : ''}</p>
+                      <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#16a34a', margin: 0 }}>€{car.price}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
             </div>
           )}
         </div>
 
-        {/* Reklāma */}
         <div style={{ width: '260px', flexShrink: 0, position: 'sticky', top: '20px' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
-            <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Globālais baneris šeit!<br/><span style={{ fontSize: '12px' }}>(Pielāgots reģionam)</span></p>
+            <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Globālais baneris šeit!</p>
           </div>
         </div>
 
