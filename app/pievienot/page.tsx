@@ -4,32 +4,14 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
-const CAR_DATA: Record<string, string[]> = {
-  "Audi": ["A3", "A4", "A5", "A6", "A7", "A8", "Q3", "Q5", "Q7", "Q8", "TT", "E-Tron"],
-  "BMW": ["1. sērija", "2. sērija", "3. sērija", "4. sērija", "5. sērija", "6. sērija", "7. sērija", "X1", "X3", "X5", "X6", "X7", "i4", "iX"],
-  "Mercedes-Benz": ["A-Klase", "C-Klase", "E-Klase", "S-Klase", "CLA", "CLS", "GLA", "GLC", "GLE", "GLS", "G-Klase", "EQE", "EQS"],
-  "Volkswagen": ["Golf", "Passat", "Arteon", "Tiguan", "Touareg", "Touran", "Sharan", "Polo", "ID.3", "ID.4"],
-  "Volvo": ["S60", "S90", "V60", "V90", "XC40", "XC60", "XC90"],
-  "Toyota": ["Avensis", "Camry", "Corolla", "RAV4", "Land Cruiser", "Yaris", "C-HR", "Prius"],
-  "Honda": ["Accord", "Civic", "CR-V", "HR-V"],
-  "Ford": ["Focus", "Mondeo", "Fiesta", "Kuga", "Mustang", "Explorer", "Galaxy", "S-Max"],
-  "Skoda": ["Octavia", "Superb", "Kodiaq", "Karoq", "Fabia"],
-  "Hyundai": ["i30", "i40", "Tucson", "Santa Fe", "Ioniq 5", "Kona"],
-  "Kia": ["Ceed", "Optima", "Sportage", "Sorento", "EV6"],
-  "Nissan": ["Qashqai", "X-Trail", "Juke", "Leaf"],
-  "Opel": ["Astra", "Insignia", "Zafira", "Mokka", "Corsa"],
-  "Lexus": ["IS", "GS", "LS", "RX", "NX", "UX"],
-  "Porsche": ["911", "Cayenne", "Panamera", "Macan", "Taycan"]
-}
-
 export default function PievienotAutoPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [errorMsg, setErrorMsg] = useState('')
 
-  const [make, setMake] = useState('BMW')
-  const [model, setModel] = useState('3. sērija')
+  const [make, setMake] = useState('')
+  const [model, setModel] = useState('')
   const [year, setYear] = useState<string | number>(2018)
   const [price, setPrice] = useState('')
   const [mileage, setMileage] = useState('')
@@ -56,15 +38,6 @@ export default function PievienotAutoPage() {
       }
     })
   }, [router])
-
-  const handleMakeChange = (selectedMake: string) => {
-    setMake(selectedMake)
-    if (CAR_DATA[selectedMake] && CAR_DATA[selectedMake].length > 0) {
-      setModel(CAR_DATA[selectedMake][0])
-    } else {
-      setModel('')
-    }
-  }
 
   const addFiles = (files: FileList | File[]) => {
     const newImages = Array.from(files)
@@ -99,6 +72,7 @@ export default function PievienotAutoPage() {
     try {
       if (!user) throw new Error('Jums jābūt ielogotamies!')
       if (!email) throw new Error('E-pasts ir obligāts kontakts!')
+      if (!make.trim() || !model.trim()) throw new Error('Marka un modelis ir obligāti lauki!')
 
       const uploadedUrls: string[] = []
 
@@ -185,30 +159,28 @@ export default function PievienotAutoPage() {
                 <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>
                   Marka <span style={{ color: '#ef4444' }}>*</span>
                 </label>
-                <select
+                <input
+                  type="text"
+                  required
                   value={make}
-                  onChange={(e) => handleMakeChange(e.target.value)}
+                  onChange={(e) => setMake(e.target.value)}
+                  placeholder="piem., Alfa Romeo"
                   style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: '#fff', fontSize: '15px', boxSizing: 'border-box' }}
-                >
-                  {Object.keys(CAR_DATA).map((m) => (
-                    <option key={m} value={m}>{m}</option>
-                  ))}
-                </select>
+                />
               </div>
 
               <div>
                 <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px', color: '#334155' }}>
                   Modelis <span style={{ color: '#ef4444' }}>*</span>
                 </label>
-                <select
+                <input
+                  type="text"
+                  required
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
+                  placeholder="piem., Giulia"
                   style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: '#fff', fontSize: '15px', boxSizing: 'border-box' }}
-                >
-                  {(CAR_DATA[make] || []).map((mod) => (
-                    <option key={mod} value={mod}>{mod}</option>
-                  ))}
-                </select>
+                />
               </div>
             </div>
 
@@ -448,7 +420,7 @@ export default function PievienotAutoPage() {
           </form>
         </div>
 
-        {/* Labā puse: Reklāmas baneris (vienādā platumā un stilā ar citām lapām) */}
+        {/* Labā puse: Reklāmas baneris */}
         <div style={{ width: '260px', flexShrink: 0, position: 'sticky', top: '20px' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
