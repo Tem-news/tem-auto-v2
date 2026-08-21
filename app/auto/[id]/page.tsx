@@ -37,7 +37,7 @@ export default function AutoLapa() {
         const mainImg = carData.image || (carData.images && carData.images[0]) || ''
         setActiveImage(mainImg)
 
-        // 3. Saskaitām, cik pavisam ir šāda modeļa auto datubāzē
+        // 3. Saskaitām modeļu kopējo skaitu datubāzē
         if (carData.model) {
           const { data: allCars } = await supabase
             .from('cars')
@@ -127,7 +127,7 @@ export default function AutoLapa() {
             </div>
           </div>
 
-          {/* Virsraksts, kur iekavās tagad rādās modelim atbilstošo auto skaits */}
+          {/* Virsraksts: Marka Modelis un skats iekavās (bez gada) */}
           <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 6px 0', color: '#111827' }}>
             {car.make} {car.model} <span style={{ color: '#6b7280', fontWeight: 'normal', fontSize: '20px' }}>({modelCount})</span>
           </h1>
