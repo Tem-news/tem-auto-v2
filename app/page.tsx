@@ -29,25 +29,19 @@ export default function Sakumlapa() {
     fetchData()
   }, [])
 
-  // Aprēķina modeļu skaitu datubāzē
-  const modelCounts = useMemo(() => {
-    const counts: { [key: string]: number } = {}
-    cars.forEach((car) => {
-      if (car.model) {
-        const modelName = car.model.trim()
-        counts[modelName] = (counts[modelName] || 0) + 1
-      }
-    })
-    return counts
-  }, [cars])
-
-  // Ieteikumi meklētājam
+  // Ieteikumi meklētājam (meklē gan pēc markas, gan modeļa, lai rādītu priekšā variantus)
   const filteredSuggestions = useMemo(() => {
     if (!search.trim()) return []
-    const uniqueModels = Array.from(new Set(cars.map(c => c.model).filter(Boolean)))
-    return uniqueModels.filter((model: string) =>
-      model.toLowerCase().includes(search.toLowerCase())
-    )
+    const query = search.toLowerCase()
+    
+    // Savācam unikālas markas un modeļus, kas sakrīt ar ierakstīto
+    const matches = new Set<string>()
+    cars.forEach(car => {
+      if (car.make && car.make.toLowerCase().includes(query)) matches.add(car.make)
+      if (car.model && car.model.toLowerCase().includes(query)) matches.add(car.model)
+    })
+    
+    return Array.from(matches).slice(0, 5) // Atgriežam līdz 5 ieteikumiem
   }, [search, cars])
 
   const filteredCars = cars.filter((car) => {
@@ -83,7 +77,7 @@ export default function Sakumlapa() {
             <div style={{ flex: '1', minWidth: '180px', position: 'relative' }}>
               <input
                 type="text"
-                placeholder="Meklēt un spied Enter..."
+                placeholder="Meklēt marku vai modeli..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -91,17 +85,16 @@ export default function Sakumlapa() {
               />
 
               {filteredSuggestions.length > 0 && (
-                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', marginTop: '4px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', zIndex: 50, maxHeight: '200px', overflowY: 'auto' }}>
-                  {filteredSuggestions.map((modelName: string) => (
+                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', marginTop: '4px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', zIndex: 50, overflowY: 'auto' }}>
+                  {filteredSuggestions.map((item: string) => (
                     <div
-                      key={modelName}
-                      onClick={() => setSearch(modelName)}
-                      style={{ padding: '8px 12px', cursor: 'pointer', fontSize: '14px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between' }}
+                      key={item}
+                      onClick={() => setSearch(item)}
+                      style={{ padding: '10px 12px', cursor: 'pointer', fontSize: '14px', borderBottom: '1px solid #f3f4f6' }}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                     >
-                      <span>{modelName}</span>
-                      <span style={{ color: '#6b7280', fontWeight: 'bold' }}>({modelCounts[modelName] || 0})</span>
+                      {item}
                     </div>
                   ))}
                 </div>
@@ -144,7 +137,6 @@ export default function Sakumlapa() {
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '20px' }}>
               {filteredCars.map((car) => {
-                const totalModelCount = car.model ? modelCounts[car.model.trim()] || 0 : 0
                 return (
                   <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <div style={{ border: '1px solid #e5e7eb', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
@@ -153,7 +145,7 @@ export default function Sakumlapa() {
                       </div>
                       <div style={{ padding: '14px' }}>
                         <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 6px 0' }}>
-                          {car.make} {car.model} <span style={{ color: '#6b7280', fontWeight: 'normal', fontSize: '14px' }}>({totalModelCount})</span>
+                          {car.make} {car.model}
                         </h2>
                         <p style={{ fontSize: '13px', color: '#6b7280', margin: '0 0 8px 0' }}>{car.year} g. {car.engine ? `• ${car.engine}` : ''}</p>
                         <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#16a34a', margin: 0 }}>€{car.price}</p>
