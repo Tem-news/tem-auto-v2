@@ -11,6 +11,7 @@ export default function RedigetAuto() {
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
   // Visi lauki
@@ -94,6 +95,7 @@ export default function RedigetAuto() {
     setImages(images.filter((_, i) => i !== index))
   }
 
+  // Saglabāt izmaiņas
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
@@ -127,6 +129,24 @@ export default function RedigetAuto() {
     router.push(`/auto/${id}`)
   }
 
+  // Dzēst visu sludinājumu no rediģēšanas lapas
+  const handleDeleteCar = async () => {
+    const confirmDelete = window.confirm('Vai tiešām vēlaties neatgriezeniski dzēst šo sludinājumu?')
+    if (!confirmDelete) return
+
+    setDeleting(true)
+    const { error } = await supabase.from('cars').delete().eq('id', id)
+    setDeleting(false)
+
+    if (error) {
+      alert('Kļūda dzēšot sludinājumu: ' + error.message)
+    } else {
+      alert('Sludinājums veiksmīgi izdzēsts!')
+      router.push('/')
+      router.refresh()
+    }
+  }
+
   if (loading) return <div style={{textAlign: 'center', padding: '50px', fontSize: '18px'}}>Pārbauda piekļuves tiesības...</div>
 
   if (errorMsg) {
@@ -144,7 +164,6 @@ export default function RedigetAuto() {
   return (
     <div style={{ maxWidth: '1150px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
       
-      {/* Divu kolonnu izkārtojums: Forma kreisajā pusē, reklāma labajā */}
       <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', justifyContent: 'center' }}>
         
         {/* Kreisā puse: Rediģēšanas forma */}
@@ -284,9 +303,17 @@ export default function RedigetAuto() {
               />
             </div>
 
-            <button type="submit" disabled={saving} style={{ marginTop: '10px', padding: '15px', background: '#2563eb', color: 'white', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '16px', fontWeight: '600' }}>
-              {saving ? 'Saglabā izmaiņas...' : 'Saglabāt izmaiņas'}
-            </button>
+            {/* Saglabāšanas un Dzēšanas pogas */}
+            <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
+              <button type="submit" disabled={saving} style={{ flex: 1, padding: '15px', background: '#2563eb', color: 'white', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '16px', fontWeight: '600' }}>
+                {saving ? 'Saglabā izmaiņas...' : 'Saglabāt izmaiņas'}
+              </button>
+
+              <button type="button" onClick={handleDeleteCar} disabled={deleting} style={{ padding: '15px 20px', background: deleting ? '#9ca3af' : '#dc2626', color: 'white', borderRadius: '8px', border: 'none', cursor: deleting ? 'not-allowed' : 'pointer', fontSize: '16px', fontWeight: '600' }}>
+                {deleting ? 'Dzēš...' : '🗑️ Dzēst sludinājumu'}
+              </button>
+            </div>
+
           </form>
         </div>
 
