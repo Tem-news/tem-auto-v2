@@ -1,19 +1,17 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../lib/supabase'
 
 export default function AutoLapa() {
   const params = useParams()
-  const router = useRouter()
   const id = params?.id
 
   const [car, setCar] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [activeImage, setActiveImage] = useState<string>('')
-  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -41,23 +39,6 @@ export default function AutoLapa() {
 
     fetchCarData()
   }, [id])
-
-  const handleDelete = async () => {
-    const confirmDelete = window.confirm('Vai tiešām vēlaties dzēst šo sludinājumu?')
-    if (!confirmDelete) return
-
-    setDeleting(true)
-    const { error } = await supabase.from('cars').delete().eq('id', id)
-    setDeleting(false)
-
-    if (error) {
-      alert('Kļūda dzēšot sludinājumu: ' + error.message)
-    } else {
-      alert('Sludinājums veiksmīgi izdzēsts!')
-      router.push('/')
-      router.refresh()
-    }
-  }
 
   const allImages: string[] = []
   if (car?.image) allImages.push(car.image)
@@ -104,17 +85,13 @@ export default function AutoLapa() {
             <Link href="/" style={{ color: '#2563eb', textDecoration: 'none' }}>
               ← Atpakaļ uz sarakstu
             </Link>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div>
               <Link href={`/auto/${id}/edit`} style={{ padding: '8px 14px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold' }}>
                 ✏️ Rediģēt
               </Link>
-              <button onClick={handleDelete} disabled={deleting} style={{ padding: '8px 14px', backgroundColor: deleting ? '#9ca3af' : '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', cursor: deleting ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: 'bold' }}>
-                {deleting ? 'Dzēš...' : '🗑️ Dzēst'}
-              </button>
             </div>
           </div>
 
-          {/* Tīrs virsraksts bez iekavām un gadiem */}
           <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 6px 0', color: '#111827' }}>
             {car.make} {car.model}
           </h1>
