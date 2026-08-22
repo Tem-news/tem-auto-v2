@@ -12,8 +12,8 @@ export default function Sakumlapa() {
 
   const [searchMake, setSearchMake] = useState('')
   const [searchModel, setSearchModel] = useState('')
-  const [minPrice, setMinPrice] = useState('1500')
-  const [maxPrice, setMaxPrice] = useState('3500')
+  const [minPrice, setMinPrice] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
 
   useEffect(() => {
     async function fetchData() {
@@ -49,7 +49,6 @@ export default function Sakumlapa() {
     const query = searchModel.toLowerCase()
     const matches = new Set<string>()
     cars.forEach(car => {
-      // Ja ir ievadīta marka, rādām modeļus tikai šai markai, pretējā gadījumā visus
       if (searchMake.trim() && car.make && car.make.toLowerCase() !== searchMake.toLowerCase()) {
         return
       }
@@ -69,12 +68,10 @@ export default function Sakumlapa() {
     return matchesMake && matchesModel && matchesMinPrice && matchesMaxPrice
   })
 
-  // Klikšķis uz markas ieteikuma
   const handleMakeSelect = (make: string) => {
     setSearchMake(make)
   }
 
-  // Klikšķis uz modeļa ieteikuma (atver uzreiz sludinājumu, ja atrasts)
   const handleModelSelect = (model: string) => {
     setSearchModel(model)
     const foundCar = cars.find(c => 
