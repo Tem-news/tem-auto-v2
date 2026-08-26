@@ -176,7 +176,11 @@ export default function Header() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <Link 
             href="/" 
-            style={{ fontSize: '20px', fontWeight: 'bold', color: '#22c55e', textDecoration: 'none' }}
+            onClick={(e) => {
+              e.preventDefault()
+              window.location.href = '/'
+            }}
+            style={{ fontSize: '20px', fontWeight: 'bold', color: '#22c55e', textDecoration: 'none', cursor: 'pointer' }}
           >
             TemAuto
           </Link>
