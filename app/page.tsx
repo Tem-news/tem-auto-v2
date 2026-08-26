@@ -108,8 +108,8 @@ export default function Sakumlapa() {
     <div style={{ width: '100%', minHeight: '100vh', padding: '16px 12px', boxSizing: 'border-box', fontFamily: 'sans-serif' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
         
-        {/* KREISĀ PUSE: Ar atgrieztu position: sticky */}
-        <div style={{ position: 'sticky', top: '16px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px', boxSizing: 'border-box' }}>
+        {/* KREISĀ PUSE: Fiksēta ar top: '80px' un alignSelf: 'start' */}
+        <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
           ) : (
@@ -366,8 +366,8 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* LABĀ PUSE: Ar atgrieztu position: sticky */}
-        <div style={{ position: 'sticky', top: '16px', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
+        {/* LABĀ PUSE: Fiksēta ar top: '80px' un alignSelf: 'start' */}
+        <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Globālais baneris šeit!</p>
