@@ -106,10 +106,9 @@ export default function Sakumlapa() {
 
   return (
     <div style={{ width: '100%', minHeight: '100vh', padding: '16px 8px', boxSizing: 'border-box', fontFamily: 'sans-serif' }}>
-      {/* Galvenais tīkls izstiepts pa visu ekrāna platumu */}
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'flex-start', width: '100%' }}>
         
-        {/* KREISĀ PUSE: Marku saraksts (fiksēts, nepazūd skrollējot) */}
+        {/* KREISĀ PUSE */}
         <div style={{ position: 'sticky', top: '20px', maxHeight: 'calc(100vh - 40px)', overflowY: 'auto', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
@@ -174,7 +173,6 @@ export default function Sakumlapa() {
                 })}
               </div>
 
-              {/* Rubrika CITS apakšā */}
               <div style={{ marginTop: '12px', borderTop: '1px solid #e5e7eb', paddingTop: '8px' }}>
                 <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#4b5563', padding: '2px 4px', marginBottom: '4px' }}>CITS</div>
                 <Link href="/cits" style={{ textDecoration: 'none' }}>
@@ -197,7 +195,6 @@ export default function Sakumlapa() {
                   </div>
                 </Link>
               </div>
-
             </div>
           )}
         </div>
@@ -287,7 +284,7 @@ export default function Sakumlapa() {
                 type="number"
                 placeholder="Maks €"
                 value={maxPrice}
-                onChange={(e) => maxPrice = e.target.value} // izlabots uz state setter zemāk
+                onChange={(e) => setMaxPrice(e.target.value)}
                 style={{ width: '100%', padding: '7px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '12px' }}
               />
             </div>
@@ -307,9 +304,7 @@ export default function Sakumlapa() {
           ) : filteredCars.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Nav atrasts neviens auto.</div>
           ) : searchMake ? (
-            /* SARAKSTA SKATS (Rindās uz leju), kad izvēlēta konkrēta marka */
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {/* Tabulas galvene */}
               <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr 70px 90px', backgroundColor: '#15803d', color: '#fff', padding: '6px 10px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
                 <div>Foto</div>
                 <div>Sludinājums / Apraksts</div>
@@ -323,7 +318,6 @@ export default function Sakumlapa() {
                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0fdf4'}
                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                   >
-                    {/* Titulfotogrāfija */}
                     <div style={{ width: '110px', height: '65px', backgroundColor: '#f3f4f6', borderRadius: '4px', overflow: 'hidden' }}>
                       {car.image ? (
                         <img src={car.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -332,7 +326,6 @@ export default function Sakumlapa() {
                       )}
                     </div>
 
-                    {/* Apraksts / Marka / Modelis */}
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#0369a1' }}>
                         {car.make} {car.model} {car.engine ? `(${car.engine})` : ''}
@@ -342,12 +335,10 @@ export default function Sakumlapa() {
                       </div>
                     </div>
 
-                    {/* Gads */}
                     <div style={{ fontSize: '13px', color: '#374151' }}>
                       {car.year ? `${car.year} g.` : '-'}
                     </div>
 
-                    {/* Cena */}
                     <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#15803d', textAlign: 'right' }}>
                       €{car.price}
                     </div>
@@ -356,7 +347,6 @@ export default function Sakumlapa() {
               ))}
             </div>
           ) : (
-            /* KVADRĀTU SKATS (5 kolonnas), kad nav izvēlēta specifiska marka */
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
               {filteredCars.map((car) => (
                 <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -376,7 +366,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* LABĀ PUSE: Divi reklāmas baneri (stingri fiksēti un nepazūd skrollējot) */}
+        {/* LABĀ PUSE */}
         <div style={{ position: 'sticky', top: '20px', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
