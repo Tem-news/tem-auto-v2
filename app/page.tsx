@@ -109,7 +109,7 @@ export default function Sakumlapa() {
       {/* Galvenais tīkls izstiepts pa visu ekrāna platumu */}
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'flex-start', width: '100%' }}>
         
-        {/* KREISĀ PUSE: Marku saraksts */}
+        {/* KREISĀ PUSE: Marku saraksts (fiksēts un nepazūd skrollējot) */}
         <div style={{ position: 'sticky', top: '70px', maxHeight: 'calc(100vh - 90px)', overflowY: 'auto', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
@@ -202,7 +202,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* VIDUS: Sludinājumi un filtri (Režīms mainās atkarībā no tā, vai ir izvēlēta marka) */}
+        {/* VIDUS: Sludinājumi un filtri */}
         <div style={{ minWidth: 0, width: '100%' }}>
           <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827', margin: 0 }}>
@@ -356,7 +356,7 @@ export default function Sakumlapa() {
               ))}
             </div>
           ) : (
-            /* KVADRĀTU SKATS (5 kolonnas), kad nav izvēlēta specifiska marka (visas markas kopā) */
+            /* KVADRĀTU SKATS (5 kolonnas), kad nav izvēlēta specifiska marka */
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
               {filteredCars.map((car) => (
                 <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -376,7 +376,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* LABĀ PUSE: Divi reklāmas baneri viens zem otra */}
+        {/* LABĀ PUSE: Divi reklāmas baneri (fiksēti un nepazūd skrollējot) */}
         <div style={{ position: 'sticky', top: '70px', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
