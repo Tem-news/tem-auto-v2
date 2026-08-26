@@ -166,10 +166,10 @@ export default function Header() {
         top: 0, 
         zIndex: 1000,
         width: '100%',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
       }}
     >
-      {/* Izmantojam pilnu platumu (bez max-width ierobežojuma) un space-between, lai elementa malas iet pa pašu ekrāna malu */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
         
         {/* KREISĀ PUSE: Logo un Apmeklētāji */}
