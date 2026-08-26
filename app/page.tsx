@@ -105,17 +105,16 @@ export default function Sakumlapa() {
   }
 
   return (
-    <div style={{ width: '100vw', minHeight: '100vh', padding: '20px 24px', fontFamily: 'sans-serif', boxSizing: 'border-box', overflowX: 'hidden' }}>
-      {/* Galvenais tīkls: Kreisā mala (markas), Vidus (sludinājumi - plešas), Labā mala (reklāma pilnībā malā) */}
-      <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr 240px', gap: '24px', alignItems: 'flex-start', width: '100%' }}>
+    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '20px 16px', boxSizing: 'border-box', fontFamily: 'sans-serif' }}>
+      {/* Optimizēts konteiners ar maksimālo platumu, kas perfekti ietilpst standartmonitors (1520px) */}
+      <div style={{ width: '100%', maxWidth: '1520px', display: 'grid', gridTemplateColumns: '220px 1fr 220px', gap: '20px', alignItems: 'flex-start' }}>
         
-        {/* KREISĀ PUSE: Marku saraksts divos stabiņos + CITS apakšā */}
+        {/* KREISĀ PUSE: Marku saraksts vienā stabiņā ar ļoti blīvām rindiņām */}
         <div style={{ position: 'sticky', top: '20px', maxHeight: 'calc(100vh - 40px)', overflowY: 'auto', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px' }}>
           {loading ? (
             <div style={{ fontSize: '12px', color: '#6b7280', padding: '6px' }}>Ielādē...</div>
           ) : (
-            <div>
-              {/* Visas markas poga, kas aizņem pilnu platumu augšā */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
               <button
                 onClick={() => setSearchMake('')}
                 style={{
@@ -132,49 +131,46 @@ export default function Sakumlapa() {
                   fontSize: '12px',
                   fontWeight: searchMake === '' ? 'bold' : 'normal',
                   textAlign: 'left',
-                  marginBottom: '4px'
+                  marginBottom: '2px'
                 }}
               >
                 <span>Visas markas</span>
                 <span style={{ fontSize: '11px', color: '#6b7280' }}>({cars.length})</span>
               </button>
 
-              {/* Saraksts sadalīts 2 vienādās kolonnās */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
-                {makeCounts.map(([make, count]) => {
-                  const isSelected = searchMake.toLowerCase() === make.toLowerCase()
-                  return (
-                    <button
-                      key={make}
-                      onClick={() => handleMakeSelect(make)}
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        width: '100%',
-                        padding: '3px 5px',
-                        backgroundColor: isSelected ? '#e0f2fe' : 'transparent',
-                        color: isSelected ? '#0369a1' : '#374151',
-                        border: 'none',
-                        borderRadius: '3px',
-                        cursor: 'pointer',
-                        fontSize: '11px',
-                        fontWeight: isSelected ? 'bold' : 'normal',
-                        textAlign: 'left'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isSelected) e.currentTarget.style.backgroundColor = '#f3f4f6'
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isSelected) e.currentTarget.style.backgroundColor = 'transparent'
-                      }}
-                    >
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{make}</span>
-                      <span style={{ fontSize: '10px', color: '#6b7280', marginLeft: '2px' }}>({count})</span>
-                    </button>
-                  )
-                })}
-              </div>
+              {makeCounts.map(([make, count]) => {
+                const isSelected = searchMake.toLowerCase() === make.toLowerCase()
+                return (
+                  <button
+                    key={make}
+                    onClick={() => handleMakeSelect(make)}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      width: '100%',
+                      padding: '3px 6px',
+                      backgroundColor: isSelected ? '#e0f2fe' : 'transparent',
+                      color: isSelected ? '#0369a1' : '#374151',
+                      border: 'none',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: isSelected ? 'bold' : 'normal',
+                      textAlign: 'left'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isSelected) e.currentTarget.style.backgroundColor = '#f3f4f6'
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isSelected) e.currentTarget.style.backgroundColor = 'transparent'
+                    }}
+                  >
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{make}</span>
+                    <span style={{ fontSize: '11px', color: '#6b7280', marginLeft: '4px' }}>({count})</span>
+                  </button>
+                )
+              })}
 
               {/* Rubrika CITS apakšā */}
               <div style={{ marginTop: '10px', borderTop: '1px solid #e5e7eb', paddingTop: '6px' }}>
@@ -182,7 +178,7 @@ export default function Sakumlapa() {
                 <Link href="/cits" style={{ textDecoration: 'none' }}>
                   <div 
                     style={{ 
-                      padding: '5px 6px', 
+                      padding: '6px 6px', 
                       backgroundColor: '#fff', 
                       border: '1px dashed #cbd5e1', 
                       borderRadius: '4px', 
@@ -204,12 +200,12 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* VIDUS: Sludinājumi un filtri (maksimāli plaši) */}
+        {/* VIDUS: Sludinājumi un filtri */}
         <div style={{ minWidth: 0, width: '100%' }}>
           <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h1 style={{ fontSize: '26px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
+            <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
             {searchMake && (
-              <div style={{ fontSize: '14px', color: '#4b5563' }}>
+              <div style={{ fontSize: '13px', color: '#4b5563' }}>
                 Filtrs: <strong style={{ color: '#0369a1' }}>{searchMake}</strong> 
                 <button 
                   onClick={() => setSearchMake('')} 
@@ -222,15 +218,15 @@ export default function Sakumlapa() {
           </div>
 
           {/* Meklēšanas un filtru panelis */}
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', backgroundColor: '#f3f4f6', padding: '12px', borderRadius: '8px', marginBottom: '20px', alignItems: 'center' }}>
-            <div style={{ flex: '1', minWidth: '130px', position: 'relative' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', backgroundColor: '#f3f4f6', padding: '10px', borderRadius: '8px', marginBottom: '16px', alignItems: 'center' }}>
+            <div style={{ flex: '1', minWidth: '120px', position: 'relative' }}>
               <input
                 type="text"
                 placeholder="Meklēt marku..."
                 value={searchMake}
                 onChange={(e) => setSearchMake(e.target.value)}
                 onKeyDown={handleKeyDown}
-                style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
+                style={{ width: '100%', padding: '7px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '12px' }}
               />
 
               {filteredMakeSuggestions.length > 0 && (
@@ -239,7 +235,7 @@ export default function Sakumlapa() {
                     <div
                       key={item}
                       onClick={() => handleMakeSelect(item)}
-                      style={{ padding: '8px 10px', cursor: 'pointer', fontSize: '13px', borderBottom: '1px solid #f3f4f6' }}
+                      style={{ padding: '7px 10px', cursor: 'pointer', fontSize: '12px', borderBottom: '1px solid #f3f4f6' }}
                     >
                       {item}
                     </div>
@@ -248,14 +244,14 @@ export default function Sakumlapa() {
               )}
             </div>
 
-            <div style={{ flex: '1', minWidth: '130px', position: 'relative' }}>
+            <div style={{ flex: '1', minWidth: '120px', position: 'relative' }}>
               <input
                 type="text"
                 placeholder="Meklēt modeli..."
                 value={searchModel}
                 onChange={(e) => setSearchModel(e.target.value)}
                 onKeyDown={handleKeyDown}
-                style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
+                style={{ width: '100%', padding: '7px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '12px' }}
               />
 
               {filteredModelSuggestions.length > 0 && (
@@ -264,7 +260,7 @@ export default function Sakumlapa() {
                     <div
                       key={item}
                       onClick={() => handleModelSelect(item)}
-                      style={{ padding: '8px 10px', cursor: 'pointer', fontSize: '13px', borderBottom: '1px solid #f3f4f6' }}
+                      style={{ padding: '7px 10px', cursor: 'pointer', fontSize: '12px', borderBottom: '1px solid #f3f4f6' }}
                     >
                       {item}
                     </div>
@@ -273,30 +269,30 @@ export default function Sakumlapa() {
               )}
             </div>
 
-            <div style={{ width: '85px' }}>
+            <div style={{ width: '75px' }}>
               <input
                 type="number"
                 placeholder="Min €"
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
-                style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
+                style={{ width: '100%', padding: '7px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '12px' }}
               />
             </div>
-            <span style={{ color: '#4b5563', fontSize: '13px' }}>līdz</span>
-            <div style={{ width: '85px' }}>
+            <span style={{ color: '#4b5563', fontSize: '12px' }}>līdz</span>
+            <div style={{ width: '75px' }}>
               <input
                 type="number"
                 placeholder="Maks €"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
-                style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
+                style={{ width: '100%', padding: '7px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '12px' }}
               />
             </div>
 
             {(searchMake || searchModel || minPrice || maxPrice) && (
               <button
                 onClick={() => { setSearchMake(''); setSearchModel(''); setMinPrice(''); setMaxPrice(''); }}
-                style={{ padding: '8px 12px', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
+                style={{ padding: '7px 10px', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
               >
                 Notīrīt
               </button>
@@ -308,17 +304,17 @@ export default function Sakumlapa() {
           ) : filteredCars.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Nav atrasts neviens auto.</div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
               {filteredCars.map((car) => (
                 <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <div style={{ border: '1px solid #e5e7eb', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                    <div style={{ height: '180px', backgroundColor: '#f3f4f6' }}>
+                  <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <div style={{ height: '160px', backgroundColor: '#f3f4f6' }}>
                       {car.image ? <img src={car.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af' }}>Nav attēla</div>}
                     </div>
-                    <div style={{ padding: '14px' }}>
-                      <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 6px 0' }}>{car.make} {car.model}</h2>
-                      <p style={{ fontSize: '13px', color: '#6b7280', margin: '0 0 8px 0' }}>{car.year} g. {car.engine ? `• ${car.engine}` : ''}</p>
-                      <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#16a34a', margin: 0 }}>€{car.price}</p>
+                    <div style={{ padding: '12px' }}>
+                      <h2 style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px 0' }}>{car.make} {car.model}</h2>
+                      <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 6px 0' }}>{car.year} g. {car.engine ? `• ${car.engine}` : ''}</p>
+                      <p style={{ fontSize: '16px', fontWeight: 'bold', color: '#16a34a', margin: 0 }}>€{car.price}</p>
                     </div>
                   </div>
                 </Link>
@@ -327,11 +323,11 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* LABĀ PUSE: Reklāmas baneris piespiests pašā malā */}
+        {/* LABĀ PUSE: Reklāmas baneris smuki savā vietā malā */}
         <div style={{ position: 'sticky', top: '20px', width: '100%' }}>
-          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '450px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
-            <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Globālais baneris šeit!</p>
+          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+            <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
+            <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Globālais baneris šeit!</p>
           </div>
         </div>
 
