@@ -105,12 +105,12 @@ export default function Sakumlapa() {
   }
 
   return (
-    <div style={{ width: '100%', minHeight: '100vh', padding: '12px 6px', boxSizing: 'border-box', fontFamily: 'sans-serif' }}>
+    <div style={{ width: '100%', minHeight: '100vh', padding: '16px 8px', boxSizing: 'border-box', fontFamily: 'sans-serif' }}>
       {/* Galvenais tīkls izstiepts pa visu ekrāna platumu */}
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'flex-start', width: '100%' }}>
         
-        {/* KREISĀ PUSE: Marku saraksts */}
-        <div style={{ position: 'sticky', top: '12px', maxHeight: 'calc(100vh - 24px)', overflowY: 'auto', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
+        {/* KREISĀ PUSE: Marku saraksts (fiksēts zem header un neslēpjas zem tā) */}
+        <div style={{ position: 'sticky', top: '70px', maxHeight: 'calc(100vh - 90px)', overflowY: 'auto', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '12px', color: '#6b7280', padding: '6px' }}>Ielādē...</div>
           ) : (
@@ -202,7 +202,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* VIDUS: Sludinājumi un filtri (5 kolonnas un 140px bildes augstums) */}
+        {/* VIDUS: Sludinājumi un filtri */}
         <div style={{ minWidth: 0, width: '100%' }}>
           <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
@@ -305,7 +305,6 @@ export default function Sakumlapa() {
           ) : filteredCars.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Nav atrasts neviens auto.</div>
           ) : (
-            /* Mainīts uz 5 kolonnām un 140px augstumu, lai bildes būtu proporcionālākas un tuvāk kvadrātam */
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
               {filteredCars.map((car) => (
                 <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -325,8 +324,8 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* LABĀ PUSE: Reklāmas baneris */}
-        <div style={{ position: 'sticky', top: '12px', width: '100%' }}>
+        {/* LABĀ PUSE: Reklāmas baneris (fiksēts zem header, nepārslīd pāri augšējai malai) */}
+        <div style={{ position: 'sticky', top: '70px', width: '100%' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Globālais baneris šeit!</p>
