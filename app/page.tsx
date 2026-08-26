@@ -109,10 +109,10 @@ export default function Sakumlapa() {
       {/* Galvenais tīkls izstiepts pa visu ekrāna platumu */}
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'flex-start', width: '100%' }}>
         
-        {/* KREISĀ PUSE: Marku saraksts (fiksēts zem header un neslēpjas zem tā) */}
-        <div style={{ position: 'sticky', top: '70px', maxHeight: 'calc(100vh - 90px)', overflowY: 'auto', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
+        {/* KREISĀ PUSE: Marku saraksts (ar lielāku, ērtāku šriftu) */}
+        <div style={{ position: 'sticky', top: '70px', maxHeight: 'calc(100vh - 90px)', overflowY: 'auto', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px', boxSizing: 'border-box' }}>
           {loading ? (
-            <div style={{ fontSize: '12px', color: '#6b7280', padding: '6px' }}>Ielādē...</div>
+            <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
           ) : (
             <div>
               <button
@@ -122,23 +122,23 @@ export default function Sakumlapa() {
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   width: '100%',
-                  padding: '4px 6px',
+                  padding: '6px 8px',
                   backgroundColor: searchMake === '' ? '#e0f2fe' : 'transparent',
                   color: searchMake === '' ? '#0369a1' : '#374151',
                   border: 'none',
-                  borderRadius: '3px',
+                  borderRadius: '4px',
                   cursor: 'pointer',
-                  fontSize: '11px',
+                  fontSize: '13px',
                   fontWeight: searchMake === '' ? 'bold' : 'normal',
                   textAlign: 'left',
-                  marginBottom: '4px'
+                  marginBottom: '6px'
                 }}
               >
                 <span>Visas markas</span>
-                <span style={{ fontSize: '10px', color: '#6b7280' }}>({cars.length})</span>
+                <span style={{ fontSize: '12px', color: '#6b7280' }}>({cars.length})</span>
               </button>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
                 {makeCounts.map(([make, count]) => {
                   const isSelected = searchMake.toLowerCase() === make.toLowerCase()
                   return (
@@ -150,13 +150,13 @@ export default function Sakumlapa() {
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         width: '100%',
-                        padding: '2px 4px',
+                        padding: '5px 6px',
                         backgroundColor: isSelected ? '#e0f2fe' : 'transparent',
                         color: isSelected ? '#0369a1' : '#374151',
                         border: 'none',
-                        borderRadius: '2px',
+                        borderRadius: '4px',
                         cursor: 'pointer',
-                        fontSize: '11px',
+                        fontSize: '13px',
                         fontWeight: isSelected ? 'bold' : 'normal',
                         textAlign: 'left'
                       }}
@@ -168,23 +168,23 @@ export default function Sakumlapa() {
                       }}
                     >
                       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{make}</span>
-                      <span style={{ fontSize: '10px', color: '#6b7280', marginLeft: '2px', flexShrink: 0 }}>({count})</span>
+                      <span style={{ fontSize: '11px', color: '#6b7280', marginLeft: '4px', flexShrink: 0 }}>({count})</span>
                     </button>
                   )
                 })}
               </div>
 
               {/* Rubrika CITS apakšā */}
-              <div style={{ marginTop: '8px', borderTop: '1px solid #e5e7eb', paddingTop: '6px' }}>
-                <div style={{ fontSize: '10px', fontWeight: 'bold', color: '#4b5563', padding: '2px 4px', marginBottom: '2px' }}>CITS</div>
+              <div style={{ marginTop: '12px', borderTop: '1px solid #e5e7eb', paddingTop: '8px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#4b5563', padding: '2px 4px', marginBottom: '4px' }}>CITS</div>
                 <Link href="/cits" style={{ textDecoration: 'none' }}>
                   <div 
                     style={{ 
-                      padding: '5px 6px', 
+                      padding: '7px 8px', 
                       backgroundColor: '#fff', 
                       border: '1px dashed #cbd5e1', 
                       borderRadius: '4px', 
-                      fontSize: '11px', 
+                      fontSize: '12px', 
                       color: '#0369a1', 
                       textAlign: 'center',
                       fontWeight: 'bold',
@@ -324,7 +324,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* LABĀ PUSE: Reklāmas baneris (fiksēts zem header, nepārslīd pāri augšējai malai) */}
+        {/* LABĀ PUSE: Reklāmas baneris */}
         <div style={{ position: 'sticky', top: '70px', width: '100%' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
