@@ -151,9 +151,9 @@ export default function Sakumlapa() {
                         alignItems: 'center',
                         width: '100%',
                         padding: '5px 6px',
-                        backgroundColor: isSelected ? '#e0f2fe' : 'transparent',
+                        backgroundColor: isSelected ? '#bae6fd' : 'transparent',
                         color: isSelected ? '#0369a1' : '#374151',
-                        border: 'none',
+                        border: isSelected ? '1px solid #0284c7' : 'none',
                         borderRadius: '4px',
                         cursor: 'pointer',
                         fontSize: '13px',
@@ -202,10 +202,12 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* VIDUS: Sludinājumi un filtri */}
+        {/* VIDUS: Sludinājumi un filtri (Režīms mainās atkarībā no tā, vai ir izvēlēta marka) */}
         <div style={{ minWidth: 0, width: '100%' }}>
           <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
+            <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827', margin: 0 }}>
+              {searchMake ? `${searchMake} sludinājumi` : 'Auto Tirgus'}
+            </h1>
             {searchMake && (
               <div style={{ fontSize: '13px', color: '#4b5563' }}>
                 Filtrs: <strong style={{ color: '#0369a1' }}>{searchMake}</strong> 
@@ -304,7 +306,57 @@ export default function Sakumlapa() {
             <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Ielādē sludinājumus...</div>
           ) : filteredCars.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Nav atrasts neviens auto.</div>
+          ) : searchMake ? (
+            /* SARAKSTA SKATS (Rindās uz leju), kad izvēlēta konkrēta marka */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {/* Tabulas galvene */}
+              <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr 70px 90px', backgroundColor: '#15803d', color: '#fff', padding: '6px 10px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                <div>Foto</div>
+                <div>Sludinājums / Apraksts</div>
+                <div>Gads</div>
+                <div style={{ textAlign: 'right' }}>Cena</div>
+              </div>
+
+              {filteredCars.map((car) => (
+                <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr 70px 90px', alignItems: 'center', backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '4px', padding: '6px 10px', gap: '10px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
+                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0fdf4'}
+                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                  >
+                    {/* Titulfotogrāfija */}
+                    <div style={{ width: '110px', height: '65px', backgroundColor: '#f3f4f6', borderRadius: '4px', overflow: 'hidden' }}>
+                      {car.image ? (
+                        <img src={car.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af', fontSize: '10px' }}>Nav attēla</div>
+                      )}
+                    </div>
+
+                    {/* Apraksts / Marka / Modelis */}
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#0369a1' }}>
+                        {car.make} {car.model} {car.engine ? `(${car.engine})` : ''}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#374151', marginTop: '2px' }}>
+                        {car.description ? car.description.substring(0, 75) + '...' : 'Pārdodu labu auto...'}
+                      </div>
+                    </div>
+
+                    {/* Gads */}
+                    <div style={{ fontSize: '13px', color: '#374151' }}>
+                      {car.year ? `${car.year} g.` : '-'}
+                    </div>
+
+                    {/* Cena */}
+                    <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#15803d', textAlign: 'right' }}>
+                      €{car.price}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
           ) : (
+            /* KVADRĀTU SKATS (5 kolonnas), kad nav izvēlēta specifiska marka (visas markas kopā) */
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
               {filteredCars.map((car) => (
                 <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
