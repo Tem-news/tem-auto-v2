@@ -109,19 +109,20 @@ export default function Sakumlapa() {
   }
 
   return (
-    <div style={{ width: '100%', minHeight: '100vh', padding: '16px 12px', boxSizing: 'border-box', fontFamily: 'sans-serif' }}>
+    <div style={{ width: '100%', minHeight: '100vh', padding: '20px 16px', boxSizing: 'border-box', fontFamily: 'sans-serif', backgroundColor: '#ffffff' }}>
       
-      {/* AUGŠĒJĀ NAVIGĀCIJA / GALVENE */}
-      <div style={{ maxWidth: '1600px', margin: '0 auto 16px auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px' }}>
+      {/* TIKAI VIENA, TĪRA GALVENE AR VIENU LOGOTIPU UN BEZ DUBLEŠANĀS */}
+      <div style={{ maxWidth: '1600px', margin: '0 auto 20px auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px' }}>
         <Link href="/" style={{ textDecoration: 'none' }}>
-          <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#16a34a', cursor: 'pointer' }}>TemAuto</span>
+          <span style={{ fontSize: '22px', fontWeight: 'bold', color: '#16a34a', cursor: 'pointer' }}>TemAuto</span>
         </Link>
         <div style={{ fontSize: '13px', color: '#4b5563' }}>Apmeklētāji 24h: 0</div>
       </div>
 
+      {/* GALVENAIS REŽĢIS */}
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
         
-        {/* KREISĀ PUSE: Fiksēta ar stingru min-height, lai nelēkātu */}
+        {/* KREISĀ PUSE: Marku saraksts ar stingru minHeight, lai nelēkātu ielādes brīdī */}
         <div style={{ position: 'sticky', top: '20px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
