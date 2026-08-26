@@ -108,7 +108,7 @@ export default function Sakumlapa() {
     <div style={{ width: '100%', minHeight: '100vh', padding: '16px 12px', boxSizing: 'border-box', fontFamily: 'sans-serif' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
         
-        {/* KREISĀ PUSE: Stingri piesaistīta ar height: 'fit-content', lai nelēkātu garo sarakstu dēļ */}
+        {/* KREISĀ PUSE: Fiksēta */}
         <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', height: 'fit-content', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
@@ -230,7 +230,7 @@ export default function Sakumlapa() {
               />
 
               {filteredMakeSuggestions.length > 0 && (
-                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', marginTop: '4px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', zIndex: 50, overflowY: 'auto' }}>
+                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', marginTop: '4px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', zIndex: 999, overflowY: 'auto' }}>
                   {filteredMakeSuggestions.map((item: string) => (
                     <div
                       key={item}
@@ -255,7 +255,7 @@ export default function Sakumlapa() {
               />
 
               {filteredModelSuggestions.length > 0 && (
-                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', marginTop: '4px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', zIndex: 50, overflowY: 'auto' }}>
+                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', marginTop: '4px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', zIndex: 999, overflowY: 'auto' }}>
                   {filteredModelSuggestions.map((item: string) => (
                     <div
                       key={item}
@@ -366,7 +366,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* LABĀ PUSE: Arī piesaistīta ar height: 'fit-content', lai nelēkātu garo sarakstu dēļ */}
+        {/* LABĀ PUSE: Fiksēta */}
         <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', height: 'fit-content', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
