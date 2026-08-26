@@ -5,6 +5,59 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 
+// Oficiālo marku standarts, lai automātiski izlīdzinātu neprecizitātes un reģistrus
+const OFFICIAL_MAKES: { [key: string]: string } = {
+  'bmw': 'BMW',
+  'audi': 'Audi',
+  'volkswagen': 'Volkswagen',
+  'vw': 'Volkswagen',
+  'volvo': 'Volvo',
+  'toyota': 'Toyota',
+  'mercedes': 'Mercedes-Benz',
+  'mercedes-benz': 'Mercedes-Benz',
+  'mb': 'Mercedes-Benz',
+  'alfa romeo': 'Alfa Romeo',
+  'alfaromeo': 'Alfa Romeo',
+  'chevrolet': 'Chevrolet',
+  'chrysler': 'Chrysler',
+  'citroen': 'Citroën',
+  'cupra': 'Cupra',
+  'dacia': 'Dacia',
+  'dodge': 'Dodge',
+  'ford': 'Ford',
+  'honda': 'Honda',
+  'hyundai': 'Hyundai',
+  'kia': 'Kia',
+  'lexus': 'Lexus',
+  'mazda': 'Mazda',
+  'mitsubishi': 'Mitsubishi',
+  'nissan': 'Nissan',
+  'opel': 'Opel',
+  'peugeot': 'Peugeot',
+  'porsche': 'Porsche',
+  'renault': 'Renault',
+  'skoda': 'Škoda',
+  'subaru': 'Subaru',
+  'suzuki': 'Suzuki',
+  'tesla': 'Tesla',
+  'toyota': 'Toyota',
+  'volkswagen': 'Volkswagen'
+}
+
+function normalizeMake(makeStr: string): string {
+  if (!makeStr) return ''
+  const trimmed = makeStr.trim()
+  const lower = trimmed.toLowerCase()
+  
+  // Ja atrodas mūsu standarta vārdnīcā, atgriežam oficiālo nosaukumu
+  if (OFFICIAL_MAKES[lower]) {
+    return OFFICIAL_MAKES[lower]
+  }
+  
+  // Pretējā gadījumā automātiski uztaisām smuku pirmo lielo burtu (Piemēram: "ford" -> "Ford")
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
+}
+
 export default function Sakumlapa() {
   const router = useRouter()
   const [cars, setCars] = useState<any[]>([])
@@ -25,7 +78,12 @@ export default function Sakumlapa() {
       if (carsError) {
         console.error('Kļūda ielādējot auto:', carsError)
       } else {
-        setCars(carsData || [])
+        // Automātiski normalizējam markas datus uzreiz pēc ielādes
+        const normalizedCars = (carsData || []).map(car => ({
+          ...car,
+          make: normalizeMake(car.make)
+        }))
+        setCars(normalizedCars)
       }
       setLoading(false)
     }
@@ -36,9 +94,9 @@ export default function Sakumlapa() {
     const counts: { [key: string]: number } = {}
     cars.forEach(car => {
       if (car.make) {
-        const makeTrimmed = car.make.trim()
-        if (makeTrimmed) {
-          counts[makeTrimmed] = (counts[makeTrimmed] || 0) + 1
+        const cleanMake = car.make.trim()
+        if (cleanMake) {
+          counts[cleanMake] = (counts[cleanMake] || 0) + 1
         }
       }
     })
