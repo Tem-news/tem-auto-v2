@@ -106,10 +106,10 @@ export default function Sakumlapa() {
 
   return (
     <div style={{ width: '100%', minHeight: '100vh', padding: '12px 6px', boxSizing: 'border-box', fontFamily: 'sans-serif' }}>
-      {/* Galvenais tīkls izstiepts pa visu ekrāna platumu no malas līdz malai */}
+      {/* Galvenais tīkls izstiepts pa visu ekrāna platumu */}
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'flex-start', width: '100%' }}>
         
-        {/* KREISĀ PUSE: Marku saraksts precīzi zem TemAuto logotipa */}
+        {/* KREISĀ PUSE: Marku saraksts */}
         <div style={{ position: 'sticky', top: '12px', maxHeight: 'calc(100vh - 24px)', overflowY: 'auto', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '12px', color: '#6b7280', padding: '6px' }}>Ielādē...</div>
@@ -202,7 +202,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* VIDUS: Sludinājumi un filtri (aizņem visu centrālo platumu) */}
+        {/* VIDUS: Sludinājumi un filtri (tagad režģis ir 4 kolonnas) */}
         <div style={{ minWidth: 0, width: '100%' }}>
           <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
@@ -305,17 +305,18 @@ export default function Sakumlapa() {
           ) : filteredCars.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Nav atrasts neviens auto.</div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+            /* Mainīts uz 4 kolonnām un samazināts bildes augstums uz 120px dabiskākām proporcijām */
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
               {filteredCars.map((car) => (
                 <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                    <div style={{ height: '160px', backgroundColor: '#f3f4f6' }}>
-                      {car.image ? <img src={car.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af' }}>Nav attēla</div>}
+                    <div style={{ height: '120px', backgroundColor: '#f3f4f6' }}>
+                      {car.image ? <img src={car.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af', fontSize: '12px' }}>Nav attēla</div>}
                     </div>
-                    <div style={{ padding: '12px' }}>
-                      <h2 style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 4px 0' }}>{car.make} {car.model}</h2>
-                      <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 6px 0' }}>{car.year} g. {car.engine ? `• ${car.engine}` : ''}</p>
-                      <p style={{ fontSize: '16px', fontWeight: 'bold', color: '#16a34a', margin: 0 }}>€{car.price}</p>
+                    <div style={{ padding: '10px' }}>
+                      <h2 style={{ fontSize: '13px', fontWeight: 'bold', margin: '0 0 2px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{car.make} {car.model}</h2>
+                      <p style={{ fontSize: '11px', color: '#6b7280', margin: '0 0 4px 0' }}>{car.year} g. {car.engine ? `• ${car.engine}` : ''}</p>
+                      <p style={{ fontSize: '14px', fontWeight: 'bold', color: '#16a34a', margin: 0 }}>€{car.price}</p>
                     </div>
                   </div>
                 </Link>
@@ -324,7 +325,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* LABĀ PUSE: Reklāmas baneris precīzi zem + Pievienot auto pogas pašā malā */}
+        {/* LABĀ PUSE: Reklāmas baneris */}
         <div style={{ position: 'sticky', top: '12px', width: '100%' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
