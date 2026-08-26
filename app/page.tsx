@@ -105,14 +105,14 @@ export default function Sakumlapa() {
   }
 
   return (
-    <div style={{ width: '100%', padding: '30px 20px', fontFamily: 'sans-serif', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
-      {/* Maksimālais platums palielināts uz 1680px, lai viss elpotu un reklāma būtu pa labi */}
-      <div style={{ width: '100%', maxWidth: '1680px', display: 'flex', gap: '30px', alignItems: 'flex-start' }}>
+    <div style={{ width: '100%', padding: '24px 20px', fontFamily: 'sans-serif', boxSizing: 'border-box' }}>
+      {/* Galvenais režģis izmanto visu ekrāna platumu ar precīzām kolonnām: Marku saraksts | Sludinājumi (izplešas) | Reklāma */}
+      <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr 240px', gap: '24px', alignItems: 'flex-start', width: '100%', maxWidth: '100%' }}>
         
-        {/* KREISĀ PUSE: Marku saraksts bez atstarpēm, fiksēts skrollējot */}
-        <div style={{ width: '210px', flexShrink: 0, position: 'sticky', top: '20px', maxHeight: 'calc(100vh - 40px)', overflowY: 'auto', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px' }}>
+        {/* KREISĀ PUSE: Marku saraksts ar ļoti mazām atstarpēm */}
+        <div style={{ position: 'sticky', top: '20px', maxHeight: 'calc(100vh - 40px)', overflowY: 'auto', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '4px' }}>
           {loading ? (
-            <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
+            <div style={{ fontSize: '12px', color: '#6b7280', padding: '6px' }}>Ielādē...</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
               <button
@@ -122,13 +122,13 @@ export default function Sakumlapa() {
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   width: '100%',
-                  padding: '5px 8px',
+                  padding: '3px 6px',
                   backgroundColor: searchMake === '' ? '#e0f2fe' : 'transparent',
                   color: searchMake === '' ? '#0369a1' : '#374151',
                   border: 'none',
-                  borderRadius: '4px',
+                  borderRadius: '3px',
                   cursor: 'pointer',
-                  fontSize: '13px',
+                  fontSize: '12px',
                   fontWeight: searchMake === '' ? 'bold' : 'normal',
                   textAlign: 'left'
                 }}
@@ -148,13 +148,13 @@ export default function Sakumlapa() {
                       justifyContent: 'space-between',
                       alignItems: 'center',
                       width: '100%',
-                      padding: '5px 8px',
+                      padding: '3px 6px',
                       backgroundColor: isSelected ? '#e0f2fe' : 'transparent',
                       color: isSelected ? '#0369a1' : '#374151',
                       border: 'none',
-                      borderRadius: '4px',
+                      borderRadius: '3px',
                       cursor: 'pointer',
-                      fontSize: '13px',
+                      fontSize: '12px',
                       fontWeight: isSelected ? 'bold' : 'normal',
                       textAlign: 'left'
                     }}
@@ -166,7 +166,7 @@ export default function Sakumlapa() {
                     }}
                   >
                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{make}</span>
-                    <span style={{ fontSize: '11px', color: '#6b7280', marginLeft: '6px' }}>({count})</span>
+                    <span style={{ fontSize: '11px', color: '#6b7280', marginLeft: '4px' }}>({count})</span>
                   </button>
                 )
               })}
@@ -174,8 +174,8 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* VIDUS: Katalogs un filtri (maksimāli plašs) */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        {/* VIDUS: Sludinājumi un filtri (maksimāli plaši) */}
+        <div style={{ minWidth: 0, width: '100%' }}>
           <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h1 style={{ fontSize: '26px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
             {searchMake && (
@@ -193,7 +193,7 @@ export default function Sakumlapa() {
 
           {/* Meklēšanas un filtru panelis */}
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', backgroundColor: '#f3f4f6', padding: '12px', borderRadius: '8px', marginBottom: '20px', alignItems: 'center' }}>
-            <div style={{ flex: '1', minWidth: '140px', position: 'relative' }}>
+            <div style={{ flex: '1', minWidth: '130px', position: 'relative' }}>
               <input
                 type="text"
                 placeholder="Meklēt marku..."
@@ -218,7 +218,7 @@ export default function Sakumlapa() {
               )}
             </div>
 
-            <div style={{ flex: '1', minWidth: '140px', position: 'relative' }}>
+            <div style={{ flex: '1', minWidth: '130px', position: 'relative' }}>
               <input
                 type="text"
                 placeholder="Meklēt modeli..."
@@ -243,7 +243,7 @@ export default function Sakumlapa() {
               )}
             </div>
 
-            <div style={{ width: '90px' }}>
+            <div style={{ width: '85px' }}>
               <input
                 type="number"
                 placeholder="Min €"
@@ -253,7 +253,7 @@ export default function Sakumlapa() {
               />
             </div>
             <span style={{ color: '#4b5563', fontSize: '13px' }}>līdz</span>
-            <div style={{ width: '90px' }}>
+            <div style={{ width: '85px' }}>
               <input
                 type="number"
                 placeholder="Maks €"
@@ -282,7 +282,7 @@ export default function Sakumlapa() {
               {filteredCars.map((car) => (
                 <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div style={{ border: '1px solid #e5e7eb', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                    <div style={{ height: '170px', backgroundColor: '#f3f4f6' }}>
+                    <div style={{ height: '180px', backgroundColor: '#f3f4f6' }}>
                       {car.image ? <img src={car.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af' }}>Nav attēla</div>}
                     </div>
                     <div style={{ padding: '14px' }}>
@@ -297,8 +297,8 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* LABĀ PUSE: Reklāmas laukums pilnībā malā, fiksēts */}
-        <div style={{ width: '220px', flexShrink: 0, position: 'sticky', top: '20px' }}>
+        {/* LABĀ PUSE: Reklāmas laukums pašā malā */}
+        <div style={{ position: 'sticky', top: '20px' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Globālais baneris šeit!</p>
