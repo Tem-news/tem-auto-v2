@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 
-// Oficiālo marku standarts, lai automātiski izlīdzinātu neprecizitātes un reģistrus
+// Oficiālo marku standarts bez dublējošām rindām
 const OFFICIAL_MAKES: { [key: string]: string } = {
   'bmw': 'BMW',
   'audi': 'Audi',
@@ -39,9 +39,7 @@ const OFFICIAL_MAKES: { [key: string]: string } = {
   'skoda': 'Škoda',
   'subaru': 'Subaru',
   'suzuki': 'Suzuki',
-  'tesla': 'Tesla',
-  'toyota': 'Toyota',
-  'volkswagen': 'Volkswagen'
+  'tesla': 'Tesla'
 }
 
 function normalizeMake(makeStr: string): string {
@@ -49,12 +47,10 @@ function normalizeMake(makeStr: string): string {
   const trimmed = makeStr.trim()
   const lower = trimmed.toLowerCase()
   
-  // Ja atrodas mūsu standarta vārdnīcā, atgriežam oficiālo nosaukumu
   if (OFFICIAL_MAKES[lower]) {
     return OFFICIAL_MAKES[lower]
   }
   
-  // Pretējā gadījumā automātiski uztaisām smuku pirmo lielo burtu (Piemēram: "ford" -> "Ford")
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
 }
 
@@ -78,7 +74,6 @@ export default function Sakumlapa() {
       if (carsError) {
         console.error('Kļūda ielādējot auto:', carsError)
       } else {
-        // Automātiski normalizējam markas datus uzreiz pēc ielādes
         const normalizedCars = (carsData || []).map(car => ({
           ...car,
           make: normalizeMake(car.make)
