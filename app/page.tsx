@@ -202,7 +202,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* VIDUS: Sludinājumi un filtri (tagad režģis ir 4 kolonnas) */}
+        {/* VIDUS: Sludinājumi un filtri (5 kolonnas un 140px bildes augstums) */}
         <div style={{ minWidth: 0, width: '100%' }}>
           <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
@@ -305,18 +305,18 @@ export default function Sakumlapa() {
           ) : filteredCars.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Nav atrasts neviens auto.</div>
           ) : (
-            /* Mainīts uz 4 kolonnām un samazināts bildes augstums uz 120px dabiskākām proporcijām */
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+            /* Mainīts uz 5 kolonnām un 140px augstumu, lai bildes būtu proporcionālākas un tuvāk kvadrātam */
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
               {filteredCars.map((car) => (
                 <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                    <div style={{ height: '120px', backgroundColor: '#f3f4f6' }}>
+                    <div style={{ height: '140px', backgroundColor: '#f3f4f6' }}>
                       {car.image ? <img src={car.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af', fontSize: '12px' }}>Nav attēla</div>}
                     </div>
-                    <div style={{ padding: '10px' }}>
-                      <h2 style={{ fontSize: '13px', fontWeight: 'bold', margin: '0 0 2px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{car.make} {car.model}</h2>
-                      <p style={{ fontSize: '11px', color: '#6b7280', margin: '0 0 4px 0' }}>{car.year} g. {car.engine ? `• ${car.engine}` : ''}</p>
-                      <p style={{ fontSize: '14px', fontWeight: 'bold', color: '#16a34a', margin: 0 }}>€{car.price}</p>
+                    <div style={{ padding: '8px' }}>
+                      <h2 style={{ fontSize: '12px', fontWeight: 'bold', margin: '0 0 2px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{car.make} {car.model}</h2>
+                      <p style={{ fontSize: '10px', color: '#6b7280', margin: '0 0 4px 0' }}>{car.year} g. {car.engine ? `• ${car.engine}` : ''}</p>
+                      <p style={{ fontSize: '13px', fontWeight: 'bold', color: '#16a34a', margin: 0 }}>€{car.price}</p>
                     </div>
                   </div>
                 </Link>
