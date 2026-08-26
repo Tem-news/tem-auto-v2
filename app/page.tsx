@@ -109,20 +109,21 @@ export default function Sakumlapa() {
   }
 
   return (
-    <div style={{ width: '100%', minHeight: '100vh', padding: '16px 12px', boxSizing: 'border-box', fontFamily: 'sans-serif' }}>
+    <div style={{ width: '100%', minHeight: '100vh', padding: '16px 12px', boxSizing: 'border-box', fontFamily: 'sans-serif', backgroundColor: '#ffffff' }}>
       
-      {/* AUGŠĒJĀ NAVIGĀCIJA */}
-      <div style={{ maxWidth: '1600px', margin: '0 auto 16px auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px' }}>
+      {/* VIENOTA UN STABILA AUGŠĒJĀ GALVENE */}
+      <div style={{ maxWidth: '1600px', margin: '0 auto 16px auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
         <Link href="/" style={{ textDecoration: 'none' }}>
           <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#16a34a', cursor: 'pointer' }}>TemAuto</span>
         </Link>
         <div style={{ fontSize: '13px', color: '#4b5563' }}>Apmeklētāji 24h: 0</div>
       </div>
 
+      {/* GALVENAIS REŽĢIS AR STINGRU AUGŠĒJO IZLĪDZINĀJUMU */}
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
         
         {/* KREISĀ PUSE: Marku saraksts */}
-        <div style={{ position: 'sticky', top: '20px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px', boxSizing: 'border-box' }}>
+        <div style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
           ) : (
@@ -380,7 +381,7 @@ export default function Sakumlapa() {
         </div>
 
         {/* LABĀ PUSE: Reklāmas baneri */}
-        <div style={{ position: 'sticky', top: '20px', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Globālais baneris šeit!</p>
