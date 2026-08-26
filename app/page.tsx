@@ -108,7 +108,7 @@ export default function Sakumlapa() {
     <div style={{ width: '100%', minHeight: '100vh', padding: '16px 12px', boxSizing: 'border-box', fontFamily: 'sans-serif' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
         
-        {/* KREISĀ PUSE: Fiksēta ar top: '80px' un alignSelf: 'start' */}
+        {/* KREISĀ PUSE: Fiksēta */}
         <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
@@ -199,8 +199,8 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* VIDUS: Sludinājumi un filtri */}
-        <div style={{ minWidth: 0, width: '100%' }}>
+        {/* VIDUS: Sludinājumi un filtri (ar alignSelf: 'start', lai nepakļautos nepareizai stiepšanai) */}
+        <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827', margin: 0 }}>
               {searchMake ? `${searchMake} sludinājumi` : 'Auto Tirgus'}
@@ -366,7 +366,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* LABĀ PUSE: Fiksēta ar top: '80px' un alignSelf: 'start' */}
+        {/* LABĀ PUSE: Fiksēta */}
         <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
