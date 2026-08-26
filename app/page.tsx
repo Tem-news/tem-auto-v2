@@ -105,17 +105,16 @@ export default function Sakumlapa() {
   }
 
   return (
-    <div style={{ width: '100%', minHeight: '100vh', padding: '16px 8px', boxSizing: 'border-box', fontFamily: 'sans-serif' }}>
-      {/* Galvenais tīkls pielāgots pašām ekrāna malām */}
-      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr 220px', gap: '16px', alignItems: 'flex-start', width: '100%' }}>
+    <div style={{ width: '100%', minHeight: '100vh', padding: '12px 6px', boxSizing: 'border-box', fontFamily: 'sans-serif' }}>
+      {/* Galvenais tīkls izstiepts pa visu ekrāna platumu no malas līdz malai */}
+      <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'flex-start', width: '100%' }}>
         
-        {/* KREISĀ PUSE: Marku saraksts divās kolonnās, kompaks un piespiests kreisajai malai */}
-        <div style={{ position: 'sticky', top: '16px', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
+        {/* KREISĀ PUSE: Marku saraksts precīzi zem TemAuto logotipa */}
+        <div style={{ position: 'sticky', top: '12px', maxHeight: 'calc(100vh - 24px)', overflowY: 'auto', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '12px', color: '#6b7280', padding: '6px' }}>Ielādē...</div>
           ) : (
             <div>
-              {/* Visas markas poga */}
               <button
                 onClick={() => setSearchMake('')}
                 style={{
@@ -139,7 +138,6 @@ export default function Sakumlapa() {
                 <span style={{ fontSize: '10px', color: '#6b7280' }}>({cars.length})</span>
               </button>
 
-              {/* Saraksts divās vienādās kolonnās ar blīvām rindiņām */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
                 {makeCounts.map(([make, count]) => {
                   const isSelected = searchMake.toLowerCase() === make.toLowerCase()
@@ -204,7 +202,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* VIDUS: Sludinājumi un filtri */}
+        {/* VIDUS: Sludinājumi un filtri (aizņem visu centrālo platumu) */}
         <div style={{ minWidth: 0, width: '100%' }}>
           <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Tirgus</h1>
@@ -221,7 +219,6 @@ export default function Sakumlapa() {
             )}
           </div>
 
-          {/* Meklēšanas un filtru panelis */}
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', backgroundColor: '#f3f4f6', padding: '10px', borderRadius: '8px', marginBottom: '16px', alignItems: 'center' }}>
             <div style={{ flex: '1', minWidth: '120px', position: 'relative' }}>
               <input
@@ -327,8 +324,8 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* LABĀ PUSE: Reklāmas baneris piespiests pašā labajā malā */}
-        <div style={{ position: 'sticky', top: '16px', width: '100%' }}>
+        {/* LABĀ PUSE: Reklāmas baneris precīzi zem + Pievienot auto pogas pašā malā */}
+        <div style={{ position: 'sticky', top: '12px', width: '100%' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Globālais baneris šeit!</p>
