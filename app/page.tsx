@@ -45,15 +45,21 @@ export default function Sakumlapa() {
     return Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0]))
   }, [cars])
 
+  // Rādīt ieteikumus TIKAI tad, ja lietotājs raksta kaut ko jaunu, kas nesakrīt pilnībā ar jau izvēlēto marku
   const filteredMakeSuggestions = useMemo(() => {
     if (!searchMake.trim()) return []
     const query = searchMake.toLowerCase()
+    
+    // Ja ievadītais teksts precīzi sakrīt ar kādu eksistējošu marku un nav ko vairāk meklēt, nerādām sarakstu
+    const exactMatch = makeCounts.some(([make]) => make.toLowerCase() === query)
+    if (exactMatch) return []
+
     const matches = new Set<string>()
     cars.forEach(car => {
       if (car.make && car.make.toLowerCase().includes(query)) matches.add(car.make)
     })
     return Array.from(matches).slice(0, 5)
-  }, [searchMake, cars])
+  }, [searchMake, cars, makeCounts])
 
   const filteredModelSuggestions = useMemo(() => {
     if (!searchModel.trim()) return []
@@ -106,10 +112,19 @@ export default function Sakumlapa() {
 
   return (
     <div style={{ width: '100%', minHeight: '100vh', padding: '16px 12px', boxSizing: 'border-box', fontFamily: 'sans-serif' }}>
+      
+      {/* AUGŠĒJĀ NAVIGĀCIJA / GALVENE AR TEMAUTO LOGOTIPU */}
+      <div style={{ maxWidth: '1600px', margin: '0 auto 16px auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px' }}>
+        <Link href="/" style={{ textDecoration: 'none' }}>
+          <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#16a34a', cursor: 'pointer' }}>TemAuto</span>
+        </Link>
+        <div style={{ fontSize: '13px', color: '#4b5563' }}>Apmeklētāji 24h: 0</div>
+      </div>
+
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
         
         {/* KREISĀ PUSE: Fiksēta */}
-        <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', height: 'fit-content', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px', boxSizing: 'border-box' }}>
+        <div style={{ position: 'sticky', top: '20px', alignSelf: 'start', height: 'fit-content', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
           ) : (
@@ -367,7 +382,7 @@ export default function Sakumlapa() {
         </div>
 
         {/* LABĀ PUSE: Fiksēta */}
-        <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', height: 'fit-content', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
+        <div style={{ position: 'sticky', top: '20px', alignSelf: 'start', height: 'fit-content', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Globālais baneris šeit!</p>
