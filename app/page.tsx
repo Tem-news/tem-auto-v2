@@ -105,11 +105,11 @@ export default function Sakumlapa() {
   }
 
   return (
-    <div style={{ width: '100%', minHeight: '100vh', padding: '16px 8px', boxSizing: 'border-box', fontFamily: 'sans-serif' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
+    <div style={{ width: '100%', minHeight: '100vh', padding: '16px 12px', boxSizing: 'border-box', fontFamily: 'sans-serif' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
         
-        {/* KREISĀ PUSE: Fiksēts bez lēkājoša augstuma */}
-        <div style={{ position: 'sticky', top: '16px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px', boxSizing: 'border-box' }}>
+        {/* KREISĀ PUSE */}
+        <div style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
           ) : (
@@ -314,11 +314,11 @@ export default function Sakumlapa() {
 
               {filteredCars.map((car) => (
                 <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr 70px 90px', alignItems: 'center', backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '4px', padding: '6px 10px', gap: '10px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
+                  <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr 70px 90px', alignItems: 'center', backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '4px', padding: '6px 10px', gap: '10px', boxSizing: 'border-box', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0fdf4'}
                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                   >
-                    <div style={{ width: '110px', height: '65px', backgroundColor: '#f3f4f6', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{ width: '110px', height: '65px', backgroundColor: '#f3f4f6', borderRadius: '4px', overflow: 'hidden', flexShrink: 0 }}>
                       {car.image ? (
                         <img src={car.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
@@ -326,12 +326,12 @@ export default function Sakumlapa() {
                       )}
                     </div>
 
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#0369a1' }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#0369a1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {car.make} {car.model} {car.engine ? `(${car.engine})` : ''}
                       </div>
-                      <div style={{ fontSize: '12px', color: '#374151', marginTop: '2px' }}>
-                        {car.description ? car.description.substring(0, 75) + '...' : 'Pārdodu labu auto...'}
+                      <div style={{ fontSize: '12px', color: '#374151', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {car.description ? car.description : 'Pārdodu labu auto...'}
                       </div>
                     </div>
 
@@ -366,8 +366,8 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* LABĀ PUSE: Reklāmas baneri */}
-        <div style={{ position: 'sticky', top: '16px', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
+        {/* LABĀ PUSE */}
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Globālais baneris šeit!</p>
