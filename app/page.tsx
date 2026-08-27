@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 
+// Oficiālo marku standarts bez dublējošām rindām
 const OFFICIAL_MAKES: { [key: string]: string } = {
   'bmw': 'BMW',
   'audi': 'Audi',
@@ -53,7 +54,7 @@ function normalizeMake(makeStr: string): string {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
 }
 
-export default function Home() {
+export default function Sakumlapa() {
   const router = useRouter()
   const [cars, setCars] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -73,7 +74,7 @@ export default function Home() {
       if (carsError) {
         console.error('Kļūda ielādējot auto:', carsError)
       } else {
-        const normalizedCars = (carsData || []).map((car: any) => ({
+        const normalizedCars = (carsData || []).map(car => ({
           ...car,
           make: normalizeMake(car.make)
         }))
@@ -145,7 +146,7 @@ export default function Home() {
 
   const handleModelSelect = (model: string) => {
     setSearchModel(model)
-    const foundCar = cars.find((c: any) => 
+    const foundCar = cars.find(c => 
       (!searchMake || c.make?.toLowerCase() === searchMake.toLowerCase()) && 
       c.model?.toLowerCase() === model.toLowerCase()
     )
@@ -166,7 +167,7 @@ export default function Home() {
       {/* GALVENAIS REŽĢIS */}
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
-        {/* KREISĀ PUSE: Marku saraksts */}
+        {/* KREISĀ PUSE: Marku saraksts (Pielāgots šaurākām atstarpēm un treknākam šriftam) */}
         <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
@@ -370,7 +371,7 @@ export default function Home() {
                 <div style={{ textAlign: 'right' }}>Cena</div>
               </div>
 
-              {filteredCars.map((car: any) => (
+              {filteredCars.map((car) => (
                 <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr 70px 90px', alignItems: 'center', backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '4px', padding: '6px 10px', gap: '10px', boxSizing: 'border-box', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0fdf4'}
@@ -385,6 +386,7 @@ export default function Home() {
                     </div>
 
                     <div style={{ minWidth: 0 }}>
+                      {/* Saraksta skatā auto virsraksts padarīts treknāks un nedaudz lielāks */}
                       <div style={{ fontSize: '14px', fontWeight: '800', color: '#0369a1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {car.make} {car.model} {car.engine ? `(${car.engine})` : ''}
                       </div>
@@ -406,13 +408,14 @@ export default function Home() {
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
-              {filteredCars.map((car: any) => (
+              {filteredCars.map((car) => (
                 <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
                     <div style={{ height: '140px', backgroundColor: '#f3f4f6' }}>
                       {car.image ? <img src={car.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af', fontSize: '12px' }}>Nav attēla</div>}
                     </div>
                     <div style={{ padding: '8px' }}>
+                      {/* Režģa skatā auto virsraksts zem foto padarīts treknāks un lielāks */}
                       <h2 style={{ fontSize: '14px', fontWeight: '800', color: '#111827', margin: '0 0 2px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{car.make} {car.model}</h2>
                       <p style={{ fontSize: '11px', color: '#6b7280', margin: '0 0 4px 0' }}>{car.year} g. {car.engine ? `• ${car.engine}` : ''}</p>
                       <p style={{ fontSize: '14px', fontWeight: 'bold', color: '#16a34a', margin: 0 }}>€{car.price}</p>
