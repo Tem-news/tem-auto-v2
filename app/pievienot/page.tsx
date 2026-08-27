@@ -31,6 +31,25 @@ export default function PievienotSludinajumu() {
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
+  // Palīgfunkcija skaitļu formatēšanai ar atstarpēm (tūkstošu atdalītājs)
+  const formatNumberWithSpaces = (value: string) => {
+    // Atstājam tikai ciparus
+    const numbersOnly = value.replace(/\D/g, '')
+    if (!numbersOnly) return ''
+    // Pievienojam atstarpes ik pēc 3 cipariem no beigām
+    return numbersOnly.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+  }
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatNumberWithSpaces(e.target.value)
+    setPrice(formatted)
+  }
+
+  const handleMileageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatNumberWithSpaces(e.target.value)
+    setMileage(formatted)
+  }
+
   const handleImageFiles = (files: FileList | File[]) => {
     const newImageUrls: string[] = []
     Array.from(files).forEach(file => {
@@ -78,13 +97,17 @@ export default function PievienotSludinajumu() {
 
     const mainImage = images.length > 0 ? images[0] : null
 
+    // Noņemam atstarpes no cenas un nobraukuma pirms saglabāšanas datubāzē, lai tās saglabātos kā tīri skaitļi
+    const cleanPrice = price ? Number(price.replace(/\s/g, '')) : null
+    const cleanMileage = mileage ? Number(mileage.replace(/\s/g, '')) : null
+
     const { error } = await supabase.from('cars').insert([
       {
         make: make.trim(),
         model: model.trim(),
         year: year ? Number(year) : null,
-        price: price ? Number(price) : null,
-        mileage: mileage ? Number(mileage) : null,
+        price: cleanPrice,
+        mileage: cleanMileage,
         engine: engine.trim() || null,
         fuel: fuel.trim() || null,
         transmission: transmission.trim() || null,
@@ -181,19 +204,19 @@ export default function PievienotSludinajumu() {
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Cena (€)</label>
                 <input
                   type="text"
-                  placeholder="Pēc vienošanās vai summa"
+                  placeholder="piem., 5800"
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  onChange={handlePriceChange}
                   style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
                 />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Nobraukums (km)</label>
                 <input
-                  type="number"
+                  type="text"
                   placeholder="piem., 180000"
                   value={mileage}
-                  onChange={(e) => setMileage(e.target.value)}
+                  onChange={handleMileageChange}
                   style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
                 />
               </div>
