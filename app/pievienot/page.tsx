@@ -4,23 +4,40 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
-// Populārāko auto marku un to modeļu datubāze ieteikumiem
+// Paplašināts pasaules populārāko auto marku un modeļu saraksts
 const CAR_DATABASE: { [key: string]: string[] } = {
-  'Audi': ['A1', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'Q2', 'Q3', 'Q5', 'Q7', 'Q8', 'TT'],
-  'BMW': ['1. sērija', '3. sērija', '5. sērija', '7. sērija', 'X1', 'X3', 'X5', 'X6', 'Z4'],
-  'Ford': ['Focus', 'Fiesta', 'Mondeo', 'Kuga', 'Puma', 'Mustang', 'Explorer', 'Transit'],
+  'Audi': ['A1', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'Q2', 'Q3', 'Q5', 'Q7', 'Q8', 'TT', 'e-tron'],
+  'BMW': ['1. sērija', '3. sērija', '5. sērija', '7. sērija', 'X1', 'X3', 'X5', 'X6', 'Z4', 'i4', 'iX'],
+  'Chevrolet': ['Camaro', 'Corvette', 'Cruze', 'Captiva', 'Malibu', 'Tahoe'],
+  'Chrysler': ['300C', 'Voyager', 'Pacifica'],
+  'Citroen': ['C3', 'C4', 'C5', 'Berlingo', 'Spacetourer'],
+  'Dodge': ['Challenger', 'Charger', 'Durango', 'RAM'],
+  'Fiat': ['500', 'Panda', 'Tipo', 'Doblo'],
+  'Ford': ['Focus', 'Fiesta', 'Mondeo', 'Kuga', 'Puma', 'Mustang', 'Explorer', 'Transit', 'Ranger'],
   'Honda': ['Civic', 'Accord', 'CR-V', 'HR-V', 'Jazz'],
-  'Hyundai': ['i10', 'i20', 'i30', 'Tucson', 'Santa Fe', 'Kona'],
-  'Kia': ['Ceed', 'Sportage', 'Sorento', 'Rio', 'Stonic', 'Picanto'],
+  'Hyundai': ['i10', 'i20', 'i30', 'Tucson', 'Santa Fe', 'Kona', 'Ioniq'],
+  'Infiniti': ['FX35', 'FX37', 'EX35', 'Q50', 'QX70'],
+  'Jaguar': ['XF', 'XE', 'XJ', 'F-Pace', 'I-Pace'],
+  'Jeep': ['Grand Cherokee', 'Wrangler', 'Renegade', 'Compass'],
+  'Kia': ['Ceed', 'Sportage', 'Sorento', 'Rio', 'Stonic', 'Picanto', 'EV6'],
+  'Land Rover': ['Range Rover', 'Range Rover Sport', 'Discovery', 'Defender', 'Evoque'],
+  'Lexus': ['IS', 'GS', 'LS', 'RX', 'NX', 'UX', 'LX'],
   'Mazda': ['Mazda2', 'Mazda3', 'Mazda6', 'CX-3', 'CX-5', 'CX-30', 'MX-5'],
-  'Mercedes-Benz': ['A-klase', 'C-klase', 'E-klase', 'S-klase', 'GLA', 'GLB', 'GLC', 'GLE', 'ML'],
-  'Nissan': ['Qashqai', 'X-Trail', 'Juke', 'Micra', 'Leaf'],
-  'Opel': ['Astra', 'Corsa', 'Insignia', 'Mokka', 'Zafira', 'Vectra'],
-  'Peugeot': ['208', '308', '508', '2008', '3008', '5008'],
-  'Renault': ['Clio', 'Megane', 'Captur', 'Kadjar', 'Scenic', 'Laguna'],
-  'Skoda': ['Octavia', 'Superb', 'Fabia', 'Kodiaq', 'Karoq', 'Kamiq'],
-  'Toyota': ['Corolla', 'Camry', 'RAV4', 'Yaris', 'Avensis', 'C-HR', 'Land Cruiser'],
-  'Volkswagen': ['Golf', 'Passat', 'Polo', 'Tiguan', 'Touareg', 'Touran', 'Arteon', 'Transporter'],
+  'Mercedes-Benz': ['A-klase', 'C-klase', 'E-klase', 'S-klase', 'GLA', 'GLB', 'GLC', 'GLE', 'ML', 'G-klase', 'Sprinter'],
+  'Mini': ['Cooper', 'Countryman', 'Clubman'],
+  'Mitsubishi': ['Outlander', 'ASX', 'L200', 'Pajero', 'Eclipse Cross'],
+  'Nissan': ['Qashqai', 'X-Trail', 'Juke', 'Micra', 'Leaf', 'Navara'],
+  'Opel': ['Astra', 'Corsa', 'Insignia', 'Mokka', 'Zafira', 'Vectra', 'Grandland'],
+  'Peugeot': ['208', '308', '508', '2008', '3008', '5008', 'Partner'],
+  'Porsche': ['911', 'Cayenne', 'Macan', 'Panamera', 'Taycan'],
+  'Renault': ['Clio', 'Megane', 'Captur', 'Kadjar', 'Scenic', 'Laguna', 'Master'],
+  'Seat': ['Leon', 'Ibiza', 'Ateca', 'Arona'],
+  'Skoda': ['Octavia', 'Superb', 'Fabia', 'Kodiaq', 'Karoq', 'Kamiq', 'Enyaq'],
+  'Subaru': ['Outback', 'Forester', 'Impreza', 'XV'],
+  'Suzuki': ['Vitara', 'Swift', 'SX4', 'Jimny'],
+  'Tesla': ['Model S', 'Model 3', 'Model X', 'Model Y', 'Cybertruck'],
+  'Toyota': ['Corolla', 'Camry', 'RAV4', 'Yaris', 'Avensis', 'C-HR', 'Land Cruiser', 'Supra', 'Prius'],
+  'Volkswagen': ['Golf', 'Passat', 'Polo', 'Tiguan', 'Touareg', 'Touran', 'Arteon', 'Transporter', 'ID.4', 'ID.3'],
   'Volvo': ['S60', 'S90', 'V40', 'V60', 'V90', 'XC40', 'XC60', 'XC90']
 }
 
@@ -30,7 +47,6 @@ export default function PievienotSludinajumu() {
   const [make, setMake] = useState('')
   const [model, setModel] = useState('')
   
-  // Ieteikumu sarakstu stāvokļi
   const [makeSuggestions, setMakeSuggestions] = useState<string[]>([])
   const [modelSuggestions, setModelSuggestions] = useState<string[]>([])
 
@@ -53,7 +69,6 @@ export default function PievienotSludinajumu() {
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
-  // Markas rakstīšanas apstrāde un ieteikumu filtrēšana
   const handleMakeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setMake(value)
@@ -67,19 +82,16 @@ export default function PievienotSludinajumu() {
     }
   }
 
-  // Modelis rakstīšanas apstrāde un ieteikumu filtrēšana
   const handleModelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setModel(value)
 
-    // Noskaidrojam, kādi modeļi ir pieejami šai markai
     let availableModels: string[] = []
     const matchedMakeKey = Object.keys(CAR_DATABASE).find(m => m.toLowerCase() === make.toLowerCase())
     
     if (matchedMakeKey) {
       availableModels = CAR_DATABASE[matchedMakeKey]
     } else {
-      // Ja marka nav precīzi atpazīta, piedāvājam modeļus no visām markām
       availableModels = Array.from(new Set(Object.values(CAR_DATABASE).flat()))
     }
 
@@ -87,7 +99,7 @@ export default function PievienotSludinajumu() {
       const filtered = availableModels.filter(mod => mod.toLowerCase().includes(value.toLowerCase()))
       setModelSuggestions(filtered)
     } else {
-      setModelSuggestions(availableModels) // Ja lauks ir tukšs, rādām visus tās markas modeļus
+      setModelSuggestions(availableModels)
     }
   }
 
@@ -187,21 +199,23 @@ export default function PievienotSludinajumu() {
   return (
     <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
       
+      {/* GALVENAIS REŽĢIS AR 2 BANERIEM KATRĀ MALĀ */}
       <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
-        {/* KREISĀ PUSE: Reklāmas baneri */}
+        {/* KREISĀ PUSE: Divi reklāmas baneri */}
         <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Globālais baneris šeit!</p>
           </div>
+          
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Globālais baneris šeit!</p>
           </div>
         </div>
 
-        {/* VIDUS: Forma */}
+        {/* VIDUS: Sludinājuma pievienošanas forma */}
         <div style={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', minWidth: 0 }}>
           
           <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#111827', margin: '0 0 8px 0' }}>Pievienot jaunu auto sludinājumu</h1>
@@ -215,7 +229,7 @@ export default function PievienotSludinajumu() {
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
-            {/* 1. Rinda: Marka un Modelis ar automātisko ieteikšanu */}
+            {/* 1. Rinda: Marka un Modelis ar auto-complete */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               
               {/* MARKA */}
@@ -223,7 +237,7 @@ export default function PievienotSludinajumu() {
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Marka *</label>
                 <input
                   type="text"
-                  placeholder="piem., BMW"
+                  placeholder="piem., Tesla"
                   value={make}
                   onChange={handleMakeChange}
                   onFocus={() => {
@@ -240,7 +254,7 @@ export default function PievienotSludinajumu() {
                         onClick={() => {
                           setMake(item)
                           setMakeSuggestions([])
-                          setModel('') // Notīra modeli, kad maina marku
+                          setModel('')
                         }}
                         style={{ padding: '8px 12px', fontSize: '13px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
@@ -258,7 +272,7 @@ export default function PievienotSludinajumu() {
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Modelis *</label>
                 <input
                   type="text"
-                  placeholder="piem., 3. sērija"
+                  placeholder="piem., Model 3 vai Supra"
                   value={model}
                   onChange={handleModelChange}
                   onFocus={() => {
@@ -330,7 +344,7 @@ export default function PievienotSludinajumu() {
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Motors</label>
                 <input
                   type="text"
-                  placeholder="piem., 2.0 D"
+                  placeholder="piem., 2.0 D vai Elektromotors"
                   value={engine}
                   onChange={(e) => setEngine(e.target.value)}
                   style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
@@ -354,7 +368,7 @@ export default function PievienotSludinajumu() {
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Ātrumkārba</label>
                 <input
                   type="text"
-                  placeholder="piem., Automāts, 8 ātrumi"
+                  placeholder="piem., Automāts"
                   value={transmission}
                   onChange={(e) => setTransmission(e.target.value)}
                   style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
@@ -378,7 +392,7 @@ export default function PievienotSludinajumu() {
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Virsbūves tips</label>
                 <input
                   type="text"
-                  placeholder="piem., Universāls / Sedans"
+                  placeholder="piem., Sedans / Kupeja"
                   value={bodyType}
                   onChange={(e) => setBodyType(e.target.value)}
                   style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
@@ -520,12 +534,13 @@ export default function PievienotSludinajumu() {
           </form>
         </div>
 
-        {/* LABĀ PUSE: Reklāmas baneri */}
+        {/* LABĀ PUSE: Divi reklāmas baneri */}
         <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Globālais baneris šeit!</p>
           </div>
+          
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Globālais baneris šeit!</p>
