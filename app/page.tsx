@@ -20,47 +20,29 @@ export default function Home() {
   const [filterYearMax, setFilterYearMax] = useState('')
   const [filterMileageMax, setFilterMileageMax] = useState('')
 
-  const makesList = [
-    { name: 'Alfa Romeo', count: 6 },
-    { name: 'Audi', count: 7 },
-    { name: 'BMW', count: 11 },
-    { name: 'Chevrolet', count: 4 },
-    { name: 'Chrysler', count: 5 },
-    { name: 'Citroen', count: 3 },
-    { name: 'Cupra', count: 4 },
-    { name: 'Dacia', count: 4 },
-    { name: 'Dodge', count: 2 },
-    { name: 'Fiat', count: 3 },
-    { name: 'Ford', count: 4 },
-    { name: 'Honda', count: 3 },
-    { name: 'Hyundai', count: 3 },
-    { name: 'Jaguar', count: 3 },
-    { name: 'Jeep', count: 2 },
-    { name: 'Kia', count: 2 },
-    { name: 'Lancia', count: 2 },
-    { name: 'Land Rover', count: 3 },
-    { name: 'Lexus', count: 1 },
-    { name: 'Mazda', count: 2 },
-    { name: 'Mercedes-Benz', count: 3 },
-    { name: 'Mini', count: 1 },
-    { name: 'Mini Cooper', count: 1 },
-    { name: 'Mitsubishi', count: 3 },
-    { name: 'Nissan', count: 2 },
-    { name: 'Opel', count: 4 },
-    { name: 'Peugeot', count: 3 },
-    { name: 'Porsche', count: 3 },
-    { name: 'Renault', count: 2 },
-    { name: 'Saab', count: 3 },
-    { name: 'Seat', count: 1 },
-    { name: 'Skoda', count: 3 },
-    { name: 'Smart', count: 2 },
-    { name: 'Subaru', count: 2 },
-    { name: 'Suzuki', count: 2 },
-    { name: 'Tesla', count: 3 },
-    { name: 'Toyota', count: 3 },
-    { name: 'Volkswagen', count: 4 },
-    { name: 'Volvo', count: 3 },
-    { name: 'Zaz', count: 1 }
+  // Marku saraksts sadalīts pa pāriem, lai veidotu divas kolonas kā oriģinālajā bildē
+  const makesPairs = [
+    [{ name: 'Alfa Romeo', count: 6 }, { name: 'Audi', count: 7 }],
+    [{ name: 'BMW', count: 11 }, { name: 'Chevrolet', count: 4 }],
+    [{ name: 'Chrysler', count: 5 }, { name: 'Citroen', count: 3 }],
+    [{ name: 'Cupra', count: 4 }, { name: 'Dacia', count: 4 }],
+    [{ name: 'Dodge', count: 2 }, { name: 'Fiat', count: 3 }],
+    [{ name: 'Ford', count: 4 }, { name: 'Honda', count: 3 }],
+    [{ name: 'Hyundai', count: 3 }, { name: 'Jaguar', count: 3 }],
+    [{ name: 'Jeep', count: 2 }, { name: 'Kia', count: 2 }],
+    [{ name: 'Lancia', count: 2 }, { name: 'Land Rover', count: 3 }],
+    [{ name: 'Lexus', count: 1 }, { name: 'Maz', count: 3 }],
+    [{ name: 'Mazda', count: 2 }, { name: 'Mercedes-Benz', count: 3 }],
+    [{ name: 'Mini', count: 1 }, { name: 'Mini Cooper', count: 1 }],
+    [{ name: 'Mitsubishi', count: 3 }, { name: 'Nissan', count: 2 }],
+    [{ name: 'Opel', count: 4 }, { name: 'Peugeot', count: 3 }],
+    [{ name: 'Porsche', count: 3 }, { name: 'Renault', count: 2 }],
+    [{ name: 'Saab', count: 3 }, { name: 'Seat', count: 2 }],
+    [{ name: 'Seet', count: 1 }, { name: 'Škoda', count: 3 }],
+    [{ name: 'Smart', count: 2 }, { name: 'Subaru', count: 2 }],
+    [{ name: 'Suzuki', count: 2 }, { name: 'Tesla', count: 3 }],
+    [{ name: 'Toyota', count: 3 }, { name: 'Volkswagen', count: 4 }],
+    [{ name: 'Volvo', count: 3 }, { name: 'Zaz', count: 1 }]
   ]
 
   useEffect(() => {
@@ -120,49 +102,80 @@ export default function Home() {
   }
 
   return (
-    <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', padding: '10px' }}>
+    <div style={{ width: '100%', maxWidth: '1500px', margin: '0 auto', padding: '10px', boxSizing: 'border-box' }}>
       
-      {/* Galvenais izkārtojums trīs kolonnās */}
-      <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr 220px', gap: '12px', alignItems: 'start' }}>
+      {/* 3 KOLONNU STRUKTŪRA */}
+      <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '12px', alignItems: 'start' }}>
         
-        {/* KREISĀ MALA: Markas */}
-        <div style={{ background: '#fff', padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', borderBottom: '1px solid #eee', paddingBottom: '4px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#0044cc', cursor: 'pointer' }} onClick={() => { setFilterMake(''); fetchCars(); }}>Visas markas</span>
+        {/* KREISĀ MALA: Markas (Nekustīga / Sticky, divās kolonnās, oriģinālais izskats) */}
+        <div style={{ 
+          position: 'sticky', 
+          top: '10px', 
+          background: '#fff', 
+          border: '1px solid #dcdcdc', 
+          borderRadius: '4px', 
+          padding: '10px', 
+          boxSizing: 'border-box',
+          maxHeight: 'calc(100vh - 20px)',
+          overflowY: 'auto'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', borderBottom: '1px solid #eee', paddingBottom: '6px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#1a56db', cursor: 'pointer' }} onClick={() => { setFilterMake(''); fetchCars(); }}>Visas markas</span>
             <span style={{ fontSize: '12px', color: '#666' }}>(130)</span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '700px', overflowY: 'auto' }}>
-            {makesList.map((item, idx) => (
-              <div
-                key={idx}
-                onClick={() => handleMakeSelect(item.name)}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  fontSize: '12px',
-                  padding: '3px 4px',
-                  cursor: 'pointer',
-                  background: filterMake === item.name ? '#e6f0ff' : 'transparent',
-                  color: filterMake === item.name ? '#0044cc' : '#333'
-                }}
-              >
-                <span>{item.name}</span>
-                <span style={{ color: '#888' }}>({item.count})</span>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+            {makesPairs.map((pair, idx) => (
+              <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                {pair.map((item, i) => (
+                  <div
+                    key={i}
+                    onClick={() => handleMakeSelect(item.name)}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      fontSize: '12px',
+                      padding: '2px 4px',
+                      cursor: 'pointer',
+                      borderRadius: '2px',
+                      background: filterMake === item.name ? '#e6f0ff' : 'transparent',
+                      color: filterMake === item.name ? '#1a56db' : '#333'
+                    }}
+                    onMouseEnter={(e) => { if (filterMake !== item.name) e.currentTarget.style.backgroundColor = '#f9fafb' }}
+                    onMouseLeave={(e) => { if (filterMake !== item.name) e.currentTarget.style.backgroundColor = 'transparent' }}
+                  >
+                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</span>
+                    <span style={{ fontSize: '11px', color: '#888', marginLeft: '4px' }}>({item.count})</span>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
-          <div style={{ marginTop: '10px', borderTop: '1px solid #eee', paddingTop: '6px' }}>
-            <div style={{ fontSize: '11px', color: '#888', fontWeight: 'bold', marginBottom: '4px' }}>CITS</div>
-            <Link href="#" style={{ fontSize: '11px', color: '#0044cc', textDecoration: 'none' }}>Nestandarta pakalpojumi, maiņa, remonts u.c.</Link>
+
+          <div style={{ marginTop: '12px', borderTop: '1px solid #eee', paddingTop: '8px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#888', textTransform: 'uppercase', marginBottom: '4px' }}>Cits</div>
+            <Link href="#" style={{ fontSize: '11px', color: '#1a56db', textDecoration: 'none', lineHeight: '1.2', display: 'block' }}>Nestandarta pakalpojumi, maiņa, remonts u.c.</Link>
           </div>
         </div>
 
-        {/* VIDUS: Standarta filtrs un sludinājumi (bez sticky, skrollējas kopā ar lapu) */}
-        <div>
+        {/* VIDUS: Nekustīgais filtrs un sludinājumi */}
+        <div style={{ minWidth: 0 }}>
           
-          {/* Virsraksts un parastais filtrs */}
-          <div style={{ background: '#f5f5f5', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', marginBottom: '12px' }}>
-            <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>Auto Tirgus</div>
+          {/* FILTRA BLOKS (Nekustīgs, virs sludinājumiem, oriģinālais dizains) */}
+          <div style={{
+            position: 'sticky',
+            top: '10px',
+            zIndex: 100,
+            background: '#f2f2f2',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            padding: '10px',
+            marginBottom: '12px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+            boxSizing: 'border-box'
+          }}>
+            <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#111' }}>Auto Tirgus</div>
             
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '8px' }}>
               <input
@@ -170,19 +183,19 @@ export default function Home() {
                 placeholder="Meklēt marku..."
                 value={filterMake}
                 onChange={(e) => setFilterMake(e.target.value)}
-                style={{ padding: '6px', fontSize: '12px', border: '1px solid #ccc', borderRadius: '3px', background: '#fff' }}
+                style={{ padding: '6px', fontSize: '12px', border: '1px solid #bbb', borderRadius: '3px', background: '#fff', boxSizing: 'border-box' }}
               />
               <input
                 type="text"
                 placeholder="Meklēt modeli..."
                 value={filterModel}
                 onChange={(e) => setFilterModel(e.target.value)}
-                style={{ padding: '6px', fontSize: '12px', border: '1px solid #ccc', borderRadius: '3px', background: '#fff' }}
+                style={{ padding: '6px', fontSize: '12px', border: '1px solid #bbb', borderRadius: '3px', background: '#fff', boxSizing: 'border-box' }}
               />
               <select
                 value={filterFuel}
                 onChange={(e) => setFilterFuel(e.target.value)}
-                style={{ padding: '6px', fontSize: '12px', border: '1px solid #ccc', borderRadius: '3px', background: '#fff' }}
+                style={{ padding: '6px', fontSize: '12px', border: '1px solid #bbb', borderRadius: '3px', background: '#fff', boxSizing: 'border-box' }}
               >
                 <option value="">Degvielas tips</option>
                 <option value="Dīzelis">Dīzelis</option>
@@ -195,7 +208,7 @@ export default function Home() {
                 placeholder="Ātrumkārba"
                 value={filterTransmission}
                 onChange={(e) => setFilterTransmission(e.target.value)}
-                style={{ padding: '6px', fontSize: '12px', border: '1px solid #ccc', borderRadius: '3px', background: '#fff' }}
+                style={{ padding: '6px', fontSize: '12px', border: '1px solid #bbb', borderRadius: '3px', background: '#fff', boxSizing: 'border-box' }}
               />
             </div>
 
@@ -205,22 +218,22 @@ export default function Home() {
                 placeholder="Virsbūves tips"
                 value={filterBodyType}
                 onChange={(e) => setFilterBodyType(e.target.value)}
-                style={{ padding: '6px', fontSize: '12px', border: '1px solid #ccc', borderRadius: '3px', background: '#fff' }}
+                style={{ padding: '6px', fontSize: '12px', border: '1px solid #bbb', borderRadius: '3px', background: '#fff', boxSizing: 'border-box' }}
               />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
-                <input type="number" placeholder="Gads no" value={filterYearMin} onChange={(e) => setFilterYearMin(e.target.value)} style={{ padding: '6px', fontSize: '12px', border: '1px solid #ccc', borderRadius: '3px', background: '#fff' }} />
-                <input type="number" placeholder="līdz" value={filterYearMax} onChange={(e) => setFilterYearMax(e.target.value)} style={{ padding: '6px', fontSize: '12px', border: '1px solid #ccc', borderRadius: '3px', background: '#fff' }} />
+                <input type="number" placeholder="Gads no" value={filterYearMin} onChange={(e) => setFilterYearMin(e.target.value)} style={{ padding: '6px', fontSize: '12px', border: '1px solid #bbb', borderRadius: '3px', background: '#fff', boxSizing: 'border-box' }} />
+                <input type="number" placeholder="līdz" value={filterYearMax} onChange={(e) => setFilterYearMax(e.target.value)} style={{ padding: '6px', fontSize: '12px', border: '1px solid #bbb', borderRadius: '3px', background: '#fff', boxSizing: 'border-box' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
-                <input type="number" placeholder="Min €" value={filterPriceMin} onChange={(e) => setFilterPriceMin(e.target.value)} style={{ padding: '6px', fontSize: '12px', border: '1px solid #ccc', borderRadius: '3px', background: '#fff' }} />
-                <input type="number" placeholder="Maks €" value={filterPriceMax} onChange={(e) => setFilterPriceMax(e.target.value)} style={{ padding: '6px', fontSize: '12px', border: '1px solid #ccc', borderRadius: '3px', background: '#fff' }} />
+                <input type="number" placeholder="Min €" value={filterPriceMin} onChange={(e) => setFilterPriceMin(e.target.value)} style={{ padding: '6px', fontSize: '12px', border: '1px solid #bbb', borderRadius: '3px', background: '#fff', boxSizing: 'border-box' }} />
+                <input type="number" placeholder="Maks €" value={filterPriceMax} onChange={(e) => setFilterPriceMax(e.target.value)} style={{ padding: '6px', fontSize: '12px', border: '1px solid #bbb', borderRadius: '3px', background: '#fff', boxSizing: 'border-box' }} />
               </div>
               <input
                 type="number"
                 placeholder="Maks. nobraukums"
                 value={filterMileageMax}
                 onChange={(e) => setFilterMileageMax(e.target.value)}
-                style={{ padding: '6px', fontSize: '12px', border: '1px solid #ccc', borderRadius: '3px', background: '#fff' }}
+                style={{ padding: '6px', fontSize: '12px', border: '1px solid #bbb', borderRadius: '3px', background: '#fff', boxSizing: 'border-box' }}
               />
             </div>
 
@@ -242,15 +255,15 @@ export default function Home() {
             </button>
           </div>
 
-          {/* Sludinājumu režģis */}
+          {/* SLUDINĀJUMU REŽĢIS */}
           {loading ? (
-            <p style={{ textAlign: 'center', color: '#666' }}>Ielādē...</p>
+            <p style={{ textAlign: 'center', color: '#666', padding: '20px' }}>Ielādē...</p>
           ) : cars.length === 0 ? (
-            <p style={{ textAlign: 'center', color: '#666' }}>Nav atrasti sludinājumi.</p>
+            <p style={{ textAlign: 'center', color: '#666', padding: '20px' }}>Nav atrasti sludinājumi.</p>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '10px' }}>
               {cars.map((car) => (
-                <div key={car.id} style={{ background: '#fff', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                <div key={car.id} style={{ background: '#fff', border: '1px solid #dcdcdc', borderRadius: '4px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ height: '130px', background: '#eee' }}>
                     {car.image ? (
                       <img src={car.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -263,7 +276,7 @@ export default function Home() {
                     <div style={{ fontSize: '11px', color: '#666', marginBottom: '8px' }}>{car.year ? `${car.year} g.` : ''} {car.engine ? `• ${car.engine}` : ''}</div>
                     <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#00aa00' }}>{car.price ? `${car.price} €` : ''}</span>
-                      <Link href={`/auto/${car.id}`} style={{ fontSize: '11px', color: '#0044cc', textDecoration: 'none' }}>Skatīt</Link>
+                      <Link href={`/auto/${car.id}`} style={{ fontSize: '11px', color: '#1a56db', textDecoration: 'none' }}>Skatīt</Link>
                     </div>
                   </div>
                 </div>
@@ -273,13 +286,22 @@ export default function Home() {
 
         </div>
 
-        {/* LABĀ MALA: Baneri */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div style={{ background: '#f9f9f9', border: '1px dashed #ccc', padding: '20px', textAlign: 'center', minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888', fontSize: '12px', borderRadius: '4px' }}>
-            Reklāmas baneris
+        {/* LABĀ MALA: Reklāmas baneri (Nekustīgi / Sticky) */}
+        <div style={{ 
+          position: 'sticky', 
+          top: '10px', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '12px',
+          boxSizing: 'border-box'
+        }}>
+          <div style={{ background: '#f9f9f9', border: '1px dashed #ccc', padding: '20px', textAlign: 'center', minHeight: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#888', fontSize: '11px', borderRadius: '4px', boxSizing: 'border-box' }}>
+            <span style={{ textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.5px' }}>Reklāma</span>
+            Globālais baneris šeit!
           </div>
-          <div style={{ background: '#f9f9f9', border: '1px dashed #ccc', padding: '20px', textAlign: 'center', minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888', fontSize: '12px', borderRadius: '4px' }}>
-            Reklāmas baneris
+          <div style={{ background: '#f9f9f9', border: '1px dashed #ccc', padding: '20px', textAlign: 'center', minHeight: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#888', fontSize: '11px', borderRadius: '4px', boxSizing: 'border-box' }}>
+            <span style={{ textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.5px' }}>Reklāma</span>
+            Globālais baneris šeit!
           </div>
         </div>
 
