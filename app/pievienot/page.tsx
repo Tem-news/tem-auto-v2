@@ -24,10 +24,48 @@ export default function PievienotSludinajumu() {
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [description, setDescription] = useState('')
-  const [image, setImage] = useState('')
+  
+  // Bilžu masīvs (vilkšanai un secības maiņai)
+  const [images, setImages] = useState<string[]>([])
   
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+
+  // Bilžu pievienošana (velkot vai izvēloties)
+  const handleImageFiles = (files: FileList | File[]) => {
+    const newImageUrls: string[] = []
+    Array.from(files).forEach(file => {
+      const url = URL.createObjectURL(file)
+      newImageUrls.push(url)
+    })
+    setImages(prev => [...prev, ...newImageUrls])
+  }
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleImageFiles(e.dataTransfer.files)
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+  }
+
+  // Bultiņu funkcijas bilžu secības maiņai
+  const moveImage = (index: number, direction: 'up' | 'down') => {
+    const newImages = [...images]
+    const targetIndex = direction === 'up' ? index - 1 : index + 1
+    if (targetIndex < 0 || targetIndex >= newImages.length) return
+    const temp = newImages[index]
+    newImages[index] = newImages[targetIndex]
+    newImages[targetIndex] = temp
+    setImages(newImages)
+  }
+
+  const removeImage = (index: number) => {
+    setImages(images.filter((_, i) => i !== index))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,6 +77,9 @@ export default function PievienotSludinajumu() {
     }
 
     setLoading(true)
+
+    // Pirmā bilde masīvā kļūst par galveno titulbildi
+    const mainImage = images.length > 0 ? images[0] : null
 
     const { error } = await supabase.from('cars').insert([
       {
@@ -56,7 +97,7 @@ export default function PievienotSludinajumu() {
         email: email.trim(),
         phone: phone.trim() || null,
         description: description.trim() || null,
-        image: image.trim() || null,
+        image: mainImage,
       }
     ])
 
@@ -181,7 +222,7 @@ export default function PievienotSludinajumu() {
             </div>
           </div>
 
-          {/* 4. Rinda (Jaunie lauki): Krāsa, Virsbūves tips, VIN kods */}
+          {/* 4. Rinda: Krāsa, Virsbūves tips, VIN kods */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Krāsa</label>
@@ -242,16 +283,66 @@ export default function PievienotSludinajumu() {
             </div>
           </div>
 
-          {/* Foto saite */}
+          {/* AUTENTISKS BILŽU VILKŠANAS LAUKS AR SECĪBAS MAIŅU */}
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Foto attēla saite (URL)</label>
-            <input
-              type="text"
-              placeholder="https://piemērs.lv/bilde.jpg"
-              value={image}
-              onChange={(e) => setImage(e.target.value)}
-              style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
-            />
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Auto fotoattēli (neobligāti)</label>
+            
+            <div
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onClick={() => {
+                const input = document.createElement('input')
+                input.type = 'file'
+                input.multiple = true
+                input.accept = 'image/*'
+                input.onchange = (e: any) => {
+                  if (e.target.files) handleImageFiles(e.target.files)
+                }
+                input.click()
+              }}
+              style={{
+                border: '2px dashed #cbd5e1',
+                borderRadius: '8px',
+                padding: '24px',
+                textAlign: 'center',
+                backgroundColor: '#f9fafb',
+                cursor: 'pointer',
+                boxSizing: 'border-box'
+              }}
+            >
+              <div style={{ fontSize: '24px', marginBottom: '8px' }}>📷</div>
+              <div style={{ fontSize: '13px', color: '#374151', fontWeight: '500' }}>Ievelciet bildes šeit vai noklikšķiniet, lai izvēlētos</div>
+            </div>
+
+            {images.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>Augšupielādētās bildes (pirmā bilde būs titulbilde):</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {images.map((imgUrl, index) => (
+                    <div key={index} style={{ position: 'relative', width: '90px', height: '70px', border: index === 0 ? '2px solid #16a34a' : '1px solid #d1d5db', borderRadius: '6px', overflow: 'hidden', backgroundColor: '#f3f4f6' }}>
+                      <img src={imgUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      
+                      {index === 0 && (
+                        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, backgroundColor: 'rgba(22, 163, 74, 0.85)', color: '#fff', fontSize: '9px', textAlign: 'center', fontWeight: 'bold', padding: '1px 0' }}>
+                          Titulbilde
+                        </div>
+                      )}
+
+                      {/* Vadības pogas: bultiņas un dzēšana */}
+                      <div style={{ position: 'absolute', bottom: 2, right: 2, display: 'flex', gap: '2px', backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: '4px', padding: '1px' }}>
+                        {index > 0 && (
+                          <button type="button" onClick={(e) => { e.stopPropagation(); moveImage(index, 'up'); }} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '10px', cursor: 'pointer', padding: '0 2px' }}>◀</button>
+                        )}
+                        {index < images.length - 1 && (
+                          <button type="button" onClick={(e) => { e.stopPropagation(); moveImage(index, 'down'); }} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '10px', cursor: 'pointer', padding: '0 2px' }}>▶</button>
+                        )}
+                        <button type="button" onClick={(e) => { e.stopPropagation(); removeImage(index); }} style={{ background: 'none', border: 'none', color: '#f87171', fontSize: '10px', cursor: 'pointer', padding: '0 2px', fontWeight: 'bold' }}>✕</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Apraksts */}
