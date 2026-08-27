@@ -4,11 +4,36 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
+// Populārāko auto marku un to modeļu datubāze ieteikumiem
+const CAR_DATABASE: { [key: string]: string[] } = {
+  'Audi': ['A1', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'Q2', 'Q3', 'Q5', 'Q7', 'Q8', 'TT'],
+  'BMW': ['1. sērija', '3. sērija', '5. sērija', '7. sērija', 'X1', 'X3', 'X5', 'X6', 'Z4'],
+  'Ford': ['Focus', 'Fiesta', 'Mondeo', 'Kuga', 'Puma', 'Mustang', 'Explorer', 'Transit'],
+  'Honda': ['Civic', 'Accord', 'CR-V', 'HR-V', 'Jazz'],
+  'Hyundai': ['i10', 'i20', 'i30', 'Tucson', 'Santa Fe', 'Kona'],
+  'Kia': ['Ceed', 'Sportage', 'Sorento', 'Rio', 'Stonic', 'Picanto'],
+  'Mazda': ['Mazda2', 'Mazda3', 'Mazda6', 'CX-3', 'CX-5', 'CX-30', 'MX-5'],
+  'Mercedes-Benz': ['A-klase', 'C-klase', 'E-klase', 'S-klase', 'GLA', 'GLB', 'GLC', 'GLE', 'ML'],
+  'Nissan': ['Qashqai', 'X-Trail', 'Juke', 'Micra', 'Leaf'],
+  'Opel': ['Astra', 'Corsa', 'Insignia', 'Mokka', 'Zafira', 'Vectra'],
+  'Peugeot': ['208', '308', '508', '2008', '3008', '5008'],
+  'Renault': ['Clio', 'Megane', 'Captur', 'Kadjar', 'Scenic', 'Laguna'],
+  'Skoda': ['Octavia', 'Superb', 'Fabia', 'Kodiaq', 'Karoq', 'Kamiq'],
+  'Toyota': ['Corolla', 'Camry', 'RAV4', 'Yaris', 'Avensis', 'C-HR', 'Land Cruiser'],
+  'Volkswagen': ['Golf', 'Passat', 'Polo', 'Tiguan', 'Touareg', 'Touran', 'Arteon', 'Transporter'],
+  'Volvo': ['S60', 'S90', 'V40', 'V60', 'V90', 'XC40', 'XC60', 'XC90']
+}
+
 export default function PievienotSludinajumu() {
   const router = useRouter()
   
   const [make, setMake] = useState('')
   const [model, setModel] = useState('')
+  
+  // Ieteikumu sarakstu stāvokļi
+  const [makeSuggestions, setMakeSuggestions] = useState<string[]>([])
+  const [modelSuggestions, setModelSuggestions] = useState<string[]>([])
+
   const [year, setYear] = useState('')
   const [price, setPrice] = useState('')
   const [mileage, setMileage] = useState('')
@@ -16,7 +41,6 @@ export default function PievienotSludinajumu() {
   const [fuel, setFuel] = useState('Dīzelis')
   const [transmission, setTransmission] = useState('Automāts')
   
-  // Jaunie lauki
   const [color, setColor] = useState('')
   const [bodyType, setBodyType] = useState('')
   const [vin, setVin] = useState('')
@@ -25,29 +49,60 @@ export default function PievienotSludinajumu() {
   const [phone, setPhone] = useState('')
   const [description, setDescription] = useState('')
   
-  // Bilžu masīvs (vilkšanai un secības maiņai)
   const [images, setImages] = useState<string[]>([])
-  
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
-  // Palīgfunkcija skaitļu formatēšanai ar atstarpēm (tūkstošu atdalītājs)
+  // Markas rakstīšanas apstrāde un ieteikumu filtrēšana
+  const handleMakeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setMake(value)
+
+    if (value.trim().length > 0) {
+      const allMakes = Object.keys(CAR_DATABASE)
+      const filtered = allMakes.filter(m => m.toLowerCase().includes(value.toLowerCase()))
+      setMakeSuggestions(filtered)
+    } else {
+      setMakeSuggestions([])
+    }
+  }
+
+  // Modelis rakstīšanas apstrāde un ieteikumu filtrēšana
+  const handleModelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setModel(value)
+
+    // Noskaidrojam, kādi modeļi ir pieejami šai markai
+    let availableModels: string[] = []
+    const matchedMakeKey = Object.keys(CAR_DATABASE).find(m => m.toLowerCase() === make.toLowerCase())
+    
+    if (matchedMakeKey) {
+      availableModels = CAR_DATABASE[matchedMakeKey]
+    } else {
+      // Ja marka nav precīzi atpazīta, piedāvājam modeļus no visām markām
+      availableModels = Array.from(new Set(Object.values(CAR_DATABASE).flat()))
+    }
+
+    if (value.trim().length > 0) {
+      const filtered = availableModels.filter(mod => mod.toLowerCase().includes(value.toLowerCase()))
+      setModelSuggestions(filtered)
+    } else {
+      setModelSuggestions(availableModels) // Ja lauks ir tukšs, rādām visus tās markas modeļus
+    }
+  }
+
   const formatNumberWithSpaces = (value: string) => {
-    // Atstājam tikai ciparus
     const numbersOnly = value.replace(/\D/g, '')
     if (!numbersOnly) return ''
-    // Pievienojam atstarpes ik pēc 3 cipariem no beigām
     return numbersOnly.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   }
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatNumberWithSpaces(e.target.value)
-    setPrice(formatted)
+    setPrice(formatNumberWithSpaces(e.target.value))
   }
 
   const handleMileageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatNumberWithSpaces(e.target.value)
-    setMileage(formatted)
+    setMileage(formatNumberWithSpaces(e.target.value))
   }
 
   const handleImageFiles = (files: FileList | File[]) => {
@@ -96,8 +151,6 @@ export default function PievienotSludinajumu() {
     setLoading(true)
 
     const mainImage = images.length > 0 ? images[0] : null
-
-    // Noņemam atstarpes no cenas un nobraukuma pirms saglabāšanas datubāzē, lai tās saglabātos kā tīri skaitļi
     const cleanPrice = price ? Number(price.replace(/\s/g, '')) : null
     const cleanMileage = mileage ? Number(mileage.replace(/\s/g, '')) : null
 
@@ -134,23 +187,21 @@ export default function PievienotSludinajumu() {
   return (
     <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
       
-      {/* GALVENAIS REŽĢIS AR 2 BANERIEM KATRĀ MALĀ */}
       <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
-        {/* KREISĀ PUSE: Divi reklāmas baneri */}
+        {/* KREISĀ PUSE: Reklāmas baneri */}
         <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Globālais baneris šeit!</p>
           </div>
-          
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Globālais baneris šeit!</p>
           </div>
         </div>
 
-        {/* VIDUS: Sludinājuma pievienošanas forma */}
+        {/* VIDUS: Forma */}
         <div style={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', minWidth: 0 }}>
           
           <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#111827', margin: '0 0 8px 0' }}>Pievienot jaunu auto sludinājumu</h1>
@@ -164,28 +215,79 @@ export default function PievienotSludinajumu() {
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
-            {/* 1. Rinda: Marka un Modelis */}
+            {/* 1. Rinda: Marka un Modelis ar automātisko ieteikšanu */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div>
+              
+              {/* MARKA */}
+              <div style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Marka *</label>
                 <input
                   type="text"
-                  placeholder="piem., Alfa Romeo"
+                  placeholder="piem., BMW"
                   value={make}
-                  onChange={(e) => setMake(e.target.value)}
+                  onChange={handleMakeChange}
+                  onFocus={() => {
+                    if (!make) setMakeSuggestions(Object.keys(CAR_DATABASE))
+                  }}
+                  onBlur={() => setTimeout(() => setMakeSuggestions([]), 200)}
                   style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
                 />
+                {makeSuggestions.length > 0 && (
+                  <ul style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '0 0 6px 6px', maxHeight: '180px', overflowY: 'auto', listStyle: 'none', margin: 0, padding: 0, zIndex: 50, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    {makeSuggestions.map((item, idx) => (
+                      <li
+                        key={idx}
+                        onClick={() => {
+                          setMake(item)
+                          setMakeSuggestions([])
+                          setModel('') // Notīra modeli, kad maina marku
+                        }}
+                        style={{ padding: '8px 12px', fontSize: '13px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                      >
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-              <div>
+
+              {/* MODELIS */}
+              <div style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Modelis *</label>
                 <input
                   type="text"
-                  placeholder="piem., Giulia"
+                  placeholder="piem., 3. sērija"
                   value={model}
-                  onChange={(e) => setModel(e.target.value)}
+                  onChange={handleModelChange}
+                  onFocus={() => {
+                    let available = CAR_DATABASE[make] || Array.from(new Set(Object.values(CAR_DATABASE).flat()))
+                    setModelSuggestions(available)
+                  }}
+                  onBlur={() => setTimeout(() => setModelSuggestions([]), 200)}
                   style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
                 />
+                {modelSuggestions.length > 0 && (
+                  <ul style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '0 0 6px 6px', maxHeight: '180px', overflowY: 'auto', listStyle: 'none', margin: 0, padding: 0, zIndex: 50, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    {modelSuggestions.map((item, idx) => (
+                      <li
+                        key={idx}
+                        onClick={() => {
+                          setModel(item)
+                          setModelSuggestions([])
+                        }}
+                        style={{ padding: '8px 12px', fontSize: '13px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                      >
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
+
             </div>
 
             {/* 2. Rinda: Gads, Cena, Nobraukums */}
@@ -204,7 +306,7 @@ export default function PievienotSludinajumu() {
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Cena (€)</label>
                 <input
                   type="text"
-                  placeholder="piem., 5800"
+                  placeholder="piem., 5 800"
                   value={price}
                   onChange={handlePriceChange}
                   style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
@@ -214,7 +316,7 @@ export default function PievienotSludinajumu() {
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Nobraukums (km)</label>
                 <input
                   type="text"
-                  placeholder="piem., 180000"
+                  placeholder="piem., 180 000"
                   value={mileage}
                   onChange={handleMileageChange}
                   style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
@@ -321,7 +423,7 @@ export default function PievienotSludinajumu() {
               </div>
             </div>
 
-            {/* Bilžu vilkšanas lauks ar secības maiņu */}
+            {/* Bilžu vilkšanas lauks */}
             <div>
               <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Auto fotoattēli (neobligāti)</label>
               
@@ -418,13 +520,12 @@ export default function PievienotSludinajumu() {
           </form>
         </div>
 
-        {/* LABĀ PUSE: Divi reklāmas baneri */}
+        {/* LABĀ PUSE: Reklāmas baneri */}
         <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Globālais baneris šeit!</p>
           </div>
-          
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Globālais baneris šeit!</p>
