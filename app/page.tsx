@@ -167,8 +167,8 @@ export default function Sakumlapa() {
       {/* GALVENAIS REŽĢIS */}
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
-        {/* KREISĀ PUSE: Marku saraksts */}
-        <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px', boxSizing: 'border-box' }}>
+        {/* KREISĀ PUSE: Marku saraksts (Pielāgots šaurākām atstarpēm un treknākam šriftam) */}
+        <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
           ) : (
@@ -180,23 +180,23 @@ export default function Sakumlapa() {
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   width: '100%',
-                  padding: '6px 8px',
+                  padding: '5px 6px',
                   backgroundColor: searchMake === '' ? '#e0f2fe' : 'transparent',
-                  color: searchMake === '' ? '#0369a1' : '#374151',
+                  color: searchMake === '' ? '#0369a1' : '#1f2937',
                   border: 'none',
                   borderRadius: '4px',
                   cursor: 'pointer',
-                  fontSize: '13px',
-                  fontWeight: searchMake === '' ? 'bold' : 'normal',
+                  fontSize: '13.5px',
+                  fontWeight: '700',
                   textAlign: 'left',
-                  marginBottom: '6px'
+                  marginBottom: '4px'
                 }}
               >
                 <span>Visas markas</span>
                 <span style={{ fontSize: '12px', color: '#6b7280' }}>({cars.length})</span>
               </button>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
                 {makeCounts.map(([make, count]) => {
                   const isSelected = searchMake.toLowerCase() === make.toLowerCase()
                   return (
@@ -208,14 +208,14 @@ export default function Sakumlapa() {
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         width: '100%',
-                        padding: '5px 6px',
+                        padding: '3px 4px',
                         backgroundColor: isSelected ? '#bae6fd' : 'transparent',
-                        color: isSelected ? '#0369a1' : '#374151',
+                        color: isSelected ? '#0369a1' : '#1f2937',
                         border: isSelected ? '1px solid #0284c7' : 'none',
                         borderRadius: '4px',
                         cursor: 'pointer',
-                        fontSize: '13px',
-                        fontWeight: isSelected ? 'bold' : 'normal',
+                        fontSize: '13.5px',
+                        fontWeight: '600',
                         textAlign: 'left'
                       }}
                       onMouseEnter={(e) => {
@@ -226,18 +226,18 @@ export default function Sakumlapa() {
                       }}
                     >
                       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{make}</span>
-                      <span style={{ fontSize: '11px', color: '#6b7280', marginLeft: '4px', flexShrink: 0 }}>({count})</span>
+                      <span style={{ fontSize: '11px', color: '#6b7280', marginLeft: '2px', flexShrink: 0 }}>({count})</span>
                     </button>
                   )
                 })}
               </div>
 
-              <div style={{ marginTop: '12px', borderTop: '1px solid #e5e7eb', paddingTop: '8px' }}>
-                <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#4b5563', padding: '2px 4px', marginBottom: '4px' }}>CITS</div>
+              <div style={{ marginTop: '8px', borderTop: '1px solid #e5e7eb', paddingTop: '6px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#4b5563', padding: '2px 4px', marginBottom: '2px' }}>CITS</div>
                 <Link href="/cits" style={{ textDecoration: 'none' }}>
                   <div 
                     style={{ 
-                      padding: '7px 8px', 
+                      padding: '6px 8px', 
                       backgroundColor: '#fff', 
                       border: '1px dashed #cbd5e1', 
                       borderRadius: '4px', 
@@ -386,7 +386,8 @@ export default function Sakumlapa() {
                     </div>
 
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#0369a1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {/* Saraksta skatā auto virsraksts padarīts treknāks un nedaudz lielāks */}
+                      <div style={{ fontSize: '14px', fontWeight: '800', color: '#0369a1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {car.make} {car.model} {car.engine ? `(${car.engine})` : ''}
                       </div>
                       <div style={{ fontSize: '12px', color: '#374151', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -414,9 +415,10 @@ export default function Sakumlapa() {
                       {car.image ? <img src={car.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af', fontSize: '12px' }}>Nav attēla</div>}
                     </div>
                     <div style={{ padding: '8px' }}>
-                      <h2 style={{ fontSize: '12px', fontWeight: 'bold', margin: '0 0 2px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{car.make} {car.model}</h2>
-                      <p style={{ fontSize: '10px', color: '#6b7280', margin: '0 0 4px 0' }}>{car.year} g. {car.engine ? `• ${car.engine}` : ''}</p>
-                      <p style={{ fontSize: '13px', fontWeight: 'bold', color: '#16a34a', margin: 0 }}>€{car.price}</p>
+                      {/* Režģa skatā auto virsraksts zem foto padarīts treknāks un lielāks */}
+                      <h2 style={{ fontSize: '14px', fontWeight: '800', color: '#111827', margin: '0 0 2px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{car.make} {car.model}</h2>
+                      <p style={{ fontSize: '11px', color: '#6b7280', margin: '0 0 4px 0' }}>{car.year} g. {car.engine ? `• ${car.engine}` : ''}</p>
+                      <p style={{ fontSize: '14px', fontWeight: 'bold', color: '#16a34a', margin: 0 }}>€{car.price}</p>
                     </div>
                   </div>
                 </Link>
