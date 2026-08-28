@@ -97,7 +97,7 @@ const REGIONS_BY_COUNTRY: { [key: string]: string[] } = {
     'Massachusetts (MA)', 'Michigan (MI)', 'Minnesota (MN)', 'Mississippi (MS)', 'Missouri (MO)', 
     'Montana (MT)', 'Nebraska (NE)', 'Nevada (NV)', 'New Hampshire (NH)', 'New Jersey (NJ)', 
     'New Mexico (NM)', 'New York (NY)', 'North Carolina (NC)', 'North Dakota (ND)', 'Ohio (OH)', 
-    'Oklahoma (OK)', 'Oregon (OR)', 'Pennsylvania (PA)', 'Rhode Island (RI)', 'South Carolina (SC)', 
+    'Oklahoma (OK)', 'Oregon (OR)', 'Pennsylvania (PA)', 'Rhode Island (RI)', 'South Carolina (SC)',
     'South Dakota (SD)', 'Tennessee (TN)', 'Texas (TX)', 'Utah (UT)', 'Vermont (VT)', 
     'Virginia (VA)', 'Washington (WA)', 'West Virginia (WV)', 'Wisconsin (WI)', 'Wyoming (WY)'
   ]
@@ -146,7 +146,6 @@ function normalizeMake(makeStr: string): string {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
 }
 
-// Droša un precīza tūkstošu atdalīšana ar regulāro izteiksmi
 function formatPriceInput(value: string): string {
   const cleanNums = value.replace(/\D/g, '')
   if (!cleanNums) return ''
@@ -181,7 +180,8 @@ export default function Sakumlapa() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const toggleDropdown = (name: string) => {
+  const toggleDropdown = (name: string, e?: React.MouseEvent) => {
+    if (e) e.preventDefault()
     setActiveDropdown(prev => prev === name ? null : name)
   }
 
@@ -267,7 +267,8 @@ export default function Sakumlapa() {
            matchesValsts && matchesRegions && matchesDzinejs && matchesAtrumkarba && matchesVirsbuve && matchesKrasa
   })
 
-  const handleMakeSelect = (make: string) => {
+  const handleMakeSelect = (make: string, e: React.MouseEvent) => {
+    e.preventDefault()
     if (searchMake.toLowerCase() === make.toLowerCase()) {
       setSearchMake('')
     } else {
@@ -286,57 +287,57 @@ export default function Sakumlapa() {
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
           ) : (
             <div>
-              <button
-                onClick={() => setSearchMake('')}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  width: '100%',
-                  padding: '5px 6px',
-                  backgroundColor: searchMake === '' ? '#e0f2fe' : 'transparent',
-                  color: searchMake === '' ? '#0369a1' : '#1f2937',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '13.5px',
-                  fontWeight: '700',
-                  textAlign: 'left',
-                  marginBottom: '4px'
-                }}
-              >
-                <span>Visas markas</span>
-                <span style={{ fontSize: '12px', color: '#6b7280' }}>({cars.length})</span>
-              </button>
+             <button
+               onClick={(e) => { e.preventDefault(); setSearchMake(''); }}
+               style={{
+                 display: 'flex',
+                 justifyContent: 'space-between',
+                 alignItems: 'center',
+                 width: '100%',
+                 padding: '5px 6px',
+                 backgroundColor: searchMake === '' ? '#e0f2fe' : 'transparent',
+                 color: searchMake === '' ? '#0369a1' : '#1f2937',
+                 border: 'none',
+                 borderRadius: '4px',
+                 cursor: 'pointer',
+                 fontSize: '13.5px',
+                 fontWeight: '700',
+                 textAlign: 'left',
+                 marginBottom: '4px'
+               }}
+             >
+               <span>Visas markas</span>
+               <span style={{ fontSize: '12px', color: '#6b7280' }}>({cars.length})</span>
+             </button>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
-                {makeCounts.map(([make, count]) => {
-                  const isSelected = searchMake.toLowerCase() === make.toLowerCase()
-                  return (
-                    <button
-                      key={make}
-                      onClick={() => handleMakeSelect(make)}
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        width: '100%',
-                        padding: '3px 4px',
-                        backgroundColor: isSelected ? '#bae6fd' : 'transparent',
-                        color: isSelected ? '#0369a1' : '#1f2937',
-                        border: isSelected ? '1px solid #0284c7' : 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '13.5px',
-                        fontWeight: '600',
-                        textAlign: 'left'
-                      }}
-                    >
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{make}</span>
-                      <span style={{ fontSize: '11px', color: '#6b7280', marginLeft: '2px', flexShrink: 0 }}>({count})</span>
-                    </button>
-                  )
-                })}
+               {makeCounts.map(([make, count]) => {
+                 const isSelected = searchMake.toLowerCase() === make.toLowerCase()
+                 return (
+                   <button
+                     key={make}
+                     onClick={(e) => handleMakeSelect(make, e)}
+                     style={{
+                       display: 'flex',
+                       justifyContent: 'space-between',
+                       alignItems: 'center',
+                       width: '100%',
+                       padding: '3px 4px',
+                       backgroundColor: isSelected ? '#bae6fd' : 'transparent',
+                       color: isSelected ? '#0369a1' : '#1f2937',
+                       border: isSelected ? '1px solid #0284c7' : 'none',
+                       borderRadius: '4px',
+                       cursor: 'pointer',
+                       fontSize: '13.5px',
+                       fontWeight: '600',
+                       textAlign: 'left'
+                     }}
+                   >
+                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{make}</span>
+                     <span style={{ fontSize: '11px', color: '#6b7280', marginLeft: '2px', flexShrink: 0 }}>({count})</span>
+                   </button>
+                 )
+               })}
               </div>
             </div>
           )}
@@ -352,101 +353,102 @@ export default function Sakumlapa() {
               
               {/* VALSTS */}
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
-                <input
-                  type="text"
-                  placeholder="Valsts"
-                  value={valsts}
-                  onChange={(e) => { setValsts(e.target.value); setActiveDropdown('valsts'); }}
-                  onClick={() => toggleDropdown('valsts')}
-                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
-                />
-                {activeDropdown === 'valsts' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setValsts(''); setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas valstis</div>
-                    {COUNTRIES.filter(c => c.name.toLowerCase().includes(valsts.toLowerCase())).map((c) => (
-                      <div
-                        key={c.name}
-                        onClick={() => { 
-                          setValsts(c.name); 
-                          setRegions(''); 
-                          setActiveDropdown(null); 
-                        }}
-                        style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                      >
-                        <img 
-                          src={`https://flagcdn.com/20x15/${c.code}.png`} 
-                          alt={c.name} 
-                          style={{ width: '20px', height: '15px', objectFit: 'cover', borderRadius: '2px', border: '1px solid #e5e7eb' }} 
-                        />
-                        <span>{c.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+               <input
+                 type="text"
+                 placeholder="Valsts"
+                 value={valsts}
+                 onChange={(e) => { setValsts(e.target.value); setActiveDropdown('valsts'); }}
+                 onClick={(e) => toggleDropdown('valsts', e)}
+                 style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
+               />
+               {activeDropdown === 'valsts' && (
+                 <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                   <div onClick={(e) => { e.preventDefault(); setValsts(''); setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas valstis</div>
+                   {COUNTRIES.filter(c => c.name.toLowerCase().includes(valsts.toLowerCase())).map((c) => (
+                     <div
+                       key={c.name}
+                       onClick={(e) => { 
+                         e.preventDefault();
+                         setValsts(c.name); 
+                         setRegions(''); 
+                         setActiveDropdown(null); 
+                       }}
+                       style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                     >
+                       <img 
+                         src={`https://flagcdn.com/20x15/${c.code}.png`} 
+                         alt={c.name} 
+                         style={{ width: '20px', height: '15px', objectFit: 'cover', borderRadius: '2px', border: '1px solid #e5e7eb' }}
+                       />
+                       <span>{c.name}</span>
+                     </div>
+                   ))}
+                 </div>
+               )}
               </div>
 
               {/* REĢIONS */}
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
-                <input
-                  type="text"
-                  placeholder={valsts ? `Reģions (${valsts})` : "Reģions"}
-                  value={regions}
-                  onChange={(e) => { setRegions(e.target.value); setActiveDropdown('regions'); }}
-                  onClick={() => toggleDropdown('regions')}
-                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
-                />
-                {activeDropdown === 'regions' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visi reģioni</div>
-                    {availableRegions.filter(r => r.toLowerCase().includes(regions.toLowerCase())).map((r) => (
-                      <div
-                        key={r}
-                        onClick={() => { setRegions(r); setActiveDropdown(null); }}
-                        style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                      >
-                        {r}
-                      </div>
-                    ))}
-                  </div>
-                )}
+               <input
+                 type="text"
+                 placeholder={valsts ? `Reģions (${valsts})` : "Reģions"}
+                 value={regions}
+                 onChange={(e) => { setRegions(e.target.value); setActiveDropdown('regions'); }}
+                 onClick={(e) => toggleDropdown('regions', e)}
+                 style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
+               />
+               {activeDropdown === 'regions' && (
+                 <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    <div onClick={(e) => { e.preventDefault(); setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visi reģioni</div>
+                   {availableRegions.filter(r => r.toLowerCase().includes(regions.toLowerCase())).map((r) => (
+                     <div
+                       key={r}
+                       onClick={(e) => { e.preventDefault(); setRegions(r); setActiveDropdown(null); }}
+                       style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}
+                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                     >
+                       {r}
+                     </div>
+                   ))}
+                 </div>
+               )}
               </div>
               
-              {/* Cena ar regulāro izteiksmi un tūkstošu atdalītāju */}
+              {/* Cena */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <input 
-                  type="text" 
-                  placeholder="Cena no" 
-                  value={displayMinPrice} 
-                  onChange={(e) => {
-                    const formatted = formatPriceInput(e.target.value)
-                    setDisplayMinPrice(formatted)
-                    setMinPrice(formatted.replace(/\s/g, ''))
-                  }} 
-                  style={{ width: '80px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} 
-                />
-                <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
-                <input 
-                  type="text" 
-                  placeholder="līdz" 
-                  value={displayMaxPrice} 
-                  onChange={(e) => {
-                    const formatted = formatPriceInput(e.target.value)
-                    setDisplayMaxPrice(formatted)
-                    setMaxPrice(formatted.replace(/\s/g, ''))
-                  }} 
-                  style={{ width: '80px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} 
-                />
+               <input 
+                 type="text" 
+                 placeholder="Cena no" 
+                 value={displayMinPrice} 
+                 onChange={(e) => {
+                   const formatted = formatPriceInput(e.target.value)
+                   setDisplayMinPrice(formatted)
+                   setMinPrice(formatted.replace(/\s/g, ''))
+                 }} 
+                 style={{ width: '80px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} 
+               />
+               <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
+               <input 
+                 type="text" 
+                 placeholder="līdz" 
+                 value={displayMaxPrice} 
+                 onChange={(e) => {
+                   const formatted = formatPriceInput(e.target.value)
+                   setDisplayMaxPrice(formatted)
+                   setMaxPrice(formatted.replace(/\s/g, ''))
+                 }} 
+                 style={{ width: '80px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} 
+               />
               </div>
 
               {/* Gads */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <input type="number" placeholder="Gads no" value={minYear} onChange={(e) => setMinYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
-                <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
-                <input type="number" placeholder="līdz" value={maxYear} onChange={(e) => setMaxYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
+               <input type="number" placeholder="Gads no" value={minYear} onChange={(e) => setMinYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
+               <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
+               <input type="number" placeholder="līdz" value={maxYear} onChange={(e) => setMaxYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
               </div>
             </div>
 
@@ -455,200 +457,149 @@ export default function Sakumlapa() {
               
               {/* DZINĒJS */}
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
-                <input
-                  type="text"
-                  placeholder="Dzinējs"
-                  value={dzinejs}
-                  onChange={(e) => { setDzinejs(e.target.value); setActiveDropdown('dzinejs'); }}
-                  onClick={() => toggleDropdown('dzinejs')}
-                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
-                />
-                {activeDropdown === 'dzinejs' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setDzinejs(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visi dzinēji</div>
-                    {ENGINE_TYPES.filter(d => d.toLowerCase().includes(dzinejs.toLowerCase())).map((d) => (
-                      <div
-                        key={d}
-                        onClick={() => { setDzinejs(d); setActiveDropdown(null); }}
-                        style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                      >
-                        {d}
-                      </div>
-                    ))}
-                  </div>
-                )}
+               <input
+                 type="text"
+                 placeholder="Dzinējs"
+                 value={dzinejs}
+                 onChange={(e) => { setDzinejs(e.target.value); setActiveDropdown('dzinejs'); }}
+                 onClick={(e) => toggleDropdown('dzinejs', e)}
+                 style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
+               />
+               {activeDropdown === 'dzinejs' && (
+                 <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                   <div onClick={(e) => { e.preventDefault(); setDzinejs(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visi dzinēji</div>
+                   {ENGINE_TYPES.filter(d => d.toLowerCase().includes(dzinejs.toLowerCase())).map((d) => (
+                     <div
+                       key={d}
+                       onClick={(e) => { e.preventDefault(); setDzinejs(d); setActiveDropdown(null); }}
+                       style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}
+                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                     >
+                       {d}
+                     </div>
+                   ))}
+                 </div>
+               )}
               </div>
 
               {/* Tilpums */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <div style={{ position: 'relative', width: '70px' }}>
-                  <input 
-                    type="text" 
-                    placeholder="Tilp. no" 
-                    value={minTilpums} 
-                    onChange={(e) => { setMinTilpums(e.target.value); setActiveDropdown('minTilpums'); }} 
-                    onClick={() => toggleDropdown('minTilpums')}
-                    style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }} 
-                  />
+               <div style={{ position: 'relative', width: '70px' }}>
+                 <input 
+                   type="text" 
+                   placeholder="Tilp. no" 
+                   value={minTilpums} 
+                   onChange={(e) => { setMinTilpums(e.target.value); setActiveDropdown('minTilpums'); }} 
+                   onClick={(e) => toggleDropdown('minTilpums', e)}
+                   style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }} 
+                 />
                   {activeDropdown === 'minTilpums' && (
-                    <div style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                      {VOLUMES.map((v) => (
-                        <div key={v} onClick={() => { setMinTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{v}</div>
-                      ))}
-                    </div>
+                   <div style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                     {VOLUMES.map((v) => (
+                       <div key={v} onClick={(e) => { e.preventDefault(); setMinTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{v}</div>
+                     ))}
+                   </div>
                   )}
-                </div>
-                <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
-                <div style={{ position: 'relative', width: '70px' }}>
-                  <input 
-                    type="text" 
-                    placeholder="līdz" 
-                    value={maxTilpums} 
-                    onChange={(e) => { setMaxTilpums(e.target.value); setActiveDropdown('maxTilpums'); }} 
-                    onClick={() => toggleDropdown('maxTilpums')}
-                    style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }} 
-                  />
-                  {activeDropdown === 'maxTilpums' && (
-                    <div style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                      {VOLUMES.map((v) => (
-                        <div key={v} onClick={() => { setMaxTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{v}</div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+               </div>
+               <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
+               <div style={{ position: 'relative', width: '70px' }}>
+                 <input 
+                   type="text" 
+                   placeholder="līdz" 
+                   value={maxTilpums} 
+                   onChange={(e) => { setMaxTilpums(e.target.value); setActiveDropdown('maxTilpums'); }} 
+                   onClick={(e) => toggleDropdown('maxTilpums', e)}
+                   style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }} 
+                 />
+                 {activeDropdown === 'maxTilpums' && (
+                   <div style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                     {VOLUMES.map((v) => (
+                       <div key={v} onClick={(e) => { e.preventDefault(); setMaxTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{v}</div>
+                     ))}
+                   </div>
+                 )}
+               </div>
               </div>
 
               {/* ĀTRUMKĀRBA */}
               <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
-                <input
-                  type="text"
-                  placeholder="Ātrumkārba"
-                  value={atrumkarba}
-                  onChange={(e) => { setAtrumkarba(e.target.value); setActiveDropdown('atrumkarba'); }}
-                  onClick={() => toggleDropdown('atrumkarba')}
-                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
-                />
-                {activeDropdown === 'atrumkarba' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setAtrumkarba(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas kārbas</div>
-                    {GEARBOX_TYPES.filter(g => g.toLowerCase().includes(atrumkarba.toLowerCase())).map((g) => (
-                      <div key={g} onClick={() => { setAtrumkarba(g); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{g}</div>
-                    ))}
-                  </div>
-                )}
+               <input
+                 type="text"
+                 placeholder="Ātrumkārba"
+                 value={atrumkarba}
+                 onChange={(e) => { setAtrumkarba(e.target.value); setActiveDropdown('atrumkarba'); }}
+                 onClick={(e) => toggleDropdown('atrumkarba', e)}
+                 style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
+               />
+               {activeDropdown === 'atrumkarba' && (
+                 <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                   <div onClick={(e) => { e.preventDefault(); setAtrumkarba(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas kārbas</div>
+                   {GEARBOX_TYPES.filter(g => g.toLowerCase().includes(atrumkarba.toLowerCase())).map((g) => (
+                     <div key={g} onClick={(e) => { e.preventDefault(); setAtrumkarba(g); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{g}</div>
+                   ))}
+                 </div>
+               )}
               </div>
 
               {/* VIRSBŪVE */}
               <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
-                <input
-                  type="text"
-                  placeholder="Virsbūve"
-                  value={virsbuve}
-                  onChange={(e) => { setVirsbuve(e.target.value); setActiveDropdown('virsbuve'); }}
-                  onClick={() => toggleDropdown('virsbuve')}
-                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
-                />
-                {activeDropdown === 'virsbuve' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setVirsbuve(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas virsbūves</div>
-                    {BODY_TYPES.filter(b => b.toLowerCase().includes(virsbuve.toLowerCase())).map((b) => (
-                      <div key={b} onClick={() => { setVirsbuve(b); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{b}</div>
-                    ))}
-                  </div>
-                )}
+               <input
+                 type="text"
+                 placeholder="Virsbūve"
+                 value={virsbuve}
+                 onChange={(e) => { setVirsbuve(e.target.value); setActiveDropdown('virsbuve'); }}
+                 onClick={(e) => toggleDropdown('virsbuve', e)}
+                 style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
+               />
+               {activeDropdown === 'virsbuve' && (
+                 <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                   <div onClick={(e) => { e.preventDefault(); setVirsbuve(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas virsbūves</div>
+                   {BODY_TYPES.filter(b => b.toLowerCase().includes(virsbuve.toLowerCase())).map((b) => (
+                     <div key={b} onClick={(e) => { e.preventDefault(); setVirsbuve(b); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{b}</div>
+                   ))}
+                 </div>
+               )}
               </div>
 
               {/* KRĀSA AR PARAUDZIŅIEM */}
               <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
-                <input
-                  type="text"
-                  placeholder="Krāsa"
-                  value={krasa}
-                  onChange={(e) => { setKrasa(e.target.value); setActiveDropdown('krasa'); }}
-                  onClick={() => toggleDropdown('krasa')}
-                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
-                />
-                {activeDropdown === 'krasa' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setKrasa(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas krāsas</div>
-                    {COLORS.filter(k => k.name.toLowerCase().includes(krasa.toLowerCase())).map((k) => (
-                      <div 
-                        key={k.name} 
-                        onClick={() => { setKrasa(k.name); setActiveDropdown(null); }} 
-                        style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }} 
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} 
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                      >
-                        <span style={{ 
-                          width: '14px', 
-                          height: '14px', 
-                          borderRadius: '50%', 
-                          backgroundColor: k.hex, 
-                          border: `1px solid ${k.border}`, 
-                          display: 'inline-block',
-                          flexShrink: 0 
-                        }}></span>
-                        <span>{k.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+               <input
+                 type="text"
+                 placeholder="Krāsa"
+                 value={krasa}
+                 onChange={(e) => { setKrasa(e.target.value); setActiveDropdown('krasa'); }}
+                 onClick={(e) => toggleDropdown('krasa', e)}
+                 style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
+               />
+               {activeDropdown === 'krasa' && (
+                 <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    <div onClick={(e) => { e.preventDefault(); setKrasa(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas krāsas</div>
+                   {COLORS.filter(k => k.name.toLowerCase().includes(krasa.toLowerCase())).map((k) => (
+                     <div 
+                       key={k.name} 
+                       onClick={(e) => { e.preventDefault(); setKrasa(k.name); setActiveDropdown(null); }} 
+                       style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }} 
+                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} 
+                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                     >
+                       <span style={{ 
+                         width: '14px', 
+                         height: '14px', 
+                         borderRadius: '50%', 
+                         backgroundColor: k.hex, 
+                         border: `1px solid ${k.border}`, 
+                         display: 'inline-block',
+                         flexShrink: 0 
+                       }}></span>
+                       <span>{k.name}</span>
+                     </div>
+                   ))}
+                 </div>
+               )}
               </div>
-
-              {/* Notīrīt */}
-              {(valsts || regions || minPrice || maxPrice || minYear || maxYear || dzinejs || minTilpums || maxTilpums || atrumkarba || virsbuve || krasa || searchMake) && (
-                <button
-                  onClick={() => {
-                    setValsts(''); setRegions(''); setMinPrice(''); setMaxPrice('');
-                    setDisplayMinPrice(''); setDisplayMaxPrice('');
-                    setMinYear(''); setMaxYear(''); setDzinejs(''); setMinTilpums('');
-                    setMaxTilpums(''); setAtrumkarba(''); setVirsbuve(''); setKrasa(''); setSearchMake('');
-                  }}
-                  style={{ padding: '6px 12px', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
-                >
-                  Notīrīt
-                </button>
-              )}
             </div>
 
-          </div>
-
-          {/* Sludinājumu režģis */}
-          {loading ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Ielādē sludinājumus...</div>
-          ) : filteredCars.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Nav atrasts neviens auto.</div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
-              {filteredCars.map((car) => (
-                <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                    <div style={{ height: '140px', backgroundColor: '#f3f4f6' }}>
-                      {car.image ? <img src={car.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af', fontSize: '12px' }}>Nav attēla</div>}
-                    </div>
-                    <div style={{ padding: '8px' }}>
-                      <h2 style={{ fontSize: '14px', fontWeight: '800', color: '#111827', margin: '0 0 2px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{car.make} {car.model}</h2>
-                      <p style={{ fontSize: '11px', color: '#6b7280', margin: '0 0 4px 0' }}>{car.year} g. {car.engine ? `• ${car.engine}` : ''}</p>
-                      <p style={{ fontSize: '14px', fontWeight: 'bold', color: '#16a34a', margin: 0 }}>€{car.price}</p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* LABĀ PUSE */}
-        <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
-          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
-            <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
-            <p style={{ color: '#6b7280', fontSize: '13.5px', margin: 0 }}>Globālais baneris šeit!</p>
-          </div>
-          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
-            <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
-            <p style={{ color: '#6b7280', fontSize: '13.5px', margin: 0 }}>Globālais baneris šeit!</p>
           </div>
         </div>
 
