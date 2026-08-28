@@ -40,6 +40,31 @@ const CAR_DATABASE: { [key: string]: string[] } = {
   'Volvo': ['S60', 'S90', 'V40', 'V60', 'V90', 'XC40', 'XC60', 'XC90']
 }
 
+// Pasaules valstu saraksts ar karodziņiem un reģioniem/štatiem paraugiem
+const WORLD_COUNTRIES = [
+  { name: 'Latvija', flag: '🇱🇻', regions: ['Rīga', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale'] },
+  { name: 'Lietuva', flag: '🇱🇹', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža'] },
+  { name: 'Igaunija', flag: '🇪🇪', regions: ['Tallina', 'Tartu', 'Narva', 'Pērnava'] },
+  { name: 'Vācija', flag: '🇩🇪', regions: ['Bavārija', 'Berlīne', 'Hamburga', 'Ziemeļreinas-Vestfālene', 'Bādenes-Virtemberga'] },
+  { name: 'Polija', flag: '🇵🇱', regions: ['Mazovija', 'Mazpolija', 'Lejassilēzija', 'Lielpolija'] },
+  { name: 'Zviedrija', flag: '🇸🇪', regions: ['Stokholma', 'Gēteborga', 'Malme', Upsāla] },
+  { name: 'Norvēģija', flag: '🇳🇴', regions: ['Oslo', 'Viken', 'Vestland', 'Trondelag'] },
+  { name: 'Somija', flag: '🇫🇮', regions: ['Ūusimā', 'Pirkanmā', 'Varsinais-Suomi'] },
+  { name: 'Dānija', flag: '🇩🇰', regions: ['Hovedstaden', 'Midtjylland', 'Syddanmark'] },
+  { name: 'Francija', flag: '🇫🇷', regions: ['Ildefransa', 'Provansa-Alpi-Azūras krasts', 'Overņa-Ronas-Alpi'] },
+  { name: 'Itālija', flag: '🇮🇹', regions: ['Lombardija', 'Lacio', 'Veneto', 'Pjemonta', 'Sicīlija'] },
+  { name: 'Spānija', flag: '🇪🇸', regions: ['Madride', 'Katalonija', 'Andalūzija', 'Valensija'] },
+  { name: 'Lielbritānija', flag: '🇬🇧', regions: ['Anglija', 'Skotija', 'Velsa', 'Ziemeļīrija', 'Londona'] },
+  { name: 'ASV', flag: '🇺🇸', regions: ['Kalifornija', 'Teksasa', 'Ņujorka', 'Florida', 'Ilinoisa', 'Vašingtona'] },
+  { name: 'Kanāda', flag: '🇨🇦', regions: ['Ontārio', 'Kvebeka', 'Britu Kolumbija', 'Alberta'] },
+  { name: 'Nīderlande', flag: '🇳🇱', regions: ['Ziemeļholande', 'Dienvidholande', 'Utrehta'] },
+  { name: 'Beļģija', flag: '🇧🇪', regions: ['Flandrija', 'Valonija', 'Briseles galvaspilsētas reģions'] },
+  { name: 'Austrija', flag: '🇦🇹', regions: ['Vīne', 'Augšaustrija', 'Lejaustrija', 'Tirole'] },
+  { name: 'Šveice', flag: '🇨🇭', regions: ['Cīrihe', 'Ženēva', 'Berne', 'Vo'] },
+  { name: 'Čehija', flag: '🇨🇿', regions: ['Prāga', 'Dienvidmorāvija', 'Vidusčehija'] },
+  { name: 'Ukraina', flag: '🇺🇦', regions: ['Kijeva', 'Ļviva', 'Odesa', 'Harkiva', 'Dnipro'] }
+]
+
 export default function PievienotSludinajumu() {
   const router = useRouter()
   
@@ -60,9 +85,12 @@ export default function PievienotSludinajumu() {
   const [bodyType, setBodyType] = useState('')
   const [vin, setVin] = useState('')
   
-  // Divi atsevišķi stāvokļi (state) Valstij un Reģionam
-  const [country, setCountry] = useState('Latvija')
+  // Valsts un reģiona stāvokļi un to ieteikumu saraksti
+  const [country, setCountry] = useState('Latvija 🇱🇻')
+  const [countrySuggestions, setCountrySuggestions] = useState<{ name: string; flag: string; regions: string[] }[]>([])
+  
   const [region, setRegion] = useState('')
+  const [regionSuggestions, setRegionSuggestions] = useState<string[]>([])
 
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -103,6 +131,40 @@ export default function PievienotSludinajumu() {
       setModelSuggestions(filtered)
     } else {
       setModelSuggestions(availableModels)
+    }
+  }
+
+  // Valsts ievades un meklēšanas loģika
+  const handleCountryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setCountry(value)
+
+    if (value.trim().length > 0) {
+      const filtered = WORLD_COUNTRIES.filter(c => 
+        c.name.toLowerCase().includes(value.toLowerCase())
+      )
+      setCountrySuggestions(filtered)
+    } else {
+      setCountrySuggestions(WORLD_COUNTRIES)
+    }
+  }
+
+  // Reģiona ievades un meklēšanas loģika (balstīta uz izvēlēto valsti, ja tāda atrasta)
+  const handleRegionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setRegion(value)
+
+    // Atrodam, vai izvēlētajai valstij ir definēti reģioni
+    const cleanCountryName = country.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').trim()
+    const foundCountry = WORLD_COUNTRIES.find(c => c.name.toLowerCase() === cleanCountryName.toLowerCase())
+    
+    const availableRegions = foundCountry ? foundCountry.regions : []
+
+    if (value.trim().length > 0) {
+      const filtered = availableRegions.filter(r => r.toLowerCase().includes(value.toLowerCase()))
+      setRegionSuggestions(filtered)
+    } else {
+      setRegionSuggestions(availableRegions)
     }
   }
 
@@ -182,8 +244,8 @@ export default function PievienotSludinajumu() {
         color: color.trim() || null,
         body_type: bodyType.trim() || null,
         vin: vin.trim() || null,
-        country: country.trim() || null, // Saglabā valsti
-        region: region.trim() || null,   // Saglabā reģionu/štatu
+        country: country.trim() || null,
+        region: region.trim() || null,
         email: email.trim(),
         phone: phone.trim() || null,
         description: description.trim() || null,
@@ -336,33 +398,75 @@ export default function PievienotSludinajumu() {
               </div>
             </div>
 
-            {/* 5. Rinda: Valsts un Reģions (štats) - DIVI ATSEVIŠĶI LAUKI */}
+            {/* 5. Rinda: Valsts (ar karodziņiem un meklēšanu) un Reģions (ar meklēšanu) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div>
+              
+              {/* Valsts lauks */}
+              <div style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Valsts</label>
-                <select
+                <input
+                  type="text"
+                  placeholder="Sāc rakstīt valsti..."
                   value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-                  style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px', backgroundColor: '#fff' }}
-                >
-                  <option value="Latvija">Latvija</option>
-                  <option value="Lietuva">Lietuva</option>
-                  <option value="Igaunija">Igaunija</option>
-                  <option value="Vācija">Vācija</option>
-                  <option value="ASV">ASV</option>
-                  <option value="Cita valsts">Cita valsts</option>
-                </select>
+                  onChange={handleCountryChange}
+                  onFocus={() => setCountrySuggestions(WORLD_COUNTRIES)}
+                  onBlur={() => setTimeout(() => setCountrySuggestions([]), 200)}
+                  style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
+                />
+                {countrySuggestions.length > 0 && (
+                  <ul style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '0 0 6px 6px', maxHeight: '180px', overflowY: 'auto', listStyle: 'none', margin: 0, padding: 0, zIndex: 50, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    {countrySuggestions.map((c, idx) => (
+                      <li
+                        key={idx}
+                        onClick={() => {
+                          setCountry(`${c.name} ${c.flag}`)
+                          setCountrySuggestions([])
+                          setRegion('') // Notīra reģionu, mainot valsti
+                        }}
+                        style={{ padding: '8px 12px', fontSize: '13px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', display: 'flex', alignItems: 'center', gap: '8px' }}
+                      >
+                        <span style={{ fontSize: '16px' }}>{c.flag}</span>
+                        <span>{c.name}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-              <div>
+
+              {/* Reģions / Štats lauks */}
+              <div style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Reģions / Štats</label>
                 <input
                   type="text"
-                  placeholder="piem., Rīga / Rīgas rajons vai Kalifornija"
+                  placeholder="Piem., Rīga vai Kalifornija"
                   value={region}
-                  onChange={(e) => setRegion(e.target.value)}
+                  onChange={handleRegionChange}
+                  onFocus={() => {
+                    const cleanCountryName = country.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').trim()
+                    const foundCountry = WORLD_COUNTRIES.find(c => c.name.toLowerCase() === cleanCountryName.toLowerCase())
+                    if (foundCountry) setRegionSuggestions(foundCountry.regions)
+                  }}
+                  onBlur={() => setTimeout(() => setRegionSuggestions([]), 200)}
                   style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
                 />
+                {regionSuggestions.length > 0 && (
+                  <ul style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '0 0 6px 6px', maxHeight: '180px', overflowY: 'auto', listStyle: 'none', margin: 0, padding: 0, zIndex: 50, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    {regionSuggestions.map((item, idx) => (
+                      <li
+                        key={idx}
+                        onClick={() => {
+                          setRegion(item)
+                          setRegionSuggestions([])
+                        }}
+                        style={{ padding: '8px 12px', fontSize: '13px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                      >
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
+
             </div>
 
             {/* Pārdevēja kontakti */}
