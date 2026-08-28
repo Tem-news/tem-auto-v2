@@ -72,46 +72,22 @@ const COUNTRIES = [
   { name: 'Ukraina', code: 'ua' }
 ]
 
-// Reģioni/štati atkarībā no izvēlētās valsts (arī Vācija un Polija ar pilniem sarakstiem)
 const REGIONS_BY_COUNTRY: { [key: string]: string[] } = {
   'Latvija': ['Rīga', 'Rīgas rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale', 'Liepāja', 'Ventspils', 'Jelgava', 'Daugavpils', 'Valmiera', 'Jēkabpils', 'Ogre', 'Tukums', 'Cēsis'],
   'Lietuva': ['Viļņa', 'Kauna', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alīta', 'Marijampole', 'Mažeiķi', 'Jonava', 'Utenas apriņķis'],
   'Igaunija': ['Harju (Tallina)', 'Tartu', 'Ida-Viru', 'Pērnava', 'Lääne-Viru', 'Viljandi', 'Rapla', 'Võru', 'Saare', 'Järva'],
   'Vācija': [
-    'Bāden-Virtemberga (Baden-Württemberg)',
-    'Bavārija (Bayern)',
-    'Berlīne (Berlin)',
-    'Brandenburga (Brandenburg)',
-    'Brēmene (Bremen)',
-    'Hamburga (Hamburg)',
-    'Hesene (Hessen)',
-    'Mērklenburga-Priekšpomerānija (Mecklenburg-Vorpommern)',
-    'Lejassaksija (Niedersachsen)',
-    'Ziemeļreina-Vestfālene (Nordrhein-Westfalen)',
-    'Reinlande-Pfalca (Rheinland-Pfalz)',
-    'Sāra (Saarland)',
-    'Saksija (Sachsen)',
-    'Saksija-Anhalte (Sachsen-Anhalt)',
-    'Šlēsviga-Holšteina (Schleswig-Holstein)',
-    'Tīringene (Thüringen)'
+    'Bāden-Virtemberga (Baden-Württemberg)', 'Bavārija (Bayern)', 'Berlīne (Berlin)', 'Brandenburga (Brandenburg)', 
+    'Brēmene (Bremen)', 'Hamburga (Hamburg)', 'Hesene (Hessen)', 'Mērklenburga-Priekšpomerānija (Mecklenburg-Vorpommern)', 
+    'Lejassaksija (Niedersachsen)', 'Ziemeļreina-Vestfālene (Nordrhein-Westfalen)', 'Reinlande-Pfalca (Rheinland-Pfalz)', 
+    'Sāra (Saarland)', 'Saksija (Sachsen)', 'Saksija-Anhalte (Sachsen-Anhalt)', 'Šlēsviga-Holšteina (Schleswig-Holstein)', 'Tīringene (Thüringen)'
   ],
   'Polija': [
-    'Apakšsilēzijas vojevodiste (Dolnośląskie)',
-    'Kujāvijas-Pomožes vojevodiste (Kujawsko-pomorskie)',
-    'Lodzas vojevodiste (Łódzkie)',
-    'Mazpolijas vojevodiste (Małopolskie)',
-    'Mazovijas vojevodiste (Mazowieckie)',
-    'Opoles vojevodiste (Opolskie)',
-    'Piekarpatu vojevodiste (Podkarpackie)',
-    'Podlases vojevodiste (Podlaskie)',
-    'Pomožes vojevodiste (Pomorskie)',
-    'Saksijas/Silēzijas vojevodiste (Śląskie)',
-    'Svētkrusta vojevodiste (Świętokrzyskie)',
-    'Varmijas-Mazūrijas vojevodiste (Warmińsko-mazurskie)',
-    'Lielpolijas vojevodiste (Wielkopolskie)',
-    'Rietumpomožes vojevodiste (Zachodniopomorskie)',
-    'Lubļinas vojevodiste (Lubelskie)',
-    'Lubušas vojevodiste (Lubuskie)'
+    'Apakšsilēzijas vojevodiste (Dolnośląskie)', 'Kujāvijas-Pomožes vojevodiste (Kujawsko-pomorskie)', 'Lodzas vojevodiste (Łódzkie)', 
+    'Mazpolijas vojevodiste (Małopolskie)', 'Mazovijas vojevodiste (Mazowieckie)', 'Opoles vojevodiste (Opolskie)', 
+    'Piekarpatu vojevodiste (Podkarpackie)', 'Podlases vojevodiste (Podlaskie)', 'Pomožes vojevodiste (Pomorskie)', 
+    'Saksijas/Silēzijas vojevodiste (Śląskie)', 'Svētkrusta vojevodiste (Świętokrzyskie)', 'Varmijas-Mazūrijas vojevodiste (Warmińsko-mazurskie)', 
+    'Lielpolijas vojevodiste (Wielkopolskie)', 'Rietumpomožes vojevodiste (Zachodniopomorskie)', 'Lubļinas vojevodiste (Lubelskie)', 'Lubušas vojevodiste (Lubuskie)'
   ],
   'ASV': [
     'Alabama (AL)', 'Alaska (AK)', 'Arizona (AZ)', 'Arkansas (AR)', 'California (CA)', 
@@ -127,7 +103,6 @@ const REGIONS_BY_COUNTRY: { [key: string]: string[] } = {
   ]
 }
 
-// Noklusējuma reģioni, ja valstij nav specifiska saraksta
 const DEFAULT_REGIONS = ['Galvaspilsēta / Centrs', 'Ziemeļu reģions', 'Dienvidu reģions', 'Austrumu reģions', 'Rietumu reģions']
 
 const ENGINE_TYPES = [
@@ -142,8 +117,20 @@ const BODY_TYPES = [
   'Sedans', 'Universāls', 'Hečbeks', 'Apvidus (SUV)', 'Kupeja', 'Kabriolets', 'Minivens', 'Kompaktvens', 'Pikaps', 'Furgons'
 ]
 
+// Krāsas ar atbilstošiem vizuālajiem hex kodiem paraudziņiem
 const COLORS = [
-  'Melna', 'Balta', 'Pelēka', 'Sudraba', 'Zila', 'Sarkana', 'Zaļa', 'Brūna', 'Zelta', 'Oranža', 'Dzeltena', 'Violeta'
+  { name: 'Melna', hex: '#111827', border: '#374151' },
+  { name: 'Balta', hex: '#ffffff', border: '#d1d5db' },
+  { name: 'Pelēka', hex: '#6b7280', border: '#4b5563' },
+  { name: 'Sudraba', hex: '#e5e7eb', border: '#9ca3af' },
+  { name: 'Zila', hex: '#2563eb', border: '#1d4ed8' },
+  { name: 'Sarkana', hex: '#dc2626', border: '#b91c1c' },
+  { name: 'Zaļa', hex: '#16a34a', border: '#15803d' },
+  { name: 'Brūna', hex: '#78350f', border: '#451a03' },
+  { name: 'Zelta', hex: '#d97706', border: '#b45309' },
+  { name: 'Oranža', hex: '#ea580c', border: '#c2410c' },
+  { name: 'Dzeltena', hex: '#eab308', border: '#ca8a04' },
+  { name: 'Violeta', hex: '#7c3aed', border: '#6d28d9' }
 ]
 
 const VOLUMES = [
@@ -219,7 +206,6 @@ export default function Sakumlapa() {
     fetchData()
   }, [])
 
-  // Aprēķina pieejamos reģionus balstoties uz izvēlēto valsti
   const availableRegions = useMemo(() => {
     if (!valsts) {
       return REGIONS_BY_COUNTRY['Latvija']
@@ -391,7 +377,7 @@ export default function Sakumlapa() {
                 )}
               </div>
 
-              {/* REĢIONS (Dinamiskais) */}
+              {/* REĢIONS */}
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
                   type="text"
@@ -544,7 +530,7 @@ export default function Sakumlapa() {
                 )}
               </div>
 
-              {/* KRĀSA */}
+              {/* KRĀSA AR PARAUDZIŅIEM */}
               <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
                 <input
                   type="text"
@@ -555,10 +541,27 @@ export default function Sakumlapa() {
                   style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'krasa' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                     <div onClick={() => { setKrasa(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas krāsas</div>
-                    {COLORS.filter(k => k.toLowerCase().includes(krasa.toLowerCase())).map((k) => (
-                      <div key={k} onClick={() => { setKrasa(k); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{k}</div>
+                    {COLORS.filter(k => k.name.toLowerCase().includes(krasa.toLowerCase())).map((k) => (
+                      <div 
+                        key={k.name} 
+                        onClick={() => { setKrasa(k.name); setActiveDropdown(null); }} 
+                        style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }} 
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} 
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                      >
+                        <span style={{ 
+                          width: '14px', 
+                          height: '14px', 
+                          borderRadius: '50%', 
+                          backgroundColor: k.hex, 
+                          border: `1px solid ${k.border}`, 
+                          display: 'inline-block',
+                          flexShrink: 0 
+                        }}></span>
+                        <span>{k.name}</span>
+                      </div>
                     ))}
                   </div>
                 )}
