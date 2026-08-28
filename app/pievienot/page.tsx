@@ -59,7 +59,10 @@ export default function PievienotSludinajumu() {
   const [color, setColor] = useState('')
   const [bodyType, setBodyType] = useState('')
   const [vin, setVin] = useState('')
-  const [region, setRegion] = useState('Latvija') // Jaunais lauks reģionam/valstij
+  
+  // Divi atsevišķi stāvokļi (state) Valstij un Reģionam
+  const [country, setCountry] = useState('Latvija')
+  const [region, setRegion] = useState('')
 
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -179,7 +182,8 @@ export default function PievienotSludinajumu() {
         color: color.trim() || null,
         body_type: bodyType.trim() || null,
         vin: vin.trim() || null,
-        region: region.trim() || null, // Saglabā reģionu bāzē
+        country: country.trim() || null, // Saglabā valsti
+        region: region.trim() || null,   // Saglabā reģionu/štatu
         email: email.trim(),
         phone: phone.trim() || null,
         description: description.trim() || null,
@@ -332,20 +336,33 @@ export default function PievienotSludinajumu() {
               </div>
             </div>
 
-            {/* 5. Rinda: Valsts / Reģions (JAUNAIS LAUKS) */}
-            <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Valsts / Reģions</label>
-              <select
-                value={region}
-                onChange={(e) => setRegion(e.target.value)}
-                style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px', backgroundColor: '#fff' }}
-              >
-                <option value="Latvija">Latvija (LV)</option>
-                <option value="Lietuva">Lietuva (LT)</option>
-                <option value="Igaunija">Igaunija (EE)</option>
-                <option value="Eiropa (EUR)">Eiropa (EUR)</option>
-                <option value="Cits">Cits reģions</option>
-              </select>
+            {/* 5. Rinda: Valsts un Reģions (štats) - DIVI ATSEVIŠĶI LAUKI */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Valsts</label>
+                <select
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px', backgroundColor: '#fff' }}
+                >
+                  <option value="Latvija">Latvija</option>
+                  <option value="Lietuva">Lietuva</option>
+                  <option value="Igaunija">Igaunija</option>
+                  <option value="Vācija">Vācija</option>
+                  <option value="ASV">ASV</option>
+                  <option value="Cita valsts">Cita valsts</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Reģions / Štats</label>
+                <input
+                  type="text"
+                  placeholder="piem., Rīga / Rīgas rajons vai Kalifornija"
+                  value={region}
+                  onChange={(e) => setRegion(e.target.value)}
+                  style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
+                />
+              </div>
             </div>
 
             {/* Pārdevēja kontakti */}
