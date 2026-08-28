@@ -72,14 +72,25 @@ const COUNTRIES = [
   { name: 'Ukraina', code: 'ua' }
 ]
 
-// Reģioni/štati atkarībā no izvēlētās valsts
+// Reģioni/štati atkarībā no izvēlētās valsts (ASV visi 50 štati)
 const REGIONS_BY_COUNTRY: { [key: string]: string[] } = {
   'Latvija': ['Rīga', 'Rīgas rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale', 'Liepāja', 'Ventspils', 'Jelgava', 'Daugavpils', 'Valmiera', 'Jēkabpils', 'Ogre', 'Tukums', 'Cēsis'],
   'Lietuva': ['Viļņa', 'Kaunā', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alitūta', 'Marijampole', 'Mažeiķi', 'Jonava', 'Utenas apskriets'],
   'Igaunija': ['Harju (Tallina)', 'Tartu', 'Ida-Viru', 'Pērnava', 'Lääne-Viru', 'Viljandi', 'Rapla', 'Võru', 'Saare', 'Järva'],
   'Vācija': ['Bavārija (Bayern)', 'Bādene-Virtemberga (Baden-Württemberg)', 'Ziemeļreinas-Vestfālene (Nordrhein-Westfalen)', 'Lejasinsemene (Niedersachsen)', 'Hesene (Hessen)', 'Berlīne', 'Hamburga', 'Saksija (Sachsen)', 'Reinlande-Pfalca (Rheinland-Pfalz)'],
   'Polija': ['Mazovijas vojevodiste (Varšava)', 'Mazpolijas vojevodiste (Krakova)', 'Lielpolijas vojevodiste (Poznaņa)', 'Lejassilēzijas vojevodiste', 'Pomožes vojevodiste (Gdaņska)'],
-  'ASV': ['Kalifornija (CA)', 'Teksasa (TX)', 'Ņujorka (NY)', 'Florida (FL)', 'Ilinoisa (IL)', 'Pensilvānija (PA)', 'Ohaio (OH)', 'Vašingtona (WA)', 'Nevada (NV)', 'Ņūdžersija (NJ)', 'Masačūsetsa (MA)', 'Džordžija (GA)', 'Ziemeļkarolīna (NC)', 'Mičigana (MI)']
+  'ASV': [
+    'Alabama (AL)', 'Alaska (AK)', 'Arizona (AZ)', 'Arkansas (AR)', 'California (CA)', 
+    'Colorado (CO)', 'Connecticut (CT)', 'Delaware (DE)', 'Florida (FL)', 'Georgia (GA)', 
+    'Hawaii (HI)', 'Idaho (ID)', 'Illinois (IL)', 'Indiana (IN)', 'Iowa (IA)', 
+    'Kansas (KS)', 'Kentucky (KY)', 'Louisiana (LA)', 'Maine (ME)', 'Maryland (MD)', 
+    'Massachusetts (MA)', 'Michigan (MI)', 'Minnesota (MN)', 'Mississippi (MS)', 'Missouri (MO)', 
+    'Montana (MT)', 'Nebraska (NE)', 'Nevada (NV)', 'New Hampshire (NH)', 'New Jersey (NJ)', 
+    'New Mexico (NM)', 'New York (NY)', 'North Carolina (NC)', 'North Dakota (ND)', 'Ohio (OH)', 
+    'Oklahoma (OK)', 'Oregon (OR)', 'Pennsylvania (PA)', 'Rhode Island (RI)', 'South Carolina (SC)', 
+    'South Dakota (SD)', 'Tennessee (TN)', 'Texas (TX)', 'Utah (UT)', 'Vermont (VT)', 
+    'Virginia (VA)', 'Washington (WA)', 'West Virginia (WV)', 'Wisconsin (WI)', 'Wyoming (WY)'
+  ]
 }
 
 // Noklusējuma reģioni, ja valstij nav specifiska saraksta
