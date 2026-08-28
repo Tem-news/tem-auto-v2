@@ -5,8 +5,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="lv">
       <body style={{ margin: 0, padding: 0, fontFamily: 'system-ui, sans-serif', backgroundColor: '#f8fafc' }}>
         <Header />
-        {/* Pievienots paddingTop: '64px', lai saturs nelīstu zem fiksētā header */}
-        <main style={{ width: '100%', margin: 0, paddingTop: '64px', boxSizing: 'border-box' }}>
+        <main style={{ width: '100%', margin: 0, padding: 0, boxSizing: 'border-box' }}>
           {children}
         </main>
       </body>
