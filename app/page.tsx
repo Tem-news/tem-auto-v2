@@ -117,7 +117,6 @@ const BODY_TYPES = [
   'Sedans', 'Universāls', 'Hečbeks', 'Apvidus (SUV)', 'Kupeja', 'Kabriolets', 'Minivens', 'Kompaktvens', 'Pikaps', 'Furgons'
 ]
 
-// Krāsas ar atbilstošiem vizuālajiem hex kodiem paraudziņiem
 const COLORS = [
   { name: 'Melna', hex: '#111827', border: '#374151' },
   { name: 'Balta', hex: '#ffffff', border: '#d1d5db' },
@@ -147,6 +146,13 @@ function normalizeMake(makeStr: string): string {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
 }
 
+// Palīgfunkcija skaitļu formatēšanai ar atstarpēm tūkstošiem (piemēram, 5000 -> 5 000)
+function formatPriceInput(value: string): string {
+  const numbers = value.replace(/\D/g, '')
+  if (!numbers) return ''
+  return Number(numbers).toLocaleString('lv-LV').replace(/\u00a0/g, ' ')
+}
+
 export default function Sakumlapa() {
   const router = useRouter()
   const [cars, setCars] = useState<any[]>([])
@@ -157,8 +163,13 @@ export default function Sakumlapa() {
   
   const [valsts, setValsts] = useState('')
   const [regions, setRegions] = useState('')
+  
+  // Cenas state saglabā tīrus ciparus, bet displejam izmanto formatētās vērtības
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
+  const [displayMinPrice, setDisplayMinPrice] = useState('')
+  const [displayMaxPrice, setDisplayMaxPrice] = useState('')
+
   const [minYear, setMinYear] = useState('')
   const [maxYear, setMaxYear] = useState('')
   const [dzinejs, setDzinejs] = useState('')
@@ -405,11 +416,31 @@ export default function Sakumlapa() {
                 )}
               </div>
               
-              {/* Cena */}
+              {/* Cena ar formatēšanu (atstarpes tūkstošiem) */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <input type="number" placeholder="Cena no" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
+                <input 
+                  type="text" 
+                  placeholder="Cena no" 
+                  value={displayMinPrice} 
+                  onChange={(e) => {
+                    const formatted = formatPriceInput(e.target.value)
+                    setDisplayMinPrice(formatted)
+                    setMinPrice(formatted.replace(/\s/g, ''))
+                  }} 
+                  style={{ width: '80px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} 
+                />
                 <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
-                <input type="number" placeholder="līdz" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
+                <input 
+                  type="text" 
+                  placeholder="līdz" 
+                  value={displayMaxPrice} 
+                  onChange={(e) => {
+                    const formatted = formatPriceInput(e.target.value)
+                    setDisplayMaxPrice(formatted)
+                    setMaxPrice(formatted.replace(/\s/g, ''))
+                  }} 
+                  style={{ width: '80px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} 
+                />
               </div>
 
               {/* Gads */}
@@ -572,6 +603,7 @@ export default function Sakumlapa() {
                 <button
                   onClick={() => {
                     setValsts(''); setRegions(''); setMinPrice(''); setMaxPrice('');
+                    setDisplayMinPrice(''); setDisplayMaxPrice('');
                     setMinYear(''); setMaxYear(''); setDzinejs(''); setMinTilpums('');
                     setMaxTilpums(''); setAtrumkarba(''); setVirsbuve(''); setKrasa(''); setSearchMake('');
                   }}
