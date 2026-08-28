@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
@@ -42,6 +42,42 @@ const OFFICIAL_MAKES: { [key: string]: string } = {
   'tesla': 'Tesla'
 }
 
+// Valstu saraksts ar karodziņiem
+const COUNTRIES = [
+  { name: 'Latvija', flag: '🇱🇻' },
+  { name: 'Lietuva', flag: '🇱🇹' },
+  { name: 'Igaunija', flag: '🇪🇪' },
+  { name: 'Vācija', flag: '🇩🇪' },
+  { name: 'Polija', flag: '🇵🇱' },
+  { name: 'Zviedrija', flag: '🇸🇪' },
+  { name: 'Somija', flag: '🇫🇮' },
+  { name: 'Dānija', flag: '🇩🇰' },
+  { name: 'Norvēģija', flag: '🇳🇴' },
+  { name: 'Nīderlande', flag: '🇳🇱' },
+  { name: 'Beļģija', flag: '🇧🇪' },
+  { name: 'Francia', flag: '🇫🇷' },
+  { name: 'Itālija', flag: '🇮🇹' },
+  { name: 'Spānija', flag: '🇪🇸' },
+  { name: 'Lielbritānija', flag: '🇬🇧' },
+  { name: 'ASV', flag: '🇺🇸' }
+]
+
+// Reģioni (galvenokārt Latvijas un citi biežākie)
+const REGIONS = [
+  'Rīga', 'Rīgas rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale',
+  'Liepāja', 'Ventspils', 'Jelgava', 'Daugavpils', 'Valmiera', 'Jēkabpils', 'Ogre'
+]
+
+// Dzinēja tipi
+const ENGINE_TYPES = [
+  'Dīzelis',
+  'Benzīns',
+  'Benzīns / Gāze',
+  'Hibrīds (Benzīns)',
+  'Hibrīds (Dīzelis)',
+  'Elektriskais'
+]
+
 function normalizeMake(makeStr: string): string {
   if (!makeStr) return ''
   const trimmed = makeStr.trim()
@@ -59,7 +95,7 @@ export default function Sakumlapa() {
   const [cars, setCars] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Vecie un jaunie filtra stāvokļi
+  // Filtru stāvokļi
   const [searchMake, setSearchMake] = useState('')
   const [searchModel, setSearchModel] = useState('')
   
@@ -75,6 +111,26 @@ export default function Sakumlapa() {
   const [atrumkarba, setAtrumkarba] = useState('')
   const [virsbuve, setVirsbuve] = useState('')
   const [krasa, setKrasa] = useState('')
+
+  // Dropdown atvēršanas stāvokļi
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false)
+  const [showRegionDropdown, setShowRegionDropdown] = useState(false)
+  const [showEngineDropdown, setShowEngineDropdown] = useState(false)
+
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Aizvērt dropdownus, ja klikšķina ārpus tiem
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowCountryDropdown(false)
+        setShowRegionDropdown(false)
+        setShowEngineDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   useEffect(() => {
     async function fetchData() {
@@ -110,7 +166,7 @@ export default function Sakumlapa() {
     return Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0]))
   }, [cars])
 
-  // Filtrētie auto ar visiem jaunajiem filtriem
+  // Filtrētie auto
   const filteredCars = cars.filter((car) => {
     const matchesMake = searchMake ? (car.make || '').toLowerCase().includes(searchMake.toLowerCase()) : true
     const matchesModel = searchModel ? (car.model || '').toLowerCase().includes(searchModel.toLowerCase()) : true
@@ -147,14 +203,8 @@ export default function Sakumlapa() {
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && filteredCars.length > 0) {
-      router.push(`/auto/${filteredCars[0].id}`)
-    }
-  }
-
   return (
-    <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
+    <div ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
       
       {/* GALVENAIS REŽĢIS */}
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
@@ -224,25 +274,90 @@ export default function Sakumlapa() {
         {/* VIDUS: Jaunais filtrs un sludinājumi */}
         <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
-          {/* JAUNAIS FILTRS (Virs krāsainajiem sludinājumiem, bez vecā "Auto Tirgus" virsraksta) */}
+          {/* FILTRA JOSLA */}
           <div style={{ backgroundColor: '#f3f4f6', padding: '12px', borderRadius: '8px', marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid #e5e7eb' }}>
             
             {/* 1. Rinda: Valsts, Reģions, Cena, Gads */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-              <input
-                type="text"
-                placeholder="Valsts"
-                value={valsts}
-                onChange={(e) => setValsts(e.target.value)}
-                style={{ flex: '1', minWidth: '90px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }}
-              />
-              <input
-                type="text"
-                placeholder="Reģions"
-                value={regions}
-                onChange={(e) => setRegions(e.target.value)}
-                style={{ flex: '1', minWidth: '90px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }}
-              />
+              
+              {/* VALSTS AR KARODZIŅIEM */}
+              <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
+                <input
+                  type="text"
+                  placeholder="Valsts"
+                  value={valsts}
+                  onChange={(e) => {
+                    setValsts(e.target.value)
+                    setShowCountryDropdown(true)
+                  }}
+                  onFocus={() => setShowCountryDropdown(true)}
+                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box' }}
+                />
+                {showCountryDropdown && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    <div 
+                      onClick={() => { setValsts(''); setShowCountryDropdown(false); }}
+                      style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}
+                    >
+                      Visas valstis
+                    </div>
+                    {COUNTRIES.filter(c => c.name.toLowerCase().includes(valsts.toLowerCase())).map((c) => (
+                      <div
+                        key={c.name}
+                        onClick={() => {
+                          setValsts(c.name)
+                          setShowCountryDropdown(false)
+                        }}
+                        style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                      >
+                        <span>{c.flag}</span>
+                        <span>{c.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* REĢIONS */}
+              <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
+                <input
+                  type="text"
+                  placeholder="Reģions"
+                  value={regions}
+                  onChange={(e) => {
+                    setRegions(e.target.value)
+                    setShowRegionDropdown(true)
+                  }}
+                  onFocus={() => setShowRegionDropdown(true)}
+                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box' }}
+                />
+                {showRegionDropdown && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    <div 
+                      onClick={() => { setRegions(''); setShowRegionDropdown(false); }}
+                      style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}
+                    >
+                      Visi reģioni
+                    </div>
+                    {REGIONS.filter(r => r.toLowerCase().includes(regions.toLowerCase())).map((r) => (
+                      <div
+                        key={r}
+                        onClick={() => {
+                          setRegions(r)
+                          setShowRegionDropdown(false)
+                        }}
+                        style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                      >
+                        {r}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               
               {/* Cena no → līdz */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -261,13 +376,45 @@ export default function Sakumlapa() {
 
             {/* 2. Rinda: Dzinējs, Tilpums, Ātrumkārba, Virsbūve, Krāsa */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-              <input
-                type="text"
-                placeholder="Dzinējs"
-                value={dzinejs}
-                onChange={(e) => setDzinejs(e.target.value)}
-                style={{ flex: '1', minWidth: '90px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }}
-              />
+              
+              {/* DZINĒJS */}
+              <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
+                <input
+                  type="text"
+                  placeholder="Dzinējs"
+                  value={dzinejs}
+                  onChange={(e) => {
+                    setDzinejs(e.target.value)
+                    setShowEngineDropdown(true)
+                  }}
+                  onFocus={() => setShowEngineDropdown(true)}
+                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box' }}
+                />
+                {showEngineDropdown && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    <div 
+                      onClick={() => { setDzinejs(''); setShowEngineDropdown(false); }}
+                      style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}
+                    >
+                      Visi dzinēji
+                    </div>
+                    {ENGINE_TYPES.filter(d => d.toLowerCase().includes(dzinejs.toLowerCase())).map((d) => (
+                      <div
+                        key={d}
+                        onClick={() => {
+                          setDzinejs(d)
+                          setShowEngineDropdown(false)
+                        }}
+                        style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                      >
+                        {d}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {/* Tilpums no → līdz */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
