@@ -280,7 +280,7 @@ export default function Sakumlapa() {
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
         {/* KREISĀ PUSE */}
-        <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
+        <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
           ) : (
@@ -344,13 +344,17 @@ export default function Sakumlapa() {
         {/* VIDUS: Filtri un Sludinājumi */}
         <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
-          {/* FILTRI - UZLIKTS POSITION: STICKY, LAI STĀV UZ VIETAS */}
+          {/* FILTRI - Pievienots augšējais fona bloks (pseudo-header), kas saplūst ar tumšo joslu un nosedz spraugas */}
           <div style={{ 
             position: 'sticky', 
-            top: '80px', 
-            zIndex: 20, 
+            top: '72px', 
+            zIndex: 30, 
             backgroundColor: '#f3f4f6', 
             padding: '12px', 
+            paddingTop: '20px', // Papildus vieta augšpusē, lai izveidotu plūstošu pāreju
+            marginTop: '-12px', // Pārvietots nedaudz uz augšu, lai pilnībā nosegtu jebkādu spraugu
+            borderTopLeftRadius: '0px',
+            borderTopRightRadius: '0px',
             borderRadius: '8px', 
             marginBottom: '16px', 
             display: 'flex', 
@@ -653,7 +657,7 @@ export default function Sakumlapa() {
         </div>
 
         {/* LABĀ PUSE: REKLĀMAS BANERI */}
-        <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
             REKLĀMA<br />Globālais baners šeit!
           </div>
