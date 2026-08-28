@@ -80,7 +80,7 @@ const REGIONS_BY_COUNTRY: { [key: string]: string[] } = {
     'Bāden-Virtemberga (Baden-Württemberg)', 'Bavārija (Bayern)', 'Berlīne (Berlin)', 'Brandenburga (Brandenburg)', 
     'Brēmene (Bremen)', 'Hamburga (Hamburg)', 'Hesene (Hessen)', 'Mērklenburga-Priekšpomerānija (Mecklenburg-Vorpommern)', 
     'Lejassaksija (Niedersachsen)', 'Ziemeļreina-Vestfālene (Nordrhein-Westfalen)', 'Reinlande-Pfalca (Rheinland-Pfalz)', 
-    'Sāra (Saarland)', 'Saksija (Sachsen)', 'Saksija-Anhalte (Sachsen-Anhalt)', 'Šlēsviga-Holšteina (Schleswig-Holstein)', 'Tīringene (Thüringen)'
+    'Sāra (Saarland)', 'Saksija (Sachsen)', 'Saksija-Anhalte (Saksija-Anhalt)', 'Šlēsviga-Holšteina (Schleswig-Holstein)', 'Tīringene (Thüringen)'
   ],
   'Polija': [
     'Apakšsilēzijas vojevodiste (Dolnośląskie)', 'Kujāvijas-Pomožes vojevodiste (Kujawsko-pomorskie)', 'Lodzas vojevodiste (Łódzkie)', 
@@ -146,11 +146,11 @@ function normalizeMake(makeStr: string): string {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
 }
 
-// Palīgfunkcija skaitļu formatēšanai ar atstarpēm tūkstošiem (piemēram, 5000 -> 5 000)
+// Droša un precīza tūkstošu atdalīšana ar regulāro izteiksmi
 function formatPriceInput(value: string): string {
-  const numbers = value.replace(/\D/g, '')
-  if (!numbers) return ''
-  return Number(numbers).toLocaleString('lv-LV').replace(/\u00a0/g, ' ')
+  const cleanNums = value.replace(/\D/g, '')
+  if (!cleanNums) return ''
+  return cleanNums.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
 
 export default function Sakumlapa() {
@@ -164,7 +164,6 @@ export default function Sakumlapa() {
   const [valsts, setValsts] = useState('')
   const [regions, setRegions] = useState('')
   
-  // Cenas state saglabā tīrus ciparus, bet displejam izmanto formatētās vērtības
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
   const [displayMinPrice, setDisplayMinPrice] = useState('')
@@ -416,7 +415,7 @@ export default function Sakumlapa() {
                 )}
               </div>
               
-              {/* Cena ar formatēšanu (atstarpes tūkstošiem) */}
+              {/* Cena ar regulāro izteiksmi un tūkstošu atdalītāju */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <input 
                   type="text" 
