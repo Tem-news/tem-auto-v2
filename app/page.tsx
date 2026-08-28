@@ -72,10 +72,18 @@ const COUNTRIES = [
   { name: 'Ukraina', code: 'ua' }
 ]
 
-const REGIONS = [
-  'Rīga', 'Rīgas rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale',
-  'Liepāja', 'Ventspils', 'Jelgava', 'Daugavpils', 'Valmiera', 'Jēkabpils', 'Ogre', 'Tukums', 'Cēsis'
-]
+// Reģioni/štati atkarībā no izvēlētās valsts
+const REGIONS_BY_COUNTRY: { [key: string]: string[] } = {
+  'Latvija': ['Rīga', 'Rīgas rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale', 'Liepāja', 'Ventspils', 'Jelgava', 'Daugavpils', 'Valmiera', 'Jēkabpils', 'Ogre', 'Tukums', 'Cēsis'],
+  'Lietuva': ['Viļņa', 'Kaunā', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alitūta', 'Marijampole', 'Mažeiķi', 'Jonava', Utenas apskriets],
+  'Igaunija': ['Harju (Tallina)', 'Tartu', 'Ida-Viru', 'Pērnava', 'Lääne-Viru', 'Viljandi', 'Rapla', 'Võru', 'Saare', 'Järva'],
+  'Vācija': ['Bavārija (Bayern)', 'Bādene-Virtemberga (Baden-Württemberg)', 'Ziemeļreinas-Vestfālene (Nordrhein-Westfalen)', 'Lejasinsemene (Niedersachsen)', 'Hesene (Hessen)', 'Berlīne', 'Hamburga', 'Saksija (Sachsen)', 'Reinlande-Pfalca (Rheinland-Pfalz)'],
+  'Polija': ['Mazovijas vojevodiste (Varšava)', 'Mazpolijas vojevodiste (Krakova)', 'Lielpolijas vojevodiste (Poznaņa)', 'Lejassilēzijas vojevodiste', 'Pomožes vojevodiste ( Gdaņska)'],
+  'ASV': ['Kalifornija (CA)', 'Teksasa (TX)', 'Ņujorka (NY)', 'Florida (FL)', 'Ilinoisa (IL)', 'Pensilvānija (PA)', 'Ohaio (OH)', 'Vašingtona (WA)', 'Nevada (NV)', 'Ņūdžersija (NJ)', 'Masačūsetsa (MA)', 'Džordžija (GA)', 'Ziemeļkarolīna (NC)', 'Mičigana (MI)']
+}
+
+// Noklusējuma reģioni, ja valstij nav specifiska saraksta
+const DEFAULT_REGIONS = ['Galvaspilsēta / Centrs', 'Ziemeļu reģions', 'Dienvidu reģions', 'Austrumu reģions', 'Rietumu reģions']
 
 const ENGINE_TYPES = [
   'Dīzelis', 'Benzīns', 'Benzīns / Gāze', 'Hibrīds (Benzīns)', 'Hibrīds (Dīzelis)', 'Elektriskais'
@@ -131,7 +139,6 @@ export default function Sakumlapa() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Vispārēja funkcija dropdown pārslēgšanai (toggle)
   const toggleDropdown = (name: string) => {
     setActiveDropdown(prev => prev === name ? null : name)
   }
@@ -166,6 +173,19 @@ export default function Sakumlapa() {
     }
     fetchData()
   }, [])
+
+  // Aprēķina pieejamos reģionus balstoties uz izvēlēto valsti
+  const availableRegions = useMemo(() => {
+    if (!valsts) {
+      // Ja valsts nav izvēlēta, var rādīt visu valstu reģionus vai tukšu / noklusējuma
+      return REGIONS_BY_COUNTRY['Latvija']
+    }
+    // Atrodam atbilstošo valsti (ignorējot reģistru)
+    const foundKey = Object.keys(REGIONS_BY_COUNTRY).find(
+      key => key.toLowerCase() === valsts.toLowerCase()
+    )
+    return foundKey ? REGIONS_BY_COUNTRY[foundKey] : DEFAULT_REGIONS
+  }, [valsts])
 
   const makeCounts = useMemo(() => {
     const counts: { [key: string]: number } = {}
@@ -303,11 +323,15 @@ export default function Sakumlapa() {
                 />
                 {activeDropdown === 'valsts' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setValsts(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas valstis</div>
+                    <div onClick={() => { setValsts(''); setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas valstis</div>
                     {COUNTRIES.filter(c => c.name.toLowerCase().includes(valsts.toLowerCase())).map((c) => (
                       <div
                         key={c.name}
-                        onClick={() => { setValsts(c.name); setActiveDropdown(null); }}
+                        onClick={() => { 
+                          setValsts(c.name); 
+                          setRegions(''); // Notīra reģionu, mainot valsti, lai nerastos konflikts
+                          setActiveDropdown(null); 
+                        }}
                         style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
@@ -324,11 +348,11 @@ export default function Sakumlapa() {
                 )}
               </div>
 
-              {/* REĢIONS */}
+              {/* REĢIONS (Dinamiskais) */}
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
                   type="text"
-                  placeholder="Reģions"
+                  placeholder={valsts ? `Reģions (${valsts})` : "Reģions"}
                   value={regions}
                   onChange={(e) => { setRegions(e.target.value); setActiveDropdown('regions'); }}
                   onClick={() => toggleDropdown('regions')}
@@ -337,7 +361,7 @@ export default function Sakumlapa() {
                 {activeDropdown === 'regions' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                     <div onClick={() => { setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visi reģioni</div>
-                    {REGIONS.filter(r => r.toLowerCase().includes(regions.toLowerCase())).map((r) => (
+                    {availableRegions.filter(r => r.toLowerCase().includes(regions.toLowerCase())).map((r) => (
                       <div
                         key={r}
                         onClick={() => { setRegions(r); setActiveDropdown(null); }}
@@ -543,11 +567,11 @@ export default function Sakumlapa() {
         <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
-            <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Globālais baneris šeit!</p>
+            <p style={{ color: '#6b7280', fontSize: '13.5px', margin: 0 }}>Globālais baneris šeit!</p>
           </div>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
-            <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Globālais baneris šeit!</p>
+            <p style={{ color: '#6b7280', fontSize: '13.5px', margin: 0 }}>Globālais baneris šeit!</p>
           </div>
         </div>
 
