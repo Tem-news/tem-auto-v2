@@ -75,10 +75,10 @@ const COUNTRIES = [
 // Reģioni/štati atkarībā no izvēlētās valsts
 const REGIONS_BY_COUNTRY: { [key: string]: string[] } = {
   'Latvija': ['Rīga', 'Rīgas rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale', 'Liepāja', 'Ventspils', 'Jelgava', 'Daugavpils', 'Valmiera', 'Jēkabpils', 'Ogre', 'Tukums', 'Cēsis'],
-  'Lietuva': ['Viļņa', 'Kaunā', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alitūta', 'Marijampole', 'Mažeiķi', 'Jonava', Utenas apskriets],
+  'Lietuva': ['Viļņa', 'Kaunā', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alitūta', 'Marijampole', 'Mažeiķi', 'Jonava', 'Utenas apskriets'],
   'Igaunija': ['Harju (Tallina)', 'Tartu', 'Ida-Viru', 'Pērnava', 'Lääne-Viru', 'Viljandi', 'Rapla', 'Võru', 'Saare', 'Järva'],
   'Vācija': ['Bavārija (Bayern)', 'Bādene-Virtemberga (Baden-Württemberg)', 'Ziemeļreinas-Vestfālene (Nordrhein-Westfalen)', 'Lejasinsemene (Niedersachsen)', 'Hesene (Hessen)', 'Berlīne', 'Hamburga', 'Saksija (Sachsen)', 'Reinlande-Pfalca (Rheinland-Pfalz)'],
-  'Polija': ['Mazovijas vojevodiste (Varšava)', 'Mazpolijas vojevodiste (Krakova)', 'Lielpolijas vojevodiste (Poznaņa)', 'Lejassilēzijas vojevodiste', 'Pomožes vojevodiste ( Gdaņska)'],
+  'Polija': ['Mazovijas vojevodiste (Varšava)', 'Mazpolijas vojevodiste (Krakova)', 'Lielpolijas vojevodiste (Poznaņa)', 'Lejassilēzijas vojevodiste', 'Pomožes vojevodiste (Gdaņska)'],
   'ASV': ['Kalifornija (CA)', 'Teksasa (TX)', 'Ņujorka (NY)', 'Florida (FL)', 'Ilinoisa (IL)', 'Pensilvānija (PA)', 'Ohaio (OH)', 'Vašingtona (WA)', 'Nevada (NV)', 'Ņūdžersija (NJ)', 'Masačūsetsa (MA)', 'Džordžija (GA)', 'Ziemeļkarolīna (NC)', 'Mičigana (MI)']
 }
 
@@ -177,10 +177,8 @@ export default function Sakumlapa() {
   // Aprēķina pieejamos reģionus balstoties uz izvēlēto valsti
   const availableRegions = useMemo(() => {
     if (!valsts) {
-      // Ja valsts nav izvēlēta, var rādīt visu valstu reģionus vai tukšu / noklusējuma
       return REGIONS_BY_COUNTRY['Latvija']
     }
-    // Atrodam atbilstošo valsti (ignorējot reģistru)
     const foundKey = Object.keys(REGIONS_BY_COUNTRY).find(
       key => key.toLowerCase() === valsts.toLowerCase()
     )
@@ -329,7 +327,7 @@ export default function Sakumlapa() {
                         key={c.name}
                         onClick={() => { 
                           setValsts(c.name); 
-                          setRegions(''); // Notīra reģionu, mainot valsti, lai nerastos konflikts
+                          setRegions(''); 
                           setActiveDropdown(null); 
                         }}
                         style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
