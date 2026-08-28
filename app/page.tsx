@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { supabase } from '../../lib/supabase'
+import { supabase } from '../lib/supabase'
 
 // Oficiālo marku standarts bez dublējošām rindām
 const OFFICIAL_MAKES: { [key: string]: string } = {
@@ -40,9 +40,7 @@ const OFFICIAL_MAKES: { [key: string]: string } = {
   'skoda': 'Škoda',
   'subaru': 'Subaru',
   'suzuki': 'Suzuki',
-  'tesla': 'Tesla',
-  'volkswagen': 'Volkswagen',
-  'vw': 'Volkswagen'
+  'tesla': 'Tesla'
 }
 
 const COUNTRIES = [
@@ -95,14 +93,12 @@ export default function Home() {
     }
   }
 
-  // Cenas formatēšana ar tukšumzīmēm tūkstošiem
   const formatPriceInput = (value: string) => {
     const numbers = value.replace(/\D/g, '')
     if (!numbers) return ''
     return Number(numbers).toLocaleString('lv-LV')
   }
 
-  // Marku saraksta normalizācija
   const normalizedMakes = useMemo(() => {
     const counts: { [key: string]: { originalName: string, count: number } } = {}
     cars.forEach(car => {
@@ -121,13 +117,11 @@ export default function Home() {
     return Object.values(counts).sort((a, b) => b.count - a.count)
   }, [cars])
 
-  // Pieejamie reģioni atkarībā no izvēlētās valsts
   const availableRegions = useMemo(() => {
     const found = COUNTRIES.find(c => c.name.toLowerCase() === valsts.toLowerCase())
     return found ? found.regions : []
   }, [valsts])
 
-  // Filtrētie auto
   const filteredCars = useMemo(() => {
     return cars.filter(car => {
       if (searchMake) {
@@ -164,7 +158,6 @@ export default function Home() {
   return (
     <div style={{ backgroundColor: '#f9fafb', minHeight: '100vh', padding: '20px', fontFamily: 'sans-serif' }}>
       
-      {/* Augšējā navigācija / Galvene */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '0 10px' }}>
         <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Auto Sludinājumi</h1>
         <div style={{ display: 'flex', gap: '10px' }}>
@@ -174,10 +167,9 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Trīs kolonnu galvenais izkārtojums */}
       <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr 220px', gap: '20px', alignItems: 'start' }}>
         
-        {/* KRESAIS SĀNS: Marku saraksts */}
+        {/* KRESAIS SĀNS */}
         <div style={{ backgroundColor: '#ffffff', padding: '12px', borderRadius: '8px', border: '1px solid #e5e7eb', position: 'sticky', top: '80px' }}>
           <h3 style={{ fontSize: '14px', fontWeight: 'bold', margin: '0 0 10px 0', color: '#374151' }}>Auto markas</h3>
           <div 
@@ -213,7 +205,6 @@ export default function Home() {
         {/* VIDUS: Filtri un Saraksts */}
         <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
-          {/* STICKY FILTRA BLOKS */}
           <div style={{ 
             position: 'sticky', 
             top: '20px', 
@@ -224,10 +215,7 @@ export default function Home() {
           }}>
             <div style={{ backgroundColor: '#ffffff', padding: '12px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
               
-              {/* 1. Rinda */}
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-                
-                {/* VALSTS */}
                 <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                   <input
                     type="text"
@@ -248,7 +236,7 @@ export default function Home() {
                             setRegions(''); 
                             setActiveDropdown(null); 
                           }}
-                          style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                          style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}
                         >
                           <span>{c.name}</span>
                         </div>
@@ -257,7 +245,6 @@ export default function Home() {
                   )}
                 </div>
 
-                {/* REĢIONS */}
                 <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                   <input
                     type="text"
@@ -283,7 +270,6 @@ export default function Home() {
                   )}
                 </div>
                 
-                {/* Cena */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <input 
                     type="text" 
@@ -310,7 +296,6 @@ export default function Home() {
                   />
                 </div>
 
-                {/* Gads */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <input type="number" placeholder="Gads no" value={minYear} onChange={(e) => setMinYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
                   <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
@@ -318,10 +303,7 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 2. Rinda */}
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-                
-                {/* DZINĒJS */}
                 <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                   <input
                     type="text"
@@ -347,7 +329,6 @@ export default function Home() {
                   )}
                 </div>
 
-                {/* ĀTRUMKĀRBA */}
                 <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
                   <input
                     type="text"
@@ -359,7 +340,6 @@ export default function Home() {
                   />
                 </div>
 
-                {/* VIRSBŪVE */}
                 <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
                   <input
                     type="text"
@@ -371,7 +351,6 @@ export default function Home() {
                   />
                 </div>
 
-                {/* KRĀSA */}
                 <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
                   <input
                     type="text"
@@ -383,7 +362,6 @@ export default function Home() {
                   />
                 </div>
 
-                {/* Notīrīt */}
                 {(valsts || regions || minPrice || maxPrice || minYear || maxYear || dzinejs || minTilpums || maxTilpums || atrumkarba || virsbuve || krasa || searchMake) && (
                   <button
                     onClick={() => {
@@ -401,7 +379,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Sludinājumu režģis */}
           {loading ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Ielādē sludinājumus...</div>
           ) : filteredCars.length === 0 ? (
@@ -426,7 +403,7 @@ export default function Home() {
           )}
         </div>
 
-        {/* LABAIS SĀNS: Reklāmas baneri vai cits saturs */}
+        {/* LABAIS SĀNS */}
         <div style={{ backgroundColor: '#ffffff', padding: '12px', borderRadius: '8px', border: '1px solid #e5e7eb', position: 'sticky', top: '80px', textAlign: 'center', color: '#9ca3af', fontSize: '12px', minHeight: '300px' }}>
           Reklāma / Baneris
         </div>
