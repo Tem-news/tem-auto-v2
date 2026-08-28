@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 
-// Oficiālo marku standarts bez dublējošām rindām
 const OFFICIAL_MAKES: { [key: string]: string } = {
   'bmw': 'BMW',
   'audi': 'Audi',
@@ -42,7 +41,6 @@ const OFFICIAL_MAKES: { [key: string]: string } = {
   'tesla': 'Tesla'
 }
 
-// Valstu saraksts ar ISO kodiem, lai nodrošinātu 100% krāsainus karogus caur flagcdn
 const COUNTRIES = [
   { name: 'Latvija', code: 'lv' },
   { name: 'Lietuva', code: 'lt' },
@@ -74,60 +72,27 @@ const COUNTRIES = [
   { name: 'Ukraina', code: 'ua' }
 ]
 
-// Reģioni
 const REGIONS = [
   'Rīga', 'Rīgas rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale',
   'Liepāja', 'Ventspils', 'Jelgava', 'Daugavpils', 'Valmiera', 'Jēkabpils', 'Ogre', 'Tukums', 'Cēsis'
 ]
 
-// Dzinēja tipi
 const ENGINE_TYPES = [
-  'Dīzelis',
-  'Benzīns',
-  'Benzīns / Gāze',
-  'Hibrīds (Benzīns)',
-  'Hibrīds (Dīzelis)',
-  'Elektriskais'
+  'Dīzelis', 'Benzīns', 'Benzīns / Gāze', 'Hibrīds (Benzīns)', 'Hibrīds (Dīzelis)', 'Elektriskais'
 ]
 
-// Ātrumkārbas
 const GEARBOX_TYPES = [
-  'Mehāniskā',
-  'Automāts',
-  'Pusautomāts'
+  'Mehāniskā', 'Automāts', 'Pusautomāts'
 ]
 
-// Virsbūves tipi
 const BODY_TYPES = [
-  'Sedans',
-  'Universāls',
-  'Hečbeks',
-  'Apvidus (SUV)',
-  'Kupeja',
-  'Kabriolets',
-  'Minivens',
-  'Kompaktvens',
-  'Pikaps',
-  'Furgons'
+  'Sedans', 'Universāls', 'Hečbeks', 'Apvidus (SUV)', 'Kupeja', 'Kabriolets', 'Minivens', 'Kompaktvens', 'Pikaps', 'Furgons'
 ]
 
-// Krāsas
 const COLORS = [
-  'Melna',
-  'Balta',
-  'Pelēka',
-  'Sudraba',
-  'Zila',
-  'Sarkana',
-  'Zaļa',
-  'Brūna',
-  'Zelta',
-  'Oranža',
-  'Dzeltena',
-  'Violeta'
+  'Melna', 'Balta', 'Pelēka', 'Sudraba', 'Zila', 'Sarkana', 'Zaļa', 'Brūna', 'Zelta', 'Oranža', 'Dzeltena', 'Violeta'
 ]
 
-// Motora tilpumi
 const VOLUMES = [
   '1.0', '1.2', '1.4', '1.6', '1.8', '2.0', '2.2', '2.5', '3.0', '3.5', '4.0', '5.0'
 ]
@@ -136,11 +101,9 @@ function normalizeMake(makeStr: string): string {
   if (!makeStr) return ''
   const trimmed = makeStr.trim()
   const lower = trimmed.toLowerCase()
-  
   if (OFFICIAL_MAKES[lower]) {
     return OFFICIAL_MAKES[lower]
   }
-  
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
 }
 
@@ -149,7 +112,6 @@ export default function Sakumlapa() {
   const [cars, setCars] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Filtru stāvokļi
   const [searchMake, setSearchMake] = useState('')
   const [searchModel, setSearchModel] = useState('')
   
@@ -166,11 +128,14 @@ export default function Sakumlapa() {
   const [virsbuve, setVirsbuve] = useState('')
   const [krasa, setKrasa] = useState('')
 
-  // Aktīvo dropdown kontrolieri
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Aizvērt dropdownus, ja klikšķina ārpus tiem
+  // Vispārēja funkcija dropdown pārslēgšanai (toggle)
+  const toggleDropdown = (name: string) => {
+    setActiveDropdown(prev => prev === name ? null : name)
+  }
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -215,7 +180,6 @@ export default function Sakumlapa() {
     return Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0]))
   }, [cars])
 
-  // Filtrētie auto
   const filteredCars = cars.filter((car) => {
     const matchesMake = searchMake ? (car.make || '').toLowerCase().includes(searchMake.toLowerCase()) : true
     const matchesModel = searchModel ? (car.model || '').toLowerCase().includes(searchModel.toLowerCase()) : true
@@ -255,10 +219,9 @@ export default function Sakumlapa() {
   return (
     <div ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
       
-      {/* GALVENAIS REŽĢIS */}
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
-        {/* KREISĀ PUSE: Marku saraksts */}
+        {/* KREISĀ PUSE */}
         <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
@@ -320,24 +283,23 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* VIDUS: Filtri un sludinājumi */}
+        {/* VIDUS: Filtri */}
         <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
-          {/* FILTRA JOSLA */}
           <div style={{ backgroundColor: '#f3f4f6', padding: '12px', borderRadius: '8px', marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid #e5e7eb' }}>
             
-            {/* 1. Rinda: Valsts, Reģions, Cena, Gads */}
+            {/* 1. Rinda */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
               
-              {/* VALSTS AR KRĀSAINIEM KAROGIEM (PNG) */}
+              {/* VALSTS */}
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
                   type="text"
                   placeholder="Valsts"
                   value={valsts}
                   onChange={(e) => { setValsts(e.target.value); setActiveDropdown('valsts'); }}
-                  onFocus={() => setActiveDropdown('valsts')}
-                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box' }}
+                  onClick={() => toggleDropdown('valsts')}
+                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'valsts' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
@@ -369,8 +331,8 @@ export default function Sakumlapa() {
                   placeholder="Reģions"
                   value={regions}
                   onChange={(e) => { setRegions(e.target.value); setActiveDropdown('regions'); }}
-                  onFocus={() => setActiveDropdown('regions')}
-                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box' }}
+                  onClick={() => toggleDropdown('regions')}
+                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'regions' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
@@ -390,14 +352,14 @@ export default function Sakumlapa() {
                 )}
               </div>
               
-              {/* Cena no → līdz */}
+              {/* Cena */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <input type="number" placeholder="Cena no" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
                 <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
                 <input type="number" placeholder="līdz" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
               </div>
 
-              {/* Gads no → līdz */}
+              {/* Gads */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <input type="number" placeholder="Gads no" value={minYear} onChange={(e) => setMinYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
                 <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
@@ -405,7 +367,7 @@ export default function Sakumlapa() {
               </div>
             </div>
 
-            {/* 2. Rinda: Dzinējs, Tilpums, Ātrumkārba, Virsbūve, Krāsa */}
+            {/* 2. Rinda */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
               
               {/* DZINĒJS */}
@@ -415,8 +377,8 @@ export default function Sakumlapa() {
                   placeholder="Dzinējs"
                   value={dzinejs}
                   onChange={(e) => { setDzinejs(e.target.value); setActiveDropdown('dzinejs'); }}
-                  onFocus={() => setActiveDropdown('dzinejs')}
-                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box' }}
+                  onClick={() => toggleDropdown('dzinejs')}
+                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'dzinejs' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
@@ -436,7 +398,7 @@ export default function Sakumlapa() {
                 )}
               </div>
 
-              {/* Tilpums no → līdz */}
+              {/* Tilpums */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <div style={{ position: 'relative', width: '70px' }}>
                   <input 
@@ -444,8 +406,8 @@ export default function Sakumlapa() {
                     placeholder="Tilp. no" 
                     value={minTilpums} 
                     onChange={(e) => { setMinTilpums(e.target.value); setActiveDropdown('minTilpums'); }} 
-                    onFocus={() => setActiveDropdown('minTilpums')}
-                    style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box' }} 
+                    onClick={() => toggleDropdown('minTilpums')}
+                    style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }} 
                   />
                   {activeDropdown === 'minTilpums' && (
                     <div style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
@@ -462,8 +424,8 @@ export default function Sakumlapa() {
                     placeholder="līdz" 
                     value={maxTilpums} 
                     onChange={(e) => { setMaxTilpums(e.target.value); setActiveDropdown('maxTilpums'); }} 
-                    onFocus={() => setActiveDropdown('maxTilpums')}
-                    style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box' }} 
+                    onClick={() => toggleDropdown('maxTilpums')}
+                    style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }} 
                   />
                   {activeDropdown === 'maxTilpums' && (
                     <div style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
@@ -482,8 +444,8 @@ export default function Sakumlapa() {
                   placeholder="Ātrumkārba"
                   value={atrumkarba}
                   onChange={(e) => { setAtrumkarba(e.target.value); setActiveDropdown('atrumkarba'); }}
-                  onFocus={() => setActiveDropdown('atrumkarba')}
-                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box' }}
+                  onClick={() => toggleDropdown('atrumkarba')}
+                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'atrumkarba' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
@@ -502,8 +464,8 @@ export default function Sakumlapa() {
                   placeholder="Virsbūve"
                   value={virsbuve}
                   onChange={(e) => { setVirsbuve(e.target.value); setActiveDropdown('virsbuve'); }}
-                  onFocus={() => setActiveDropdown('virsbuve')}
-                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box' }}
+                  onClick={() => toggleDropdown('virsbuve')}
+                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'virsbuve' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
@@ -522,8 +484,8 @@ export default function Sakumlapa() {
                   placeholder="Krāsa"
                   value={krasa}
                   onChange={(e) => { setKrasa(e.target.value); setActiveDropdown('krasa'); }}
-                  onFocus={() => setActiveDropdown('krasa')}
-                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box' }}
+                  onClick={() => toggleDropdown('krasa')}
+                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'krasa' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
@@ -535,7 +497,7 @@ export default function Sakumlapa() {
                 )}
               </div>
 
-              {/* Notīrīt pogas */}
+              {/* Notīrīt */}
               {(valsts || regions || minPrice || maxPrice || minYear || maxYear || dzinejs || minTilpums || maxTilpums || atrumkarba || virsbuve || krasa || searchMake) && (
                 <button
                   onClick={() => {
@@ -552,7 +514,7 @@ export default function Sakumlapa() {
 
           </div>
 
-          {/* Sludinājumu attēlojums (Režģis) */}
+          {/* Sludinājumu režģis */}
           {loading ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Ielādē sludinājumus...</div>
           ) : filteredCars.length === 0 ? (
@@ -577,7 +539,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* LABĀ PUSE: Reklāmas baneri */}
+        {/* LABĀ PUSE */}
         <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
