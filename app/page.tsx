@@ -97,7 +97,7 @@ const REGIONS_BY_COUNTRY: { [key: string]: string[] } = {
     'Massachusetts (MA)', 'Michigan (MI)', 'Minnesota (MN)', 'Mississippi (MS)', 'Missouri (MO)', 
     'Montana (MT)', 'Nebraska (NE)', 'Nevada (NV)', 'New Hampshire (NH)', 'New Jersey (NJ)', 
     'New Mexico (NM)', 'New York (NY)', 'North Carolina (NC)', 'North Dakota (ND)', 'Ohio (OH)', 
-    'Oklahoma (OK)', 'Oregon (OR)', 'Pennsylvania (PA)', 'Rhode Island (RI)', 'South Carolina (SC)',
+    'Oklahoma (OK)', 'Oregon (OR)', 'Pennsylvania (PA)', 'Rhode Island (RI)', 'South Carolina (SC)', 
     'South Dakota (SD)', 'Tennessee (TN)', 'Texas (TX)', 'Utah (UT)', 'Vermont (VT)', 
     'Virginia (VA)', 'Washington (WA)', 'West Virginia (WV)', 'Wisconsin (WI)', 'Wyoming (WY)'
   ]
@@ -180,8 +180,7 @@ export default function Sakumlapa() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const toggleDropdown = (name: string, e?: React.MouseEvent) => {
-    if (e) e.preventDefault()
+  const toggleDropdown = (name: string) => {
     setActiveDropdown(prev => prev === name ? null : name)
   }
 
@@ -267,8 +266,7 @@ export default function Sakumlapa() {
            matchesValsts && matchesRegions && matchesDzinejs && matchesAtrumkarba && matchesVirsbuve && matchesKrasa
   })
 
-  const handleMakeSelect = (make: string, e: React.MouseEvent) => {
-    e.preventDefault()
+  const handleMakeSelect = (make: string) => {
     if (searchMake.toLowerCase() === make.toLowerCase()) {
       setSearchMake('')
     } else {
@@ -276,19 +274,38 @@ export default function Sakumlapa() {
     }
   }
 
+  const clearFilters = () => {
+    setSearchMake('')
+    setSearchModel('')
+    setValsts('')
+    setRegions('')
+    setMinPrice('')
+    setMaxPrice('')
+    setDisplayMinPrice('')
+    setDisplayMaxPrice('')
+    setMinYear('')
+    setMaxYear('')
+    setDzinejs('')
+    setMinTilpums('')
+    setMaxTilpums('')
+    setAtrumkarba('')
+    setVirsbuve('')
+    setKrasa('')
+  }
+
   return (
     <div ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
       
-      <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr', gap: '16px', alignItems: 'start', width: '100%' }}>
         
-        {/* KREISĀ PUSE */}
+        {/* KREISĀ PUSE - Markas */}
         <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
           ) : (
             <div>
              <button
-               onClick={(e) => { e.preventDefault(); setSearchMake(''); }}
+               onClick={() => setSearchMake('')}
                style={{
                  display: 'flex',
                  justifyContent: 'space-between',
@@ -316,7 +333,7 @@ export default function Sakumlapa() {
                  return (
                    <button
                      key={make}
-                     onClick={(e) => handleMakeSelect(make, e)}
+                     onClick={() => handleMakeSelect(make)}
                      style={{
                        display: 'flex',
                        justifyContent: 'space-between',
@@ -343,7 +360,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* VIDUS: Filtri */}
+        {/* VIDUS UN LABĀ PUSE: Filtri un Sludinājumi */}
         <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
           <div style={{ backgroundColor: '#f3f4f6', padding: '12px', borderRadius: '8px', marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid #e5e7eb' }}>
@@ -358,17 +375,16 @@ export default function Sakumlapa() {
                  placeholder="Valsts"
                  value={valsts}
                  onChange={(e) => { setValsts(e.target.value); setActiveDropdown('valsts'); }}
-                 onClick={(e) => toggleDropdown('valsts', e)}
+                 onClick={() => toggleDropdown('valsts')}
                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                />
                {activeDropdown === 'valsts' && (
                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                   <div onClick={(e) => { e.preventDefault(); setValsts(''); setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas valstis</div>
+                   <div onClick={() => { setValsts(''); setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas valstis</div>
                    {COUNTRIES.filter(c => c.name.toLowerCase().includes(valsts.toLowerCase())).map((c) => (
                      <div
                        key={c.name}
-                       onClick={(e) => { 
-                         e.preventDefault();
+                       onClick={() => { 
                          setValsts(c.name); 
                          setRegions(''); 
                          setActiveDropdown(null); 
@@ -396,16 +412,16 @@ export default function Sakumlapa() {
                  placeholder={valsts ? `Reģions (${valsts})` : "Reģions"}
                  value={regions}
                  onChange={(e) => { setRegions(e.target.value); setActiveDropdown('regions'); }}
-                 onClick={(e) => toggleDropdown('regions', e)}
+                 onClick={() => toggleDropdown('regions')}
                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                />
                {activeDropdown === 'regions' && (
                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={(e) => { e.preventDefault(); setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visi reģioni</div>
+                    <div onClick={() => { setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visi reģioni</div>
                    {availableRegions.filter(r => r.toLowerCase().includes(regions.toLowerCase())).map((r) => (
                      <div
                        key={r}
-                       onClick={(e) => { e.preventDefault(); setRegions(r); setActiveDropdown(null); }}
+                       onClick={() => { setRegions(r); setActiveDropdown(null); }}
                        style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}
                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
@@ -462,16 +478,16 @@ export default function Sakumlapa() {
                  placeholder="Dzinējs"
                  value={dzinejs}
                  onChange={(e) => { setDzinejs(e.target.value); setActiveDropdown('dzinejs'); }}
-                 onClick={(e) => toggleDropdown('dzinejs', e)}
+                 onClick={() => toggleDropdown('dzinejs')}
                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                />
                {activeDropdown === 'dzinejs' && (
                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                   <div onClick={(e) => { e.preventDefault(); setDzinejs(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visi dzinēji</div>
+                   <div onClick={() => { setDzinejs(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visi dzinēji</div>
                    {ENGINE_TYPES.filter(d => d.toLowerCase().includes(dzinejs.toLowerCase())).map((d) => (
                      <div
                        key={d}
-                       onClick={(e) => { e.preventDefault(); setDzinejs(d); setActiveDropdown(null); }}
+                       onClick={() => { setDzinejs(d); setActiveDropdown(null); }}
                        style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}
                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
@@ -491,16 +507,16 @@ export default function Sakumlapa() {
                    placeholder="Tilp. no" 
                    value={minTilpums} 
                    onChange={(e) => { setMinTilpums(e.target.value); setActiveDropdown('minTilpums'); }} 
-                   onClick={(e) => toggleDropdown('minTilpums', e)}
+                   onClick={() => toggleDropdown('minTilpums')}
                    style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }} 
                  />
-                  {activeDropdown === 'minTilpums' && (
+                 {activeDropdown === 'minTilpums' && (
                    <div style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                      {VOLUMES.map((v) => (
-                       <div key={v} onClick={(e) => { e.preventDefault(); setMinTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{v}</div>
+                       <div key={v} onClick={() => { setMinTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{v}</div>
                      ))}
                    </div>
-                  )}
+                 )}
                </div>
                <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
                <div style={{ position: 'relative', width: '70px' }}>
@@ -509,13 +525,13 @@ export default function Sakumlapa() {
                    placeholder="līdz" 
                    value={maxTilpums} 
                    onChange={(e) => { setMaxTilpums(e.target.value); setActiveDropdown('maxTilpums'); }} 
-                   onClick={(e) => toggleDropdown('maxTilpums', e)}
+                   onClick={() => toggleDropdown('maxTilpums')}
                    style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }} 
                  />
                  {activeDropdown === 'maxTilpums' && (
                    <div style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                      {VOLUMES.map((v) => (
-                       <div key={v} onClick={(e) => { e.preventDefault(); setMaxTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{v}</div>
+                       <div key={v} onClick={() => { setMaxTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{v}</div>
                      ))}
                    </div>
                  )}
@@ -529,14 +545,14 @@ export default function Sakumlapa() {
                  placeholder="Ātrumkārba"
                  value={atrumkarba}
                  onChange={(e) => { setAtrumkarba(e.target.value); setActiveDropdown('atrumkarba'); }}
-                 onClick={(e) => toggleDropdown('atrumkarba', e)}
+                 onClick={() => toggleDropdown('atrumkarba')}
                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                />
                {activeDropdown === 'atrumkarba' && (
                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                   <div onClick={(e) => { e.preventDefault(); setAtrumkarba(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas kārbas</div>
+                   <div onClick={() => { setAtrumkarba(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas kārbas</div>
                    {GEARBOX_TYPES.filter(g => g.toLowerCase().includes(atrumkarba.toLowerCase())).map((g) => (
-                     <div key={g} onClick={(e) => { e.preventDefault(); setAtrumkarba(g); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{g}</div>
+                     <div key={g} onClick={() => { setAtrumkarba(g); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{g}</div>
                    ))}
                  </div>
                )}
@@ -549,58 +565,100 @@ export default function Sakumlapa() {
                  placeholder="Virsbūve"
                  value={virsbuve}
                  onChange={(e) => { setVirsbuve(e.target.value); setActiveDropdown('virsbuve'); }}
-                 onClick={(e) => toggleDropdown('virsbuve', e)}
+                 onClick={() => toggleDropdown('virsbuve')}
                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                />
                {activeDropdown === 'virsbuve' && (
                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                   <div onClick={(e) => { e.preventDefault(); setVirsbuve(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas virsbūves</div>
+                   <div onClick={() => { setVirsbuve(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas virsbūves</div>
                    {BODY_TYPES.filter(b => b.toLowerCase().includes(virsbuve.toLowerCase())).map((b) => (
-                     <div key={b} onClick={(e) => { e.preventDefault(); setVirsbuve(b); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{b}</div>
+                     <div key={b} onClick={() => { setVirsbuve(b); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{b}</div>
                    ))}
                  </div>
                )}
               </div>
 
-              {/* KRĀSA AR PARAUDZIŅIEM */}
+              {/* KRĀSA */}
               <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
                <input
                  type="text"
                  placeholder="Krāsa"
                  value={krasa}
                  onChange={(e) => { setKrasa(e.target.value); setActiveDropdown('krasa'); }}
-                 onClick={(e) => toggleDropdown('krasa', e)}
+                 onClick={() => toggleDropdown('krasa')}
                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                />
                {activeDropdown === 'krasa' && (
                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={(e) => { e.preventDefault(); setKrasa(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas krāsas</div>
+                    <div onClick={() => { setKrasa(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas krāsas</div>
                    {COLORS.filter(k => k.name.toLowerCase().includes(krasa.toLowerCase())).map((k) => (
                      <div 
                        key={k.name} 
-                       onClick={(e) => { e.preventDefault(); setKrasa(k.name); setActiveDropdown(null); }} 
+                       onClick={() => { setKrasa(k.name); setActiveDropdown(null); }} 
                        style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }} 
                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} 
                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                      >
-                       <span style={{ 
-                         width: '14px', 
-                         height: '14px', 
-                         borderRadius: '50%', 
-                         backgroundColor: k.hex, 
-                         border: `1px solid ${k.border}`, 
-                         display: 'inline-block',
-                         flexShrink: 0 
-                       }}></span>
+                       <span style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: k.hex, border: `1px solid ${k.border}`, display: 'inline-block', flexShrink: 0 }}></span>
                        <span>{k.name}</span>
                      </div>
                    ))}
                  </div>
                )}
               </div>
+
+              {/* Notīrīt pogu */}
+              <button
+                onClick={clearFilters}
+                style={{ padding: '6px 12px', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '600', color: '#374151' }}
+              >
+                Notīrīt
+              </button>
+
             </div>
 
           </div>
+
+          {/* SLUDINĀJUMU SARAKSTS */}
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: '#374151' }}>
+              Atrastie sludinājumi: {filteredCars.length}
+            </div>
+
+            {loading ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
+            ) : filteredCars.length === 0 ? (
+              <div style={{ padding: '30px', textAlign: 'center', backgroundColor: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb', color: '#6b7280' }}>
+                Nav atrasts neviens sludinājums ar šādiem filtriem.
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+                {filteredCars.map((car) => (
+                  <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <div style={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}>
+                      {car.image_url || (car.images && car.images[0]) ? (
+                        <img src={car.image_url || car.images[0]} alt={`${car.make} ${car.model}`} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ width: '100%', height: '180px', backgroundColor: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', fontSize: '13px' }}>Nav attēla</div>
+                      )}
+                      <div style={{ padding: '12px' }}>
+                        <div style={{ fontSize: '16px', fontWeight: '700', color: '#111827', marginBottom: '4px' }}>
+                          {car.make} {car.model}
+                        </div>
+                        <div style={{ fontSize: '14px', color: '#4b5563', marginBottom: '8px' }}>
+                          {car.year} g., {car.volume || car.engine_volume}L, {car.engine || car.dzinejs}
+                        </div>
+                        <div style={{ fontSize: '18px', fontWeight: '800', color: '#0369a1' }}>
+                          {Number(car.price).toLocaleString('lv-LV')} €
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
         </div>
 
       </div>
