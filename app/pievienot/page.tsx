@@ -41,27 +41,36 @@ const CAR_DATABASE: { [key: string]: string[] } = {
 }
 
 const WORLD_COUNTRIES = [
-  { name: 'Latvija', flag: '🇱🇻', regions: ['Rīga', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale'] },
-  { name: 'Lietuva', flag: '🇱🇹', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža'] },
-  { name: 'Igaunija', flag: '🇪🇪', regions: ['Tallina', 'Tartu', 'Narva', 'Pērnava'] },
-  { name: 'Vācija', flag: '🇩🇪', regions: ['Bavārija', 'Berlīne', 'Hamburga', 'Ziemeļreinas-Vestfālene', 'Bādenes-Virtemberga'] },
-  { name: 'Polija', flag: '🇵🇱', regions: ['Mazovija', 'Mazpolija', 'Lejassilēzija', 'Lielpolija'] },
-  { name: 'Zviedrija', flag: '🇸🇪', regions: ['Stokholma', 'Gēteborga', 'Malme', 'Upsāla'] },
-  { name: 'Norvēģija', flag: '🇳🇴', regions: ['Oslo', 'Viken', 'Vestland', 'Trondelag'] },
-  { name: 'Somija', flag: '🇫🇮', regions: ['Ūusimā', 'Pirkanmā', 'Varsinais-Suomi'] },
-  { name: 'Dānija', flag: '🇩🇰', regions: ['Hovedstaden', 'Midtjylland', 'Syddanmark'] },
-  { name: 'Francija', flag: '🇫🇷', regions: ['Ildefransa', 'Provansa-Alpi-Azūras krasts', 'Overņa-Ronas-Alpi'] },
-  { name: 'Itālija', flag: '🇮🇹', regions: ['Lombardija', 'Lacio', 'Veneto', 'Pjemonta', 'Sicīlija'] },
-  { name: 'Spānija', flag: '🇪🇸', regions: ['Madride', 'Katalonija', 'Andalūzija', 'Valensija'] },
-  { name: 'Lielbritānija', flag: '🇬🇧', regions: ['Anglija', 'Skotija', 'Velsa', 'Ziemeļīrija', 'Londona'] },
-  { name: 'ASV', flag: '🇺🇸', regions: ['Kalifornija', 'Teksasa', 'Ņujorka', 'Florida', 'Ilinoisa', 'Vašingtona'] },
-  { name: 'Kanāda', flag: '🇨🇦', regions: ['Ontārio', 'Kvebeka', 'Britu Kolumbija', 'Alberta'] },
-  { name: 'Nīderlande', flag: '🇳🇱', regions: ['Ziemeļholande', 'Dienvidholande', 'Utrehta'] },
-  { name: 'Beļģija', flag: '🇧🇪', regions: ['Flandrija', 'Valonija', 'Briseles galvaspilsētas reģions'] },
-  { name: 'Austrija', flag: '🇦🇹', regions: ['Vīne', 'Augšaustrija', 'Lejaustrija', 'Tirole'] },
-  { name: 'Šveice', flag: '🇨🇭', regions: ['Cīrihe', 'Ženēva', 'Berne', 'Vo'] },
-  { name: 'Čehija', flag: '🇨🇿', regions: ['Prāga', 'Dienvidmorāvija', 'Vidusčehija'] },
-  { name: 'Ukraina', flag: '🇺🇦', regions: ['Kijeva', 'Ļviva', 'Odesa', 'Harkiva', 'Dnipro'] }
+  { name: 'Latvija', code: 'lv', regions: ['Rīga', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale'] },
+  { name: 'Lietuva', code: 'lt', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža'] },
+  { name: 'Igaunija', code: 'ee', regions: ['Tallina', 'Tartu', 'Narva', 'Pērnava'] },
+  { name: 'Vācija', code: 'de', regions: ['Bavārija', 'Berlīne', 'Hamburga', 'Ziemeļreinas-Vestfālene', 'Bādenes-Virtemberga'] },
+  { name: 'Polija', code: 'pl', regions: ['Mazovija', 'Mazpolija', 'Lejassilēzija', 'Lielpolija'] },
+  { name: 'Zviedrija', code: 'se', regions: ['Stokholma', 'Gēteborga', 'Malme', 'Upsāla'] },
+  { name: 'Norvēģija', code: 'no', regions: ['Oslo', 'Viken', 'Vestland', 'Trondelag'] },
+  { name: 'Somija', code: 'fi', regions: ['Ūusimā', 'Pirkanmā', 'Varsinais-Suomi'] },
+  { name: 'Dānija', code: 'dk', regions: ['Hovedstaden', 'Midtjylland', 'Syddanmark'] },
+  { name: 'Francija', code: 'fr', regions: ['Ildefransa', 'Provansa-Alpi-Azūras krasts', 'Overņa-Ronas-Alpi'] },
+  { name: 'Itālija', code: 'it', regions: ['Lombardija', 'Lacio', 'Veneto', 'Pjemonta', 'Sicīlija'] },
+  { name: 'Spānija', code: 'es', regions: ['Madride', 'Katalonija', 'Andalūzija', 'Valensija'] },
+  { name: 'Lielbritānija', code: 'gb', regions: ['Anglija', 'Skotija', 'Velsa', 'Ziemeļīrija', 'Londona'] },
+  { name: 'ASV', code: 'us', regions: ['Kalifornija', 'Teksasa', 'Ņujorka', 'Florida', 'Ilinoisa', 'Vašingtona'] },
+  { name: 'Kanāda', code: 'ca', regions: ['Ontārio', 'Kvebeka', 'Britu Kolumbija', 'Alberta'] },
+  { name: 'Nīderlande', code: 'nl', regions: ['Ziemeļholande', 'Dienvidholande', 'Utrehta'] },
+  { name: 'Beļģija', code: 'be', regions: ['Flandrija', 'Valonija', 'Briseles galvaspilsētas reģions'] },
+  { name: 'Austrija', code: 'at', regions: ['Vīne', 'Augšaustrija', 'Lejaustrija', 'Tirole'] },
+  { name: 'Šveice', code: 'ch', regions: ['Cīrihe', 'Ženēva', 'Berne', 'Vo'] },
+  { name: 'Čehija', code: 'cz', regions: ['Prāga', 'Dienvidmorāvija', 'Vidusčehija'] },
+  { name: 'Ukraina', code: 'ua', regions: ['Kijeva', 'Ļviva', 'Odesa', 'Harkiva', 'Dnipro'] },
+  { name: 'Austrālija', code: 'au', regions: ['Jaundienvidvelsa', 'Viktorija', 'Kvīnslenda', 'Rietumaustrālija'] },
+  { name: 'Japāna', code: 'jp', regions: ['Tokija', 'Osaka', 'Hokaido', 'Kiota'] },
+  { name: 'Brazīlija', code: 'br', regions: ['Sanpaulu', 'Riodaženeiru', 'Minasžeraisa'] },
+  { name: 'Turcija', code: 'tr', regions: ['Stambula', 'Ankara', 'Izmira', 'Antalja'] },
+  { name: 'Grieķija', code: 'gr', regions: ['Atēnas', 'Saloniki', 'Krēta'] },
+  { name: 'Portugāle', code: 'pt', regions: ['Lisabona', 'Porto', 'Algarve'] },
+  { name: 'Īrija', code: 'ie', regions: ['Dublina', 'Korka', 'Golveja'] },
+  { name: 'Ungārija', code: 'hu', regions: ['Budapešta', 'Peste', 'Dienvidpundūnija'] },
+  { name: 'Rumānija', code: 'ro', regions: ['Bukareste', 'Kluža-Napoka', 'Timišoara'] }
 ]
 
 export default function PievienotSludinajumu() {
@@ -84,8 +93,9 @@ export default function PievienotSludinajumu() {
   const [bodyType, setBodyType] = useState('')
   const [vin, setVin] = useState('')
   
-  const [country, setCountry] = useState('Latvija 🇱🇻')
-  const [countrySuggestions, setCountrySuggestions] = useState<{ name: string; flag: string; regions: string[] }[]>([])
+  const [country, setCountry] = useState('Latvija')
+  const [countryCode, setCountryCode] = useState('lv')
+  const [countrySuggestions, setCountrySuggestions] = useState<{ name: string; code: string; regions: string[] }[]>([])
   
   const [region, setRegion] = useState('')
   const [regionSuggestions, setRegionSuggestions] = useState<string[]>([])
@@ -150,7 +160,7 @@ export default function PievienotSludinajumu() {
     const value = e.target.value
     setRegion(value)
 
-    const foundCountry = WORLD_COUNTRIES.find(c => country.toLowerCase().includes(c.name.toLowerCase()))
+    const foundCountry = WORLD_COUNTRIES.find(c => country.toLowerCase() === c.name.toLowerCase())
     const availableRegions = foundCountry ? foundCountry.regions : []
 
     if (value.trim().length > 0) {
@@ -391,34 +401,44 @@ export default function PievienotSludinajumu() {
               </div>
             </div>
 
-            {/* 5. Rinda: Valsts un Reģions */}
+            {/* 5. Rinda: Valsts un Reģions ar krāsainiem karodziņiem */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               
               {/* Valsts lauks */}
               <div style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Valsts</label>
-                <input
-                  type="text"
-                  placeholder="Sāc rakstīt valsti..."
-                  value={country}
-                  onChange={handleCountryChange}
-                  onFocus={() => setCountrySuggestions(WORLD_COUNTRIES)}
-                  onBlur={() => setTimeout(() => setCountrySuggestions([]), 200)}
-                  style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
-                />
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <img 
+                    src={`https://flagcdn.com/24x18/${countryCode}.png`} 
+                    alt="karogs" 
+                    style={{ position: 'absolute', left: '10px', width: '20px', height: '15px', objectFit: 'cover', borderRadius: '2px', pointerEvents: 'none' }} 
+                  />
+                  <input
+                    type="text"
+                    placeholder="Sāc rakstīt valsti..."
+                    value={country}
+                    onChange={handleCountryChange}
+                    onFocus={() => setCountrySuggestions(WORLD_COUNTRIES)}
+                    onBlur={() => setTimeout(() => setCountrySuggestions([]), 200)}
+                    style={{ width: '100%', padding: '9px 9px 9px 38px', borderRadius: '6px', border: '1px solid #d1d5db', boxSizing: 'border-box', fontSize: '13px' }}
+                  />
+                </div>
                 {countrySuggestions.length > 0 && (
-                  <ul style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '0 0 6px 6px', maxHeight: '180px', overflowY: 'auto', listStyle: 'none', margin: 0, padding: 0, zIndex: 50, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                  <ul style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '0 0 6px 6px', maxHeight: '200px', overflowY: 'auto', listStyle: 'none', margin: 0, padding: 0, zIndex: 50, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                     {countrySuggestions.map((c, idx) => (
                       <li
                         key={idx}
                         onClick={() => {
-                          setCountry(`${c.name} ${c.flag}`)
+                          setCountry(c.name)
+                          setCountryCode(c.code)
                           setCountrySuggestions([])
                           setRegion('')
                         }}
-                        style={{ padding: '8px 12px', fontSize: '13px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', display: 'flex', alignItems: 'center', gap: '8px' }}
+                        style={{ padding: '8px 12px', fontSize: '13px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', display: 'flex', alignItems: 'center', gap: '10px' }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f9fafb')}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#fff')}
                       >
-                        <span style={{ fontSize: '16px' }}>{c.flag}</span>
+                        <img src={`https://flagcdn.com/24x18/${c.code}.png`} alt={c.name} style={{ width: '20px', height: '15px', objectFit: 'cover', borderRadius: '2px' }} />
                         <span>{c.name}</span>
                       </li>
                     ))}
@@ -435,7 +455,7 @@ export default function PievienotSludinajumu() {
                   value={region}
                   onChange={handleRegionChange}
                   onFocus={() => {
-                    const foundCountry = WORLD_COUNTRIES.find(c => country.toLowerCase().includes(c.name.toLowerCase()))
+                    const foundCountry = WORLD_COUNTRIES.find(c => country.toLowerCase() === c.name.toLowerCase())
                     if (foundCountry) setRegionSuggestions(foundCountry.regions)
                   }}
                   onBlur={() => setTimeout(() => setRegionSuggestions([]), 200)}
@@ -451,6 +471,8 @@ export default function PievienotSludinajumu() {
                           setRegionSuggestions([])
                         }}
                         style={{ padding: '8px 12px', fontSize: '13px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f9fafb')}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#fff')}
                       >
                         {item}
                       </li>
