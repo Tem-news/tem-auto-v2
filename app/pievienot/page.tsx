@@ -41,36 +41,67 @@ const CAR_DATABASE: { [key: string]: string[] } = {
 }
 
 const WORLD_COUNTRIES = [
-  { name: 'Latvija', code: 'lv', regions: ['Rīga', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale'] },
-  { name: 'Lietuva', code: 'lt', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža'] },
-  { name: 'Igaunija', code: 'ee', regions: ['Tallina', 'Tartu', 'Narva', 'Pērnava'] },
-  { name: 'Vācija', code: 'de', regions: ['Bavārija', 'Berlīne', 'Hamburga', 'Ziemeļreinas-Vestfālene', 'Bādenes-Virtemberga'] },
-  { name: 'Polija', code: 'pl', regions: ['Mazovija', 'Mazpolija', 'Lejassilēzija', 'Lielpolija'] },
-  { name: 'Zviedrija', code: 'se', regions: ['Stokholma', 'Gēteborga', 'Malme', 'Upsāla'] },
-  { name: 'Norvēģija', code: 'no', regions: ['Oslo', 'Viken', 'Vestland', 'Trondelag'] },
-  { name: 'Somija', code: 'fi', regions: ['Ūusimā', 'Pirkanmā', 'Varsinais-Suomi'] },
-  { name: 'Dānija', code: 'dk', regions: ['Hovedstaden', 'Midtjylland', 'Syddanmark'] },
-  { name: 'Francija', code: 'fr', regions: ['Ildefransa', 'Provansa-Alpi-Azūras krasts', 'Overņa-Ronas-Alpi'] },
-  { name: 'Itālija', code: 'it', regions: ['Lombardija', 'Lacio', 'Veneto', 'Pjemonta', 'Sicīlija'] },
-  { name: 'Spānija', code: 'es', regions: ['Madride', 'Katalonija', 'Andalūzija', 'Valensija'] },
-  { name: 'Lielbritānija', code: 'gb', regions: ['Anglija', 'Skotija', 'Velsa', 'Ziemeļīrija', 'Londona'] },
-  { name: 'ASV', code: 'us', regions: ['Kalifornija', 'Teksasa', 'Ņujorka', 'Florida', 'Ilinoisa', 'Vašingtona'] },
-  { name: 'Kanāda', code: 'ca', regions: ['Ontārio', 'Kvebeka', 'Britu Kolumbija', 'Alberta'] },
-  { name: 'Nīderlande', code: 'nl', regions: ['Ziemeļholande', 'Dienvidholande', 'Utrehta'] },
-  { name: 'Beļģija', code: 'be', regions: ['Flandrija', 'Valonija', 'Briseles galvaspilsētas reģions'] },
-  { name: 'Austrija', code: 'at', regions: ['Vīne', 'Augšaustrija', 'Lejaustrija', 'Tirole'] },
-  { name: 'Šveice', code: 'ch', regions: ['Cīrihe', 'Ženēva', 'Berne', 'Vo'] },
-  { name: 'Čehija', code: 'cz', regions: ['Prāga', 'Dienvidmorāvija', 'Vidusčehija'] },
-  { name: 'Ukraina', code: 'ua', regions: ['Kijeva', 'Ļviva', 'Odesa', 'Harkiva', 'Dnipro'] },
-  { name: 'Austrālija', code: 'au', regions: ['Jaundienvidvelsa', 'Viktorija', 'Kvīnslenda', 'Rietumaustrālija'] },
-  { name: 'Japāna', code: 'jp', regions: ['Tokija', 'Osaka', 'Hokaido', 'Kiota'] },
-  { name: 'Brazīlija', code: 'br', regions: ['Sanpaulu', 'Riodaženeiru', 'Minasžeraisa'] },
-  { name: 'Turcija', code: 'tr', regions: ['Stambula', 'Ankara', 'Izmira', 'Antalja'] },
-  { name: 'Grieķija', code: 'gr', regions: ['Atēnas', 'Saloniki', 'Krēta'] },
-  { name: 'Portugāle', code: 'pt', regions: ['Lisabona', 'Porto', 'Algarve'] },
-  { name: 'Īrija', code: 'ie', regions: ['Dublina', 'Korka', 'Golveja'] },
-  { name: 'Ungārija', code: 'hu', regions: ['Budapešta', 'Peste', 'Dienvidpundūnija'] },
-  { name: 'Rumānija', code: 'ro', regions: ['Bukareste', 'Kluža-Napoka', 'Timišoara'] }
+  { name: 'Latvija', code: 'lv', regions: ['Rīga', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale', 'Jūrmala', 'Liepāja', 'Daugavpils', 'Jelgava', 'Ventspils', 'Valmiera', 'Ogre', 'Salaspils', 'Tukums', 'Cēsis', 'Sigulda'] },
+  { name: 'Lietuva', code: 'lt', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alytus', 'Marijampolė', 'Mažeikiai', 'Jonava', 'Utena'] },
+  { name: 'Igaunija', code: 'ee', regions: ['Tallina', 'Tartu', 'Narva', 'Pērnava', 'Kohtla-Järve', 'Viljandi', 'Rakvere', 'Maardu', 'Kuressaare'] },
+  { 
+    name: 'Vācija', 
+    code: 'de', 
+    regions: [
+      'Bādenes-Virtemberga', 'Bavārija', 'Berlīne', 'Brandenburga', 'Brēmene', 
+      'Hamburga', 'Hesene', 'Mēklenburga-Priekšpomerānija', 'Lejassaksija', 
+      'Ziemeļreina-Vestfālene', 'Reina-Pfalsa', 'Sāra', 'Saksija', 
+      'Saksija-Anhalte', 'Šlēviga-Holšteina', 'Tīringene'
+    ] 
+  },
+  { 
+    name: 'Polija', 
+    code: 'pl', 
+    regions: [
+      'Lielpolija', 'Kujāvijas-Pomožes', 'Mazpolsija', 'Lodza', 'Lejassilēzija', 
+      'Ļubļina', 'Ļubusa', 'Mazovija', 'Opole', 'Pakarpatja', 'Podlase', 
+      'Pomože', 'Silēzija', 'Sventokšiska', 'Varmijas-Mazūrija', 'Rietumpomože'
+    ] 
+  },
+  { name: 'Zviedrija', code: 'se', regions: ['Stokholma', 'Gēteborga', 'Malme', 'Upsāla', 'Vesterosa', 'Ērebrū', 'Linšēpinga', 'Helsingborga', 'Jēnšēpinga'] },
+  { name: 'Norvēģija', code: 'no', regions: ['Oslo', 'Viken', 'Vestland', 'Trondelag', 'Rogaland', 'Agder', 'Innlandet', 'Vestfold un Tēlemarka', 'Nordland', 'Troms un Finnmark'] },
+  { name: 'Somija', code: 'fi', regions: ['Ūusimā', 'Pirkanmā', 'Varsinais-Suomi', 'Pohjois-Pohjanmaa', 'Keski-Suomi', 'Satakunta', 'Päijät-Häme'] },
+  { name: 'Dānija', code: 'dk', regions: ['Hovedstaden', 'Midtjylland', 'Syddanmark', 'Sjælland', 'Nordjylland'] },
+  { name: 'Francija', code: 'fr', regions: ['Ildefransa', 'Provansa-Alpi-Azūras krasts', 'Overņa-Ronas-Alpi', 'Grand Est', 'Nouvelle-Aquitaine', 'Occitanie', 'Hauts-de-France', 'Bretagne', 'Normandie', 'Pays de la Loire', 'Centre-Val de Loire', 'Bourgogne-Franche-Comté', 'Korsika'] },
+  { name: 'Itālija', code: 'it', regions: ['Lombardija', 'Lacio', 'Veneto', 'Pjemonta', 'Emīlija-Romanja', 'Tuskānija', 'Kalabrija', 'Kampānija', 'Sicīlija', 'Sardīnija', 'Ligūrija', 'Apūlija', 'Friuli-Venēcija Džūlija', 'Trentīna-Alto Adige', 'Umbrija', 'Abruco', 'Bazilikāta', 'Molize', 'Valle d\'Aosta', 'Marche'] },
+  { name: 'Spānija', code: 'es', regions: ['Madride', 'Katalonija', 'Andalūzija', 'Valensija', 'Galisija', 'Kastīlija un Leona',if: 'Basku Zeme', 'Kanāriju salas', 'Kastīlija-La Manča', 'Mursija', 'Aragona', 'Baleāru salas', 'Ekstremadura', 'Astūrija', 'Navarra', 'Kantabrija', 'La Rioja', 'Seuta', 'Meliļa'] },
+  { name: 'Lielbritānija', code: 'gb', regions: ['Anglija', 'Skotija', 'Velsa', 'Ziemeļīrija', 'Londona', 'Lielā Mančestra', 'West Midlands', 'West Yorkshire', 'Hampshire', 'Essex', 'Kent'] },
+  { 
+    name: 'ASV', 
+    code: 'us', 
+    regions: [
+      'Alabama', 'Aļaska', 'Arizona', 'Arkanzasa', 'Delavēra', 'Dienvidkarolīna', 
+      'Dienviddakota', 'Florida', 'Džordžija', 'Havajas', 'Aidaho', 'Ilinoisa', 
+      'Indiāna', 'Ajova', 'Kanzasa', 'Kentuki', 'Luiziāna', 'Meina', 'Merilenda', 
+      'Masačūsetsa', 'Mičigana', 'Minesota', 'Misisipi', 'Misūri', 'Montāna', 
+      'Nebraska', 'Nevada', 'Ņūhempšīra', 'Ņūdžersija', 'Ņūmeksika', 'Ņujorka', 
+      'Ziemeļkarolīna', 'Ziemeļdakota', 'Ohaio', 'Oklahoma', 'Oregona', 
+      'Pensilvānija', 'Rodeilenda', 'Tenesī', 'Teksasa', 'Jūta', 'Vermonta', 
+      'Virdžīnija', 'Vašingtona', 'Rietumvirdžīnija', 'Viskonsina', 'Vaiominga', 
+      'Kolorādo', 'Konektikuta', 'Kalifornija', 'Kolumbijas federālais apgabals (Vašingtona)'
+    ] 
+  },
+  { name: 'Kanāda', code: 'ca', regions: ['Ontārio', 'Kvebeka', 'Britu Kolumbija', 'Alberta', 'Manitoba', 'Saskačevana', 'Jaunskotija', 'Ņūbransvika', 'Ņūfaundlenda un Labradora', 'Princa Edvarda Sala', 'Jukona', 'Ziemeļrietumu teritorijas', 'Nunavuta'] },
+  { name: 'Nīderlande', code: 'nl', regions: ['Ziemeļholande', 'Dienvidholande', 'Utrehta', 'Ziemeļbrabante', 'Gelderlande', 'Overijseka', 'Limburga', Friesland, 'Groningene', 'Drenthe', 'Flevolande', 'Zēlande'] },
+  { name: 'Beļģija', code: 'be', regions: ['Flandrija', 'Valonija', 'Briseles galvaspilsētas reģions', 'Antverpene', 'Austrūrija', 'Rietumflandrija', 'Lježas province', 'Hainaut'] },
+  { name: 'Austrija', code: 'at', regions: ['Vīne', 'Augšaustrija', 'Lejaustrija', 'Tirole', 'Zalcburga', 'Štīrija', 'Karintija', 'Forarlberga', 'Burgenlande'] },
+  { name: 'Šveice', code: 'ch', regions: ['Cīrihe', 'Ženēva', 'Berne', 'Vo', 'Bāzele', 'Lucerna', 'Sanktgallene', 'Tičīno', 'Valē'] },
+  { name: 'Čehija', code: 'cz', regions: ['Prāga', 'Dienvidmorāvija', 'Vidusčehija', 'Morāvija-Silēzija', 'Ūstijas apgabals', 'Plzeņas apgabals', 'Liberecas apgabals'] },
+  { name: 'Ukraina', code: 'ua', regions: ['Kijeva', 'Ļviva', 'Odesa', 'Harkiva', 'Dnipro', 'Zaporožje', 'Vinnica', 'Poltava', 'Černihiva', 'Žitomira', 'Kemerova', 'Krivijriha'] },
+  { name: 'Austrālija', code: 'au', regions: ['Jaundienvidvelsa', 'Viktorija', 'Kvīnslenda', 'Rietumaustrālija', 'Dienvidaustrālija', 'Tasmānija', 'Austrālijas galvaspilsētas teritorija', 'Ziemeļu teritorija'] },
+  { name: 'Japāna', code: 'jp', regions: ['Tokija', 'Osaka', 'Hokaido', 'Kiota', 'Kanaagava', 'Aiči', 'Fukuoka', 'Hjogo', 'Saitama', 'Čiba'] },
+  { name: 'Brazīlija', code: 'br', regions: ['Sanpaulu', 'Riodaženeiru', 'Minasžeraisa', 'Baija', 'Parana', 'Riógrandes do Sula', 'Santa Katarina', 'Seara'] },
+  { name: 'Turcija', code: 'tr', regions: ['Stambula', 'Ankara', 'Izmira', 'Antalja', 'Bursa', 'Adana', 'Konya', 'Gaziantep'] },
+  { name: 'Grieķija', code: 'gr', regions: ['Atēnas', 'Saloniki', 'Krēta', 'Peloponēsa', 'Tesālija', 'Egejas salas', 'Jonijas salas'] },
+  { name: 'Portugāle', code: 'pt', regions: ['Lisabona', 'Porto', 'Algarve', 'Coimbra', 'Braga', 'Madeira', 'Azoru salas'] },
+  { name: 'Īrija', code: 'ie', regions: ['Dublina', 'Korka', 'Golveja', 'Limerika', 'Voterforda', 'Kleri', 'Mito'] },
+  { name: 'Ungārija', code: 'hu', regions: ['Budapešta', 'Peste', 'Borsod-Abaúj-Zemplén', 'Győr-Moson-Sopron', 'Hajdú-Bihar', 'Szabolcs-Szatmár-Bereg'] },
+  { name: 'Rumānija', code: 'ro', regions: ['Bukareste', 'Kluža-Napoka', 'Timišoara', 'Jaši', 'Konstanca', 'Krajova', 'Brašova'] }
 ]
 
 export default function PievienotSludinajumu() {
@@ -401,7 +432,7 @@ export default function PievienotSludinajumu() {
               </div>
             </div>
 
-            {/* 5. Rinda: Valsts un Reģions ar krāsainiem karodziņiem */}
+            {/* 5. Rinda: Valsts un Reģions ar krāsainiem karodziņiem un pilnu reģionu sarakstu */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               
               {/* Valsts lauks */}
@@ -451,7 +482,7 @@ export default function PievienotSludinajumu() {
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#374151', marginBottom: '4px' }}>Reģions / Štats</label>
                 <input
                   type="text"
-                  placeholder="Piem., Rīga vai Kalifornija"
+                  placeholder="Piem., Kalifornija, Rīga..."
                   value={region}
                   onChange={handleRegionChange}
                   onFocus={() => {
