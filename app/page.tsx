@@ -42,37 +42,36 @@ const OFFICIAL_MAKES: { [key: string]: string } = {
   'tesla': 'Tesla'
 }
 
-// Paplašināts pasaules valstu saraksts ar krāsainiem karodziņiem
+// Valstu saraksts ar ISO kodiem, lai nodrošinātu 100% krāsainus karogus caur flagcdn
 const COUNTRIES = [
-  { name: 'Latvija', flag: '🇱🇻' },
-  { name: 'Lietuva', flag: '🇱🇹' },
-  { name: 'Igaunija', flag: '🇪🇪' },
-  { name: 'Vācija', flag: '🇩🇪' },
-  { name: 'Polija', flag: '🇵🇱' },
-  { name: 'Zviedrija', flag: '🇸🇪' },
-  { name: 'Somija', flag: '🇫🇮' },
-  { name: 'Dānija', flag: '🇩🇰' },
-  { name: 'Norvēģija', flag: '🇳🇴' },
-  { name: 'Nīderlande', flag: '🇳🇱' },
-  { name: 'Beļģija', flag: '🇧🇪' },
-  { name: 'Francija', flag: '🇫🇷' },
-  { name: 'Itālija', flag: '🇮🇹' },
-  { name: 'Spānija', flag: '🇪🇸' },
-  { name: 'Lielbritānija', flag: '🇬🇧' },
-  { name: 'ASV', flag: '🇺🇸' },
-  { name: 'Kanāda', flag: '🇨🇦' },
-  { name: 'Austrija', flag: '🇦🇹' },
-  { name: 'Šveice', flag: '🇨🇭' },
-  { name: 'Čehija', flag: '🇨🇿' },
-  { name: 'Islande', flag: '🇮🇸' },
-  { name: 'Īrija', flag: '🇮🇪' },
-  { name: 'Japāna', flag: '🇯🇵' },
-  { name: 'Koreja', flag: '🇰🇷' },
-  { name: 'Norvēģija', flag: '🇳🇴' },
-  { name: 'Portugāle', flag: '🇵🇹' },
-  { name: 'Rumānija', flag: '🇷🇴' },
-  { name: 'Turcija', tr: '🇹🇷' },
-  { name: 'Ukraina', flag: '🇺🇦' }
+  { name: 'Latvija', code: 'lv' },
+  { name: 'Lietuva', code: 'lt' },
+  { name: 'Igaunija', code: 'ee' },
+  { name: 'Vācija', code: 'de' },
+  { name: 'Polija', code: 'pl' },
+  { name: 'Zviedrija', code: 'se' },
+  { name: 'Somija', code: 'fi' },
+  { name: 'Dānija', code: 'dk' },
+  { name: 'Norvēģija', code: 'no' },
+  { name: 'Nīderlande', code: 'nl' },
+  { name: 'Beļģija', code: 'be' },
+  { name: 'Francija', code: 'fr' },
+  { name: 'Itālija', code: 'it' },
+  { name: 'Spānija', code: 'es' },
+  { name: 'Lielbritānija', code: 'gb' },
+  { name: 'ASV', code: 'us' },
+  { name: 'Kanāda', code: 'ca' },
+  { name: 'Austrija', code: 'at' },
+  { name: 'Šveice', code: 'ch' },
+  { name: 'Čehija', code: 'cz' },
+  { name: 'Islande', code: 'is' },
+  { name: 'Īrija', code: 'ie' },
+  { name: 'Japāna', code: 'jp' },
+  { name: 'Koreja', code: 'kr' },
+  { name: 'Portugāle', code: 'pt' },
+  { name: 'Rumānija', code: 'ro' },
+  { name: 'Turcija', code: 'tr' },
+  { name: 'Ukraina', code: 'ua' }
 ]
 
 // Reģioni
@@ -128,7 +127,7 @@ const COLORS = [
   'Violeta'
 ]
 
-// Motora tilpumi (piemēri ātrai izvēlei)
+// Motora tilpumi
 const VOLUMES = [
   '1.0', '1.2', '1.4', '1.6', '1.8', '2.0', '2.2', '2.5', '3.0', '3.5', '4.0', '5.0'
 ]
@@ -321,7 +320,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* VIDUS: Jaunais filtrs un sludinājumi */}
+        {/* VIDUS: Filtri un sludinājumi */}
         <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
           {/* FILTRA JOSLA */}
@@ -330,7 +329,7 @@ export default function Sakumlapa() {
             {/* 1. Rinda: Valsts, Reģions, Cena, Gads */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
               
-              {/* VALSTS AR KARODZIŅIEM */}
+              {/* VALSTS AR KRĀSAINIEM KAROGIEM (PNG) */}
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
                   type="text"
@@ -347,11 +346,15 @@ export default function Sakumlapa() {
                       <div
                         key={c.name}
                         onClick={() => { setValsts(c.name); setActiveDropdown(null); }}
-                        style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                        style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        <span>{c.flag}</span>
+                        <img 
+                          src={`https://flagcdn.com/20x15/${c.code}.png`} 
+                          alt={c.name} 
+                          style={{ width: '20px', height: '15px', objectFit: 'cover', borderRadius: '2px', border: '1px solid #e5e7eb' }} 
+                        />
                         <span>{c.name}</span>
                       </div>
                     ))}
@@ -433,7 +436,7 @@ export default function Sakumlapa() {
                 )}
               </div>
 
-              {/* Tilpums no → līdz (Ar priekšā teikšanu) */}
+              {/* Tilpums no → līdz */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <div style={{ position: 'relative', width: '70px' }}>
                   <input 
