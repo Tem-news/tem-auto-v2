@@ -146,7 +146,6 @@ function normalizeMake(makeStr: string): string {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
 }
 
-// Droša un precīza tūkstošu atdalīšana ar regulāro izteiksmi
 function formatPriceInput(value: string): string {
   const cleanNums = value.replace(/\D/g, '')
   if (!cleanNums) return ''
@@ -342,10 +341,24 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* VIDUS: Filtri */}
+        {/* VIDUS: Filtri un Sludinājumi */}
         <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
-          <div style={{ backgroundColor: '#f3f4f6', padding: '12px', borderRadius: '8px', marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid #e5e7eb' }}>
+          {/* FILTRI - UZLIKTS POSITION: STICKY, LAI STĀV UZ VIETAS */}
+          <div style={{ 
+            position: 'sticky', 
+            top: '80px', 
+            zIndex: 20, 
+            backgroundColor: '#f3f4f6', 
+            padding: '12px', 
+            borderRadius: '8px', 
+            marginBottom: '16px', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '8px', 
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+          }}>
             
             {/* 1. Rinda */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -415,7 +428,7 @@ export default function Sakumlapa() {
                 )}
               </div>
               
-              {/* Cena ar regulāro izteiksmi un tūkstošu atdalītāju */}
+              {/* Cena */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <input 
                   type="text" 
@@ -560,7 +573,7 @@ export default function Sakumlapa() {
                 )}
               </div>
 
-              {/* KRĀSA AR PARAUDZIŅIEM */}
+              {/* KRĀSA */}
               <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
                 <input
                   type="text"
@@ -597,58 +610,55 @@ export default function Sakumlapa() {
                 )}
               </div>
 
-              {/* Notīrīt */}
-              {(valsts || regions || minPrice || maxPrice || minYear || maxYear || dzinejs || minTilpums || maxTilpums || atrumkarba || virsbuve || krasa || searchMake) && (
-                <button
-                  onClick={() => {
-                    setValsts(''); setRegions(''); setMinPrice(''); setMaxPrice('');
-                    setDisplayMinPrice(''); setDisplayMaxPrice('');
-                    setMinYear(''); setMaxYear(''); setDzinejs(''); setMinTilpums('');
-                    setMaxTilpums(''); setAtrumkarba(''); setVirsbuve(''); setKrasa(''); setSearchMake('');
-                  }}
-                  style={{ padding: '6px 12px', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
-                >
-                  Notīrīt
-                </button>
-              )}
             </div>
 
           </div>
 
-          {/* Sludinājumu režģis */}
-          {loading ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Ielādē sludinājumus...</div>
-          ) : filteredCars.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Nav atrasts neviens auto.</div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
-              {filteredCars.map((car) => (
-                <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                    <div style={{ height: '140px', backgroundColor: '#f3f4f6' }}>
-                      {car.image ? <img src={car.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af', fontSize: '12px' }}>Nav attēla</div>}
+          {/* SLUDINĀJUMU SARAKSTS */}
+          <div>
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
+            ) : filteredCars.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280', backgroundColor: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                Nav atrasts neviens auto pēc izvēlētajiem kritērijiem.
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '12px' }}>
+                {filteredCars.map((car) => (
+                  <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <div style={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', transition: 'box-shadow 0.2s' }}>
+                      <div style={{ width: '100%', height: '140px', backgroundColor: '#e5e7eb', position: 'relative' }}>
+                        {car.image_url || (car.images && car.images[0]) ? (
+                          <img 
+                            src={car.image_url || car.images[0]} 
+                            alt={`${car.make} ${car.model}`} 
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                          />
+                        ) : (
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af', fontSize: '12px' }}>Nav attēla</div>
+                        )}
+                      </div>
+                      <div style={{ padding: '8px' }}>
+                        <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#111827' }}>{car.make} {car.model}</div>
+                        <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>{car.year} g. • {car.engine_volume || car.volume}</div>
+                        <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#0369a1', marginTop: '6px' }}>€{car.price}</div>
+                      </div>
                     </div>
-                    <div style={{ padding: '8px' }}>
-                      <h2 style={{ fontSize: '14px', fontWeight: '800', color: '#111827', margin: '0 0 2px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{car.make} {car.model}</h2>
-                      <p style={{ fontSize: '11px', color: '#6b7280', margin: '0 0 4px 0' }}>{car.year} g. {car.engine ? `• ${car.engine}` : ''}</p>
-                      <p style={{ fontSize: '14px', fontWeight: 'bold', color: '#16a34a', margin: 0 }}>€{car.price}</p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
         </div>
 
-        {/* LABĀ PUSE */}
-        <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
-          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
-            <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
-            <p style={{ color: '#6b7280', fontSize: '13.5px', margin: 0 }}>Globālais baneris šeit!</p>
+        {/* LABĀ PUSE: REKLĀMAS BANERI */}
+        <div style={{ position: 'sticky', top: '80px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ backgroundColor: '#f9fafb', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+            REKLĀMA<br />Globālais baners šeit!
           </div>
-          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
-            <span style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Reklāma</span>
-            <p style={{ color: '#6b7280', fontSize: '13.5px', margin: 0 }}>Globālais baneris šeit!</p>
+          <div style={{ backgroundColor: '#f9fafb', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+            REKLĀMA<br />Globālais baners šeit!
           </div>
         </div>
 
