@@ -69,7 +69,7 @@ const WORLD_COUNTRIES = [
   { name: 'Dānija', code: 'dk', regions: ['Hovedstaden', 'Midtjylland', 'Syddanmark', 'Sjælland', 'Nordjylland'] },
   { name: 'Francija', code: 'fr', regions: ['Ildefransa', 'Provansa-Alpi-Azūras krasts', 'Overņa-Ronas-Alpi', 'Grand Est', 'Nouvelle-Aquitaine', 'Occitanie', 'Hauts-de-France', 'Bretagne', 'Normandie', 'Pays de la Loire', 'Centre-Val de Loire', 'Bourgogne-Franche-Comté', 'Korsika'] },
   { name: 'Itālija', code: 'it', regions: ['Lombardija', 'Lacio', 'Veneto', 'Pjemonta', 'Emīlija-Romanja', 'Tuskānija', 'Kalabrija', 'Kampānija', 'Sicīlija', 'Sardīnija', 'Ligūrija', 'Apūlija', 'Friuli-Venēcija Džūlija', 'Trentīna-Alto Adige', 'Umbrija', 'Abruco', 'Bazilikāta', 'Molize', 'Valle d\'Aosta', 'Marche'] },
-  { name: 'Spānija', code: 'es', regions: ['Madride', 'Katalonija', 'Andalūzija', 'Valensija', 'Galisija', 'Kastīlija un Leona',if: 'Basku Zeme', 'Kanāriju salas', 'Kastīlija-La Manča', 'Mursija', 'Aragona', 'Baleāru salas', 'Ekstremadura', 'Astūrija', 'Navarra', 'Kantabrija', 'La Rioja', 'Seuta', 'Meliļa'] },
+  { name: 'Spānija', code: 'es', regions: ['Madride', 'Katalonija', 'Andalūzija', 'Valensija', 'Galisija', 'Kastīlija un Leona', 'Basku Zeme', 'Kanāriju salas', 'Kastīlija-La Manča', 'Mursija', 'Aragona', 'Baleāru salas', 'Ekstremadura', 'Astūrija', 'Navarra', 'Kantabrija', 'La Rioja', 'Seuta', 'Meliļa'] },
   { name: 'Lielbritānija', code: 'gb', regions: ['Anglija', 'Skotija', 'Velsa', 'Ziemeļīrija', 'Londona', 'Lielā Mančestra', 'West Midlands', 'West Yorkshire', 'Hampshire', 'Essex', 'Kent'] },
   { 
     name: 'ASV', 
@@ -87,7 +87,7 @@ const WORLD_COUNTRIES = [
     ] 
   },
   { name: 'Kanāda', code: 'ca', regions: ['Ontārio', 'Kvebeka', 'Britu Kolumbija', 'Alberta', 'Manitoba', 'Saskačevana', 'Jaunskotija', 'Ņūbransvika', 'Ņūfaundlenda un Labradora', 'Princa Edvarda Sala', 'Jukona', 'Ziemeļrietumu teritorijas', 'Nunavuta'] },
-  { name: 'Nīderlande', code: 'nl', regions: ['Ziemeļholande', 'Dienvidholande', 'Utrehta', 'Ziemeļbrabante', 'Gelderlande', 'Overijseka', 'Limburga', Friesland, 'Groningene', 'Drenthe', 'Flevolande', 'Zēlande'] },
+  { name: 'Nīderlande', code: 'nl', regions: ['Ziemeļholande', 'Dienvidholande', 'Utrehta', 'Ziemeļbrabante', 'Gelderlande', 'Overijseka', 'Limburga', 'Friesland', 'Groningene', 'Drenthe', 'Flevolande', 'Zēlande'] },
   { name: 'Beļģija', code: 'be', regions: ['Flandrija', 'Valonija', 'Briseles galvaspilsētas reģions', 'Antverpene', 'Austrūrija', 'Rietumflandrija', 'Lježas province', 'Hainaut'] },
   { name: 'Austrija', code: 'at', regions: ['Vīne', 'Augšaustrija', 'Lejaustrija', 'Tirole', 'Zalcburga', 'Štīrija', 'Karintija', 'Forarlberga', 'Burgenlande'] },
   { name: 'Šveice', code: 'ch', regions: ['Cīrihe', 'Ženēva', 'Berne', 'Vo', 'Bāzele', 'Lucerna', 'Sanktgallene', 'Tičīno', 'Valē'] },
