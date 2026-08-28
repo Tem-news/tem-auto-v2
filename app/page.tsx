@@ -72,13 +72,47 @@ const COUNTRIES = [
   { name: 'Ukraina', code: 'ua' }
 ]
 
-// Reģioni/štati atkarībā no izvēlētās valsts (ASV visi 50 štati)
+// Reģioni/štati atkarībā no izvēlētās valsts (arī Vācija un Polija ar pilniem sarakstiem)
 const REGIONS_BY_COUNTRY: { [key: string]: string[] } = {
   'Latvija': ['Rīga', 'Rīgas rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale', 'Liepāja', 'Ventspils', 'Jelgava', 'Daugavpils', 'Valmiera', 'Jēkabpils', 'Ogre', 'Tukums', 'Cēsis'],
-  'Lietuva': ['Viļņa', 'Kaunā', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alitūta', 'Marijampole', 'Mažeiķi', 'Jonava', 'Utenas apskriets'],
+  'Lietuva': ['Viļņa', 'Kauna', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alīta', 'Marijampole', 'Mažeiķi', 'Jonava', 'Utenas apriņķis'],
   'Igaunija': ['Harju (Tallina)', 'Tartu', 'Ida-Viru', 'Pērnava', 'Lääne-Viru', 'Viljandi', 'Rapla', 'Võru', 'Saare', 'Järva'],
-  'Vācija': ['Bavārija (Bayern)', 'Bādene-Virtemberga (Baden-Württemberg)', 'Ziemeļreinas-Vestfālene (Nordrhein-Westfalen)', 'Lejasinsemene (Niedersachsen)', 'Hesene (Hessen)', 'Berlīne', 'Hamburga', 'Saksija (Sachsen)', 'Reinlande-Pfalca (Rheinland-Pfalz)'],
-  'Polija': ['Mazovijas vojevodiste (Varšava)', 'Mazpolijas vojevodiste (Krakova)', 'Lielpolijas vojevodiste (Poznaņa)', 'Lejassilēzijas vojevodiste', 'Pomožes vojevodiste (Gdaņska)'],
+  'Vācija': [
+    'Bāden-Virtemberga (Baden-Württemberg)',
+    'Bavārija (Bayern)',
+    'Berlīne (Berlin)',
+    'Brandenburga (Brandenburg)',
+    'Brēmene (Bremen)',
+    'Hamburga (Hamburg)',
+    'Hesene (Hessen)',
+    'Mērklenburga-Priekšpomerānija (Mecklenburg-Vorpommern)',
+    'Lejassaksija (Niedersachsen)',
+    'Ziemeļreina-Vestfālene (Nordrhein-Westfalen)',
+    'Reinlande-Pfalca (Rheinland-Pfalz)',
+    'Sāra (Saarland)',
+    'Saksija (Sachsen)',
+    'Saksija-Anhalte (Sachsen-Anhalt)',
+    'Šlēsviga-Holšteina (Schleswig-Holstein)',
+    'Tīringene (Thüringen)'
+  ],
+  'Polija': [
+    'Apakšsilēzijas vojevodiste (Dolnośląskie)',
+    'Kujāvijas-Pomožes vojevodiste (Kujawsko-pomorskie)',
+    'Lodzas vojevodiste (Łódzkie)',
+    'Mazpolijas vojevodiste (Małopolskie)',
+    'Mazovijas vojevodiste (Mazowieckie)',
+    'Opoles vojevodiste (Opolskie)',
+    'Piekarpatu vojevodiste (Podkarpackie)',
+    'Podlases vojevodiste (Podlaskie)',
+    'Pomožes vojevodiste (Pomorskie)',
+    'Saksijas/Silēzijas vojevodiste (Śląskie)',
+    'Svētkrusta vojevodiste (Świętokrzyskie)',
+    'Varmijas-Mazūrijas vojevodiste (Warmińsko-mazurskie)',
+    'Lielpolijas vojevodiste (Wielkopolskie)',
+    'Rietumpomožes vojevodiste (Zachodniopomorskie)',
+    'Lubļinas vojevodiste (Lubelskie)',
+    'Lubušas vojevodiste (Lubuskie)'
+  ],
   'ASV': [
     'Alabama (AL)', 'Alaska (AK)', 'Arizona (AZ)', 'Arkansas (AR)', 'California (CA)', 
     'Colorado (CO)', 'Connecticut (CT)', 'Delaware (DE)', 'Florida (FL)', 'Georgia (GA)', 
