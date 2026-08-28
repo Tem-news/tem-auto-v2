@@ -40,14 +40,13 @@ const CAR_DATABASE: { [key: string]: string[] } = {
   'Volvo': ['S60', 'S90', 'V40', 'V60', 'V90', 'XC40', 'XC60', 'XC90']
 }
 
-// Pasaules valstu saraksts ar karodziņiem un reģioniem/štatiem paraugiem
 const WORLD_COUNTRIES = [
   { name: 'Latvija', flag: '🇱🇻', regions: ['Rīga', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale'] },
   { name: 'Lietuva', flag: '🇱🇹', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža'] },
   { name: 'Igaunija', flag: '🇪🇪', regions: ['Tallina', 'Tartu', 'Narva', 'Pērnava'] },
   { name: 'Vācija', flag: '🇩🇪', regions: ['Bavārija', 'Berlīne', 'Hamburga', 'Ziemeļreinas-Vestfālene', 'Bādenes-Virtemberga'] },
   { name: 'Polija', flag: '🇵🇱', regions: ['Mazovija', 'Mazpolija', 'Lejassilēzija', 'Lielpolija'] },
-  { name: 'Zviedrija', flag: '🇸🇪', regions: ['Stokholma', 'Gēteborga', 'Malme', Upsāla] },
+  { name: 'Zviedrija', flag: '🇸🇪', regions: ['Stokholma', 'Gēteborga', 'Malme', 'Upsāla'] },
   { name: 'Norvēģija', flag: '🇳🇴', regions: ['Oslo', 'Viken', 'Vestland', 'Trondelag'] },
   { name: 'Somija', flag: '🇫🇮', regions: ['Ūusimā', 'Pirkanmā', 'Varsinais-Suomi'] },
   { name: 'Dānija', flag: '🇩🇰', regions: ['Hovedstaden', 'Midtjylland', 'Syddanmark'] },
@@ -85,7 +84,6 @@ export default function PievienotSludinajumu() {
   const [bodyType, setBodyType] = useState('')
   const [vin, setVin] = useState('')
   
-  // Valsts un reģiona stāvokļi un to ieteikumu saraksti
   const [country, setCountry] = useState('Latvija 🇱🇻')
   const [countrySuggestions, setCountrySuggestions] = useState<{ name: string; flag: string; regions: string[] }[]>([])
   
@@ -134,7 +132,6 @@ export default function PievienotSludinajumu() {
     }
   }
 
-  // Valsts ievades un meklēšanas loģika
   const handleCountryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setCountry(value)
@@ -149,12 +146,10 @@ export default function PievienotSludinajumu() {
     }
   }
 
-  // Reģiona ievades un meklēšanas loģika (balstīta uz izvēlēto valsti, ja tāda atrasta)
   const handleRegionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setRegion(value)
 
-    // Atrodam, vai izvēlētajai valstij ir definēti reģioni
     const cleanCountryName = country.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').trim()
     const foundCountry = WORLD_COUNTRIES.find(c => c.name.toLowerCase() === cleanCountryName.toLowerCase())
     
@@ -398,7 +393,7 @@ export default function PievienotSludinajumu() {
               </div>
             </div>
 
-            {/* 5. Rinda: Valsts (ar karodziņiem un meklēšanu) un Reģions (ar meklēšanu) */}
+            {/* 5. Rinda: Valsts un Reģions */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               
               {/* Valsts lauks */}
@@ -421,7 +416,7 @@ export default function PievienotSludinajumu() {
                         onClick={() => {
                           setCountry(`${c.name} ${c.flag}`)
                           setCountrySuggestions([])
-                          setRegion('') // Notīra reģionu, mainot valsti
+                          setRegion('')
                         }}
                         style={{ padding: '8px 12px', fontSize: '13px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', display: 'flex', alignItems: 'center', gap: '8px' }}
                       >
