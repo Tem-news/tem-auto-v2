@@ -150,9 +150,7 @@ export default function PievienotSludinajumu() {
     const value = e.target.value
     setRegion(value)
 
-    const cleanCountryName = country.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').trim()
-    const foundCountry = WORLD_COUNTRIES.find(c => c.name.toLowerCase() === cleanCountryName.toLowerCase())
-    
+    const foundCountry = WORLD_COUNTRIES.find(c => country.toLowerCase().includes(c.name.toLowerCase()))
     const availableRegions = foundCountry ? foundCountry.regions : []
 
     if (value.trim().length > 0) {
@@ -437,8 +435,7 @@ export default function PievienotSludinajumu() {
                   value={region}
                   onChange={handleRegionChange}
                   onFocus={() => {
-                    const cleanCountryName = country.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').trim()
-                    const foundCountry = WORLD_COUNTRIES.find(c => c.name.toLowerCase() === cleanCountryName.toLowerCase())
+                    const foundCountry = WORLD_COUNTRIES.find(c => country.toLowerCase().includes(c.name.toLowerCase()))
                     if (foundCountry) setRegionSuggestions(foundCountry.regions)
                   }}
                   onBlur={() => setTimeout(() => setRegionSuggestions([]), 200)}
