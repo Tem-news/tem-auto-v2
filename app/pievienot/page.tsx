@@ -82,7 +82,7 @@ const COUNTRIES = [
     'Ohaio (Ohio)', 'Džordžija (Georgia)', 'Mičigana (Michigan)', 'Ņūdžersija (New Jersey)',
     'Ziemeļkarolīna (North Carolina)', 'Virdžīnija (Virginia)', 'Arizona', 'Kolorādo'
   ] },
-  { name: 'Zviedrija', code: 'se', regions: ['Stokholma', 'Gēteborga', 'Malme', Uppsala'] },
+  { name: 'Zviedrija', code: 'se', regions: ['Stokholma', 'Gēteborga', 'Malme', 'Uppsala'] },
   { name: 'Norvēģija', code: 'no', regions: ['Oslo', 'Bergena', 'Tronheima', 'Stavangere'] },
   { name: 'Polija', code: 'pl', regions: ['Varšava', 'Krakova', 'Gdaņska', 'Poznaņa', 'Vroclava', 'Lodza'] },
   { name: 'Somija', code: 'fi', regions: ['Helsinki', 'Espo', 'Tamperes', 'Vantaa', 'Oulu'] },
