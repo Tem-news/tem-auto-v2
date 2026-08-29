@@ -19,8 +19,18 @@ const MODELS_BY_MAKE: { [key: string]: string[] } = {
   'Mercedes-Benz': ['A-klase', 'C-klase', 'E-klase', 'S-klase', 'GLC', 'GLE', 'ML'],
   'Škoda': ['Octavia', 'Superb', 'Fabia', 'Kodiaq', 'Karoq', 'Rapid'],
   'Ford': ['Focus', 'Mondeo', 'Fiesta', 'Kuga', 'S-Max', 'Ranger'],
-  'Hyundai': ['i30', 'Tucson', 'Santa Fe', 'Kona', 'Ioniq'],
-  'Kia': ['Ceed', 'Sportage', 'Sorento', 'Stonic', 'Niro'],
+  'Hyundai': ['i10', 'i20', 'i30', 'i40', 'Tucson', 'Santa Fe', 'Kona', 'Ioniq'],
+  'Kia': ['Picanto', 'Ceed', 'Sportage', 'Sorento', 'Stonic', 'Niro', 'Rio'],
+  'Nissan': ['Qashqai', 'X-Trail', 'Juke', 'Leaf', 'Navara', 'Micra'],
+  'Opel': ['Astra', 'Corsa', 'Insignia', 'Mokka', 'Zafira', 'Crossland'],
+  'Peugeot': ['208', '308', '508', '2008', '3008', '5008', 'Partner'],
+  'Renault': ['Clio', 'Megane', 'Captur', 'Kadjar', 'Scenic', 'Talisman'],
+  'Mazda': ['Mazda2', 'Mazda3', 'Mazda6', 'CX-3', 'CX-5', 'CX-30'],
+  'Honda': ['Civic', 'Accord', 'CR-V', 'HR-V', 'Jazz'],
+  'Lexus': ['IS', 'ES', 'GS', 'LS', 'NX', 'RX', 'UX'],
+  'Subaru': ['Outback', 'Forester', 'Impreza', 'XV', 'Legacy'],
+  'Tesla': ['Model 3', 'Model Y', 'Model S', 'Model X', 'Cybertruck'],
+  'Porsche': ['911', 'Cayenne', 'Macan', 'Panamera', 'Taycan']
 }
 
 const COLORS = [
@@ -44,13 +54,13 @@ const BODY_TYPES = [
 
 const GEARBOX_TYPES = ['Mehāniskā', 'Automāts', 'Pusautomāts']
 const ENGINE_TYPES = ['Dīzelis', 'Benzīns', 'Benzīns / Gāze', 'Hibrīds (Benzīns)', 'Hibrīds (Dīzelis)', 'Elektriskais']
+const STEERING_TYPES = ['Kreisā', 'Labā']
 
 const ENGINE_VOLUMES = [
   '1.0', '1.2', '1.3', '1.4', '1.5', '1.6', '1.8', '1.9', '2.0', 
   '2.2', '2.4', '2.5', '2.8', '3.0', '3.2', '3.5', '4.0', '4.4', '5.0', 'Elektro / Nav'
 ]
 
-// Paplašināts valstu saraksts ar pilnīgi visiem ASV štatiem un Vācijas federālajām zemēm
 const COUNTRIES = [
   { name: 'Latvija', code: 'lv', regions: ['Rīga un rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale'] },
   { name: 'Lietuva', code: 'lt', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alytus'] },
@@ -61,7 +71,7 @@ const COUNTRIES = [
     regions: [
       'Bavārija (Bayern)', 'Bādene-Virtemberga (Baden-Württemberg)', 'Ziemeļreina-Vestfālene (Nordrhein-Westfalen)',
       'Lejassaksija (Niedersachsen)', 'Hesene (Hessen)', 'Reinlande-Pfalca (Rheinland-Pfalz)',
-      'Saksija (Sachsen)', 'Tīringene (Thüringen)', 'Brandenburga (Brandenburg)', 'Saksija-Anhalte (Sachsen-Anhalt)',
+      'Saksija (Sachsen)', 'Tīringene (Thüringen)', 'Brandenburga (Brandenburg)', 'Saksija-Anhalte (Saksija-Anhalt)',
       'Šlēsviga-Holšteina (Schleswig-Holstein)', 'Mēklenburga-Priekšpomerānija (Mecklenburg-Vorpommern)',
       'Hamburga', 'Berlīne', 'Brēmene', 'Sārija (Saarland)', 'Minhene', 'Frankfurte pie Mainas', 'Ķelne', 'Štutgarte'
     ] 
@@ -75,7 +85,7 @@ const COUNTRIES = [
       'Kolorādo', 'Konektikuta (Connecticut)', 'Delavēra (Delaware)', 'Florida', 'Džordžija (Georgia)', 
       'Havajas (Hawaii)', 'Aidaho (Idaho)', 'Ilinoisa (Illinois)', 'Indiana', 'Aiovas (Iowa)', 
       'Kanzasa (Kansas)', 'Kentuki (Kentucky)', 'Luiziāna (Louisiana)', 'Meina (Maine)', 'Merilenda (Maryland)', 
-      ' Masačūsetsa (Massachusetts)', 'Mičigana (Michigan)', 'Minesota (Minnesota)', 'Misisipi (Mississippi)', 
+      'Masačūsetsa (Massachusetts)', 'Mičigana (Michigan)', 'Minesota (Minnesota)', 'Misisipi (Mississippi)', 
       'Misūri (Missouri)', 'Montāna (Montana)', 'Nebraska', 'Nevada', 'Ņūhempšīra (New Hampshire)', 
       'Ņūdžersija (New Jersey)', 'Ņūmeksika (New Mexico)', 'Ņujorka (New York)', 'Ziemeļkarolīna (North Carolina)', 
       'Ziemeļdakota (North Dakota)', 'Ohaio (Ohio)', 'Oklahoma', 'Oregonas (Oregon)', 'Pensilvānija (Pennsylvania)', 
@@ -137,11 +147,12 @@ export default function PievienotAuto() {
   const [isDragging, setIsDragging] = useState(false)
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-
+  
+  // Globālais klikšķu apstrādātājs, kas aizver dropdown, ja klikšķina jebkur citur lapā
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as HTMLElement
+      if (!target.closest('.dropdown-container')) {
         setActiveDropdown(null)
       }
     }
@@ -256,11 +267,11 @@ export default function PievienotAuto() {
   )
 
   return (
-    <div ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '24px 12px', boxSizing: 'border-box' }}>
+    <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '24px 12px', boxSizing: 'border-box' }}>
       
       <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
-        {/* KREISĀ PUSE - Reklāmas vieta */}
+        {/* KREISĀ PUSE - Reklāma */}
         <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
             <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA</span>
@@ -286,7 +297,7 @@ export default function PievienotAuto() {
             
             {/* MARKA UN MODELIS */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div style={{ position: 'relative' }}>
+              <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Automašīnas marka *</label>
                 <input
                   type="text"
@@ -313,7 +324,7 @@ export default function PievienotAuto() {
                 )}
               </div>
 
-              <div style={{ position: 'relative' }}>
+              <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Modelis *</label>
                 <input
                   type="text"
@@ -347,7 +358,7 @@ export default function PievienotAuto() {
 
             {/* GADS UN CENA */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div style={{ position: 'relative' }}>
+              <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Izlaiduma gads *</label>
                 <input
                   type="text"
@@ -388,7 +399,7 @@ export default function PievienotAuto() {
 
             {/* DZINĒJS UN TILPUMS */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div style={{ position: 'relative' }}>
+              <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Dzinēja tips</label>
                 <input
                   type="text"
@@ -415,7 +426,7 @@ export default function PievienotAuto() {
                 )}
               </div>
 
-              <div style={{ position: 'relative' }}>
+              <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Dzinēja tilpums (L)</label>
                 <input
                   type="text"
@@ -445,7 +456,7 @@ export default function PievienotAuto() {
 
             {/* ĀTRUMKĀRBA UN VIRSBŪVE */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div style={{ position: 'relative' }}>
+              <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Ātrumkārba</label>
                 <input
                   type="text"
@@ -472,7 +483,7 @@ export default function PievienotAuto() {
                 )}
               </div>
 
-              <div style={{ position: 'relative' }}>
+              <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Virsbūves tips</label>
                 <input
                   type="text"
@@ -501,7 +512,7 @@ export default function PievienotAuto() {
             </div>
 
             {/* KRĀSA */}
-            <div style={{ position: 'relative' }}>
+            <div className="dropdown-container" style={{ position: 'relative' }}>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Krāsa</label>
               <input
                 type="text"
@@ -564,15 +575,31 @@ export default function PievienotAuto() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
-              <div>
+              <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Stūre</label>
                 <input
                   type="text"
                   placeholder="Kreisā / Labā"
                   value={sture}
-                  onChange={(e) => setSture(e.target.value)}
+                  onChange={(e) => { setSture(e.target.value); setActiveDropdown('sture'); }}
+                  onClick={() => toggleDropdown('sture')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
+                {activeDropdown === 'sture' && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    {STEERING_TYPES.filter(s => s.toLowerCase().includes(sture.toLowerCase())).map((s) => (
+                      <div
+                        key={s}
+                        onClick={() => { setSture(s); setActiveDropdown(null); }}
+                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                      >
+                        {s}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Diski</label>
@@ -598,7 +625,7 @@ export default function PievienotAuto() {
 
             {/* VALSTS UN REĢIONS */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div style={{ position: 'relative' }}>
+              <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Valsts</label>
                 <div
                   onClick={() => toggleDropdown('country')}
@@ -625,7 +652,7 @@ export default function PievienotAuto() {
                 )}
               </div>
 
-              <div style={{ position: 'relative' }}>
+              <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Reģions / Pilsēta / Štats</label>
                 <input
                   type="text"
@@ -765,7 +792,7 @@ export default function PievienotAuto() {
           </form>
         </div>
 
-        {/* LABĀ PUSE - Reklāmas vieta */}
+        {/* LABĀ PUSE - Reklāma */}
         <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
             <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA</span>
