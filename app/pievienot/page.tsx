@@ -153,7 +153,7 @@ export default function PievienotAuto() {
   const [vin, setVin] = useState('')
   const [nobraukums, setNobraukums] = useState('')
   const [tehiskapskate, setTehiskapskate] = useState('')
-  const [sture, setSture] = useState('Kreisā')
+  const [sture, setSture] = useState('')
   const [diski, setDiski] = useState('')
   const [salonaKrasa, setSalonaKrasa] = useState('')
   
@@ -259,7 +259,7 @@ export default function PievienotAuto() {
         vin: vin.trim(),
         mileage: nobraukums ? Number(nobraukums) : null,
         tech_inspection: tehiskapskate.trim(),
-        steering_wheel: sture.trim(),
+        steering_wheel: sture.trim() || 'Kreisā',
         wheels: diski.trim(),
         interior_color: salonaKrasa.trim(),
         country: selectedCountry.name,
@@ -289,11 +289,15 @@ export default function PievienotAuto() {
       
       <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
-        {/* KREISĀ PUSE - Reklāma */}
+        {/* KREISĀ PUSE - 2 Reklāmas baneri stabiņā */}
         <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
-            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA</span>
-            <span>Sānu baneris šeit!</span>
+            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 1</span>
+            <span>Sānu baneris augšējais!</span>
+          </div>
+          <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 2</span>
+            <span>Sānu baneris apakšējais!</span>
           </div>
         </div>
 
@@ -597,7 +601,7 @@ export default function PievienotAuto() {
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Stūre</label>
                 <input
                   type="text"
-                  placeholder="Kreisā / Labā"
+                  placeholder="Kreisā"
                   value={sture}
                   onChange={(e) => { setSture(e.target.value); setActiveDropdown('sture'); }}
                   onClick={() => toggleDropdown('sture')}
@@ -828,11 +832,15 @@ export default function PievienotAuto() {
           </form>
         </div>
 
-        {/* LABĀ PUSE - Reklāma */}
+        {/* LABĀ PUSE - 2 Reklāmas baneri stabiņā */}
         <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
-            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA</span>
-            <span>Sānu baneris šeit!</span>
+            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 3</span>
+            <span>Sānu baneris augšējais!</span>
+          </div>
+          <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 4</span>
+            <span>Sānu baneris apakšējais!</span>
           </div>
         </div>
 
