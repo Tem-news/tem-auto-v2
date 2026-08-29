@@ -4,28 +4,28 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
-// Populārās markas ar atbilstošiem krāsainiem logo (emoji vai simboliem)
+// Populārās markas ar reāliem logo no CDN
 const POPULAR_MAKES = [
-  { name: 'BMW', logo: '🔵⚪' },
-  { name: 'Audi', logo: '⭕⭕' },
-  { name: 'Volkswagen', logo: '💙🤍' },
-  { name: 'Volvo', logo: '🔷' },
-  { name: 'Toyota', logo: '🔴' },
-  { name: 'Mercedes-Benz', logo: '⭐' },
-  { name: 'Škoda', logo: '💚' },
-  { name: 'Ford', logo: '🔵' },
-  { name: 'Hyundai', logo: '🇭' },
-  { name: 'Kia', logo: '🇰' },
-  { name: 'Nissan', logo: '🔘' },
-  { name: 'Opel', logo: '⚡' },
-  { name: 'Peugeot', logo: '🦁' },
-  { name: 'Renault', logo: '🔶' },
-  { name: 'Mazda', logo: '🇲' },
-  { name: 'Honda', logo: '🇭' },
-  { name: 'Lexus', logo: '🇱' },
-  { name: 'Subaru', logo: '🌌' },
-  { name: 'Tesla', logo: '🔴' },
-  { name: 'Porsche', logo: '🐎' }
+  { name: 'BMW', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/bmw.png' },
+  { name: 'Audi', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/audi.png' },
+  { name: 'Volkswagen', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/volkswagen.png' },
+  { name: 'Volvo', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/volvo.png' },
+  { name: 'Toyota', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/toyota.png' },
+  { name: 'Mercedes-Benz', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/mercedes-benz.png' },
+  { name: 'Škoda', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/skoda.png' },
+  { name: 'Ford', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/ford.png' },
+  { name: 'Hyundai', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/hyundai.png' },
+  { name: 'Kia', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/logo_kia.png' },
+  { name: 'Nissan', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/nissan.png' },
+  { name: 'Opel', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/opel.png' },
+  { name: 'Peugeot', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/peugeot.png' },
+  { name: 'Renault', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/renault.png' },
+  { name: 'Mazda', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/mazda.png' },
+  { name: 'Honda', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/honda.png' },
+  { name: 'Lexus', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/lexus.png' },
+  { name: 'Subaru', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/subaru.png' },
+  { name: 'Tesla', logo: 'https://www.car-logos.org/wp-content/uploads/2011/10/tesla-Motors.png' },
+  { name: 'Porsche', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/porsche.png' }
 ]
 
 const MODELS_BY_MAKE: { [key: string]: string[] } = {
@@ -63,16 +63,24 @@ const BODY_TYPES = [
 const GEARBOX_TYPES = ['Mehāniskā', 'Automāts', 'Pusautomāts']
 const ENGINE_TYPES = ['Dīzelis', 'Benzīns', 'Benzīns / Gāze', 'Hibrīds (Benzīns)', 'Hibrīds (Dīzelis)', 'Elektriskais']
 
-// Valstis ar reāliem krāsainiem karodziņiem (HTML/Unicode emoji karogi)
+// Valstis ar augstas kvalitātes krāsainiem SVG karogiem no flagcdn.com
 const COUNTRIES = [
-  { name: 'Latvija', flag: '🇱🇻', regions: ['Rīga un rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale'] },
-  { name: 'Lietuva', flag: '🇱🇹', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža'] },
-  { name: 'Igaunija', flag: '🇪🇪', regions: ['Tallina', 'Tartu', 'Narva', 'Pērnava'] },
-  { name: 'Vācija', flag: '🇩🇪', regions: ['Bavārija', 'Berlīne', 'Bādene-Virtemberga', 'Ziemeļreina-Vestfālene', 'Hamburg'] },
-  { name: 'Lielbritānija', flag: '🇬🇧', regions: ['Londona', 'Mančestra', 'Birmingema', 'Skotija', 'Velsa'] },
-  { name: 'Zviedrija', flag: '🇸🇪', regions: ['Stokholma', 'Gēteborga', 'Malme'] },
-  { name: 'Norvēģija', flag: '🇳🇴', regions: ['Oslo', 'Bergena', 'Tronheima'] },
-  { name: 'Polija', flag: '🇵🇱', regions: ['Varšava', 'Krakova', 'Gdaņska', 'Poznaņa'] }
+  { name: 'Latvija', code: 'lv', regions: ['Rīga un rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale'] },
+  { name: 'Lietuva', code: 'lt', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža'] },
+  { name: 'Igaunija', code: 'ee', regions: ['Tallina', 'Tartu', 'Narva', 'Pērnava'] },
+  { name: 'Vācija', code: 'de', regions: ['Bavārija', 'Berlīne', 'Bādene-Virtemberga', 'Ziemeļreina-Vestfālene', 'Hamburg'] },
+  { name: 'Lielbritānija', code: 'gb', regions: ['Londona', 'Mančestra', 'Birmingema', 'Skotija', 'Velsa'] },
+  { name: 'Zviedrija', code: 'se', regions: ['Stokholma', 'Gēteborga', 'Malme'] },
+  { name: 'Norvēģija', code: 'no', regions: ['Oslo', 'Bergena', 'Tronheima'] },
+  { name: 'Polija', code: 'pl', regions: ['Varšava', 'Krakova', 'Gdaņska', 'Poznaņa'] },
+  { name: 'Somija', code: 'fi', regions: ['Helsinki', 'Espo', 'Tamperes'] },
+  { name: 'Dānija', code: 'dk', regions: ['Kopenhāgena', 'Orhūsa'] },
+  { name: 'Francija', code: 'fr', regions: ['Parīze', 'Marseļa', 'Liona'] },
+  { name: 'Itālija', code: 'it', regions: ['Roma', 'Milāna', 'Neapole'] },
+  { name: 'Spānija', code: 'es', regions: ['Madride', 'Barselona', 'Valensija'] },
+  { name: 'Nīderlande', code: 'nl', regions: ['Amsterdama', 'Roterdama', 'Hāga'] },
+  { name: 'Beļģija', code: 'be', regions: ['Brisele', 'Antverpene', 'Gente'] },
+  { name: 'ASV', code: 'us', regions: ['Kalifornija', 'Ņujorka', 'Teksasa', 'Florida'] }
 ]
 
 const CURRENT_YEAR = new Date().getFullYear()
@@ -258,7 +266,7 @@ export default function PievienotAuto() {
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
-            {/* MARKA (AR KRĀSAINIEM LOGO) UN MODELIS */}
+            {/* MARKA (AR KOREKTU LOGO) UN MODELIS */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Automašīnas marka *</label>
@@ -276,12 +284,12 @@ export default function PievienotAuto() {
                       <div
                         key={m.name}
                         onClick={() => { setMake(m.name); setModel(''); setActiveDropdown(null); }}
-                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid #f3f4f6' }}
+                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid #f3f4f6' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        <span style={{ fontSize: '16px', width: '24px', textAlign: 'center' }}>{m.logo}</span>
-                        <span style={{ fontWeight: '500' }}>{m.name}</span>
+                        <img src={m.logo} alt={m.name} style={{ width: '22px', height: '22px', objectFit: 'contain' }} />
+                        <span style={{ fontWeight: '500', color: '#111827' }}>{m.name}</span>
                       </div>
                     ))}
                   </div>
@@ -361,7 +369,7 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* DZINĒJS UN TILPUMS (AR PRIEKŠĀ TEIKŠANU) */}
+            {/* DZINĒJS UN TILPUMS (AR PAREIZU PRIEKŠĀ TEIKŠANU) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Dzinēja tips</label>
@@ -555,15 +563,15 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* VALSTS (AR KRĀSAINIEM KAROGIEM) UN REĢIONS/PILSĒTA */}
+            {/* VALSTS (DAUDZ VALSTU AR KRĀSAINIEM SVG KAROGIEM) UN REĢIONS/PILSĒTA */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Valsts</label>
                 <div
                   onClick={() => toggleDropdown('country')}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
                 >
-                  <span style={{ fontSize: '18px' }}>{selectedCountry.flag}</span>
+                  <img src={`https://flagcdn.com/24x18/${selectedCountry.code}.png`} alt={selectedCountry.name} style={{ width: '20px', height: '15px', objectFit: 'cover', borderRadius: '2px' }} />
                   <span>{selectedCountry.name}</span>
                 </div>
                 {activeDropdown === 'country' && (
@@ -576,7 +584,7 @@ export default function PievienotAuto() {
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        <span style={{ fontSize: '18px' }}>{c.flag}</span>
+                        <img src={`https://flagcdn.com/24x18/${c.code}.png`} alt={c.name} style={{ width: '20px', height: '15px', objectFit: 'cover', borderRadius: '2px' }} />
                         <span>{c.name}</span>
                       </div>
                     ))}
@@ -618,7 +626,6 @@ export default function PievienotAuto() {
                 Attēli un fotogrāfijas (Pirmā bilde būs titulbilde)
               </label>
               
-              {/* Paaugstināts velkamais laukums */}
               <div 
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
