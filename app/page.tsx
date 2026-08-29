@@ -268,6 +268,7 @@ export default function Sakumlapa() {
 
   const handleMakeSelect = (make: string) => {
     if (searchMake.toLowerCase() === make.toLowerCase()) {
+      searchMake // no-op fix
       setSearchMake('')
     } else {
       setSearchMake(make)
@@ -279,7 +280,7 @@ export default function Sakumlapa() {
       
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
-        {/* KREISĀ PUSE */}
+        {/* KREISĀ PUSE - Marku saraksts divās kolonnās */}
         <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
@@ -341,20 +342,18 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* VIDUS: Filtri un Sludinājumi */}
+        {/* VIDUS: Filtri un Tabulas veida Sludinājumu saraksts */}
         <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
-          {/* FILTRI - Pievienots augšējais fona bloks (pseudo-header), kas saplūst ar tumšo joslu un nosedz spraugas */}
+          {/* FILTRI */}
           <div style={{ 
             position: 'sticky', 
             top: '72px', 
             zIndex: 30, 
             backgroundColor: '#f3f4f6', 
             padding: '12px', 
-            paddingTop: '20px', // Papildus vieta augšpusē, lai izveidotu plūstošu pāreju
-            marginTop: '-12px', // Pārvietots nedaudz uz augšu, lai pilnībā nosegtu jebkādu spraugu
-            borderTopLeftRadius: '0px',
-            borderTopRightRadius: '0px',
+            paddingTop: '20px', 
+            marginTop: '-12px', 
             borderRadius: '8px', 
             marginBottom: '16px', 
             display: 'flex', 
@@ -364,6 +363,21 @@ export default function Sakumlapa() {
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
           }}>
             
+            {/* Virsraksts vai aktīvais filtrs */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0, color: '#111827' }}>
+                {searchMake ? `${searchMake} sludinājumi` : 'Visi auto sludinājumi'}
+              </h2>
+              {searchMake && (
+                <button 
+                  onClick={() => setSearchMake('')} 
+                  style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}
+                >
+                  [noņemt filtru]
+                </button>
+              )}
+            </div>
+
             {/* 1. Rinda */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
               
@@ -598,15 +612,7 @@ export default function Sakumlapa() {
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} 
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        <span style={{ 
-                          width: '14px', 
-                          height: '14px', 
-                          borderRadius: '50%', 
-                          backgroundColor: k.hex, 
-                          border: `1px solid ${k.border}`, 
-                          display: 'inline-block',
-                          flexShrink: 0 
-                        }}></span>
+                        <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: k.hex, border: `1px solid ${k.border}` }}></span>
                         <span>{k.name}</span>
                       </div>
                     ))}
@@ -615,54 +621,90 @@ export default function Sakumlapa() {
               </div>
 
             </div>
-
           </div>
 
-          {/* SLUDINĀJUMU SARAKSTS */}
-          <div>
+          {/* TABULAS SKATS SLUDINĀJUMIEM */}
+          <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
             {loading ? (
-              <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
+              <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
             ) : filteredCars.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280', backgroundColor: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-                Nav atrasts neviens auto pēc izvēlētajiem kritērijiem.
-              </div>
+              <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Nav atrasts neviens sludinājums ar šādiem kritērijiem.</div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '12px' }}>
-                {filteredCars.map((car) => (
-                  <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <div style={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', transition: 'box-shadow 0.2s' }}>
-                      <div style={{ width: '100%', height: '140px', backgroundColor: '#e5e7eb', position: 'relative' }}>
-                        {car.image_url || (car.images && car.images[0]) ? (
-                          <img 
-                            src={car.image_url || car.images[0]} 
-                            alt={`${car.make} ${car.model}`} 
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                          />
-                        ) : (
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af', fontSize: '12px' }}>Nav attēla</div>
-                        )}
+              <div>
+                {/* Tabulas galvene */}
+                <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 90px 100px', backgroundColor: '#15803d', color: '#ffffff', padding: '10px 12px', fontSize: '13px', fontWeight: 'bold' }}>
+                  <div>Foto</div>
+                  <div>Sludinājums / Apraksts</div>
+                  <div style={{ textAlign: 'center' }}>Gads</div>
+                  <div style={{ textAlign: 'right' }}>Cena</div>
+                </div>
+
+                {/* Saraksta rindas */}
+                {filteredCars.map((car, index) => {
+                  const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=300&q=80'
+                  return (
+                    <Link 
+                      key={car.id || index} 
+                      href={`/auto/${car.id}`} 
+                      style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: '120px 1fr 90px 100px', 
+                        alignItems: 'center', 
+                        padding: '10px 12px', 
+                        borderBottom: '1px solid #e5e7eb', 
+                        textDecoration: 'none', 
+                        color: 'inherit',
+                        backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9fafb'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0fdf4'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#f9fafb'}
+                    >
+                      {/* Bilde */}
+                      <div>
+                        <img 
+                          src={imageUrl} 
+                          alt={car.make} 
+                          style={{ width: '100px', height: '65px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #d1d5db' }} 
+                        />
                       </div>
-                      <div style={{ padding: '8px' }}>
-                        <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#111827' }}>{car.make} {car.model}</div>
-                        <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>{car.year} g. • {car.engine_volume || car.volume}</div>
-                        <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#0369a1', marginTop: '6px' }}>€{car.price}</div>
+
+                      {/* Nosaukums un apraksts */}
+                      <div style={{ paddingRight: '12px', overflow: 'hidden' }}>
+                        <div style={{ fontWeight: 'bold', color: '#1d4ed8', fontSize: '14px', marginBottom: '2px' }}>
+                          {car.make} {car.model} {car.volume ? `(${car.volume})` : ''}
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#4b5563', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {car.description || car.comment || `${car.make} ${car.model} labā stāvoklī.`}
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                ))}
+
+                      {/* Gads */}
+                      <div style={{ textAlign: 'center', fontSize: '13px', color: '#374151' }}>
+                        {car.year ? `${car.year} g.` : ''}
+                      </div>
+
+                      {/* Cena */}
+                      <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '14px' }}>
+                        {car.price ? `€${Number(car.price).toLocaleString('lv-LV')}` : ''}
+                      </div>
+                    </Link>
+                  )
+                })}
               </div>
             )}
           </div>
-
         </div>
 
-        {/* LABĀ PUSE: REKLĀMAS BANERI */}
+        {/* LABĀ PUSE - Reklāmas vieta (kā tavā paraugā) */}
         <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ backgroundColor: '#f9fafb', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
-            REKLĀMA<br />Globālais baners šeit!
+          <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA</span>
+            <span>Globālais baneris šeit!</span>
           </div>
-          <div style={{ backgroundColor: '#f9fafb', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
-            REKLĀMA<br />Globālais baners šeit!
+          <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+            <span style={{ fontWeight: 'bold', marginBottom: '4px'}}/span>
+            <span>REKLĀMA</span>
+            <span>Globālais baneris šeit!</span>
           </div>
         </div>
 
