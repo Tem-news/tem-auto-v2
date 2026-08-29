@@ -4,10 +4,28 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
+// Populārās markas ar atbilstošiem krāsainiem logo (emoji vai simboliem)
 const POPULAR_MAKES = [
-  'BMW', 'Audi', 'Volkswagen', 'Volvo', 'Toyota', 'Mercedes-Benz', 
-  'Škoda', 'Ford', 'Hyundai', 'Kia', 'Nissan', 'Opel', 'Peugeot', 
-  'Renault', 'Mazda', 'Honda', 'Lexus', 'Subaru', 'Tesla', 'Porsche'
+  { name: 'BMW', logo: '🔵⚪' },
+  { name: 'Audi', logo: '⭕⭕' },
+  { name: 'Volkswagen', logo: '💙🤍' },
+  { name: 'Volvo', logo: '🔷' },
+  { name: 'Toyota', logo: '🔴' },
+  { name: 'Mercedes-Benz', logo: '⭐' },
+  { name: 'Škoda', logo: '💚' },
+  { name: 'Ford', logo: '🔵' },
+  { name: 'Hyundai', logo: '🇭' },
+  { name: 'Kia', logo: '🇰' },
+  { name: 'Nissan', logo: '🔘' },
+  { name: 'Opel', logo: '⚡' },
+  { name: 'Peugeot', logo: '🦁' },
+  { name: 'Renault', logo: '🔶' },
+  { name: 'Mazda', logo: '🇲' },
+  { name: 'Honda', logo: '🇭' },
+  { name: 'Lexus', logo: '🇱' },
+  { name: 'Subaru', logo: '🌌' },
+  { name: 'Tesla', logo: '🔴' },
+  { name: 'Porsche', logo: '🐎' }
 ]
 
 const MODELS_BY_MAKE: { [key: string]: string[] } = {
@@ -45,6 +63,7 @@ const BODY_TYPES = [
 const GEARBOX_TYPES = ['Mehāniskā', 'Automāts', 'Pusautomāts']
 const ENGINE_TYPES = ['Dīzelis', 'Benzīns', 'Benzīns / Gāze', 'Hibrīds (Benzīns)', 'Hibrīds (Dīzelis)', 'Elektriskais']
 
+// Valstis ar reāliem krāsainiem karodziņiem (HTML/Unicode emoji karogi)
 const COUNTRIES = [
   { name: 'Latvija', flag: '🇱🇻', regions: ['Rīga un rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale'] },
   { name: 'Lietuva', flag: '🇱🇹', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža'] },
@@ -83,12 +102,10 @@ export default function PievienotAuto() {
   const [diski, setDiski] = useState('')
   const [salonaKrasa, setSalonaKrasa] = useState('')
   
-  // Valsts un reģions
   const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0])
   const [region, setRegion] = useState('')
   const [description, setDescription] = useState('')
   
-  // Bilžu galerijas stāvoklis (satur URL vai blob datus)
   const [images, setImages] = useState<string[]>([])
   const [imageUrlInput, setImageUrlInput] = useState('')
   const [isDragging, setIsDragging] = useState(false)
@@ -121,7 +138,6 @@ export default function PievienotAuto() {
     setDisplayPrice(cleanNums.replace(/\B(?=(\d{3})+(?!\d))/g, ' '))
   }
 
-  // Bilžu pievienošana no failiem (Drag & Drop vai atlase)
   const handleFiles = (files: FileList | File[]) => {
     const filesArray = Array.from(files)
     const newUrls = filesArray.map(file => URL.createObjectURL(file))
@@ -153,7 +169,6 @@ export default function PievienotAuto() {
     setImages(prev => prev.filter((_, i) => i !== index))
   }
 
-  // Pārvietot bildi pa kreisi/pa labi (mainīt secību un titulbildi)
   const moveImage = (index: number, direction: 'left' | 'right') => {
     const newImages = [...images]
     const targetIndex = direction === 'left' ? index - 1 : index + 1
@@ -196,7 +211,7 @@ export default function PievienotAuto() {
         region: region.trim(),
         description: description.trim(),
         images: images,
-        image_url: images[0] || null, // Pirmā bilde ir titulbilde
+        image_url: images[0] || null,
         created_at: new Date().toISOString()
       }
     ])
@@ -243,7 +258,7 @@ export default function PievienotAuto() {
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
-            {/* MARKA UN MODELIS */}
+            {/* MARKA (AR KRĀSAINIEM LOGO) UN MODELIS */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Automašīnas marka *</label>
@@ -257,15 +272,16 @@ export default function PievienotAuto() {
                 />
                 {activeDropdown === 'make' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {POPULAR_MAKES.filter(m => m.toLowerCase().includes(make.toLowerCase())).map((m) => (
+                    {POPULAR_MAKES.filter(m => m.name.toLowerCase().includes(make.toLowerCase())).map((m) => (
                       <div
-                        key={m}
-                        onClick={() => { setMake(m); setModel(''); setActiveDropdown(null); }}
-                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                        key={m.name}
+                        onClick={() => { setMake(m.name); setModel(''); setActiveDropdown(null); }}
+                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid #f3f4f6' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        {m}
+                        <span style={{ fontSize: '16px', width: '24px', textAlign: 'center' }}>{m.logo}</span>
+                        <span style={{ fontWeight: '500' }}>{m.name}</span>
                       </div>
                     ))}
                   </div>
@@ -345,7 +361,7 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* DZINĒJS UN TILPUMS */}
+            {/* DZINĒJS UN TILPUMS (AR PRIEKŠĀ TEIKŠANU) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Dzinēja tips</label>
@@ -596,21 +612,21 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* FOTOGRĀFIJU GALERIJA (DRAG & DROP, PREVIEW, TITULBILDE, PĀRVIETOŠANA) */}
+            {/* FOTOGRĀFIJU GALERIJA (AUGSTĀKS DRAG & DROP LAUKUMS) */}
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>
                 Attēli un fotogrāfijas (Pirmā bilde būs titulbilde)
               </label>
               
-              {/* Velkamais laukums */}
+              {/* Paaugstināts velkamais laukums */}
               <div 
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
                 style={{
                   border: isDragging ? '2px dashed #16a34a' : '2px dashed #d1d5db',
-                  borderRadius: '8px',
-                  padding: '24px',
+                  borderRadius: '10px',
+                  padding: '40px 20px',
                   textAlign: 'center',
                   backgroundColor: isDragging ? '#f0fdf4' : '#f9fafb',
                   cursor: 'pointer',
@@ -626,12 +642,13 @@ export default function PievienotAuto() {
                   style={{ display: 'none' }} 
                   id="file-upload" 
                 />
-                <label htmlFor="file-upload" style={{ cursor: 'pointer', fontSize: '13.5px', color: '#4b5563', display: 'block' }}>
-                  📂 **Ievelciet bildes šeit** vai <span style={{ color: '#2563eb', textDecoration: 'underline' }}>izvēlieties failus</span> no datora
+                <label htmlFor="file-upload" style={{ cursor: 'pointer', fontSize: '14.5px', color: '#4b5563', display: 'block' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>📁</div>
+                  <strong>Ievelciet bildes šeit</strong> vai <span style={{ color: '#2563eb', textDecoration: 'underline' }}>izvēlieties failus</span> no datora
                 </label>
               </div>
 
-              {/* Saites ievades josla papildus */}
+              {/* Saites ievades josla */}
               <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                 <input
                   type="text"
@@ -649,21 +666,19 @@ export default function PievienotAuto() {
                 </button>
               </div>
 
-              {/* Bilžu vizuālais režģis ar vadības pogām */}
+              {/* Bilžu vizuālais režģis */}
               {images.length > 0 && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '12px', marginTop: '12px' }}>
                   {images.map((img, index) => (
                     <div key={index} style={{ position: 'relative', border: index === 0 ? '2px solid #16a34a' : '1px solid #d1d5db', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#f3f4f6', height: '130px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                       <img src={img} alt={`Auto bilde ${index + 1}`} style={{ width: '100%', height: '90px', objectFit: 'cover' }} />
                       
-                      {/* Titulbildes birka */}
                       {index === 0 && (
                         <span style={{ position: 'absolute', top: '4px', left: '4px', backgroundColor: '#16a34a', color: '#fff', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
                           Titulbilde
                         </span>
                       )}
 
-                      {/* Vadības pogas (Dzēst, Pa kreisi, Pa labi) */}
                       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: 'flex', backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'space-between', padding: '4px 8px' }}>
                         <button type="button" onClick={() => moveImage(index, 'left')} disabled={index === 0} style={{ color: '#fff', background: 'none', border: 'none', cursor: index === 0 ? 'not-allowed' : 'pointer', fontSize: '12px', opacity: index === 0 ? 0.3 : 1 }}>◀</button>
                         <button type="button" onClick={() => removeImage(index)} style={{ color: '#f87171', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>✕ Dzēst</button>
