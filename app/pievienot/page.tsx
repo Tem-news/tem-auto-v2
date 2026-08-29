@@ -4,28 +4,10 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
-// Populārās markas ar tīriem vizuāliem simboliem un pirmo burtu logo vietā
 const POPULAR_MAKES = [
-  { name: 'BMW', symbol: 'B' },
-  { name: 'Audi', symbol: 'A' },
-  { name: 'Volkswagen', symbol: 'VW' },
-  { name: 'Volvo', symbol: 'V' },
-  { name: 'Toyota', symbol: 'T' },
-  { name: 'Mercedes-Benz', symbol: 'MB' },
-  { name: 'Škoda', symbol: 'Š' },
-  { name: 'Ford', symbol: 'F' },
-  { name: 'Hyundai', symbol: 'H' },
-  { name: 'Kia', symbol: 'K' },
-  { name: 'Nissan', symbol: 'N' },
-  { name: 'Opel', symbol: 'O' },
-  { name: 'Peugeot', symbol: 'P' },
-  { name: 'Renault', symbol: 'R' },
-  { name: 'Mazda', symbol: 'M' },
-  { name: 'Honda', symbol: 'H' },
-  { name: 'Lexus', symbol: 'L' },
-  { name: 'Subaru', symbol: 'S' },
-  { name: 'Tesla', symbol: 'T' },
-  { name: 'Porsche', symbol: 'P' }
+  'BMW', 'Audi', 'Volkswagen', 'Volvo', 'Toyota', 'Mercedes-Benz', 
+  'Škoda', 'Ford', 'Hyundai', 'Kia', 'Nissan', 'Opel', 'Peugeot', 
+  'Renault', 'Mazda', 'Honda', 'Lexus', 'Subaru', 'Tesla', 'Porsche'
 ]
 
 const MODELS_BY_MAKE: { [key: string]: string[] } = {
@@ -63,25 +45,47 @@ const BODY_TYPES = [
 const GEARBOX_TYPES = ['Mehāniskā', 'Automāts', 'Pusautomāts']
 const ENGINE_TYPES = ['Dīzelis', 'Benzīns', 'Benzīns / Gāze', 'Hibrīds (Benzīns)', 'Hibrīds (Dīzelis)', 'Elektriskais']
 
-// Dzinēja tilpuma izlecošie varianti
 const ENGINE_VOLUMES = [
   '1.0', '1.2', '1.3', '1.4', '1.5', '1.6', '1.8', '1.9', '2.0', 
   '2.2', '2.4', '2.5', '2.8', '3.0', '3.2', '3.5', '4.0', '4.4', '5.0', 'Elektro / Nav'
 ]
 
-// Paplašināts valstu saraksts ar krāsainiem SVG karogiem un plašākiem reģioniem/štatiem
+// Paplašināts valstu saraksts ar pilnīgi visiem ASV štatiem un Vācijas federālajām zemēm
 const COUNTRIES = [
   { name: 'Latvija', code: 'lv', regions: ['Rīga un rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale'] },
   { name: 'Lietuva', code: 'lt', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alytus'] },
   { name: 'Igaunija', code: 'ee', regions: ['Tallina', 'Tartu', 'Narva', 'Pērnava', 'Kohtla-Järve'] },
-  { name: 'Vācija', code: 'de', regions: ['Bavārija', 'Berlīne', 'Bādene-Virtemberga', 'Ziemeļreina-Vestfālene', 'Hamburg', 'Frankfurte', 'Minhene'] },
+  { 
+    name: 'Vācija', 
+    code: 'de', 
+    regions: [
+      'Bavārija (Bayern)', 'Bādene-Virtemberga (Baden-Württemberg)', 'Ziemeļreina-Vestfālene (Nordrhein-Westfalen)',
+      'Lejassaksija (Niedersachsen)', 'Hesene (Hessen)', 'Reinlande-Pfalca (Rheinland-Pfalz)',
+      'Saksija (Sachsen)', 'Tīringene (Thüringen)', 'Brandenburga (Brandenburg)', 'Saksija-Anhalte (Sachsen-Anhalt)',
+      'Šlēsviga-Holšteina (Schleswig-Holstein)', 'Mēklenburga-Priekšpomerānija (Mecklenburg-Vorpommern)',
+      'Hamburga', 'Berlīne', 'Brēmene', 'Sārija (Saarland)', 'Minhene', 'Frankfurte pie Mainas', 'Ķelne', 'Štutgarte'
+    ] 
+  },
   { name: 'Lielbritānija', code: 'gb', regions: ['Londona', 'Mančestra', 'Birmingema', 'Liverpūle', 'Skotija', 'Velsa', 'Ziemeļīrija'] },
-  { name: 'ASV', code: 'us', regions: [
-    'Kalifornija (California)', 'Ņujorka (New York)', 'Teksasa (Texas)', 'Florida', 
-    'Ilinoisa (Illinois)', 'Nevada', 'Vašingtona (Washington)', 'Pensilvānija (Pennsylvania)', 
-    'Ohaio (Ohio)', 'Džordžija (Georgia)', 'Mičigana (Michigan)', 'Ņūdžersija (New Jersey)',
-    'Ziemeļkarolīna (North Carolina)', 'Virdžīnija (Virginia)', 'Arizona', 'Kolorādo'
-  ] },
+  { 
+    name: 'ASV', 
+    code: 'us', 
+    regions: [
+      'Alabama', 'Aļaska (Alaska)', 'Arizona', 'Arkanzasa (Arkansas)', 'Kalifornija (California)', 
+      'Kolorādo', 'Konektikuta (Connecticut)', 'Delavēra (Delaware)', 'Florida', 'Džordžija (Georgia)', 
+      'Havajas (Hawaii)', 'Aidaho (Idaho)', 'Ilinoisa (Illinois)', 'Indiana', 'Aiovas (Iowa)', 
+      'Kanzasa (Kansas)', 'Kentuki (Kentucky)', 'Luiziāna (Louisiana)', 'Meina (Maine)', 'Merilenda (Maryland)', 
+      ' Masačūsetsa (Massachusetts)', 'Mičigana (Michigan)', 'Minesota (Minnesota)', 'Misisipi (Mississippi)', 
+      'Misūri (Missouri)', 'Montāna (Montana)', 'Nebraska', 'Nevada', 'Ņūhempšīra (New Hampshire)', 
+      'Ņūdžersija (New Jersey)', 'Ņūmeksika (New Mexico)', 'Ņujorka (New York)', 'Ziemeļkarolīna (North Carolina)', 
+      'Ziemeļdakota (North Dakota)', 'Ohaio (Ohio)', 'Oklahoma', 'Oregonas (Oregon)', 'Pensilvānija (Pennsylvania)', 
+      'Roudailenda (Rhode Island)', 'Dienvidkarolīna (South Carolina)', 'Dienviddakota (South Dakota)', 'Tenesī (Tennessee)', 
+      'Teksasa (Texas)', 'Jūta (Utah)', 'Vermonta (Vermont)', 'Virdžīnija (Virginia)', 'Vašingtona (Washington)', 
+      'Rietumvirdžīnija (West Virginia)', 'Viskonsina (Wisconsin)', 'Vaiominga (Wyoming)'
+    ] 
+  },
+  { name: 'Japāna', code: 'jp', regions: ['Tokija', 'Osaka', 'Kioto', 'Jokohama', 'Nagoja', 'Fukuoka', 'Hokaido'] },
+  { name: 'Krievija', code: 'ru', regions: ['Maskava', 'Sanktpēterburga', 'Novosibirska', 'Jekaterinburga', 'Kazaņa', 'Soči', 'Kaliningrada'] },
   { name: 'Zviedrija', code: 'se', regions: ['Stokholma', 'Gēteborga', 'Malme', 'Uppsala'] },
   { name: 'Norvēģija', code: 'no', regions: ['Oslo', 'Bergena', 'Tronheima', 'Stavangere'] },
   { name: 'Polija', code: 'pl', regions: ['Varšava', 'Krakova', 'Gdaņska', 'Poznaņa', 'Vroclava', 'Lodza'] },
@@ -91,7 +95,9 @@ const COUNTRIES = [
   { name: 'Itālija', code: 'it', regions: ['Roma', 'Milāna', 'Neapole', 'Turīna', 'Palermo', 'Florence'] },
   { name: 'Spānija', code: 'es', regions: ['Madride', 'Barselona', 'Valensija', 'Seviļa', 'Saragosa', 'Malaga'] },
   { name: 'Nīderlande', code: 'nl', regions: ['Amsterdama', 'Roterdama', 'Hāga', 'Utrehta', 'Eindhovena'] },
-  { name: 'Beļģija', code: 'be', regions: ['Brisele', 'Antverpene', 'Gente', 'Lježa', 'Brige'] },
+  { name: 'Ķīna', code: 'cn', regions: ['Pekina', 'Šanhaja', 'Guandžou', 'Šendžena', 'Čendu'] },
+  { name: 'Dienvidkoreja', code: 'kr', regions: ['Seula', 'Pusana', 'Inčhona', 'Tegu'] },
+  { name: 'Apvienotie Arābu Emirāti', code: 'ae', regions: ['Dubaija', 'Abū Dabī', 'Šardža'] },
   { name: 'Kanāda', code: 'ca', regions: ['Ontārio', 'Kvebeka', 'Britu Kolumbija', 'Alberta', 'Monreāla', 'Toronto'] },
   { name: 'Austrālija', code: 'au', regions: ['Sidneja', 'Melburna', 'Brisbena', 'Pērta', 'Adelaida'] }
 ]
@@ -104,7 +110,6 @@ export default function PievienotAuto() {
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
-  // Formas lauki
   const [make, setMake] = useState('')
   const [model, setModel] = useState('')
   const [year, setYear] = useState('')
@@ -279,7 +284,7 @@ export default function PievienotAuto() {
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
-            {/* MARKA (AR GRAFISKAJIEM SIMBOLIEM) UN MODELIS */}
+            {/* MARKA UN MODELIS */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Automašīnas marka *</label>
@@ -293,16 +298,15 @@ export default function PievienotAuto() {
                 />
                 {activeDropdown === 'make' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {POPULAR_MAKES.filter(m => m.name.toLowerCase().includes(make.toLowerCase())).map((m) => (
+                    {POPULAR_MAKES.filter(m => m.toLowerCase().includes(make.toLowerCase())).map((m) => (
                       <div
-                        key={m.name}
-                        onClick={() => { setMake(m.name); setModel(''); setActiveDropdown(null); }}
-                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid #f3f4f6' }}
+                        key={m}
+                        onClick={() => { setMake(m); setModel(''); setActiveDropdown(null); }}
+                        style={{ padding: '9px 12px', fontSize: '13.5px', cursor: 'pointer', fontWeight: '500', color: '#111827', borderBottom: '1px solid #f3f4f6' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        <span style={{ width: '26px', height: '26px', backgroundColor: '#1e293b', color: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 'bold' }}>{m.symbol}</span>
-                        <span style={{ fontWeight: '500', color: '#111827' }}>{m.name}</span>
+                        {m}
                       </div>
                     ))}
                   </div>
@@ -382,7 +386,7 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* DZINĒJS UN TILPUMS (AR STRĀDĀJOŠU IZLECOŠO SARAKSTU TILPUMAM) */}
+            {/* DZINĒJS UN TILPUMS */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Dzinēja tips</label>
@@ -592,7 +596,7 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* VALSTS (DAUDZ VALSTU AR KAROGIEM UN ASV ŠTATIEM) UN REĢIONS */}
+            {/* VALSTS UN REĢIONS */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Valsts</label>
@@ -649,7 +653,7 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* FOTOGRĀFIJU GALERIJA (AUGSTĀKS DRAG & DROP LAUKUMS) */}
+            {/* FOTOGRĀFIJU GALERIJA */}
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>
                 Attēli un fotogrāfijas (Pirmā bilde būs titulbilde)
@@ -684,7 +688,6 @@ export default function PievienotAuto() {
                 </label>
               </div>
 
-              {/* Saites ievades josla */}
               <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                 <input
                   type="text"
@@ -702,7 +705,6 @@ export default function PievienotAuto() {
                 </button>
               </div>
 
-              {/* Bilžu vizuālais režģis */}
               {images.length > 0 && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '12px', marginTop: '12px' }}>
                   {images.map((img, index) => (
