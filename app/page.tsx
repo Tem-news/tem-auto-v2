@@ -80,7 +80,7 @@ const REGIONS_BY_COUNTRY: { [key: string]: string[] } = {
     'Bāden-Virtemberga (Baden-Württemberg)', 'Bavārija (Bayern)', 'Berlīne (Berlin)', 'Brandenburga (Brandenburg)', 
     'Brēmene (Bremen)', 'Hamburga (Hamburg)', 'Hesene (Hessen)', 'Mērklenburga-Priekšpomerānija (Mecklenburg-Vorpommern)', 
     'Lejassaksija (Niedersachsen)', 'Ziemeļreina-Vestfālene (Nordrhein-Westfalen)', 'Reinlande-Pfalca (Rheinland-Pfalz)', 
-    'Sāra (Saarland)', 'Saksija (Saksija)', 'Saksija-Anhalte (Saksija-Anhalt)', 'Šlēsviga-Holšteina (Schleswig-Holstein)', 'Tīringene (Thüringen)'
+    'Sāra (Saarland)', 'Saksija (Sachsen)', 'Saksija-Anhalte (Saksija-Anhalt)', 'Šlēsviga-Holšteina (Schleswig-Holstein)', 'Tīringene (Thüringen)'
   ],
   'Polija': [
     'Apakšsilēzijas vojevodiste (Dolnośląskie)', 'Kujāvijas-Pomožes vojevodiste (Kujawsko-pomorskie)', 'Lodzas vojevodiste (Łódzkie)', 
@@ -184,10 +184,13 @@ export default function Sakumlapa() {
     setActiveDropdown(prev => prev === name ? null : name)
   }
 
+  // Galvenajā lapā (kad marka nav izvēlēta) poga parādās, ja ir jebkāds filtrs.
+  // Markas lapā (kad marka ir izvēlēta) poga parādās TIKAI tad, ja papildus markai ir ievadīts vēl kāds cits filtrs.
   const hasActiveFilters = searchMake 
     ? Boolean(searchModel || valsts || regions || minPrice || maxPrice || minYear || maxYear || dzinejs || minTilpums || maxTilpums || atrumkarba || virsbuve || krasa)
     : Boolean(searchMake || searchModel || valsts || regions || minPrice || maxPrice || minYear || maxYear || dzinejs || minTilpums || maxTilpums || atrumkarba || virsbuve || krasa)
 
+  // Notīra visus filtrus, bet SAGLABĀ izvēlēto marku (ja tāda bija izvēlēta), neaizvedot lietotāju atpakaļ uz visām markām.
   const clearAllFilters = () => {
     setSearchModel('')
     setValsts('')
@@ -367,22 +370,22 @@ export default function Sakumlapa() {
         {/* VIDUS: Filtri un Sludinājumu saraksts */}
         <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
-          {/* FILTRI - Pielāgots top un fons, lai novērstu satura ņirbēšanu skrollējot */}
+          {/* FILTRI */}
           <div style={{ 
             position: 'sticky', 
-            top: '60px', 
+            top: '72px', 
             zIndex: 30, 
             backgroundColor: '#f3f4f6', 
             padding: '12px', 
-            paddingTop: '16px', 
-            marginTop: '0px', 
+            paddingTop: '20px', 
+            marginTop: '-12px', 
             borderRadius: '8px', 
             marginBottom: '16px', 
             display: 'flex', 
             flexDirection: 'column', 
             gap: '8px', 
             border: '1px solid #e5e7eb',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.08)'
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
           }}>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
@@ -390,6 +393,7 @@ export default function Sakumlapa() {
                 {searchMake ? `${searchMake} sludinājumi` : 'Visi auto sludinājumi'}
               </h2>
               
+              {/* NOTĪRĪT FILTRU POGA - parādās tikai tad, ja ir aktīvi papildu filtri (vai marka galvenajā lapā) */}
               {hasActiveFilters && (
                 <button 
                   onClick={clearAllFilters} 
@@ -651,13 +655,14 @@ export default function Sakumlapa() {
             </div>
           </div>
 
-          {/* SKATS: Grid vai Tabulas rindas */}
+          {/* SKATS: Grid (ja nav izvēlēta marka) vai Tabulas rindas (ja marka izvēlēta) */}
           <div>
             {loading ? (
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
             ) : filteredCars.length === 0 ? (
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>Nav atrasts neviens sludinājums ar šādiem kritērijiem.</div>
             ) : searchMake === '' ? (
+              /* PARASTAIS GRID SKATS TITULLAPĀ (Lielākas bildes) */
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
                 {filteredCars.map((car, index) => {
                   const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
@@ -705,6 +710,7 @@ export default function Sakumlapa() {
                 })}
               </div>
             ) : (
+              /* TABULAS RINDU SKATS, KAD IZVĒLĒTA MARKA (Jeep, Ford, BMW utt.) */
               <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 90px 100px', backgroundColor: '#15803d', color: '#ffffff', padding: '10px 12px', fontSize: '13px', fontWeight: 'bold' }}>
                   <div>Foto</div>
