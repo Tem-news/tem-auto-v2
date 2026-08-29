@@ -726,19 +726,7 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* APRAKSTS */}
-            <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Papildu apraksts un komentāri</label>
-              <textarea
-                rows={4}
-                placeholder="Pastāstiet par auto stāvokli, komplektāciju..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
-              />
-            </div>
-
-            {/* KONTAKTINFORMĀCIJA (Pārcelta virs attēliem, bez "neobligāti") */}
+            {/* KONTAKTINFORMĀCIJA (Virs attēliem, bez "neobligāti") */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', backgroundColor: '#f9fafb', padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>E-pasts</label>
@@ -835,6 +823,18 @@ export default function PievienotAuto() {
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* APRAKSTS (Pārcelts atpakaļ zem fotogrāfijām) */}
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Papildu apraksts un komentāri</label>
+              <textarea
+                rows={4}
+                placeholder="Pastāstiet par auto stāvokli, komplektāciju..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
+              />
             </div>
 
             {/* SAGLABĀŠANAS POGA */}
