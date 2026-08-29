@@ -341,7 +341,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* VIDUS: Filtri un Sludinājumi */}
+        {/* VIDUS: Filtri un Sākotnējais Režģis (Grid) */}
         <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
           {/* FILTRI */}
@@ -645,32 +645,18 @@ export default function Sakumlapa() {
 
           </div>
 
-          {/* SLUDINĀJUMU SARAKSTS ( TABULAS SKATS KĀ PARAUGĀ ) */}
-          <div style={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-            
-            {/* Tabulas galvene / Virsraksts */}
-            <div style={{ backgroundColor: '#15803d', color: '#fff', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontWeight: '700', fontSize: '15px' }}>
-                {searchMake ? `${searchMake} sludinājumi` : 'Visi sludinājumi'}
-              </span>
-              <span style={{ fontSize: '13px', opacity: 0.9 }}>Kopā: {filteredCars.length}</span>
+          {/* PARASTAIS SLUDINĀJUMU REŽĢIS (GRID) UZ PIRMĀS LAPAS */}
+          <div>
+            <div style={{ fontWeight: '700', fontSize: '16px', marginBottom: '12px', color: '#1f2937' }}>
+              {searchMake ? `${searchMake} sludinājumi` : 'Jaunākie sludinājumi'} ({filteredCars.length})
             </div>
 
-            {/* Kolonnu nosaukumi */}
-            <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 90px 100px', gap: '12px', padding: '8px 14px', backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb', fontSize: '12px', fontWeight: '700', color: '#374151' }}>
-              <div>Foto</div>
-              <div>Sludinājums / Apraksts</div>
-              <div>Gads</div>
-              <div style={{ textAlign: 'right' }}>Cena</div>
-            </div>
-
-            {/* Sludinājumu rindas */}
             {loading ? (
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280', fontSize: '14px' }}>Ielādē sludinājumus...</div>
             ) : filteredCars.length === 0 ? (
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280', fontSize: '14px' }}>Nav atrasts neviens sludinājums.</div>
             ) : (
-              <div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
                 {filteredCars.map((car, index) => {
                   let imageUrl = 'https://via.placeholder.com/150?text=Nav+foto'
                   if (car.images) {
@@ -690,59 +676,52 @@ export default function Sakumlapa() {
                       key={car.id || index}
                       onClick={() => router.push(`/sludinajums/${car.id}`)}
                       style={{ 
-                        display: 'grid', 
-                        gridTemplateColumns: '120px 1fr 90px 100px', 
-                        gap: '12px', 
-                        padding: '10px 14px', 
-                        alignItems: 'center', 
-                        borderBottom: '1px solid #f3f4f6', 
+                        backgroundColor: '#fff', 
+                        border: '1px solid #e5e7eb', 
+                        borderRadius: '8px', 
+                        overflow: 'hidden', 
                         cursor: 'pointer',
-                        transition: 'background-color 0.15s ease'
+                        transition: 'transform 0.15s ease, box-shadow 0.15s ease'
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-2px)'
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = 'none'
+                      }}
                     >
-                      {/* Foto */}
-                      <div>
+                      <div style={{ width: '100%', height: '140px', backgroundColor: '#f3f4f6' }}>
                         <img 
                           src={imageUrl} 
                           alt={car.model || 'Auto'} 
-                          style={{ width: '110px', height: '70px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #e5e7eb' }} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                         />
                       </div>
-
-                      {/* Apraksts / Nosaukums */}
-                      <div style={{ minWidth: '0' }}>
-                        <div style={{ fontWeight: '700', fontSize: '14px', color: '#1d4ed8', marginBottom: '3px' }}>
-                          {car.make} {car.model} {car.volume ? `(${car.volume})` : ''}
+                      <div style={{ padding: '10px' }}>
+                        <div style={{ fontWeight: '700', fontSize: '14px', color: '#111827', marginBottom: '4px' }}>
+                          {car.make} {car.model}
                         </div>
-                        <div style={{ fontSize: '12px', color: '#4b5563', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {car.description || car.zimes || 'Bez papildus apraksta...'}
+                        <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
+                          {car.year ? `${car.year} g.` : ''} {car.volume ? `• ${car.volume}` : ''}
                         </div>
-                      </div>
-
-                      {/* Gads */}
-                      <div style={{ fontSize: '13px', color: '#374151' }}>
-                        {car.year ? `${car.year} g.` : '-'}
-                      </div>
-
-                      {/* Cena */}
-                      <div style={{ textAlign: 'right', fontWeight: '700', fontSize: '14px', color: '#111827' }}>
-                        {car.price ? `€${Number(car.price).toLocaleString('lv-LV')}` : 'Cena pēc vienošanās'}
+                        <div style={{ fontWeight: '700', fontSize: '15px', color: '#15803d' }}>
+                          {car.price ? `€${Number(car.price).toLocaleString('lv-LV')}` : 'Cena pēc vienošanās'}
+                        </div>
                       </div>
                     </div>
                   )
                 })}
               </div>
             )}
-
           </div>
 
         </div>
 
         {/* LABĀ PUSE: Reklāma */}
         <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', minHeight: '400px', backgroundColor: '#f9fafb', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '16px', boxSizing: 'border-box', textAlign: 'center', color: '#64748b', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-          <div style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '1px', marginBottom: '8px', color: '#94a3b8' }}>REKLĀMA</div>
+          <div style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '1px', marginBottom: '8px', color: '#94a3b8'}}, REKLĀMA</div>
           <div style={{ fontSize: '13px' }}>Globālais baneris šeit!</div>
         </div>
 
