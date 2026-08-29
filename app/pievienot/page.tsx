@@ -7,30 +7,44 @@ import { supabase } from '../../lib/supabase'
 const POPULAR_MAKES = [
   'BMW', 'Audi', 'Volkswagen', 'Volvo', 'Toyota', 'Mercedes-Benz', 
   'Škoda', 'Ford', 'Hyundai', 'Kia', 'Nissan', 'Opel', 'Peugeot', 
-  'Renault', 'Mazda', 'Honda', 'Lexus', 'Subaru', 'Tesla', 'Porsche'
+  'Renault', 'Mazda', 'Honda', 'Lexus', 'Subaru', 'Tesla', 'Porsche',
+  'Fiat', 'Alfa Romeo', 'Citroën', 'Dacia', 'Jeep', 'Land Rover', 
+  'Mitsubishi', 'Suzuki', 'Mini', 'Chrysler', 'Dodge', 'Chevrolet'
 ]
 
 const MODELS_BY_MAKE: { [key: string]: string[] } = {
-  'BMW': ['1 sērija', '3 sērija', '5 sērija', '7 sērija', 'X1', 'X3', 'X5', 'X6', 'Z4'],
-  'Audi': ['A3', 'A4', 'A6', 'A8', 'Q3', 'Q5', 'Q7', 'Q8', 'TT'],
-  'Volkswagen': ['Golf', 'Passat', 'Tiguan', 'Touareg', 'Polo', 'Touran', 'Transporter'],
-  'Volvo': ['S60', 'S90', 'V60', 'V90', 'XC40', 'XC60', 'XC90'],
-  'Toyota': ['Corolla', 'Camry', 'RAV4', 'Land Cruiser', 'Yaris', 'Avensis', 'C-HR'],
-  'Mercedes-Benz': ['A-klase', 'C-klase', 'E-klase', 'S-klase', 'GLC', 'GLE', 'ML'],
-  'Škoda': ['Octavia', 'Superb', 'Fabia', 'Kodiaq', 'Karoq', 'Rapid'],
-  'Ford': ['Focus', 'Mondeo', 'Fiesta', 'Kuga', 'S-Max', 'Ranger'],
-  'Hyundai': ['i10', 'i20', 'i30', 'i40', 'Tucson', 'Santa Fe', 'Kona', 'Ioniq'],
-  'Kia': ['Picanto', 'Ceed', 'Sportage', 'Sorento', 'Stonic', 'Niro', 'Rio'],
-  'Nissan': ['Qashqai', 'X-Trail', 'Juke', 'Leaf', 'Navara', 'Micra'],
-  'Opel': ['Astra', 'Corsa', 'Insignia', 'Mokka', 'Zafira', 'Crossland'],
+  'BMW': ['1 sērija', '3 sērija', '5 sērija', '7 sērija', '8 sērija', 'X1', 'X3', 'X5', 'X6', 'X7', 'Z4', 'i3', 'i4', 'iX'],
+  'Audi': ['A1', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'Q2', 'Q3', 'Q5', 'Q7', 'Q8', 'TT', 'e-tron'],
+  'Volkswagen': ['Golf', 'Passat', 'Tiguan', 'Touareg', 'Polo', 'Touran', 'Transporter', 'Arteon', 'ID.3', 'ID.4', 'T-Roc'],
+  'Volvo': ['S60', 'S90', 'V60', 'V90', 'XC40', 'XC60', 'XC90', 'EX30', 'EX90'],
+  'Toyota': ['Corolla', 'Camry', 'RAV4', 'Land Cruiser', 'Yaris', 'Avensis', 'C-HR', 'Prius', 'Hilux', 'Aygo'],
+  'Mercedes-Benz': ['A-klase', 'B-klase', 'C-klase', 'E-klase', 'S-klase', 'CLA', 'CLS', 'GLA', 'GLB', 'GLC', 'GLE', 'GLS', 'G-klase', 'ML'],
+  'Škoda': ['Octavia', 'Superb', 'Fabia', 'Kodiaq', 'Karoq', 'Kamiq', 'Scala', 'Rapid'],
+  'Ford': ['Focus', 'Mondeo', 'Fiesta', 'Kuga', 'S-Max', 'Ranger', 'Puma', 'Mustang', 'Explorer'],
+  'Hyundai': ['i10', 'i20', 'i30', 'i40', 'Tucson', 'Santa Fe', 'Kona', 'Ioniq 5', 'Ioniq 6'],
+  'Kia': ['Picanto', 'Ceed', 'Sportage', 'Sorento', 'Stonic', 'Niro', 'Rio', 'EV6', 'Stinger'],
+  'Nissan': ['Qashqai', 'X-Trail', 'Juke', 'Leaf', 'Navara', 'Micra', 'Ariya'],
+  'Opel': ['Astra', 'Corsa', 'Insignia', 'Mokka', 'Zafira', 'Crossland', 'Grandland'],
   'Peugeot': ['208', '308', '508', '2008', '3008', '5008', 'Partner'],
-  'Renault': ['Clio', 'Megane', 'Captur', 'Kadjar', 'Scenic', 'Talisman'],
-  'Mazda': ['Mazda2', 'Mazda3', 'Mazda6', 'CX-3', 'CX-5', 'CX-30'],
+  'Renault': ['Clio', 'Megane', 'Captur', 'Kadjar', 'Scenic', 'Talisman', 'Arkana', 'Austral'],
+  'Mazda': ['Mazda2', 'Mazda3', 'Mazda6', 'CX-3', 'CX-5', 'CX-30', 'CX-60', 'MX-5'],
   'Honda': ['Civic', 'Accord', 'CR-V', 'HR-V', 'Jazz'],
-  'Lexus': ['IS', 'ES', 'GS', 'LS', 'NX', 'RX', 'UX'],
-  'Subaru': ['Outback', 'Forester', 'Impreza', 'XV', 'Legacy'],
+  'Lexus': ['IS', 'ES', 'GS', 'LS', 'NX', 'RX', 'UX', 'RZ'],
+  'Subaru': ['Outback', 'Forester', 'Impreza', 'XV', 'Legacy', 'BRZ'],
   'Tesla': ['Model 3', 'Model Y', 'Model S', 'Model X', 'Cybertruck'],
-  'Porsche': ['911', 'Cayenne', 'Macan', 'Panamera', 'Taycan']
+  'Porsche': ['911', 'Cayenne', 'Macan', 'Panamera', 'Taycan'],
+  'Fiat': ['500', 'Panda', 'Tipo', 'Doblo', 'Ducato'],
+  'Alfa Romeo': ['Giulia', 'Stelvio', 'Tonale', 'Giulietta'],
+  'Citroën': ['C3', 'C4', 'C5 Aircross', 'Berlingo'],
+  'Dacia': ['Duster', 'Sandero', 'Logan', 'Jogger'],
+  'Jeep': ['Grand Cherokee', 'Wrangler', 'Renegade', 'Compass'],
+  'Land Rover': ['Range Rover', 'Range Rover Sport', 'Discovery', 'Defender'],
+  'Mitsubishi': ['Outlander', 'ASX', 'Eclipse Cross', 'L200'],
+  'Suzuki': ['Vitara', 'SX4 S-Cross', 'Swift', 'Jimny'],
+  'Mini': ['Cooper', 'Countryman', 'Clubman'],
+  'Chrysler': ['300C', 'Voyager'],
+  'Dodge': ['Charger', 'Challenger', 'Durango'],
+  'Chevrolet': ['Camaro', 'Corvette', 'Silverado', 'Captiva']
 }
 
 const COLORS = [
@@ -55,6 +69,11 @@ const BODY_TYPES = [
 const GEARBOX_TYPES = ['Mehāniskā', 'Automāts', 'Pusautomāts']
 const ENGINE_TYPES = ['Dīzelis', 'Benzīns', 'Benzīns / Gāze', 'Hibrīds (Benzīns)', 'Hibrīds (Dīzelis)', 'Elektriskais']
 const STEERING_TYPES = ['Kreisā', 'Labā']
+const WHEEL_TYPES = [
+  'R13 vieglmetāla', 'R14 vieglmetāla', 'R15 vieglmetāla', 'R16 vieglmetāla', 'R17 vieglmetāla', 
+  'R18 vieglmetāla', 'R19 vieglmetāla', 'R20 vieglmetāla', 'R21 vieglmetāla', 'R22 vieglmetāla',
+  'R15 tērauda', 'R16 tērauda'
+]
 
 const ENGINE_VOLUMES = [
   '1.0', '1.2', '1.3', '1.4', '1.5', '1.6', '1.8', '1.9', '2.0', 
@@ -148,7 +167,6 @@ export default function PievienotAuto() {
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   
-  // Globālais klikšķu apstrādātājs, kas aizver dropdown, ja klikšķina jebkur citur lapā
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as HTMLElement
@@ -601,16 +619,34 @@ export default function PievienotAuto() {
                   </div>
                 )}
               </div>
-              <div>
+
+              <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Diski</label>
                 <input
                   type="text"
                   placeholder="Piem., R17 vieglmetāla"
                   value={diski}
-                  onChange={(e) => setDiski(e.target.value)}
+                  onChange={(e) => { setDiski(e.target.value); setActiveDropdown('diski'); }}
+                  onClick={() => toggleDropdown('diski')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
+                {activeDropdown === 'diski' && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    {WHEEL_TYPES.filter(w => w.toLowerCase().includes(diski.toLowerCase())).map((w) => (
+                      <div
+                        key={w}
+                        onClick={() => { setDiski(w); setActiveDropdown(null); }}
+                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                      >
+                        {w}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
+
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Salona krāsa/materiāls</label>
                 <input
