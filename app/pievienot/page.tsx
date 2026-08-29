@@ -161,7 +161,7 @@ export default function PievienotAuto() {
   const [region, setRegion] = useState('')
   const [description, setDescription] = useState('')
   
-  // Jaunie kontakta lauki
+  // Kontakta lauki (virs attēliem)
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   
@@ -726,6 +726,42 @@ export default function PievienotAuto() {
               </div>
             </div>
 
+            {/* APRAKSTS */}
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Papildu apraksts un komentāri</label>
+              <textarea
+                rows={4}
+                placeholder="Pastāstiet par auto stāvokli, komplektāciju..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
+              />
+            </div>
+
+            {/* KONTAKTINFORMĀCIJA (Pārcelta virs attēliem, bez "neobligāti") */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', backgroundColor: '#f9fafb', padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>E-pasts</label>
+                <input
+                  type="email"
+                  placeholder="piemērs@epasts.lv"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Tālruņa Nr.</label>
+                <input
+                  type="text"
+                  placeholder="+371 20000000"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
+                />
+              </div>
+            </div>
+
             {/* FOTOGRĀFIJU GALERIJA */}
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>
@@ -799,42 +835,6 @@ export default function PievienotAuto() {
                   ))}
                 </div>
               )}
-            </div>
-
-            {/* APRAKSTS */}
-            <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Papildu apraksts un komentāri</label>
-              <textarea
-                rows={4}
-                placeholder="Pastāstiet par auto stāvokli, komplektāciju..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
-              />
-            </div>
-
-            {/* KONTAKTINFORMĀCIJA (NEOBLIGĀTI) */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', backgroundColor: '#f9fafb', padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>E-pasts (neobligāti)</label>
-                <input
-                  type="email"
-                  placeholder="piemērs@epasts.lv"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Tālruņa Nr. (neobligāti)</label>
-                <input
-                  type="text"
-                  placeholder="+371 20000000"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
-                />
-              </div>
             </div>
 
             {/* SAGLABĀŠANAS POGA */}
