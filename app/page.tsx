@@ -210,14 +210,13 @@ export default function Sakumlapa() {
       {/* 3 KOLONNU STRUKTŪRA */}
       <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr 220px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
-        {/* 1. KREISĀ PUSE: Marku saraksts (Rindā uz leju, stingrā stabiņā) */}
+        {/* 1. KREISĀ PUSE: Marku saraksts (Rindā uz leju stabiņā) */}
         <div style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '4px', padding: '8px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
           <div style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '8px', color: '#111827', borderBottom: '1px solid #e5e7eb', paddingBottom: '4px', display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ cursor: 'pointer', color: searchMake === '' ? '#0369a1' : '#111827' }} onClick={() => setSearchMake('')}>Visas markas</span>
             <span style={{ color: '#6b7280' }}>({cars.length})</span>
           </div>
 
-          {/* Šeit katra marka ir pilnā platumā un iet viena zem kitas rindā uz leju */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', width: '100%' }}>
             {makeCounts.map(([make, count]) => {
               const isSelected = searchMake.toLowerCase() === make.toLowerCase()
