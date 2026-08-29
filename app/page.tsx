@@ -341,7 +341,7 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* VIDUS: Filtri un Tabulas veida Sludinājumu saraksts */}
+        {/* VIDUS: Filtri un Sludinājumu saraksts */}
         <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
           {/* FILTRI */}
@@ -362,7 +362,6 @@ export default function Sakumlapa() {
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
           }}>
             
-            {/* Virsraksts vai aktīvais filtrs */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
               <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0, color: '#111827' }}>
                 {searchMake ? `${searchMake} sludinājumi` : 'Visi auto sludinājumi'}
@@ -380,7 +379,6 @@ export default function Sakumlapa() {
             {/* 1. Rinda */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
               
-              {/* VALSTS */}
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
                   type="text"
@@ -417,7 +415,6 @@ export default function Sakumlapa() {
                 )}
               </div>
 
-              {/* REĢIONS */}
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
                   type="text"
@@ -445,7 +442,6 @@ export default function Sakumlapa() {
                 )}
               </div>
               
-              {/* Cena */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <input 
                   type="text" 
@@ -472,7 +468,6 @@ export default function Sakumlapa() {
                 />
               </div>
 
-              {/* Gads */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <input type="number" placeholder="Gads no" value={minYear} onChange={(e) => setMinYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
                 <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
@@ -483,7 +478,6 @@ export default function Sakumlapa() {
             {/* 2. Rinda */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
               
-              {/* DZINĒJS */}
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
                   type="text"
@@ -511,7 +505,6 @@ export default function Sakumlapa() {
                 )}
               </div>
 
-              {/* Tilpums */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <div style={{ position: 'relative', width: '70px' }}>
                   <input 
@@ -550,7 +543,6 @@ export default function Sakumlapa() {
                 </div>
               </div>
 
-              {/* ĀTRUMKĀRBA */}
               <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
                 <input
                   type="text"
@@ -570,7 +562,6 @@ export default function Sakumlapa() {
                 )}
               </div>
 
-              {/* VIRSBŪVE */}
               <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
                 <input
                   type="text"
@@ -590,7 +581,6 @@ export default function Sakumlapa() {
                 )}
               </div>
 
-              {/* KRĀSA */}
               <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
                 <input
                   type="text"
@@ -622,15 +612,63 @@ export default function Sakumlapa() {
             </div>
           </div>
 
-          {/* TABULAS SKATS SLUDINĀJUMIEM */}
-          <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
+          {/* SKATS: Grid (ja nav izvēlēta marka) vai Tabulas rindas (ja marka izvēlēta) */}
+          <div>
             {loading ? (
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
             ) : filteredCars.length === 0 ? (
-              <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Nav atrasts neviens sludinājums ar šādiem kritērijiem.</div>
+              <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>Nav atrasts neviens sludinājums ar šādiem kritērijiem.</div>
+            ) : searchMake === '' ? (
+              /* PARASTAIS GRID SKATS TITULLAPĀ (Lielākas bildes) */
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
+                {filteredCars.map((car, index) => {
+                  const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
+                  return (
+                    <Link 
+                      key={car.id || index} 
+                      href={`/auto/${car.id}`} 
+                      style={{ 
+                        backgroundColor: '#ffffff', 
+                        border: '1px solid #e5e7eb', 
+                        borderRadius: '8px', 
+                        overflow: 'hidden', 
+                        textDecoration: 'none', 
+                        color: 'inherit',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        transition: 'box-shadow 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'}
+                      onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
+                    >
+                      <div style={{ width: '100%', height: '160px', backgroundColor: '#f3f4f6', overflow: 'hidden' }}>
+                        <img 
+                          src={imageUrl} 
+                          alt={car.make} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        />
+                      </div>
+                      <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                        <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#1d4ed8' }}>
+                          {car.make} {car.model}
+                        </div>
+                        <div style={{ fontSize: '13px', color: '#4b5563', display: 'flex', justifyContent: 'space-between' }}>
+                          <span>{car.year ? `${car.year} g.` : ''}</span>
+                          <span>{car.volume ? `${car.volume}L` : ''}</span>
+                        </div>
+                        <div style={{ marginTop: 'auto', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontWeight: 'bold', fontSize: '16px', color: '#111827' }}>
+                            {car.price ? `€${Number(car.price).toLocaleString('lv-LV')}` : ''}
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
             ) : (
-              <div>
-                {/* Tabulas galvene */}
+              /* TABULAS RINDU SKATS, KAD IZVĒLĒTA MARKA (Jeep, Ford, BMW utt.) */
+              <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 90px 100px', backgroundColor: '#15803d', color: '#ffffff', padding: '10px 12px', fontSize: '13px', fontWeight: 'bold' }}>
                   <div>Foto</div>
                   <div>Sludinājums / Apraksts</div>
@@ -638,7 +676,6 @@ export default function Sakumlapa() {
                   <div style={{ textAlign: 'right' }}>Cena</div>
                 </div>
 
-                {/* Saraksta rindas */}
                 {filteredCars.map((car, index) => {
                   const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=300&q=80'
                   return (
@@ -658,7 +695,6 @@ export default function Sakumlapa() {
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0fdf4'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#f9fafb'}
                     >
-                      {/* Bilde */}
                       <div>
                         <img 
                           src={imageUrl} 
@@ -667,7 +703,6 @@ export default function Sakumlapa() {
                         />
                       </div>
 
-                      {/* Nosaukums un apraksts */}
                       <div style={{ paddingRight: '12px', overflow: 'hidden' }}>
                         <div style={{ fontWeight: 'bold', color: '#1d4ed8', fontSize: '14px', marginBottom: '2px' }}>
                           {car.make} {car.model} {car.volume ? `(${car.volume})` : ''}
@@ -677,12 +712,10 @@ export default function Sakumlapa() {
                         </div>
                       </div>
 
-                      {/* Gads */}
                       <div style={{ textAlign: 'center', fontSize: '13px', color: '#374151' }}>
                         {car.year ? `${car.year} g.` : ''}
                       </div>
 
-                      {/* Cena */}
                       <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '14px' }}>
                         {car.price ? `€${Number(car.price).toLocaleString('lv-LV')}` : ''}
                       </div>
