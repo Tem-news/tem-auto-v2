@@ -184,14 +184,9 @@ export default function Sakumlapa() {
     setActiveDropdown(prev => prev === name ? null : name)
   }
 
-  // Pārbauda, vai ir aktīvs jebkurš filtris (ieskaitot searchMake, lai arī galvenajā lapā poga parādītos, ja izvēlēta marka vai citi kritēriji)
-  const hasActiveFilters = Boolean(
-    searchMake || valsts || regions || minPrice || maxPrice || 
-    minYear || maxYear || dzinejs || minTilpums || maxTilpums || 
-    atrumkarba || virsbuve || krasa
-  )
+  // Poga parādās TIKAI TAD, kad ir izvēlēta konkrēta marka (kā prasīts)
+  const hasActiveFilters = Boolean(searchMake)
 
-  // Funkcija visu filtru notīrīšanai (strādā identiski gan galvenajā, gan marku skatos)
   const clearAllFilters = () => {
     setSearchMake('')
     setSearchModel('')
@@ -372,7 +367,7 @@ export default function Sakumlapa() {
         {/* VIDUS: Filtri un Sludinājumu saraksts */}
         <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
-          {/* FILTRI (Tagad ar "Notīrīt filtrus" pogu gan galvenajā lapā, gan marku skatos) */}
+          {/* FILTRI */}
           <div style={{ 
             position: 'sticky', 
             top: '72px', 
@@ -395,7 +390,7 @@ export default function Sakumlapa() {
                 {searchMake ? `${searchMake} sludinājumi` : 'Visi auto sludinājumi'}
               </h2>
               
-              {/* NOTĪRĪT FILTRU POGA - tagad vienmēr pieejama, kad kaut kas ir atlasīts/ierakstīts */}
+              {/* NOTĪRĪT FILTRU POGA - rādās tikai tad, kad ir izvēlēta marka (atvēruma lapā) */}
               {hasActiveFilters && (
                 <button 
                   onClick={clearAllFilters} 
