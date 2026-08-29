@@ -344,15 +344,15 @@ export default function Sakumlapa() {
         {/* VIDUS: Filtri un Sludinājumi */}
         <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
-          {/* FILTRI - Pievienots augšējais fona bloks (pseudo-header), kas saplūst ar tumšo joslu un nosedz spraugas */}
+          {/* FILTRI */}
           <div style={{ 
             position: 'sticky', 
             top: '72px', 
             zIndex: 30, 
             backgroundColor: '#f3f4f6', 
             padding: '12px', 
-            paddingTop: '20px', // Papildus vieta augšpusē, lai izveidotu plūstošu pāreju
-            marginTop: '-12px', // Pārvietots nedaudz uz augšu, lai pilnībā nosegtu jebkādu spraugu
+            paddingTop: '20px', 
+            marginTop: '-12px', 
             borderTopLeftRadius: '0px',
             borderTopRightRadius: '0px',
             borderRadius: '8px', 
@@ -598,15 +598,16 @@ export default function Sakumlapa() {
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} 
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        <span style={{ 
-                          width: '14px', 
-                          height: '14px', 
-                          borderRadius: '50%', 
-                          backgroundColor: k.hex, 
-                          border: `1px solid ${k.border}`, 
-                          display: 'inline-block',
-                          flexShrink: 0 
-                        }}></span>
+                        <span 
+                          style={{ 
+                            width: '14px', 
+                            height: '14px', 
+                            borderRadius: '50%', 
+                            backgroundColor: k.hex, 
+                            border: `1px solid ${k.border}`,
+                            display: 'inline-block' 
+                          }} 
+                        />
                         <span>{k.name}</span>
                       </div>
                     ))}
@@ -615,40 +616,64 @@ export default function Sakumlapa() {
               </div>
 
             </div>
-
           </div>
 
-          {/* SLUDINĀJUMU SARAKSTS */}
+          {/* REZULTĀTU SARAKSTS / GRID */}
           <div>
             {loading ? (
               <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
             ) : filteredCars.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280', backgroundColor: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-                Nav atrasts neviens auto pēc izvēlētajiem kritērijiem.
+              <div style={{ textAlign: 'center', padding: '40px', backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', color: '#6b7280' }}>
+                Netika atrasts neviens auto, kas atbilstu izvēlētajiem kritērijiem.
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
                 {filteredCars.map((car) => (
-                  <Link key={car.id} href={`/auto/${car.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <div style={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', transition: 'box-shadow 0.2s' }}>
-                      <div style={{ width: '100%', height: '140px', backgroundColor: '#e5e7eb', position: 'relative' }}>
-                        {car.image_url || (car.images && car.images[0]) ? (
-                          <img 
-                            src={car.image_url || car.images[0]} 
-                            alt={`${car.make} ${car.model}`} 
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                          />
-                        ) : (
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af', fontSize: '12px' }}>Nav attēla</div>
-                        )}
+                  <div 
+                    key={car.id} 
+                    style={{ 
+                      backgroundColor: '#fff', 
+                      border: '1px solid #e5e7eb', 
+                      borderRadius: '8px', 
+                      overflow: 'hidden',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                    }}
+                  >
+                    {/* Auto attēls */}
+                    <div style={{ width: '100%', height: '180px', backgroundColor: '#e5e7eb', position: 'relative' }}>
+                      {car.image_url || car.photo ? (
+                        <img 
+                          src={car.image_url || car.photo} 
+                          alt={`${car.make} ${car.model}`} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af', fontSize: '14px' }}>
+                          Nav attēla
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Auto informācija */}
+                    <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                      <div style={{ fontSize: '16px', fontWeight: '700', color: '#111827' }}>
+                        {car.make} {car.model}
                       </div>
-                      <div style={{ padding: '8px' }}>
-                        <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#111827' }}>{car.make} {car.model}</div>
-                        <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>{car.year} g. • {car.engine_volume || car.volume}</div>
-                        <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#0369a1', marginTop: '6px' }}>€{car.price}</div>
+                      <div style={{ fontSize: '13px', color: '#4b5563' }}>
+                        {car.year} g., {car.engine || car.dzinejs || ''} {car.volume ? `${car.volume}L` : ''}, {car.gearbox || car.atrumkarba || ''}
+                      </div>
+                      <div style={{ fontSize: '13px', color: '#6b7280', marginTop: 'auto' }}>
+                        {car.country || car.valsts || ''} {car.region || car.regions ? `, ${car.region || car.regions}` : ''}
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #f3f4f6' }}>
+                        <span style={{ fontSize: '18px', fontWeight: '800', color: '#0369a1' }}>
+                          {car.price ? `${formatPriceInput(String(car.price))} €` : 'Cena pēc vienošanās'}
+                        </span>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
             )}
@@ -656,14 +681,9 @@ export default function Sakumlapa() {
 
         </div>
 
-        {/* LABĀ PUSE: REKLĀMAS BANERI */}
-        <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ backgroundColor: '#f9fafb', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
-            REKLĀMA<br />Globālais baners šeit!
-          </div>
-          <div style={{ backgroundColor: '#f9fafb', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
-            REKLĀMA<br />Globālais baners šeit!
-          </div>
+        {/* LABĀ PUSE */}
+        <div style={{ display: 'none' }}>
+          {/* Papildu saturs labajā malā, ja nepieciešams */}
         </div>
 
       </div>
