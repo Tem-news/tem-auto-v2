@@ -4,28 +4,28 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
-// Populārās markas ar reāliem logo no CDN
+// Populārās markas ar tīriem vizuāliem simboliem un pirmo burtu logo vietā
 const POPULAR_MAKES = [
-  { name: 'BMW', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/bmw.png' },
-  { name: 'Audi', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/audi.png' },
-  { name: 'Volkswagen', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/volkswagen.png' },
-  { name: 'Volvo', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/volvo.png' },
-  { name: 'Toyota', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/toyota.png' },
-  { name: 'Mercedes-Benz', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/mercedes-benz.png' },
-  { name: 'Škoda', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/skoda.png' },
-  { name: 'Ford', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/ford.png' },
-  { name: 'Hyundai', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/hyundai.png' },
-  { name: 'Kia', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/logo_kia.png' },
-  { name: 'Nissan', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/nissan.png' },
-  { name: 'Opel', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/opel.png' },
-  { name: 'Peugeot', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/peugeot.png' },
-  { name: 'Renault', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/renault.png' },
-  { name: 'Mazda', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/mazda.png' },
-  { name: 'Honda', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/honda.png' },
-  { name: 'Lexus', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/lexus.png' },
-  { name: 'Subaru', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/subaru.png' },
-  { name: 'Tesla', logo: 'https://www.car-logos.org/wp-content/uploads/2011/10/tesla-Motors.png' },
-  { name: 'Porsche', logo: 'https://www.car-logos.org/wp-content/uploads/2011/09/porsche.png' }
+  { name: 'BMW', symbol: 'B' },
+  { name: 'Audi', symbol: 'A' },
+  { name: 'Volkswagen', symbol: 'VW' },
+  { name: 'Volvo', symbol: 'V' },
+  { name: 'Toyota', symbol: 'T' },
+  { name: 'Mercedes-Benz', symbol: 'MB' },
+  { name: 'Škoda', symbol: 'Š' },
+  { name: 'Ford', symbol: 'F' },
+  { name: 'Hyundai', symbol: 'H' },
+  { name: 'Kia', symbol: 'K' },
+  { name: 'Nissan', symbol: 'N' },
+  { name: 'Opel', symbol: 'O' },
+  { name: 'Peugeot', symbol: 'P' },
+  { name: 'Renault', symbol: 'R' },
+  { name: 'Mazda', symbol: 'M' },
+  { name: 'Honda', symbol: 'H' },
+  { name: 'Lexus', symbol: 'L' },
+  { name: 'Subaru', symbol: 'S' },
+  { name: 'Tesla', symbol: 'T' },
+  { name: 'Porsche', symbol: 'P' }
 ]
 
 const MODELS_BY_MAKE: { [key: string]: string[] } = {
@@ -63,24 +63,37 @@ const BODY_TYPES = [
 const GEARBOX_TYPES = ['Mehāniskā', 'Automāts', 'Pusautomāts']
 const ENGINE_TYPES = ['Dīzelis', 'Benzīns', 'Benzīns / Gāze', 'Hibrīds (Benzīns)', 'Hibrīds (Dīzelis)', 'Elektriskais']
 
-// Valstis ar augstas kvalitātes krāsainiem SVG karogiem no flagcdn.com
+// Dzinēja tilpuma izlecošie varianti
+const ENGINE_VOLUMES = [
+  '1.0', '1.2', '1.3', '1.4', '1.5', '1.6', '1.8', '1.9', '2.0', 
+  '2.2', '2.4', '2.5', '2.8', '3.0', '3.2', '3.5', '4.0', '4.4', '5.0', 'Elektro / Nav'
+]
+
+// Paplašināts valstu saraksts ar krāsainiem SVG karogiem un plašākiem reģioniem/štatiem
 const COUNTRIES = [
   { name: 'Latvija', code: 'lv', regions: ['Rīga un rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale'] },
-  { name: 'Lietuva', code: 'lt', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža'] },
-  { name: 'Igaunija', code: 'ee', regions: ['Tallina', 'Tartu', 'Narva', 'Pērnava'] },
-  { name: 'Vācija', code: 'de', regions: ['Bavārija', 'Berlīne', 'Bādene-Virtemberga', 'Ziemeļreina-Vestfālene', 'Hamburg'] },
-  { name: 'Lielbritānija', code: 'gb', regions: ['Londona', 'Mančestra', 'Birmingema', 'Skotija', 'Velsa'] },
-  { name: 'Zviedrija', code: 'se', regions: ['Stokholma', 'Gēteborga', 'Malme'] },
-  { name: 'Norvēģija', code: 'no', regions: ['Oslo', 'Bergena', 'Tronheima'] },
-  { name: 'Polija', code: 'pl', regions: ['Varšava', 'Krakova', 'Gdaņska', 'Poznaņa'] },
-  { name: 'Somija', code: 'fi', regions: ['Helsinki', 'Espo', 'Tamperes'] },
-  { name: 'Dānija', code: 'dk', regions: ['Kopenhāgena', 'Orhūsa'] },
-  { name: 'Francija', code: 'fr', regions: ['Parīze', 'Marseļa', 'Liona'] },
-  { name: 'Itālija', code: 'it', regions: ['Roma', 'Milāna', 'Neapole'] },
-  { name: 'Spānija', code: 'es', regions: ['Madride', 'Barselona', 'Valensija'] },
-  { name: 'Nīderlande', code: 'nl', regions: ['Amsterdama', 'Roterdama', 'Hāga'] },
-  { name: 'Beļģija', code: 'be', regions: ['Brisele', 'Antverpene', 'Gente'] },
-  { name: 'ASV', code: 'us', regions: ['Kalifornija', 'Ņujorka', 'Teksasa', 'Florida'] }
+  { name: 'Lietuva', code: 'lt', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alytus'] },
+  { name: 'Igaunija', code: 'ee', regions: ['Tallina', 'Tartu', 'Narva', 'Pērnava', 'Kohtla-Järve'] },
+  { name: 'Vācija', code: 'de', regions: ['Bavārija', 'Berlīne', 'Bādene-Virtemberga', 'Ziemeļreina-Vestfālene', 'Hamburg', 'Frankfurte', 'Minhene'] },
+  { name: 'Lielbritānija', code: 'gb', regions: ['Londona', 'Mančestra', 'Birmingema', 'Liverpūle', 'Skotija', 'Velsa', 'Ziemeļīrija'] },
+  { name: 'ASV', code: 'us', regions: [
+    'Kalifornija (California)', 'Ņujorka (New York)', 'Teksasa (Texas)', 'Florida', 
+    'Ilinoisa (Illinois)', 'Nevada', 'Vašingtona (Washington)', 'Pensilvānija (Pennsylvania)', 
+    'Ohaio (Ohio)', 'Džordžija (Georgia)', 'Mičigana (Michigan)', 'Ņūdžersija (New Jersey)',
+    'Ziemeļkarolīna (North Carolina)', 'Virdžīnija (Virginia)', 'Arizona', 'Kolorādo'
+  ] },
+  { name: 'Zviedrija', code: 'se', regions: ['Stokholma', 'Gēteborga', 'Malme', Uppsala'] },
+  { name: 'Norvēģija', code: 'no', regions: ['Oslo', 'Bergena', 'Tronheima', 'Stavangere'] },
+  { name: 'Polija', code: 'pl', regions: ['Varšava', 'Krakova', 'Gdaņska', 'Poznaņa', 'Vroclava', 'Lodza'] },
+  { name: 'Somija', code: 'fi', regions: ['Helsinki', 'Espo', 'Tamperes', 'Vantaa', 'Oulu'] },
+  { name: 'Dānija', code: 'dk', regions: ['Kopenhāgena', 'Orhūsa', 'Odense', 'Olborka'] },
+  { name: 'Francija', code: 'fr', regions: ['Parīze', 'Marseļa', 'Liona', 'Tulūza', 'Nica', 'Nante'] },
+  { name: 'Itālija', code: 'it', regions: ['Roma', 'Milāna', 'Neapole', 'Turīna', 'Palermo', 'Florence'] },
+  { name: 'Spānija', code: 'es', regions: ['Madride', 'Barselona', 'Valensija', 'Seviļa', 'Saragosa', 'Malaga'] },
+  { name: 'Nīderlande', code: 'nl', regions: ['Amsterdama', 'Roterdama', 'Hāga', 'Utrehta', 'Eindhovena'] },
+  { name: 'Beļģija', code: 'be', regions: ['Brisele', 'Antverpene', 'Gente', 'Lježa', 'Brige'] },
+  { name: 'Kanāda', code: 'ca', regions: ['Ontārio', 'Kvebeka', 'Britu Kolumbija', 'Alberta', 'Monreāla', 'Toronto'] },
+  { name: 'Austrālija', code: 'au', regions: ['Sidneja', 'Melburna', 'Brisbena', 'Pērta', 'Adelaida'] }
 ]
 
 const CURRENT_YEAR = new Date().getFullYear()
@@ -266,7 +279,7 @@ export default function PievienotAuto() {
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
-            {/* MARKA (AR KOREKTU LOGO) UN MODELIS */}
+            {/* MARKA (AR GRAFISKAJIEM SIMBOLIEM) UN MODELIS */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Automašīnas marka *</label>
@@ -288,7 +301,7 @@ export default function PievienotAuto() {
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        <img src={m.logo} alt={m.name} style={{ width: '22px', height: '22px', objectFit: 'contain' }} />
+                        <span style={{ width: '26px', height: '26px', backgroundColor: '#1e293b', color: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 'bold' }}>{m.symbol}</span>
                         <span style={{ fontWeight: '500', color: '#111827' }}>{m.name}</span>
                       </div>
                     ))}
@@ -369,7 +382,7 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* DZINĒJS UN TILPUMS (AR PAREIZU PRIEKŠĀ TEIKŠANU) */}
+            {/* DZINĒJS UN TILPUMS (AR STRĀDĀJOŠU IZLECOŠO SARAKSTU TILPUMAM) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Dzinēja tips</label>
@@ -398,15 +411,31 @@ export default function PievienotAuto() {
                 )}
               </div>
 
-              <div>
+              <div style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Dzinēja tilpums (L)</label>
                 <input
                   type="text"
                   placeholder="Piem., 2.0"
                   value={volume}
-                  onChange={(e) => setVolume(e.target.value)}
+                  onChange={(e) => { setVolume(e.target.value); setActiveDropdown('volume'); }}
+                  onClick={() => toggleDropdown('volume')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
+                {activeDropdown === 'volume' && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    {ENGINE_VOLUMES.filter(v => v.toLowerCase().includes(volume.toLowerCase())).map((vol) => (
+                      <div
+                        key={vol}
+                        onClick={() => { setVolume(vol); setActiveDropdown(null); }}
+                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                      >
+                        {vol}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -563,7 +592,7 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* VALSTS (DAUDZ VALSTU AR KRĀSAINIEM SVG KAROGIEM) UN REĢIONS/PILSĒTA */}
+            {/* VALSTS (DAUDZ VALSTU AR KAROGIEM UN ASV ŠTATIEM) UN REĢIONS */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Valsts</label>
