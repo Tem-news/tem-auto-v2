@@ -268,7 +268,6 @@ export default function Sakumlapa() {
 
   const handleMakeSelect = (make: string) => {
     if (searchMake.toLowerCase() === make.toLowerCase()) {
-      searchMake // no-op fix
       setSearchMake('')
     } else {
       setSearchMake(make)
@@ -695,15 +694,14 @@ export default function Sakumlapa() {
           </div>
         </div>
 
-        {/* LABĀ PUSE - Reklāmas vieta (kā tavā paraugā) */}
+        {/* LABĀ PUSE - Reklāmas vieta */}
         <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
             <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA</span>
             <span>Globālais baneris šeit!</span>
           </div>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
-            <span style={{ fontWeight: 'bold', marginBottom: '4px'}}/span>
-            <span>REKLĀMA</span>
+            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA</span>
             <span>Globālais baneris šeit!</span>
           </div>
         </div>
