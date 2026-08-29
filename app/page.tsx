@@ -184,6 +184,34 @@ export default function Sakumlapa() {
     setActiveDropdown(prev => prev === name ? null : name)
   }
 
+  // Pārbauda, vai ir aktivizēts jebkāds filtrs
+  const hasActiveFilters = Boolean(
+    searchMake || valsts || regions || minPrice || maxPrice || 
+    minYear || maxYear || dzinejs || minTilpums || maxTilpums || 
+    atrumkarba || virsbuve || krasa
+  )
+
+  // Funkcija visu filtru notīrīšanai
+  const clearAllFilters = () => {
+    setSearchMake('')
+    setSearchModel('')
+    setValsts('')
+    setRegions('')
+    setMinPrice('')
+    setMaxPrice('')
+    setDisplayMinPrice('')
+    setDisplayMaxPrice('')
+    setMinYear('')
+    setMaxYear('')
+    setDzinejs('')
+    setMinTilpums('')
+    setMaxTilpums('')
+    setAtrumkarba('')
+    setVirsbuve('')
+    setKrasa('')
+    setActiveDropdown(null)
+  }
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -366,12 +394,29 @@ export default function Sakumlapa() {
               <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0, color: '#111827' }}>
                 {searchMake ? `${searchMake} sludinājumi` : 'Visi auto sludinājumi'}
               </h2>
-              {searchMake && (
+              
+              {/* NOTĪRĪT FILTRU POGA */}
+              {hasActiveFilters && (
                 <button 
-                  onClick={() => setSearchMake('')} 
-                  style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}
+                  onClick={clearAllFilters} 
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '4px', 
+                    backgroundColor: '#fee2e2', 
+                    color: '#991b1b', 
+                    border: '1px solid #fecaca', 
+                    borderRadius: '6px', 
+                    padding: '4px 10px', 
+                    cursor: 'pointer', 
+                    fontSize: '12px', 
+                    fontWeight: '600',
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fecaca'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fee2e2'}
                 >
-                  [noņemt filtru]
+                  <span>✕ Notīrīt filtrus</span>
                 </button>
               )}
             </div>
