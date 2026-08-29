@@ -184,11 +184,17 @@ export default function Sakumlapa() {
     setActiveDropdown(prev => prev === name ? null : name)
   }
 
-  // Poga parādās TIKAI TAD, kad ir izvēlēta konkrēta marka (kā prasīts)
-  const hasActiveFilters = Boolean(searchMake)
+  // Poga parādās tad, ja ir kaut kas ierakstīts/atlasīts jebkurā filtra ailē (ieskaitot marku)
+  const hasActiveFilters = Boolean(
+    searchMake || searchModel || valsts || regions || minPrice || maxPrice || 
+    minYear || maxYear || dzinejs || minTilpums || maxTilpums || 
+    atrumkarba || virsbuve || krasa
+  )
 
+  // Ja lietotājs atrodas markas izvēles atvērumā (searchMake ir aktīvs), 
+  // tad, nospiežot "Notīrīt filtrus", mēs saglabājam searchMake, bet notīrām pārējos filtrus.
+  // Ja lietotājs ir galvenajā lapā (searchMake nav), tiek notīrīts viss.
   const clearAllFilters = () => {
-    setSearchMake('')
     setSearchModel('')
     setValsts('')
     setRegions('')
@@ -205,6 +211,10 @@ export default function Sakumlapa() {
     setVirsbuve('')
     setKrasa('')
     setActiveDropdown(null)
+
+    // Ja gribi, lai pogas nospiešana markas lapā pilnībā notīra ARĪ marku un aizved uz sākumu, 
+    // to varētu mainīt, bet pašreizējā loģika saglabā marku, ja tā bija izvēlēta:
+    // (Ja tomēr gribi, lai marka paliek, zemāk esošais koda variants to saglabā un neaizved prom)
   }
 
   useEffect(() => {
@@ -390,7 +400,7 @@ export default function Sakumlapa() {
                 {searchMake ? `${searchMake} sludinājumi` : 'Visi auto sludinājumi'}
               </h2>
               
-              {/* NOTĪRĪT FILTRU POGA - rādās tikai tad, kad ir izvēlēta marka (atvēruma lapā) */}
+              {/* NOTĪRĪT FILTRU POGA - parādās tikai tad, ja kaut kas ir ievadīts/atlasīts */}
               {hasActiveFilters && (
                 <button 
                   onClick={clearAllFilters} 
