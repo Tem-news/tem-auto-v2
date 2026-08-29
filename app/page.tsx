@@ -721,7 +721,7 @@ export default function Sakumlapa() {
 
         {/* LABĀ PUSE: Reklāma */}
         <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', minHeight: '400px', backgroundColor: '#f9fafb', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '16px', boxSizing: 'border-box', textAlign: 'center', color: '#64748b', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-          <div style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '1px', marginBottom: '8px', color: '#94a3b8'}}, REKLĀMA</div>
+          <div style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '1px', marginBottom: '8px', color: '#94a3b8' }}>REKLĀMA</div>
           <div style={{ fontSize: '13px' }}>Globālais baneris šeit!</div>
         </div>
 
