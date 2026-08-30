@@ -39,39 +39,59 @@ const LANGUAGES = [
 ]
 
 const REGIONS = [
-  { name: 'Eiropa (EUR)', flagCode: 'eu', group: 'Kontinents' },
-  { name: 'Latvija (EUR)', flagCode: 'lv', group: 'Baltija' },
-  { name: 'Lietuva (EUR)', flagCode: 'lt', group: 'Baltija' },
-  { name: 'Igaunija (EUR)', flagCode: 'ee', group: 'Baltija' },
-  { name: 'Vācija (EUR)', flagCode: 'de', group: 'Centrāleiropa' },
-  { name: 'Apvienotā Karaliste (GBP)', flagCode: 'gb', group: 'Eiropa' },
-  { name: 'Francija (EUR)', flagCode: 'fr', group: 'Eiropa' },
-  { name: 'Spānija (EUR)', flagCode: 'es', group: 'Eiropa' },
-  { name: 'Itālija (EUR)', flagCode: 'it', group: 'Eiropa' },
-  { name: 'Polija (PLN)', flagCode: 'pl', group: 'Eiropa' },
-  { name: 'Zviedrija (SEK)', flagCode: 'se', group: 'Skandināvija' },
-  { name: 'Norvēģija (NOK)', flagCode: 'no', group: 'Skandināvija' },
-  { name: 'Somija (EUR)', flagCode: 'fi', group: 'Skandināvija' },
-  { name: 'Dānija (DKK)', flagCode: 'dk', group: 'Skandināvija' },
-  { name: 'Nīderlande (EUR)', flagCode: 'nl', group: 'Eiropa' },
-  { name: 'Beļģija (EUR)', flagCode: 'be', group: 'Eiropa' },
-  { name: 'Austrija (EUR)', flagCode: 'at', group: 'Eiropa' },
-  { name: 'Šveice (CHF)', flagCode: 'ch', group: 'Eiropa' },
-  { name: 'Čehija (CZK)', flagCode: 'cz', group: 'Eiropa' },
-  { name: 'Ukraina (UAH)', flagCode: 'ua', group: 'Austrumeiropa' },
-  { name: 'Turcija (TRY)', flagCode: 'tr', group: 'Eirāzija' },
-  { name: 'ASV & Ziemeļamerika (USD)', flagCode: 'us', group: 'Ziemeļamerika' },
-  { name: 'Kanāda (CAD)', flagCode: 'ca', group: 'Ziemeļamerika' },
-  { name: 'Meksika (MXN)', flagCode: 'mx', group: 'Ziemeļamerika' },
-  { name: 'Brazīlija (BRL)', flagCode: 'br', group: 'Dienvidamerika' },
-  { name: 'Argentīna (ARS)', flagCode: 'ar', group: 'Dienvidamerika' },
-  { name: 'Austrālija (AUD)', flagCode: 'au', group: 'Okeānija' },
-  { name: 'Jaunzēlande (NZD)', flagCode: 'nz', group: 'Okeānija' },
-  { name: 'Japāna (JPY)', flagCode: 'jp', group: 'Āzija' },
-  { name: 'Ķīna (CNY)', flagCode: 'cn', group: 'Āzija' },
-  { name: 'Dienvidkoreja (KRW)', flagCode: 'kr', group: 'Āzija' },
-  { name: 'Indija (INR)', flagCode: 'in', group: 'Āzija' },
-  { name: 'Apvienotie Arābu Emirāti (AED)', flagCode: 'ae', group: 'Tuvie Austrumi' }
+  { 
+    name: 'Latvija (EUR)', 
+    flagCode: 'lv', 
+    group: 'Baltija',
+    subregions: ['Rīga', 'Jūrmala', 'Pierīga', 'Kurzeme', 'Vidzeme', 'Zemgale', 'Latgale']
+  },
+  { 
+    name: 'ASV & Ziemeļamerika (USD)', 
+    flagCode: 'us', 
+    group: 'Ziemeļamerika',
+    subregions: ['Kalifornija (CA)', 'Ņujorka (NY)', 'Teksasa (TX)', 'Florida (FL)', 'Ilinoisa (IL)']
+  },
+  { 
+    name: 'Vācija (EUR)', 
+    flagCode: 'de', 
+    group: 'Centrāleiropa',
+    subregions: ['Berlīne', 'Minhene', 'Bavārija', 'Ziemeļreina-Vestfālene', 'Frankfurte']
+  },
+  { 
+    name: 'Apvienotā Karaliste (GBP)', 
+    flagCode: 'gb', 
+    group: 'Eiropa',
+    subregions: ['Londona', 'Mančestra', 'Birmingema', 'Skotija', 'Velsa']
+  },
+  { name: 'Eiropa (EUR)', flagCode: 'eu', group: 'Kontinents', subregions: [] },
+  { name: 'Lietuva (EUR)', flagCode: 'lt', group: 'Baltija', subregions: ['Viļņa', 'Kauņa', 'Klaipēda'] },
+  { name: 'Igaunija (EUR)', flagCode: 'ee', group: 'Baltija', subregions: ['Tallina', 'Tartu'] },
+  { name: 'Francija (EUR)', flagCode: 'fr', group: 'Eiropa', subregions: ['Parīze', 'Marseļa', 'Liona'] },
+  { name: 'Spānija (EUR)', flagCode: 'es', group: 'Eiropa', subregions: ['Madride', 'Barselona', 'Valensija'] },
+  { name: 'Itālija (EUR)', flagCode: 'it', group: 'Eiropa', subregions: ['Roma', 'Milāna', 'Neapole'] },
+  { name: 'Polija (PLN)', flagCode: 'pl', group: 'Eiropa', subregions: ['Varšava', 'Krakova', 'Gdaņska'] },
+  { name: 'Zviedrija (SEK)', flagCode: 'se', group: 'Skandināvija', subregions: ['Stokholma', 'Gēteborga'] },
+  { name: 'Norvēģija (NOK)', flagCode: 'no', group: 'Skandināvija', subregions: ['Oslo', 'Bergena'] },
+  { name: 'Somija (EUR)', flagCode: 'fi', group: 'Skandināvija', subregions: ['Helsinki', 'Espoo'] },
+  { name: 'Dānija (DKK)', flagCode: 'dk', group: 'Skandināvija', subregions: ['Kopenhāgena'] },
+  { name: 'Nīderlande (EUR)', flagCode: 'nl', group: 'Eiropa', subregions: ['Amsterdama', Roterdama] },
+  { name: 'Beļģija (EUR)', flagCode: 'be', group: 'Eiropa', subregions: ['Brusese', 'Antverpene'] },
+  { name: 'Austrija (EUR)', flagCode: 'at', group: 'Eiropa', subregions: ['Vīne', 'Zalcburga'] },
+  { name: 'Šveice (CHF)', flagCode: 'ch', group: 'Eiropa', subregions: ['Cīrihe', 'Ženēva'] },
+  { name: 'Čehija (CZK)', flagCode: 'cz', group: 'Eiropa', subregions: ['Prāga'] },
+  { name: 'Ukraina (UAH)', flagCode: 'ua', group: 'Austrumeiropa', subregions: ['Kijiva', 'Ļviva', 'Odesa'] },
+  { name: 'Turcija (TRY)', flagCode: 'tr', group: 'Eirāzija', subregions: ['Stambula', 'Ankara', 'Antalja'] },
+  { name: 'Kanāda (CAD)', flagCode: 'ca', group: 'Ziemeļamerika', subregions: ['Ontārio', 'Kvebeka', 'Britu Kolumbija'] },
+  { name: 'Meksika (MXN)', flagCode: 'mx', group: 'Ziemeļamerika', subregions: ['Mehiko'] },
+  { name: 'Brazīlija (BRL)', flagCode: 'br', group: 'Dienvidamerika', subregions: ['Sanpaulu', 'Rio de Žaneiro'] },
+  { name: 'Argentīna (ARS)', flagCode: 'ar', group: 'Dienvidamerika', subregions: ['Buenosairesa'] },
+  { name: 'Austrālija (AUD)', flagCode: 'au', group: 'Okeānija', subregions: ['Sidneja', 'Melburna'] },
+  { name: 'Jaunzēlande (NZD)', flagCode: 'nz', group: 'Okeānija', subregions: ['Oklanda', 'Velingtona'] },
+  { name: 'Japāna (JPY)', flagCode: 'jp', group: 'Āzija', subregions: ['Tokija', 'Osaka'] },
+  { name: 'Ķīna (CNY)', flagCode: 'cn', group: 'Āzija', subregions: ['Pekina', 'Šanhaja'] },
+  { name: 'Dienvidkoreja (KRW)', flagCode: 'kr', group: 'Āzija', subregions: ['Seula'] },
+  { name: 'Indija (INR)', flagCode: 'in', group: 'Āzija', subregions: ['Mumbaja', ' Deli'] },
+  { name: 'Apvienotie Arābu Emirāti (AED)', flagCode: 'ae', group: 'Tuvie Austrumi', subregions: ['Dubaija', 'Abudabi'] }
 ]
 
 export default function Header() {
@@ -80,10 +100,12 @@ export default function Header() {
   const [visitCount, setVisitCount] = useState<number>(0)
 
   const [currentLang, setCurrentLang] = useState('LV')
-  const [currentRegion, setCurrentRegion] = useState('Eiropa (EUR)')
+  const [currentRegion, setCurrentRegion] = useState('Latvija (EUR)')
 
   const [langOpen, setLangOpen] = useState(false)
   const [regionOpen, setRegionOpen] = useState(false)
+  const [expandedRegion, setExpandedRegion] = useState<string | null>('Latvija (EUR)')
+  
   const [langSearch, setLangSearch] = useState('')
   const [regionSearch, setRegionSearch] = useState('')
 
@@ -150,11 +172,12 @@ export default function Header() {
   )
 
   const filteredRegions = REGIONS.filter(r => 
-    r.name.toLowerCase().includes(regionSearch.toLowerCase())
+    r.name.toLowerCase().includes(regionSearch.toLowerCase()) ||
+    r.subregions?.some(sub => sub.toLowerCase().includes(regionSearch.toLowerCase()))
   )
 
   const currentLangObj = LANGUAGES.find(l => l.code === currentLang)
-  const currentRegionObj = REGIONS.find(r => r.name === currentRegion)
+  const currentRegionObj = REGIONS.find(r => r.name === currentRegion || r.subregions?.includes(currentRegion))
 
   return (
     <header 
@@ -266,7 +289,7 @@ export default function Header() {
             )}
           </div>
 
-          {/* Reģiona izvēlne */}
+          {/* Reģiona izvēlne ar štatiem/pilsētām */}
           <div style={{ position: 'relative' }} ref={regionRef}>
             <button
               onClick={() => { setRegionOpen(!regionOpen); setLangOpen(false); }}
@@ -295,31 +318,87 @@ export default function Header() {
             </button>
 
             {regionOpen && (
-              <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '260px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
+              <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '280px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
                 <input
                   type="text"
-                  placeholder="Meklēt reģionu / valsti..."
+                  placeholder="Meklēt valsti, reģionu, pilsētu..."
                   value={regionSearch}
                   onChange={(e) => setRegionSearch(e.target.value)}
                   autoFocus
                   style={{ width: '100%', padding: '6px', backgroundColor: '#0f172a', border: '1px solid #475569', borderRadius: '4px', color: '#fff', fontSize: '12px', boxSizing: 'border-box', marginBottom: '6px' }}
                 />
-                <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                  {filteredRegions.map((r) => (
-                    <div
-                      key={r.name}
-                      onClick={() => { setCurrentRegion(r.name); setRegionOpen(false); setRegionSearch(''); }}
-                      style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: currentRegion === r.name ? '#22c55e' : '#e2e8f0', backgroundColor: currentRegion === r.name ? '#334155' : 'transparent' }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentRegion === r.name ? '#334155' : 'transparent'}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <img src={`https://flagcdn.com/20x15/${r.flagCode}.png`} alt="" style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} />
-                        <span>{r.name}</span>
+                <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+                  {filteredRegions.map((r) => {
+                    const isExpanded = expandedRegion === r.name
+                    const isSelected = currentRegion === r.name
+
+                    return (
+                      <div key={r.name} style={{ marginBottom: '4px' }}>
+                        <div
+                          onClick={() => {
+                            if (r.subregions && r.subregions.length > 0) {
+                              setExpandedRegion(isExpanded ? null : r.name)
+                            } else {
+                              setCurrentRegion(r.name)
+                              setRegionOpen(false)
+                              setRegionSearch('')
+                            }
+                          }}
+                          style={{ 
+                            padding: '6px 8px', 
+                            cursor: 'pointer', 
+                            borderRadius: '4px', 
+                            fontSize: '13px', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'space-between', 
+                            color: isSelected ? '#22c55e' : '#e2e8f0', 
+                            backgroundColor: isSelected ? '#334155' : 'transparent' 
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = isSelected ? '#334155' : 'transparent'}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <img src={`https://flagcdn.com/20x15/${r.flagCode}.png`} alt="" style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} />
+                            <span>{r.name}</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            {r.subregions && r.subregions.length > 0 && (
+                              <span style={{ fontSize: '10px', color: '#94a3b8' }}>{isExpanded ? '▲' : '▼'}</span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Apakšreģioni / štati / pilsētas */}
+                        {isExpanded && r.subregions && r.subregions.length > 0 && (
+                          <div style={{ paddingLeft: '26px', paddingBottom: '4px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            {r.subregions.map((sub) => (
+                              <div
+                                key={sub}
+                                onClick={() => {
+                                  setCurrentRegion(sub)
+                                  setRegionOpen(false)
+                                  setRegionSearch('')
+                                }}
+                                style={{
+                                  padding: '4px 6px',
+                                  fontSize: '12px',
+                                  color: currentRegion === sub ? '#22c55e' : '#cbd5e1',
+                                  cursor: 'pointer',
+                                  borderRadius: '3px',
+                                  backgroundColor: currentRegion === sub ? '#334155' : 'transparent'
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
+                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentRegion === sub ? '#334155' : 'transparent'}
+                              >
+                                • {sub}
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <span style={{ fontSize: '10px', color: '#94a3b8' }}>{r.group}</span>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}
