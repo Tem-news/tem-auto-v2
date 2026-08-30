@@ -74,7 +74,7 @@ const COUNTRIES = [
 
 const REGIONS_BY_COUNTRY: { [key: string]: string[] } = {
   'Latvija': ['Rīga', 'Rīgas rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale', 'Liepāja', 'Ventspils', 'Jelgava', 'Daugavpils', 'Valmiera', 'Jēkabpils', 'Ogre', 'Tukums', 'Cēsis'],
-  'Lietuva': ['Viļņa', 'Kauna', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alīta', 'Marijampole', 'Mažeiķi', 'Jonava', 'Utenas apriņķis'],
+  'Lietuva': ['Viļņa', 'Kauna', 'Klaipėda', 'Šauļi', 'Panevēža', 'Alīta', 'Marijampole', 'Mažeiķi', 'Jonava', 'Utenas apriņķis'],
   'Igaunija': ['Harju (Tallina)', 'Tartu', 'Ida-Viru', 'Pērnava', 'Lääne-Viru', 'Viljandi', 'Rapla', 'Võru', 'Saare', 'Järva'],
   'Vācija': [
     'Bāden-Virtemberga (Baden-Württemberg)', 'Bavārija (Bayern)', 'Berlīne (Berlin)', 'Brandenburga (Brandenburg)', 
@@ -287,8 +287,8 @@ export default function Sakumlapa() {
       
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
-        {/* KREISĀ PUSE - Marku saraksts divās kolonnās */}
-        <div style={{ position: 'sticky', top: '16px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
+        {/* KREISĀ PUSE - Marku saraksts */}
+        <div style={{ position: 'sticky', top: '0px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
           ) : (
@@ -350,15 +350,16 @@ export default function Sakumlapa() {
         </div>
 
         {/* VIDUS: Filtri un Sludinājumu saraksts */}
-        <div style={{ minWidth: '0', width: '100%', alignSelf: 'start', marginTop: '0' }}>
+        <div style={{ minWidth: '0', width: '100%', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           
-          {/* FILTRI - Bez atstarpes augšā, piekļauti tieši augšējai malai */}
+          {/* NEKUSTĪGI PIESIETI FILTRI (Sticky uz top: 0, bez atstarpes augšā) */}
           <div style={{ 
+            position: 'sticky',
+            top: '0px',
+            zIndex: 40,
             backgroundColor: '#ffffff', 
             padding: '16px', 
             borderRadius: '8px', 
-            marginBottom: '16px', 
-            marginTop: '0',
             display: 'flex', 
             flexDirection: 'column', 
             gap: '10px', 
@@ -605,7 +606,7 @@ export default function Sakumlapa() {
 
           </div>
 
-          {/* SLUDINĀJUMU SARAKSTS AR KARTĪTĒM UN BILDĒM */}
+          {/* SLUDINĀJUMU SARAKSTS */}
           <div>
             {loading ? (
               <div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
@@ -650,7 +651,7 @@ export default function Sakumlapa() {
                       onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'}
                       onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
                     >
-                      {/* Auto Bilde */}
+                      {/* Bilde */}
                       <div style={{ width: '220px', height: '140px', flexShrink: '0', backgroundColor: '#f3f4f6', position: 'relative' }}>
                         <img 
                           src={imageUrl} 
@@ -659,7 +660,7 @@ export default function Sakumlapa() {
                         />
                       </div>
 
-                      {/* Auto Informācija */}
+                      {/* Info */}
                       <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: 1 }}>
                         <div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -690,7 +691,7 @@ export default function Sakumlapa() {
         </div>
 
         {/* LABĀ PUSE - Reklāmas baneri */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'sticky', top: '16px', alignSelf: 'start' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'sticky', top: '0px', alignSelf: 'start' }}>
           <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '250px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             <span style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', color: '#9ca3af' }}>Reklāma</span>
             <div style={{ fontWeight: '600', color: '#4b5563' }}>Jūsu baneris šeit</div>
