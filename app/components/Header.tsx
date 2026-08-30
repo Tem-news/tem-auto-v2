@@ -204,11 +204,9 @@ export default function Header() {
         padding: '16px 24px', 
         position: 'sticky', 
         top: 0, 
-        zIndex: 9999, // Paaugstināts z-index, lai vienmēr būtu virs visa cita
+        zIndex: 9999, 
         width: '100%',
         boxSizing: 'border-box',
-        // Izmantojam biezāku un tumšāku apakšējo ēnu kopā ar dubultu apmali, 
-        // kas fiziski nosedz jebkādu spraugu un bloķē fona rullēšanos cauri
         boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.9)',
         borderBottom: '4px solid #0f172a' 
       }}
@@ -426,8 +424,8 @@ export default function Header() {
             )}
           </div>
 
-          {/* Autentifikācija un Pievienot poga */}
-          <nav style={{ style: 'flex', display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {/* Autentifikācija un Pievienot poga (Izlabota sintakse) */}
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {user ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ fontSize: '12px', color: '#cbd5e1', backgroundColor: '#1e293b', padding: '4px 10px', borderRadius: '12px', border: '1px solid #334155' }}>
