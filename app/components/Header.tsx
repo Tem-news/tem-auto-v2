@@ -197,273 +197,267 @@ export default function Header() {
   const hoveredRegionObj = REGIONS.find(r => r.name === hoveredRegion)
 
   return (
-    <>
-      {/* Fiksēta galvene, kas stingri piespiedīsies ekrāna augšai bez spraugām */}
-      <header 
-        style={{ 
-          backgroundColor: '#0f172a', 
-          color: '#ffffff', 
-          padding: '16px 24px', 
-          position: 'fixed', 
-          top: 0, 
-          left: 0,
-          right: 0,
-          zIndex: 1000,
-          width: '100%',
-          boxSizing: 'border-box',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-          borderBottom: '2px solid #0f172a' // Pilnībā sapludina apakšējo malu
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
-          
-          {/* KREISĀ PUSE: Logo un Apmeklētāji */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <Link 
-              href="/" 
-              onClick={(e) => {
-                e.preventDefault()
-                window.location.href = '/'
-              }}
-              style={{ fontSize: '20px', fontWeight: 'bold', color: '#22c55e', textDecoration: 'none', cursor: 'pointer' }}
-            >
-              TemAuto
-            </Link>
+    <header 
+      style={{ 
+        backgroundColor: '#0f172a', 
+        color: '#ffffff', 
+        padding: '16px 24px', 
+        position: 'sticky', 
+        top: 0, 
+        zIndex: 9999, // Paaugstināts z-index, lai vienmēr būtu virs visa cita
+        width: '100%',
+        boxSizing: 'border-box',
+        // Izmantojam biezāku un tumšāku apakšējo ēnu kopā ar dubultu apmali, 
+        // kas fiziski nosedz jebkādu spraugu un bloķē fona rullēšanos cauri
+        boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.9)',
+        borderBottom: '4px solid #0f172a' 
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
+        
+        {/* KREISĀ PUSE: Logo un Apmeklētāji */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <Link 
+            href="/" 
+            onClick={(e) => {
+              e.preventDefault()
+              window.location.href = '/'
+            }}
+            style={{ fontSize: '20px', fontWeight: 'bold', color: '#22c55e', textDecoration: 'none', cursor: 'pointer' }}
+          >
+            TemAuto
+          </Link>
 
-            <div
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 12px',
+              backgroundColor: '#1e293b',
+              border: '1px solid #334155',
+              borderRadius: '20px',
+              fontSize: '13px',
+              color: '#e2e8f0',
+              fontWeight: '500'
+            }}
+          >
+            <span>👥</span>
+            <span>Apmeklētāji 24h: <strong style={{ color: '#22c55e' }}>{visitCount}</strong></span>
+          </div>
+        </div>
+
+        {/* LABĀ PUSE: Valodas, Reģioni un Navigācija */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          
+          {/* Valodas izvēlne */}
+          <div style={{ position: 'relative' }} ref={langRef}>
+            <button
+              onClick={() => { setLangOpen(!langOpen); setRegionOpen(false); }}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '6px 12px',
+                padding: '8px 12px',
                 backgroundColor: '#1e293b',
                 border: '1px solid #334155',
-                borderRadius: '20px',
+                borderRadius: '6px',
+                cursor: 'pointer',
                 fontSize: '13px',
-                color: '#e2e8f0',
-                fontWeight: '500'
+                fontWeight: 'bold',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
               }}
             >
-              <span>👥</span>
-              <span>Apmeklētāji 24h: <strong style={{ color: '#22c55e' }}>{visitCount}</strong></span>
-            </div>
+              {currentLangObj && (
+                <img 
+                  src={`https://flagcdn.com/20x15/${currentLangObj.flagCode}.png`} 
+                  alt="" 
+                  style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} 
+                />
+              )}
+              {currentLang} ▾
+            </button>
+
+            {langOpen && (
+              <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '230px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 10000 }}>
+                <input
+                  type="text"
+                  placeholder="Meklēt valodu..."
+                  value={langSearch}
+                  onChange={(e) => setLangSearch(e.target.value)}
+                  autoFocus
+                  style={{ width: '100%', padding: '6px', backgroundColor: '#0f172a', border: '1px solid #475569', borderRadius: '4px', color: '#fff', fontSize: '12px', boxSizing: 'border-box', marginBottom: '6px' }}
+                />
+                <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                  {filteredLanguages.map((l) => (
+                    <div
+                      key={l.code}
+                      onClick={() => { setCurrentLang(l.code); setLangOpen(false); setLangSearch(''); }}
+                      style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: currentLang === l.code ? '#22c55e' : '#e2e8f0', backgroundColor: currentLang === l.code ? '#334155' : 'transparent' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentLang === l.code ? '#334155' : 'transparent'}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <img src={`https://flagcdn.com/20x15/${l.flagCode}.png`} alt="" style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} />
+                        <span>{l.name}</span>
+                      </div>
+                      <span style={{ fontSize: '10px', color: '#94a3b8', backgroundColor: '#0f172a', padding: '2px 5px', borderRadius: '3px' }}>{l.code}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* LABĀ PUSE: Valodas, Reģioni un Navigācija */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-            
-            {/* Valodas izvēlne */}
-            <div style={{ position: 'relative' }} ref={langRef}>
-              <button
-                onClick={() => { setLangOpen(!langOpen); setRegionOpen(false); }}
-                style={{
-                  padding: '8px 12px',
-                  backgroundColor: '#1e293b',
-                  border: '1px solid #334155',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  fontWeight: 'bold',
-                  color: '#fff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-              >
-                {currentLangObj && (
-                  <img 
-                    src={`https://flagcdn.com/20x15/${currentLangObj.flagCode}.png`} 
-                    alt="" 
-                    style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} 
-                  />
-                )}
-                {currentLang} ▾
-              </button>
+          {/* Reģiona izvēlne */}
+          <div style={{ position: 'relative' }} ref={regionRef}>
+            <button
+              onClick={() => { setRegionOpen(!regionOpen); setLangOpen(false); }}
+              style={{
+                padding: '8px 12px',
+                backgroundColor: '#1e293b',
+                border: '1px solid #334155',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: 'bold',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              {currentRegionObj && (
+                <img 
+                  src={`https://flagcdn.com/20x15/${currentRegionObj.flagCode}.png`} 
+                  alt="" 
+                  style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} 
+                />
+              )}
+              {currentRegion} ▾
+            </button>
 
-              {langOpen && (
-                <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '230px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
+            {regionOpen && (
+              <div style={{ display: 'flex', flexDirection: 'row-reverse', position: 'absolute', top: '100%', right: 0, marginTop: '8px', zIndex: 10000 }}>
+                
+                {/* Galvenais valstu saraksts */}
+                <div style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '0 8px 8px 0', width: '260px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px' }}>
                   <input
                     type="text"
-                    placeholder="Meklēt valodu..."
-                    value={langSearch}
-                    onChange={(e) => setLangSearch(e.target.value)}
+                    placeholder="Meklēt valsti..."
+                    value={regionSearch}
+                    onChange={(e) => setRegionSearch(e.target.value)}
                     autoFocus
                     style={{ width: '100%', padding: '6px', backgroundColor: '#0f172a', border: '1px solid #475569', borderRadius: '4px', color: '#fff', fontSize: '12px', boxSizing: 'border-box', marginBottom: '6px' }}
                   />
-                  <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                    {filteredLanguages.map((l) => (
-                      <div
-                        key={l.code}
-                        onClick={() => { setCurrentLang(l.code); setLangOpen(false); setLangSearch(''); }}
-                        style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: currentLang === l.code ? '#22c55e' : '#e2e8f0', backgroundColor: currentLang === l.code ? '#334155' : 'transparent' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentLang === l.code ? '#334155' : 'transparent'}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <img src={`https://flagcdn.com/20x15/${l.flagCode}.png`} alt="" style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} />
-                          <span>{l.name}</span>
-                        </div>
-                        <span style={{ fontSize: '10px', color: '#94a3b8', backgroundColor: '#0f172a', padding: '2px 5px', borderRadius: '3px' }}>{l.code}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+                  <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+                    {filteredRegions.map((r) => {
+                      const isSelected = currentRegion === r.name
+                      const isHovered = hoveredRegion === r.name
 
-            {/* Reģiona izvēlne */}
-            <div style={{ position: 'relative' }} ref={regionRef}>
-              <button
-                onClick={() => { setRegionOpen(!regionOpen); setLangOpen(false); }}
-                style={{
-                  padding: '8px 12px',
-                  backgroundColor: '#1e293b',
-                  border: '1px solid #334155',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  fontWeight: 'bold',
-                  color: '#fff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-              >
-                {currentRegionObj && (
-                  <img 
-                    src={`https://flagcdn.com/20x15/${currentRegionObj.flagCode}.png`} 
-                    alt="" 
-                    style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} 
-                  />
-                )}
-                {currentRegion} ▾
-              </button>
-
-              {regionOpen && (
-                <div style={{ display: 'flex', flexDirection: 'row-reverse', position: 'absolute', top: '100%', right: 0, marginTop: '8px', zIndex: 100 }}>
-                  
-                  {/* Galvenais valstu saraksts */}
-                  <div style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '0 8px 8px 0', width: '260px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px' }}>
-                    <input
-                      type="text"
-                      placeholder="Meklēt valsti..."
-                      value={regionSearch}
-                      onChange={(e) => setRegionSearch(e.target.value)}
-                      autoFocus
-                      style={{ width: '100%', padding: '6px', backgroundColor: '#0f172a', border: '1px solid #475569', borderRadius: '4px', color: '#fff', fontSize: '12px', boxSizing: 'border-box', marginBottom: '6px' }}
-                    />
-                    <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
-                      {filteredRegions.map((r) => {
-                        const isSelected = currentRegion === r.name
-                        const isHovered = hoveredRegion === r.name
-
-                        return (
-                          <div
-                            key={r.name}
-                            onMouseEnter={() => setHoveredRegion(r.name)}
-                            onClick={() => {
-                              if (!r.subregions || r.subregions.length === 0) {
-                                setCurrentRegion(r.name)
-                                setRegionOpen(false)
-                                setRegionSearch('')
-                              }
-                            }}
-                            style={{ 
-                              padding: '6px 8px', 
-                              cursor: 'pointer', 
-                              borderRadius: '4px', 
-                              fontSize: '13px', 
-                              display: 'flex', 
-                              alignItems: 'center', 
-                              justifyContent: 'space-between', 
-                              color: isSelected ? '#22c55e' : '#e2e8f0', 
-                              backgroundColor: isHovered || isSelected ? '#334155' : 'transparent' 
-                            }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ fontSize: '11px', color: '#94a3b8' }}>◀</span>
-                              <span>{r.name}</span>
-                            </div>
-                            <img src={`https://flagcdn.com/20x15/${r.flagCode}.png`} alt="" style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} />
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Papildu info logs pa kreisi */}
-                  {hoveredRegionObj && hoveredRegionObj.subregions && hoveredRegionObj.subregions.length > 0 && (
-                    <div style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRight: 'none', borderRadius: '8px 0 0 8px', width: '240px', boxShadow: '-10px 10px 15px -3px rgba(0,0,0,0.5)', padding: '12px', maxHeight: '316px', overflowY: 'auto' }}>
-                      <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '8px', borderBottom: '1px solid #334155', paddingBottom: '4px' }}>
-                        Reģioni / Štati ({hoveredRegionObj.subregions.length})
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        {hoveredRegionObj.subregions.map((sub) => (
-                          <div
-                            key={sub}
-                            onClick={() => {
-                              setCurrentRegion(sub)
+                      return (
+                        <div
+                          key={r.name}
+                          onMouseEnter={() => setHoveredRegion(r.name)}
+                          onClick={() => {
+                            if (!r.subregions || r.subregions.length === 0) {
+                              setCurrentRegion(r.name)
                               setRegionOpen(false)
                               setRegionSearch('')
-                            }}
-                            style={{
-                              padding: '6px 8px',
-                              fontSize: '12px',
-                              color: currentRegion === sub ? '#22c55e' : '#cbd5e1',
-                              cursor: 'pointer',
-                              borderRadius: '4px',
-                              backgroundColor: currentRegion === sub ? '#334155' : 'transparent'
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
-                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentRegion === sub ? '#334155' : 'transparent'}
-                          >
-                            • {sub}
+                            }
+                          }}
+                          style={{ 
+                            padding: '6px 8px', 
+                            cursor: 'pointer', 
+                            borderRadius: '4px', 
+                            fontSize: '13px', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'space-between', 
+                            color: isSelected ? '#22c55e' : '#e2e8f0', 
+                            backgroundColor: isHovered || isSelected ? '#334155' : 'transparent' 
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '11px', color: '#94a3b8' }}>◀</span>
+                            <span>{r.name}</span>
                           </div>
-                        ))}
-                      </div>
+                          <img src={`https://flagcdn.com/20x15/${r.flagCode}.png`} alt="" style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} />
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Papildu info logs pa kreisi */}
+                {hoveredRegionObj && hoveredRegionObj.subregions && hoveredRegionObj.subregions.length > 0 && (
+                  <div style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRight: 'none', borderRadius: '8px 0 0 8px', width: '240px', boxShadow: '-10px 10px 15px -3px rgba(0,0,0,0.5)', padding: '12px', maxHeight: '316px', overflowY: 'auto' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '8px', borderBottom: '1px solid #334155', paddingBottom: '4px' }}>
+                      Reģioni / Štati ({hoveredRegionObj.subregions.length})
                     </div>
-                  )}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {hoveredRegionObj.subregions.map((sub) => (
+                        <div
+                          key={sub}
+                          onClick={() => {
+                            setCurrentRegion(sub)
+                            setRegionOpen(false)
+                            setRegionSearch('')
+                          }}
+                          style={{
+                            padding: '6px 8px',
+                            fontSize: '12px',
+                            color: currentRegion === sub ? '#22c55e' : '#cbd5e1',
+                            cursor: 'pointer',
+                            borderRadius: '4px',
+                            backgroundColor: currentRegion === sub ? '#334155' : 'transparent'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentRegion === sub ? '#334155' : 'transparent'}
+                        >
+                          • {sub}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-                </div>
-              )}
-            </div>
-
-            {/* Autentifikācija un Pievienot poga */}
-            <nav style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              {user ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '12px', color: '#cbd5e1', backgroundColor: '#1e293b', padding: '4px 10px', borderRadius: '12px', border: '1px solid #334155' }}>
-                    {user.email}
-                  </span>
-                  <button
-                    onClick={handleLogout}
-                    style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: '14px' }}
-                  >
-                    Izlogoties
-                  </button>
-                </div>
-              ) : (
-                <Link href="/login" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '14px' }}>
-                  Ielogoties
-                </Link>
-              )}
-
-              <a
-                href="/pievienot"
-                onClick={handleAddCarClick}
-                style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
-              >
-                + Pievienot auto
-              </a>
-            </nav>
-
+              </div>
+            )}
           </div>
 
-        </div>
-      </header>
+          {/* Autentifikācija un Pievienot poga */}
+          <nav style={{ style: 'flex', display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {user ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '12px', color: '#cbd5e1', backgroundColor: '#1e293b', padding: '4px 10px', borderRadius: '12px', border: '1px solid #334155' }}>
+                  {user.email}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: '14px' }}
+                >
+                  Izlogoties
+                </button>
+              </div>
+            ) : (
+              <Link href="/login" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '14px' }}>
+                Ielogoties
+              </Link>
+            )}
 
-      {/* Šis bloks izveido neredzamu telpu zem fiksētā header, lai sānu izvēlnes (Markas u.c.) un sludinājumi sāktos tieši tur, kur beidzas galvene, pilnībā novēršot jebkādu lēkāšanu un spraugas */}
-      <div style={{ height: '73px' }} />
-    </>
+            <a
+              href="/pievienot"
+              onClick={handleAddCarClick}
+              style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
+            >
+              + Pievienot auto
+            </a>
+          </nav>
+
+        </div>
+
+      </div>
+    </header>
   )
 }
