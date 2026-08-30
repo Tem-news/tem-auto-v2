@@ -232,7 +232,7 @@ export default function Header() {
                   style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} 
                 />
               )}
-              Valoda: {currentLang} ▾
+              {currentLang} ▾
             </button>
 
             {langOpen && (
@@ -291,7 +291,7 @@ export default function Header() {
                   style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} 
                 />
               )}
-              Reģions: {currentRegion} ▾
+              {currentRegion} ▾
             </button>
 
             {regionOpen && (
