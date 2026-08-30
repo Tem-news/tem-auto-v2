@@ -189,6 +189,7 @@ export default function Sakumlapa() {
     : Boolean(searchMake || searchModel || valsts || regions || minPrice || maxPrice || minYear || maxYear || dzinejs || minTilpums || maxTilpums || atrumkarba || virsbuve || krasa)
 
   const clearAllFilters = () => {
+    setSearchMake('')
     setSearchModel('')
     setValsts('')
     setRegions('')
@@ -302,7 +303,7 @@ export default function Sakumlapa() {
       
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
-        {/* KREISĀ PUSE */}
+        {/* KREISĀ PUSE: Marku saraksts */}
         <div style={{ position: 'sticky', top: '20px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
@@ -364,8 +365,8 @@ export default function Sakumlapa() {
           )}
         </div>
 
-        {/* VIDUS */}
-        <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
+        {/* VIDUS: Filtri un sludinājumi */}
+        <div style={{ minWidth: '0', width: '100%', alignSelf: 'start' }}>
           
           <div style={{ 
             backgroundColor: '#f3f4f6', 
@@ -406,7 +407,7 @@ export default function Sakumlapa() {
               )}
             </div>
 
-            {/* 1. Rinda */}
+            {/* 1. Filtru rinda */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
               
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
@@ -501,7 +502,7 @@ export default function Sakumlapa() {
               </div>
             </div>
 
-            {/* 2. Rinda */}
+            {/* 2. Filtru rinda */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
               
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
@@ -609,7 +610,7 @@ export default function Sakumlapa() {
 
           </div>
 
-          {/* SLUDINĀJUMI */}
+          {/* Automašīnu saraksts (Grid) */}
           <div>
             {loading ? (
               <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
@@ -646,7 +647,7 @@ export default function Sakumlapa() {
 
         </div>
 
-        {/* LABĀ PUSE */}
+        {/* LABĀ PUSE: Reklāmu stabiņi */}
         <div style={{ position: 'sticky', top: '20px', alignSelf: 'start', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '12px', boxSizing: 'border-box' }}>
           <h3 style={{ fontSize: '14px', fontWeight: 'bold', color: '#111827', marginBottom: '10px', borderBottom: '2px solid #22c55e', paddingBottom: '4px' }}>
             Reklāma
