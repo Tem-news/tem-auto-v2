@@ -283,12 +283,12 @@ export default function Sakumlapa() {
   }
 
   return (
-    <div ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
+    <div ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '0 12px 16px 12px', boxSizing: 'border-box' }}>
       
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
         {/* KREISĀ PUSE - Marku saraksts divās kolonnās */}
-        <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
+        <div style={{ position: 'sticky', top: '16px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
           ) : (
@@ -350,14 +350,15 @@ export default function Sakumlapa() {
         </div>
 
         {/* VIDUS: Filtri un Sludinājumu saraksts */}
-        <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
+        <div style={{ minWidth: '0', width: '100%', alignSelf: 'start', marginTop: '0' }}>
           
-          {/* FILTRI - Nonņemts sticky, uzlikts stabils balts fons un ēna pret ņirbēšanu */}
+          {/* FILTRI - Bez atstarpes augšā, piekļauti tieši augšējai malai */}
           <div style={{ 
             backgroundColor: '#ffffff', 
             padding: '16px', 
             borderRadius: '8px', 
             marginBottom: '16px', 
+            marginTop: '0',
             display: 'flex', 
             flexDirection: 'column', 
             gap: '10px', 
@@ -604,7 +605,7 @@ export default function Sakumlapa() {
 
           </div>
 
-          {/* SLUDINĀJUMU SARAKSTS (PILNAIS DIZAINS AR BILDĒM UN KARTĪTĒM) */}
+          {/* SLUDINĀJUMU SARAKSTS AR KARTĪTĒM UN BILDĒM */}
           <div>
             {loading ? (
               <div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
@@ -688,8 +689,17 @@ export default function Sakumlapa() {
 
         </div>
 
-        {/* LABĀ PUSE - Papildu bloks vai tukšums simetrijai */}
-        <div></div>
+        {/* LABĀ PUSE - Reklāmas baneri */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'sticky', top: '16px', alignSelf: 'start' }}>
+          <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '250px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <span style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', color: '#9ca3af' }}>Reklāma</span>
+            <div style={{ fontWeight: '600', color: '#4b5563' }}>Jūsu baneris šeit</div>
+          </div>
+          <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px', textAlign: 'center', minHeight: '250px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <span style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', color: '#9ca3af' }}>Reklāma</span>
+            <div style={{ fontWeight: '600', color: '#4b5563' }}>Īpašais piedāvājums</div>
+          </div>
+        </div>
 
       </div>
 
