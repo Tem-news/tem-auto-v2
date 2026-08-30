@@ -357,11 +357,10 @@ export default function Header() {
                           key={r.name}
                           onMouseEnter={() => setHoveredRegion(r.name)}
                           onClick={() => {
-                            if (!r.subregions || r.subregions.length === 0) {
-                              setCurrentRegion(r.name)
-                              setRegionOpen(false)
-                              setRegionSearch('')
-                            }
+                            // TAGAD VAR NOFIKSĒT ARĪ PAŠU VALSTI NEATKARĪGI NO TĀ, VAI TAI IR APAKŠREĢIONI!
+                            setCurrentRegion(r.name)
+                            setRegionOpen(false)
+                            setRegionSearch('')
                           }}
                           style={{ 
                             padding: '6px 8px', 
@@ -389,6 +388,30 @@ export default function Header() {
                 {/* Papildu info logs, kas izpeld BLAKUS PA KREISI */}
                 {hoveredRegionObj && hoveredRegionObj.subregions && hoveredRegionObj.subregions.length > 0 && (
                   <div style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRight: 'none', borderRadius: '8px 0 0 8px', width: '240px', boxShadow: '-10px 10px 15px -3px rgba(0,0,0,0.5)', padding: '12px', maxHeight: '316px', overflowY: 'auto' }}>
+                    
+                    {/* Ērta opcija izvēlēties TIKAI valsti tieši no reģionu saraksta augšas */}
+                    <div
+                      onClick={() => {
+                        setCurrentRegion(hoveredRegionObj.name)
+                        setRegionOpen(false)
+                        setRegionSearch('')
+                      }}
+                      style={{
+                        padding: '8px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        color: currentRegion === hoveredRegionObj.name ? '#22c55e' : '#22c55e',
+                        backgroundColor: currentRegion === hoveredRegionObj.name ? '#334155' : '#0f172a',
+                        border: '1px solid #22c55e',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        marginBottom: '10px',
+                        textAlign: 'center'
+                      }}
+                    >
+                      🌐 Visa valsts: {hoveredRegionObj.name.split(' ')[0]}
+                    </div>
+
                     <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '8px', borderBottom: '1px solid #334155', paddingBottom: '4px' }}>
                       Reģioni / Štati ({hoveredRegionObj.subregions.length})
                     </div>
