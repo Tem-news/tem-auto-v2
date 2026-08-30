@@ -54,7 +54,7 @@ const REGIONS = [
       'Kolorādo (CO)', 'Konektikuta (CT)', 'Delavēra (DE)', 'Florida (FL)', 'Džordžija (GA)', 
       'Havajas (HI)', 'Aidaho (ID)', 'Ilinoisa (IL)', 'Indianāna (IN)', 'Aiova (IA)', 
       'Kanzasa (KS)', 'Kentuki (KY)', 'Luiziāna (LA)', 'Meina (ME)', 'Merilenda (MD)', 
-      ' Masačūsetsa (MA)', 'Mičigana (MI)', 'Minesota (MN)', 'Misisipi (MS)', 'Misūri (MO)', 
+      'Masačūsetsa (MA)', 'Mičigana (MI)', 'Minesota (MN)', 'Misisipi (MS)', 'Misūri (MO)', 
       'Montāna (MT)', 'Nebraska (NE)', 'Nevada (NV)', 'Ņūhempšīra (NH)', 'Ņūdžersija (NJ)', 
       'Ņūmexika (NM)', 'Ņujorka (NY)', 'Ziemeļkarolīna (NC)', 'Ziemeļdakota (ND)', 'Ohaio (OH)', 
       'Oklahoma (OK)', 'Oregonas štats (OR)', 'Pensilvānija (PA)', 'Roda Ailenda (RI)', 'Dienvidkarolīna (SC)', 
@@ -201,13 +201,14 @@ export default function Header() {
       style={{ 
         backgroundColor: '#0f172a', 
         color: '#ffffff', 
-        padding: '12px 20px', 
+        padding: '16px 24px', // Palielināts augstums un platums (virsas un apakšas atstarpes)
         position: 'sticky', 
         top: 0, 
         zIndex: 1000,
         width: '100%',
         boxSizing: 'border-box',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        boxShadow: '0 4px 12px rgba(0,0,0,0.25)', // Dziļāka un vienmērīgāka ēna
+        borderBottom: '1px solid #1e293b' // Blīva un gluda apakšējā līnija, lai nerastos atstarpes
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
@@ -230,7 +231,7 @@ export default function Header() {
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '5px 12px',
+              padding: '6px 12px',
               backgroundColor: '#1e293b',
               border: '1px solid #334155',
               borderRadius: '20px',
@@ -252,7 +253,7 @@ export default function Header() {
             <button
               onClick={() => { setLangOpen(!langOpen); setRegionOpen(false); }}
               style={{
-                padding: '6px 12px',
+                padding: '8px 12px',
                 backgroundColor: '#1e293b',
                 border: '1px solid #334155',
                 borderRadius: '6px',
@@ -276,7 +277,7 @@ export default function Header() {
             </button>
 
             {langOpen && (
-              <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '230px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
+              <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '230px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
                 <input
                   type="text"
                   placeholder="Meklēt valodu..."
@@ -311,7 +312,7 @@ export default function Header() {
             <button
               onClick={() => { setRegionOpen(!regionOpen); setLangOpen(false); }}
               style={{
-                padding: '6px 12px',
+                padding: '8px 12px',
                 backgroundColor: '#1e293b',
                 border: '1px solid #334155',
                 borderRadius: '6px',
@@ -335,7 +336,7 @@ export default function Header() {
             </button>
 
             {regionOpen && (
-              <div style={{ display: 'flex', flexDirection: 'row-reverse', position: 'absolute', top: '100%', right: 0, marginTop: '6px', zIndex: 100 }}>
+              <div style={{ display: 'flex', flexDirection: 'row-reverse', position: 'absolute', top: '100%', right: 0, marginTop: '8px', zIndex: 100 }}>
                 
                 {/* Galvenais valstu saraksts (atrodas pa labi, tieši zem izvēlnes pogas) */}
                 <div style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '0 8px 8px 0', width: '260px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px' }}>
@@ -427,7 +428,7 @@ export default function Header() {
           <nav style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {user ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '12px', color: '#cbd5e1', backgroundColor: '#1e293b', padding: '3px 10px', borderRadius: '12px', border: '1px solid #334155' }}>
+                <span style={{ fontSize: '12px', color: '#cbd5e1', backgroundColor: '#1e293b', padding: '4px 10px', borderRadius: '12px', border: '1px solid #334155' }}>
                   {user.email}
                 </span>
                 <button
@@ -446,7 +447,7 @@ export default function Header() {
             <a
               href="/pievienot"
               onClick={handleAddCarClick}
-              style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
+              style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
             >
               + Pievienot auto
             </a>
