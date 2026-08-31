@@ -84,59 +84,59 @@ export default function AutoLapa() {
   }
 
   return (
-    <div style={{ maxWidth: '1250px', height: 'calc(100vh - 40px)', margin: '20px auto', padding: '0 20px', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', boxSizing: 'border-box', overflow: 'hidden' }}>
+    <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
       
-      {/* 1. AUGŠĒJĀ DAĻA: Stāv pilnīgi nekustīgi, nekas nelēkā un nenogriežas */}
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', flexShrink: 0, marginBottom: '20px' }}>
+      {/* Augšējā daļa: 3 kolonnas (Kreisais stabiņš, Vidus ar bildi, Reklāma labajā malā) */}
+      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', marginBottom: '24px' }}>
         
         {/* KREISAIS STABIŅŠ: Cena, Dati un Kontakti */}
-        <div style={{ width: '320px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div style={{ width: '320px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
           
-          <div style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '10px', border: '1px solid #e5e7eb', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-            <span style={{ fontSize: '28px', fontWeight: 'bold', color: '#16a34a', letterSpacing: '0.5px' }}>
+          <div style={{ backgroundColor: '#f9fafb', padding: '18px', borderRadius: '10px', border: '1px solid #e5e7eb', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <span style={{ fontSize: '30px', fontWeight: 'bold', color: '#16a34a', letterSpacing: '0.5px' }}>
               {formatPrice(car.price)}
             </span>
           </div>
 
-          <div style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '10px', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ backgroundColor: '#f9fafb', padding: '20px 16px', borderRadius: '10px', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             {car.year && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '10px' }}>
                 <span style={{ color: '#6b7280', fontWeight: '500' }}>Izlaiduma gads:</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.year}</span>
               </div>
             )}
             {car.engine && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '10px' }}>
                 <span style={{ color: '#6b7280', fontWeight: '500' }}>Motors:</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.engine}</span>
               </div>
             )}
             {car.gearbox && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '10px' }}>
                 <span style={{ color: '#6b7280', fontWeight: '500' }}>Ātrumkārba:</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.gearbox}</span>
               </div>
             )}
             {car.color && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '10px' }}>
                 <span style={{ color: '#6b7280', fontWeight: '500' }}>Krāsa:</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.color}</span>
               </div>
             )}
             {car.body_type && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '10px' }}>
                 <span style={{ color: '#6b7280', fontWeight: '500' }}>Virsbūves tips:</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.body_type}</span>
               </div>
             )}
             {car.mileage && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '10px' }}>
                 <span style={{ color: '#6b7280', fontWeight: '500' }}>Nobraukums:</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{Number(car.mileage).toLocaleString('lv-LV')} km</span>
               </div>
             )}
             {car.tech_inspection && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '10px' }}>
                 <span style={{ color: '#6b7280', fontWeight: '500' }}>Tehniskā apskate:</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.tech_inspection}</span>
               </div>
@@ -144,19 +144,19 @@ export default function AutoLapa() {
             {car.vin && (
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '2px' }}>
                 <span style={{ color: '#6b7280', fontWeight: '500' }}>VIN kods:</span>
-                <span style={{ color: '#111827', fontWeight: 'bold', fontSize: '12px' }}>{car.vin}</span>
+                <span style={{ color: '#111827', fontWeight: 'bold', fontSize: '13px' }}>{car.vin}</span>
               </div>
             )}
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {car.phone && (
-              <a href={`tel:${car.phone}`} style={{ padding: '12px 16px', backgroundColor: '#16a34a', color: '#fff', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '14px' }}>
+              <a href={`tel:${car.phone}`} style={{ padding: '14px 16px', backgroundColor: '#16a34a', color: '#fff', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '15px' }}>
                 📞 {car.phone}
               </a>
             )}
             {car.email && (
-              <a href={`mailto:${car.email}`} style={{ padding: '12px 16px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', textAlign: 'center', wordBreak: 'break-all', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '14px' }}>
+              <a href={`mailto:${car.email}`} style={{ padding: '14px 16px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', textAlign: 'center', wordBreak: 'break-all', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '15px' }}>
                 ✉️ {car.email}
               </a>
             )}
@@ -167,22 +167,22 @@ export default function AutoLapa() {
         {/* VIDĒJĀ DAĻA: Atpakaļ, Virsraksts, Bildes */}
         <div style={{ flex: 1, maxWidth: '750px', minWidth: 0 }}>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <Link href="/" style={{ color: '#2563eb', textDecoration: 'none', fontSize: '14px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <Link href="/" style={{ color: '#2563eb', textDecoration: 'none' }}>
               ← Atpakaļ uz sarakstu
             </Link>
             <div>
-              <Link href={`/auto/${id}/edit`} style={{ padding: '6px 12px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>
+              <Link href={`/auto/${id}/edit`} style={{ padding: '8px 14px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold' }}>
                 ✏️ Rediģēt
               </Link>
             </div>
           </div>
 
-          <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#111827' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 6px 0', color: '#111827' }}>
             {car.make} {car.model}
           </h1>
 
-          <div style={{ display: 'flex', gap: '16px', color: '#6b7280', fontSize: '13px', marginBottom: '10px' }}>
+          <div style={{ display: 'flex', gap: '16px', color: '#6b7280', fontSize: '14px', marginBottom: '16px' }}>
             {car.created_at && (
               <span>📅 Publicēts: {new Date(car.created_at).toLocaleDateString('lv-LV')}</span>
             )}
@@ -190,15 +190,15 @@ export default function AutoLapa() {
           </div>
 
           {activeImage && (
-            <div style={{ position: 'relative', width: '100%', height: '300px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', marginBottom: '8px' }}>
+            <div style={{ position: 'relative', width: '100%', height: '380px', borderRadius: '12px', overflow: 'hidden', backgroundColor: '#f3f4f6', marginBottom: '12px' }}>
               <img src={activeImage} alt={`${car.make} ${car.model}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               
               {allImages.length > 1 && (
                 <>
-                  <button onClick={handlePrevImage} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '36px', height: '36px', fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <button onClick={handlePrevImage} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '40px', height: '40px', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     ❮
                   </button>
-                  <button onClick={handleNextImage} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '36px', height: '36px', fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <button onClick={handleNextImage} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '40px', height: '40px', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     ❯
                   </button>
                 </>
@@ -207,14 +207,14 @@ export default function AutoLapa() {
           )}
 
           {allImages.length > 1 && (
-            <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '4px' }}>
+            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px' }}>
               {allImages.map((img, idx) => (
                 <img
                   key={idx}
                   src={img}
                   alt=""
                   onClick={() => setActiveImage(img)}
-                  style={{ width: '70px', height: '50px', objectFit: 'cover', borderRadius: '6px', cursor: 'pointer', border: activeImage === img ? '2px solid #2563eb' : '1px solid #d1d5db', opacity: activeImage === img ? 1 : 0.7 }}
+                  style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '6px', cursor: 'pointer', border: activeImage === img ? '3px solid #2563eb' : '1px solid #d1d5db', opacity: activeImage === img ? 1 : 0.7 }}
                 />
               ))}
             </div>
@@ -224,21 +224,19 @@ export default function AutoLapa() {
 
         {/* LABĀ MALA: Reklāma */}
         <div style={{ width: '240px', flexShrink: 0 }}>
-          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '16px', textAlign: 'center', height: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
+          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
-            <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>Ekskluzīvs baneris šeit!<br/><span style={{ fontSize: '11px' }}>(Maksimāla uzmanība)</span></p>
+            <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Ekskluzīvs baneris šeit!<br/><span style={{ fontSize: '12px' }}>(Maksimāla uzmanība)</span></p>
           </div>
         </div>
 
       </div>
 
-      {/* 2. APAKŠĒJĀ DAĻA: Apraksts visā platumā, kas smuki skrollējas, ja teksts ir garš */}
+      {/* APAKŠĒJĀ DAĻA: Apraksts pa visu platumu */}
       {car.description && (
-        <div style={{ backgroundColor: '#f9fafb', padding: '16px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', width: '100%', flex: 1, display: 'flex', flexDirection: 'column', boxSizing: 'border-box', minHeight: 0 }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#111827', marginTop: 0, flexShrink: 0 }}>Apraksts</h3>
-          <div style={{ overflowY: 'auto', paddingRight: '8px', flex: 1 }}>
-            <p style={{ color: '#374151', lineHeight: '1.5', whiteSpace: 'pre-line', margin: 0, fontSize: '14px' }}>{car.description}</p>
-          </div>
+        <div style={{ backgroundColor: '#f9fafb', padding: '24px', borderRadius: '10px', border: '1px solid #e5e7eb', width: '100%' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '12px', color: '#111827' }}>Apraksts</h3>
+          <p style={{ color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-line', margin: 0 }}>{car.description}</p>
         </div>
       )}
 
