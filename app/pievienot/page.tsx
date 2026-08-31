@@ -157,6 +157,7 @@ export default function PievienotAuto() {
   
   const [vin, setVin] = useState('')
   const [nobraukums, setNobraukums] = useState('')
+  const [displayNobraukums, setDisplayNobraukums] = useState('')
   const [tehiskapskate, setTehiskapskate] = useState('')
   const [sture, setSture] = useState('')
   const [diski, setDiski] = useState('')
@@ -199,6 +200,17 @@ export default function PievienotAuto() {
     }
     setPrice(cleanNums)
     setDisplayPrice(cleanNums.replace(/\B(?=(\d{3})+(?!\d))/g, ' '))
+  }
+
+  const handleNobraukumsChange = (val: string) => {
+    const cleanNums = val.replace(/\D/g, '')
+    if (!cleanNums) {
+      setNobraukums('')
+      setDisplayNobraukums('')
+      return
+    }
+    setNobraukums(cleanNums)
+    setDisplayNobraukums(cleanNums.replace(/\B(?=(\d{3})+(?!\d))/g, ' '))
   }
 
   const handleFiles = (files: FileList | File[]) => {
@@ -250,8 +262,8 @@ export default function PievienotAuto() {
     setLoading(true)
     setErrorMessage('')
 
-    if (!make || !model || !price || !year) {
-      setErrorMessage('Lūdzu, aizpildiet obligātos laukus: Marka, Modelis, Gads un Cena!')
+    if (!make || !model || !year) {
+      setErrorMessage('Lūdzu, aizpildiet obligātos laukus: Marka, Modelis un Gads!')
       setLoading(false)
       return
     }
@@ -295,7 +307,7 @@ export default function PievienotAuto() {
           make: make.trim(),
           model: model.trim(),
           year: Number(year),
-          price: Number(price),
+          price: price ? Number(price) : null,
           engine: engine.trim(),
           volume: volume ? Number(volume) : null,
           gearbox: gearbox.trim(),
@@ -460,7 +472,7 @@ export default function PievienotAuto() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Cena (€) *</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Cena (€)</label>
                 <input
                   type="text"
                   placeholder="Piem., 12 500"
@@ -629,10 +641,10 @@ export default function PievienotAuto() {
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Nobraukums (km)</label>
                 <input
-                  type="number"
-                  placeholder="Piem., 180000"
-                  value={nobraukums}
-                  onChange={(e) => setNobraukums(e.target.value)}
+                  type="text"
+                  placeholder="Piem., 180 000"
+                  value={displayNobraukums}
+                  onChange={(e) => handleNobraukumsChange(e.target.value)}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box' }}
                 />
               </div>
@@ -723,7 +735,7 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* KONTAKTINFORMĀCIJA (virs apraksta) */}
+            {/* KONTAKTINFORMĀCIJA */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>E-pasts</label>
@@ -847,7 +859,7 @@ export default function PievienotAuto() {
                         ✕
                       </button>
 
-                      {/* LIELĀKAS UN ĒRTĀKAS PĀRVIETOŠANAS BULTIŅAS */}
+                      {/* PĀRVIETOŠANAS BULTIŅAS */}
                       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(17, 24, 39, 0.85)', padding: '3px 4px', display: 'flex', gap: '4px', alignItems: 'center', justifyContent: 'space-between' }}>
                         {idx > 0 ? (
                           <button 
