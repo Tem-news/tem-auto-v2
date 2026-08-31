@@ -185,7 +185,6 @@ const ENGINE_VOLUMES = [
   '2.2', '2.4', '2.5', '2.8', '3.0', '3.2', '3.5', '4.0', '4.4', '5.0', 'Elektro / Nav'
 ]
 
-// VALSTIS AR ĪSTIEM, KRĀSAINIEM HD SVG KARODZIŅIEM (FlagCDN)
 const COUNTRIES = [
   { name: 'Latvija', code: 'lv', flagUrl: 'https://flagcdn.com/w40/lv.png', regions: ['Rīga un rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale'] },
   { name: 'Lietuva', code: 'lt', flagUrl: 'https://flagcdn.com/w40/lt.png', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alytus'] },
@@ -243,7 +242,7 @@ const CURRENT_YEAR = new Date().getFullYear()
 const YEARS = Array.from({ length: CURRENT_YEAR - 1969 }, (_, i) => (CURRENT_YEAR - i).toString())
 
 type ImageItem = {
-  file?: File
+  file: File
   url: string
 }
 
@@ -279,7 +278,6 @@ export default function PievienotAuto() {
   const [phone, setPhone] = useState('')
   
   const [images, setImages] = useState<ImageItem[]>([])
-  const [imageUrlInput, setImageUrlInput] = useState('')
   const [isDragging, setIsDragging] = useState(false)
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
@@ -344,13 +342,6 @@ export default function PievienotAuto() {
     }
   }
 
-  const handleAddImageUrl = () => {
-    if (imageUrlInput.trim()) {
-      setImages(prev => [...prev, { url: imageUrlInput.trim() }])
-      setImageUrlInput('')
-    }
-  }
-
   const removeImage = (index: number) => {
     setImages(prev => prev.filter((_, i) => i !== index))
   }
@@ -403,8 +394,6 @@ export default function PievienotAuto() {
           if (publicUrlData?.publicUrl) {
             uploadedImageUrls.push(publicUrlData.publicUrl)
           }
-        } else if (img.url) {
-          uploadedImageUrls.push(img.url)
         }
       }
 
@@ -461,7 +450,7 @@ export default function PievienotAuto() {
       
       <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
-        {/* KREISĀ PUSE - Baneri */}
+        {/* KREISĀ PUSE - 2 Baneri */}
         <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
             <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 1</span>
@@ -956,14 +945,14 @@ export default function PievienotAuto() {
                 style={{
                   border: `2px dashed ${isDragging ? '#2563eb' : '#d1d5db'}`,
                   borderRadius: '8px',
-                  padding: '24px',
+                  padding: '28px 24px',
                   textAlign: 'center',
                   backgroundColor: isDragging ? '#eff6ff' : '#f9fafb',
                   cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}
               >
-                <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#374151' }}>Ievelciet attēlus šeit vai noklikšķiniet, lai izvēlētos</p>
+                <p style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#374151' }}>Ievelciet attēlus šeit vai noklikšķiniet, lai izvēlētos no ierīces</p>
                 <input
                   type="file"
                   multiple
@@ -972,27 +961,9 @@ export default function PievienotAuto() {
                   style={{ display: 'none' }}
                   id="file-input"
                 />
-                <label htmlFor="file-input" style={{ display: 'inline-block', backgroundColor: '#2563eb', color: '#fff', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: '500', cursor: 'pointer' }}>
-                  Izvēlēties failus
+                <label htmlFor="file-input" style={{ display: 'inline-block', backgroundColor: '#2563eb', color: '#fff', padding: '9px 18px', borderRadius: '6px', fontSize: '13.5px', fontWeight: '500', cursor: 'pointer' }}>
+                  Izvēlēties attēlus
                 </label>
-              </div>
-
-              {/* URL Pievienošana */}
-              <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-                <input
-                  type="text"
-                  placeholder="Vai ievadiet attēla tiešo saiti (URL)..."
-                  value={imageUrlInput}
-                  onChange={(e) => setImageUrlInput(e.target.value)}
-                  style={{ flex: 1, padding: '9px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '13.5px' }}
-                />
-                <button
-                  type="button"
-                  onClick={handleAddImageUrl}
-                  style={{ backgroundColor: '#4b5563', color: '#fff', border: 'none', padding: '9px 16px', borderRadius: '6px', fontSize: '13.5px', fontWeight: '500', cursor: 'pointer' }}
-                >
-                  Pievienot URL
-                </button>
               </div>
 
               {/* Attēlu priekšskatījums ar ĒRTĀM BULTIŅĀM */}
@@ -1114,11 +1085,15 @@ export default function PievienotAuto() {
           </form>
         </div>
 
-        {/* LABĀ PUSE - Baneri */}
+        {/* LABĀ PUSE - 2 Baneri */}
         <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
             <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 3</span>
-            <span>Sānu baneris labajā pusē!</span>
+            <span>Sānu baneris labajā pusē (augšā)!</span>
+          </div>
+          <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 4</span>
+            <span>Sānu baneris labajā pusē (apakšā)!</span>
           </div>
         </div>
 
