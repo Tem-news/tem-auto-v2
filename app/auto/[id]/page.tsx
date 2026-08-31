@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
-import Header from '@/components/Header';
+import { supabase } from '../../../lib/supabase';
+import Header from '../../components/Header';
 
 export default function AutoDetailsPage() {
   const params = useParams();
