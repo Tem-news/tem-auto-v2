@@ -152,12 +152,17 @@ export default function AutoLapa() {
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.year}</span>
               </div>
             )}
-            {car.engine && (
+            
+            {/* Motors un Degvielas tips vienuviet */}
+            {(car.engine || car.fuel_type) && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
                 <span style={{ color: '#6b7280', fontWeight: '500' }}>Motors:</span>
-                <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.engine}</span>
+                <span style={{ color: '#111827', fontWeight: 'bold' }}>
+                  {car.engine} {car.fuel_type ? `(${car.fuel_type})` : ''}
+                </span>
               </div>
             )}
+
             {car.gearbox && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
                 <span style={{ color: '#6b7280', fontWeight: '500' }}>Ātrumkārba:</span>
