@@ -723,7 +723,7 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* KONTAKTAINFORMĀCIJA (Tagad atrodas VIRS apraksta) */}
+            {/* KONTAKTINFORMĀCIJA (virs apraksta) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>E-pasts</label>
@@ -825,7 +825,7 @@ export default function PievienotAuto() {
                         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
                         display: 'flex',
                         flexDirection: 'column',
-                        justify: 'space-between'
+                        justifyContent: 'space-between'
                       }}
                     >
                       <img src={img.url} alt={`Attēls ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
