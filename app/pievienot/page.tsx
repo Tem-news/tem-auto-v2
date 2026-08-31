@@ -262,19 +262,23 @@ export default function PievienotAuto() {
       for (const img of images) {
         if (img.file) {
           const fileExt = img.file.name.split('.').pop()
-          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`
 
-          const { data, error: uploadError } = await supabase.storage
-            .from('cars')
-            .upload(fileName, img.file)
+          // Izmantojam 'car-images' bucket, kā teikts Supabase Storage panelī
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('car-images')
+            .upload(fileName, img.file, {
+              cacheControl: '3600',
+              upsert: false
+            })
 
           if (uploadError) {
-            console.error('Kļūda augšupielādējot attēlu:', uploadError)
+            console.error('Kļūda augšupielādējot attēlu:', uploadError.message)
             continue
           }
 
           const { data: publicUrlData } = supabase.storage
-            .from('cars')
+            .from('car-images')
             .getPublicUrl(fileName)
 
           if (publicUrlData?.publicUrl) {
@@ -308,7 +312,7 @@ export default function PievienotAuto() {
           email: email.trim(),
           phone: phone.trim(),
           images: uploadedImageUrls,
-          image_url: uploadedImageUrls[0] || null,
+          image_url: uploadedImageUrls.length > 0 ? uploadedImageUrls[0] : null,
           created_at: new Date().toISOString()
         }
       ])
