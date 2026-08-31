@@ -13,14 +13,17 @@ export default function AutoLapa() {
   const [loading, setLoading] = useState(true)
   const [activeImage, setActiveImage] = useState<string>('')
 
+  // Stāvokļi (states), lai kontrolētu, vai dati ir atklāti
+  const [showPhone, setShowPhone] = useState(false)
+  const [showEmail, setShowEmail] = useState(false)
+  const [showVin, setShowVin] = useState(false)
+
   useEffect(() => {
     if (!id) return
 
     async function fetchCarData() {
-      // 1. Palielinām skatījumu skaitu
       await supabase.rpc('increment_view', { car_id: id })
 
-      // 2. Ielādējam konkrēto auto
       const { data: carData, error: carError } = await supabase
         .from('cars')
         .select('*')
@@ -62,12 +65,30 @@ export default function AutoLapa() {
     setActiveImage(allImages[newIndex])
   }
 
-  // Cenas formatēšana (piem. 11900 -> 11 900 €)
   const formatPrice = (price: number | string) => {
     if (!price) return 'Cena nav norādīta'
     const num = Number(price)
     if (isNaN(num)) return `${price} €`
     return `${num.toLocaleString('lv-LV')} €`
+  }
+
+  // Palīgfunkcijas datu maskēšanai
+  const maskPhone = (phone: string) => {
+    if (phone.length <= 4) return '***'
+    return phone.slice(0, 4) + '***' + phone.slice(-2)
+  }
+
+  const maskEmail = (email: string) => {
+    const parts = email.split('@')
+    if (parts.length !== 2) return '*****@*****'
+    const name = parts[0]
+    const maskedName = name.length > 2 ? name.slice(0, 2) + '***' : '***'
+    return `${maskedName}@${parts[1]}`
+  }
+
+  const maskVin = (vin: string) => {
+    if (vin.length <= 6) return '******'
+    return vin.slice(0, 4) + '******' + vin.slice(-4)
   }
 
   if (loading) {
@@ -90,7 +111,7 @@ export default function AutoLapa() {
   return (
     <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
       
-      {/* Augšējā daļa: 3 kolonnas (Kreisais stabiņš, Vidus ar bildi, Reklāma labajā malā) */}
+      {/* Augšējā daļa: 3 kolonnas */}
       <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', marginBottom: '24px' }}>
         
         {/* KREISAIS STABIŅŠ: Cena, Dati un Kontakti */}
@@ -145,30 +166,64 @@ export default function AutoLapa() {
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.tech_inspection}</span>
               </div>
             )}
+            
+            {/* Maskēts VIN kods */}
             {car.vin && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '2px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '2px' }}>
                 <span style={{ color: '#6b7280', fontWeight: '500' }}>VIN kods:</span>
-                <span style={{ color: '#111827', fontWeight: 'bold', fontSize: '13px' }}>{car.vin}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ color: '#111827', fontWeight: 'bold', fontSize: '13px' }}>
+                    {showVin ? car.vin : maskVin(car.vin)}
+                  </span>
+                  {!showVin && (
+                    <button 
+                      onClick={() => setShowVin(true)}
+                      style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontSize: '12px', padding: 0, textDecoration: 'underline' }}
+                    >
+                      Skatīt
+                    </button>
+                  )}
+                </div>
               </div>
             )}
           </div>
 
+          {/* Maskēti kontakti: Telefons un E-pasts */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {car.phone && (
-              <a href={`tel:${car.phone}`} style={{ padding: '14px 16px', backgroundColor: '#16a34a', color: '#fff', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '15px' }}>
-                📞 {car.phone}
-              </a>
+              showPhone ? (
+                <a href={`tel:${car.phone}`} style={{ padding: '14px 16px', backgroundColor: '#16a34a', color: '#fff', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '15px' }}>
+                  📞 {car.phone}
+                </a>
+              ) : (
+                <button 
+                  onClick={() => setShowPhone(true)}
+                  style={{ padding: '14px 16px', backgroundColor: '#16a34a', color: '#fff', borderRadius: '10px', border: 'none', fontWeight: 'bold', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '15px', cursor: 'pointer' }}
+                >
+                  📞 {maskPhone(car.phone)} (Parādīt)
+                </button>
+              )
             )}
+
             {car.email && (
-              <a href={`mailto:${car.email}`} style={{ padding: '14px 16px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', textAlign: 'center', wordBreak: 'break-all', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '15px' }}>
-                ✉️ {car.email}
-              </a>
+              showEmail ? (
+                <a href={`mailto:${car.email}`} style={{ padding: '14px 16px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', textAlign: 'center', wordBreak: 'break-all', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '15px' }}>
+                  ✉️ {car.email}
+                </a>
+              ) : (
+                <button 
+                  onClick={() => setShowEmail(true)}
+                  style={{ padding: '14px 16px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '10px', border: 'none', fontWeight: 'bold', textAlign: 'center', wordBreak: 'break-all', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '15px', cursor: 'pointer' }}
+                >
+                  ✉️ {maskEmail(car.email)} (Parādīt)
+                </button>
+              )
             )}
           </div>
 
         </div>
 
-        {/* VIDĒJĀ DAĻA: Atpakaļ, Virsraksts, Bildes */}
+        {/* VIDĒJĀ DAĻA: Bildes un virsraksts */}
         <div style={{ flex: 1, maxWidth: '750px', minWidth: 0 }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
