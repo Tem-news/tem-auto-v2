@@ -105,6 +105,37 @@ const REGIONS_BY_COUNTRY: { [key: string]: string[] } = {
 
 const DEFAULT_REGIONS = ['Galvaspilsēta / Centrs', 'Ziemeļu reģions', 'Dienvidu reģions', 'Austrumu reģions', 'Rietumu reģions']
 
+const ENGINE_TYPES = [
+  'Dīzelis', 'Benzīns', 'Benzīns / Gāze', 'Hibrīds (Benzīns)', 'Hibrīds (Dīzelis)', 'Elektriskais'
+]
+
+const GEARBOX_TYPES = [
+  'Mehāniskā', 'Automāts', 'Pusautomāts'
+]
+
+const BODY_TYPES = [
+  'Sedans', 'Universāls', 'Hečbeks', 'Apvidus (SUV)', 'Kupeja', 'Kabriolets', 'Minivens', 'Kompaktvens', 'Pikaps', 'Furgons'
+]
+
+const COLORS = [
+  { name: 'Melna', hex: '#111827', border: '#374151' },
+  { name: 'Balta', hex: '#ffffff', border: '#d1d5db' },
+  { name: 'Pelēka', hex: '#6b7280', border: '#4b5563' },
+  { name: 'Sudraba', hex: '#e5e7eb', border: '#9ca3af' },
+  { name: 'Zila', hex: '#2563eb', border: '#1d4ed8' },
+  { name: 'Sarkana', hex: '#dc2626', border: '#b91c1c' },
+  { name: 'Zaļa', hex: '#16a34a', border: '#15803d' },
+  { name: 'Brūna', hex: '#78350f', border: '#451a03' },
+  { name: 'Zelta', hex: '#d97706', border: '#b45309' },
+  { name: 'Oranža', hex: '#ea580c', border: '#c2410c' },
+  { name: 'Dzeltena', hex: '#eab308', border: '#ca8a04' },
+  { name: 'Violeta', hex: '#7c3aed', border: '#6d28d9' }
+]
+
+const VOLUMES = [
+  '1.0', '1.2', '1.4', '1.6', '1.8', '2.0', '2.2', '2.5', '3.0', '3.5', '4.0', '5.0'
+]
+
 function normalizeMake(makeStr: string): string {
   if (!makeStr) return ''
   const trimmed = makeStr.trim()
@@ -188,7 +219,6 @@ export default function Sakumlapa() {
 
   useEffect(() => {
     async function fetchData() {
-      // Tieša un droša datu ielāde no cars tabulas
       const { data: carsData, error: carsError } = await supabase
         .from('cars')
         .select('*')
@@ -382,7 +412,7 @@ export default function Sakumlapa() {
               )}
             </div>
 
-            {/* Filtru rindiņas */}
+            {/* 1. Rinda */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
@@ -461,6 +491,105 @@ export default function Sakumlapa() {
                 <input type="number" placeholder="līdz" value={maxYear} onChange={(e) => setMaxYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
               </div>
             </div>
+
+            {/* 2. Rinda */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
+                <input
+                  type="text"
+                  placeholder="Dzinējs"
+                  value={dzinejs}
+                  onChange={(e) => { setDzinejs(e.target.value); setActiveDropdown('dzinejs'); }}
+                  onClick={() => toggleDropdown('dzinejs')}
+                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
+                />
+                {activeDropdown === 'dzinejs' && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    <div onClick={() => { setDzinejs(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visi dzinēji</div>
+                    {ENGINE_TYPES.filter(d => d.toLowerCase().includes(dzinejs.toLowerCase())).map((d) => (
+                      <div key={d} onClick={() => { setDzinejs(d); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}>{d}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <div style={{ position: 'relative', width: '70px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Tilp. no" 
+                    value={minTilpums} 
+                    onChange={(e) => { setMinTilpums(e.target.value); setActiveDropdown('minTilpums'); }} 
+                    onClick={() => toggleDropdown('minTilpums')}
+                    style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }} 
+                  />
+                  {activeDropdown === 'minTilpums' && (
+                    <div style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                      {VOLUMES.map((v) => (
+                        <div key={v} onClick={() => { setMinTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>{v}</div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
+                <div style={{ position: 'relative', width: '70px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="līdz" 
+                    value={maxTilpums} 
+                    onChange={(e) => { setMaxTilpums(e.target.value); setActiveDropdown('maxTilpums'); }} 
+                    onClick={() => toggleDropdown('maxTilpums')}
+                    style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }} 
+                  />
+                  {activeDropdown === 'maxTilpums' && (
+                    <div style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                      {VOLUMES.map((v) => (
+                        <div key={v} onClick={() => { setMaxTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>{v}</div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
+                <input
+                  type="text"
+                  placeholder="Ātrumkārba"
+                  value={atrumkarba}
+                  onChange={(e) => { setAtrumkarba(e.target.value); setActiveDropdown('atrumkarba'); }}
+                  onClick={() => toggleDropdown('atrumkarba')}
+                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
+                />
+                {activeDropdown === 'atrumkarba' && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    <div onClick={() => { setAtrumkarba(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas kārbas</div>
+                    {GEARBOX_TYPES.filter(g => g.toLowerCase().includes(atrumkarba.toLowerCase())).map((g) => (
+                      <div key={g} onClick={() => { setAtrumkarba(g); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}>{g}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
+                <input
+                  type="text"
+                  placeholder="Virsbūve"
+                  value={virsbuve}
+                  onChange={(e) => { setVirsbuve(e.target.value); setActiveDropdown('virsbuve'); }}
+                  onClick={() => toggleDropdown('virsbuve')}
+                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
+                />
+                {activeDropdown === 'virsbuve' && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    <div onClick={() => { setVirsbuve(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas virsbūves</div>
+                    {BODY_TYPES.filter(b => b.toLowerCase().includes(virsbuve.toLowerCase())).map((b) => (
+                      <div key={b} onClick={() => { setVirsbuve(b); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}>{b}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
           </div>
 
           {/* SLUDINĀJUMU SARAKSTS */}
