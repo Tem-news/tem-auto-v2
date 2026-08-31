@@ -188,7 +188,7 @@ export default function Sakumlapa() {
 
   useEffect(() => {
     async function fetchData() {
-      // 1. Ielādējam auto datus
+      // Tieša un droša datu ielāde no cars tabulas
       const { data: carsData, error: carsError } = await supabase
         .from('cars')
         .select('*')
@@ -196,26 +196,13 @@ export default function Sakumlapa() {
 
       if (carsError) {
         console.error('Kļūda ielādējot auto:', carsError)
-        setLoading(false)
-        return
-      }
-
-      // 2. Ielādējam bildes no listing_images tabulas
-      const { data: imagesData } = await supabase
-        .from('listing_images')
-        .select('*')
-
-      // 3. Savienojam auto ar attiecīgajām bildēm
-      const normalizedCars = (carsData || []).map(car => {
-        const carImages = (imagesData || []).filter(img => img.car_id === car.id || img.listing_id === car.id)
-        return {
+      } else {
+        const normalizedCars = (carsData || []).map(car => ({
           ...car,
-          make: normalizeMake(car.make),
-          listing_images: carImages
-        }
-      })
-
-      setCars(normalizedCars)
+          make: normalizeMake(car.make)
+        }))
+        setCars(normalizedCars)
+      }
       setLoading(false)
     }
     fetchData()
@@ -487,7 +474,7 @@ export default function Sakumlapa() {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {filteredCars.map((car) => {
-                  const imageUrl = car.listing_images?.[0]?.image_url || car.image_url || car.image || 'https://via.placeholder.com/100x65?text=Nav+bildes'
+                  const imageUrl = car.image_url || car.image || 'https://via.placeholder.com/100x65?text=Nav+bildes'
 
                   return (
                     <Link 
