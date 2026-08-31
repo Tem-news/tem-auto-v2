@@ -136,10 +136,11 @@ export default function AutoLapa() {
             </span>
           </div>
 
-          {/* JAUNĀ RINDA: Valsts un Pilsēta (bez nosaukumiem) */}
+          {/* IZCELTAIS BLOKS: Valsts (pa kreisi) un Pilsēta/Reģions (pa labi) */}
           {(car.country || car.city) && (
-            <div style={{ backgroundColor: '#f9fafb', padding: '12px 16px', borderRadius: '10px', border: '1px solid #e5e7eb', textAlign: 'center', fontSize: '15px', fontWeight: 'bold', color: '#374151', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-              {car.country} {car.city ? ` ${car.city}` : ''}
+            <div style={{ backgroundColor: '#f0fdf4', padding: '14px 16px', borderRadius: '10px', border: '1px solid #bbf7d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '15px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+              <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.country}</span>
+              <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.city}</span>
             </div>
           )}
 
