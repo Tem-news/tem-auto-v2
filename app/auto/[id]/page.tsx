@@ -13,10 +13,13 @@ export default function AutoLapa() {
   const [loading, setLoading] = useState(true)
   const [activeImage, setActiveImage] = useState<string>('')
 
-  // Stāvokļi (states), lai kontrolētu, vai dati ir atklāti
+  // Stāvokļi datu maskēšanai
   const [showPhone, setShowPhone] = useState(false)
   const [showEmail, setShowEmail] = useState(false)
   const [showVin, setShowVin] = useState(false)
+
+  // Stāvoklis sociālo tīklu izlecošajam logam (modālim)
+  const [showSocialModal, setShowSocialModal] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -72,7 +75,6 @@ export default function AutoLapa() {
     return `${num.toLocaleString('lv-LV')} €`
   }
 
-  // Palīgfunkcijas datu maskēšanai
   const maskPhone = (phone: string) => {
     if (phone.length <= 4) return '***'
     return phone.slice(0, 4) + '***' + phone.slice(-2)
@@ -90,6 +92,9 @@ export default function AutoLapa() {
     if (vin.length <= 6) return '******'
     return vin.slice(0, 4) + '******' + vin.slice(-4)
   }
+
+  // Notīrīt numuru no atstarpēm, lai derētu saitēm
+  const cleanPhone = car?.phone ? car.phone.replace(/\s+/g, '') : ''
 
   if (loading) {
     return (
@@ -109,7 +114,7 @@ export default function AutoLapa() {
   }
 
   return (
-    <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif', position: 'relative' }}>
       
       {/* Augšējā daļa: 3 kolonnas */}
       <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', marginBottom: '24px' }}>
@@ -167,7 +172,7 @@ export default function AutoLapa() {
               </div>
             )}
             
-            {/* Maskēts VIN kods */}
+            {/* VIN kods ar maskēšanu */}
             {car.vin && (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '2px' }}>
                 <span style={{ color: '#6b7280', fontWeight: '500' }}>VIN kods:</span>
@@ -188,13 +193,18 @@ export default function AutoLapa() {
             )}
           </div>
 
-          {/* Maskēti kontakti: Telefons un E-pasts */}
+          {/* Kontakti */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            
+            {/* Telefona poga, kas atver sociālo tīklu / saziņas logu */}
             {car.phone && (
               showPhone ? (
-                <a href={`tel:${car.phone}`} style={{ padding: '14px 16px', backgroundColor: '#16a34a', color: '#fff', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '15px' }}>
+                <button 
+                  onClick={() => setShowSocialModal(true)}
+                  style={{ padding: '14px 16px', backgroundColor: '#16a34a', color: '#fff', borderRadius: '10px', border: 'none', fontWeight: 'bold', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '15px', cursor: 'pointer' }}
+                >
                   📞 {car.phone}
-                </a>
+                </button>
               ) : (
                 <button 
                   onClick={() => setShowPhone(true)}
@@ -205,6 +215,7 @@ export default function AutoLapa() {
               )
             )}
 
+            {/* E-pasts */}
             {car.email && (
               showEmail ? (
                 <a href={`mailto:${car.email}`} style={{ padding: '14px 16px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', textAlign: 'center', wordBreak: 'break-all', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '15px' }}>
@@ -291,11 +302,56 @@ export default function AutoLapa() {
 
       </div>
 
-      {/* APAKŠĒJĀ DAĻA: Apraksts pa visu platumu */}
+      {/* APAKŠĒJĀ DAĻA: Apraksts */}
       {car.description && (
         <div style={{ backgroundColor: '#f9fafb', padding: '24px', borderRadius: '10px', border: '1px solid #e5e7eb', width: '100%' }}>
           <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '12px', color: '#111827' }}>Apraksts</h3>
           <p style={{ color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-line', margin: 0 }}>{car.description}</p>
+        </div>
+      )}
+
+      {/* SOCIĀLO TĪKLU UN SAZIŅAS IZLECOŠAIS LOGS (MODAL) */}
+      {showSocialModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '14px', width: '320px', textAlign: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', position: 'relative' }}>
+            
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', color: '#111827' }}>Sazināties ar pārdevēju</h3>
+            <p style={{ margin: '0 0 20px 0', fontSize: '14px', color: '#6b7280', fontWeight: 'bold' }}>{car.phone}</p>
+
+            {/* Saziņas iespēju saraksts */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+              
+              {/* Parasts zvans */}
+              <a href={`tel:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', backgroundColor: '#f3f4f6', color: '#111827', borderRadius: '8px', textDecoration: 'none', fontWeight: '500', fontSize: '14px' }}>
+                📞 Zvanīt parasto zvanu
+              </a>
+
+              {/* WhatsApp */}
+              <a href={`https://wa.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', backgroundColor: '#25D366', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+                🟢 WhatsApp čats / SMS
+              </a>
+
+              {/* Telegram */}
+              <a href={`https://t.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', backgroundColor: '#229ED9', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+                ✈️ Telegram ziņa
+              </a>
+
+              {/* SMS */}
+              <a href={`sms:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', backgroundColor: '#4b5563', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+                💬 Sūtīt parasto SMS
+              </a>
+
+            </div>
+
+            {/* Aizvērt pogu */}
+            <button 
+              onClick={() => setShowSocialModal(false)}
+              style={{ width: '100%', padding: '10px', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '8px', fontWeight: 'bold', color: '#374151', cursor: 'pointer', fontSize: '14px' }}
+            >
+              Aizvērt
+            </button>
+
+          </div>
         </div>
       )}
 
