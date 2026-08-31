@@ -101,7 +101,7 @@ export default function AutoLapa() {
     if (!car?.phone) return
     navigator.clipboard.writeText(car.phone)
     setCopied(true)
-    setTimeout(() => setCopied(false), 2000) // Paziņojums pazudīs pēc 2 sekundēm
+    setTimeout(() => setCopied(false), 2000)
   }
 
   if (loading) {
@@ -339,7 +339,7 @@ export default function AutoLapa() {
                 🟢 WhatsApp čats
               </a>
 
-              {/* Meta Messenger (m.me izmanto lietotājvārdus, bet mobilajās ierīcēs vai caur fb var noderēt arī meklēšanai, šeit ieliekam universālu saiti uz Messenger) */}
+              {/* Meta Messenger */}
               <a href={`https://m.me/`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#0084FF', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
                 💙 Meta Messenger
               </a>
@@ -350,7 +350,7 @@ export default function AutoLapa() {
               </a>
 
               {/* Telegram */}
-              <a href={`https://t.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#229ED9', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' », }}>
+              <a href={`https://t.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#229ED9', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
                 ✈️ Telegram ziņa
               </a>
 
