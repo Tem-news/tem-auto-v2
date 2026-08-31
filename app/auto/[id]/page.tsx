@@ -121,12 +121,12 @@ export default function AutoLapa() {
   }
 
   return (
-    <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif', position: 'relative' }}>
+    <div style={{ maxWidth: '1250px', height: 'calc(100vh - 80px)', margin: '20px auto', padding: '0 20px', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box' }}>
       
-      {/* Augšējā daļa: 3 kolonnas */}
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', marginBottom: '24px' }}>
+      {/* Augšējā daļa: 3 kolonnas (Nekustīgas, nekad nescrollojas) */}
+      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', flexShrink: 0, marginBottom: '16px' }}>
         
-        {/* KREISAIS STABIŅŠ: Cena, Lokācija, Dati un Kontakti */}
+        {/* KREISAIS STABIŅŠ */}
         <div style={{ width: '320px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
           
           {/* Cena */}
@@ -136,7 +136,7 @@ export default function AutoLapa() {
             </span>
           </div>
 
-          {/* IZCELTAIS BLOKS: Valsts un Iesniegtā Pilsēta/Reģions pretī */}
+          {/* Valsts un Pilsēta */}
           {(car.country || car.city) && (
             <div style={{ backgroundColor: '#f0fdf4', padding: '14px 16px', borderRadius: '10px', border: '1px solid #bbf7d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '15px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.country || 'Latvija'}</span>
@@ -251,22 +251,22 @@ export default function AutoLapa() {
         {/* VIDĒJĀ DAĻA: Bildes un virsraksts */}
         <div style={{ flex: 1, maxWidth: '750px', minWidth: 0 }}>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <Link href="/" style={{ color: '#2563eb', textDecoration: 'none' }}>
               ← Atpakaļ uz sarakstu
             </Link>
             <div>
-              <Link href={`/auto/${id}/edit`} style={{ padding: '8px 14px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold' }}>
+              <Link href={`/auto/${id}/edit`} style={{ padding: '6px 12px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold' }}>
                 ✏️ Rediģēt
               </Link>
             </div>
           </div>
 
-          <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 6px 0', color: '#111827' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#111827' }}>
             {car.make} {car.model}
           </h1>
 
-          <div style={{ display: 'flex', gap: '16px', color: '#6b7280', fontSize: '14px', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', gap: '16px', color: '#6b7280', fontSize: '13px', marginBottom: '12px' }}>
             {car.created_at && (
               <span>📅 Publicēts: {new Date(car.created_at).toLocaleDateString('lv-LV')}</span>
             )}
@@ -274,15 +274,15 @@ export default function AutoLapa() {
           </div>
 
           {activeImage && (
-            <div style={{ position: 'relative', width: '100%', height: '380px', borderRadius: '12px', overflow: 'hidden', backgroundColor: '#f3f4f6', marginBottom: '12px' }}>
+            <div style={{ position: 'relative', width: '100%', height: '300px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', marginBottom: '10px' }}>
               <img src={activeImage} alt={`${car.make} ${car.model}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               
               {allImages.length > 1 && (
                 <>
-                  <button onClick={handlePrevImage} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '40px', height: '40px', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <button onClick={handlePrevImage} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '36px', height: '36px', fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     ❮
                   </button>
-                  <button onClick={handleNextImage} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '40px', height: '40px', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <button onClick={handleNextImage} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '36px', height: '36px', fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     ❯
                   </button>
                 </>
@@ -291,14 +291,14 @@ export default function AutoLapa() {
           )}
 
           {allImages.length > 1 && (
-            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px' }}>
+            <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '4px' }}>
               {allImages.map((img, idx) => (
                 <img
                   key={idx}
                   src={img}
                   alt=""
                   onClick={() => setActiveImage(img)}
-                  style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '6px', cursor: 'pointer', border: activeImage === img ? '3px solid #2563eb' : '1px solid #d1d5db', opacity: activeImage === img ? 1 : 0.7 }}
+                  style={{ width: '70px', height: '50px', objectFit: 'cover', borderRadius: '6px', cursor: 'pointer', border: activeImage === img ? '3px solid #2563eb' : '1px solid #d1d5db', opacity: activeImage === img ? 1 : 0.7 }}
                 />
               ))}
             </div>
@@ -308,7 +308,7 @@ export default function AutoLapa() {
 
         {/* LABĀ MALA: Reklāma */}
         <div style={{ width: '240px', flexShrink: 0 }}>
-          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '380px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Ekskluzīvs baneris šeit!<br/><span style={{ fontSize: '12px' }}>(Maksimāla uzmanība)</span></p>
           </div>
@@ -316,11 +316,13 @@ export default function AutoLapa() {
 
       </div>
 
-      {/* APAKŠĒJĀ DAĻA: Apraksts */}
+      {/* APAKŠĒJĀ DAĻA: APRAKSTS AR IEKŠĒJO SKROLLĒŠANU (Overflow-y) */}
       {car.description && (
-        <div style={{ backgroundColor: '#f9fafb', padding: '24px', borderRadius: '10px', border: '1px solid #e5e7eb', width: '100%' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '12px', color: '#111827' }}>Apraksts</h3>
-          <p style={{ color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-line', margin: 0 }}>{car.description}</p>
+        <div style={{ backgroundColor: '#f9fafb', padding: '20px', borderRadius: '10px', border: '1px solid #e5e7eb', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#111827', flexShrink: 0 }}>Apraksts</h3>
+          <div style={{ overflowY: 'auto', flex: 1, paddingRight: '8px' }}>
+            <p style={{ color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-line', margin: 0 }}>{car.description}</p>
+          </div>
         </div>
       )}
 
