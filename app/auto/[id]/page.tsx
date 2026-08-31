@@ -84,9 +84,9 @@ export default function AutoLapa() {
   }
 
   return (
-    <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif', overflow: 'hidden' }}>
       
-      {/* 1. AUGŠĒJĀ DAĻA: Stāv nekustīgi (Kreisais stabiņš, Vidus ar bildēm, Labā mala ar baneri) */}
+      {/* 1. AUGŠĒJĀ DAĻA: Nekustīga, stabila, bez jebkādas lēkāšanas */}
       <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', marginBottom: '20px' }}>
         
         {/* KREISAIS STABIŅŠ: Cena, Dati un Kontakti */}
@@ -232,7 +232,7 @@ export default function AutoLapa() {
 
       </div>
 
-      {/* 2. APAKŠĒJĀ DAĻA: Apraksts visā ekrāna platumā ar fiksētu augstumu un skrollēšanos */}
+      {/* 2. APAKŠĒJĀ DAĻA: Apraksts visā ekrāna platumā, kas smuki un vienīgais skrollējas */}
       {car.description && (
         <div style={{ backgroundColor: '#f9fafb', padding: '24px', borderRadius: '10px', border: '1px solid #e5e7eb', width: '100%', height: '220px', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
           <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '12px', color: '#111827', marginTop: 0, flexShrink: 0 }}>Apraksts</h3>
