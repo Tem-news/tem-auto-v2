@@ -18,7 +18,7 @@ export default function AutoLapa() {
   const [showEmail, setShowEmail] = useState(false)
   const [showVin, setShowVin] = useState(false)
 
-  // Stāvoklis sociālo tīklu izlecošajam logam (modālim) un kopēšanas paziņojumam
+  // Stāvoklis sociālo tīklu izlecošajam logam un kopēšanai
   const [showSocialModal, setShowSocialModal] = useState(false)
   const [copied, setCopied] = useState(false)
 
@@ -96,7 +96,6 @@ export default function AutoLapa() {
 
   const cleanPhone = car?.phone ? car.phone.replace(/\s+/g, '') : ''
 
-  // Funkcija numura kopēšanai starplaikā
   const handleCopyPhone = () => {
     if (!car?.phone) return
     navigator.clipboard.writeText(car.phone)
@@ -127,15 +126,24 @@ export default function AutoLapa() {
       {/* Augšējā daļa: 3 kolonnas */}
       <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', marginBottom: '24px' }}>
         
-        {/* KREISAIS STABIŅŠ: Cena, Dati un Kontakti */}
+        {/* KREISAIS STABIŅŠ: Cena, Lokācija, Dati un Kontakti */}
         <div style={{ width: '320px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
           
+          {/* Cena */}
           <div style={{ backgroundColor: '#f9fafb', padding: '18px', borderRadius: '10px', border: '1px solid #e5e7eb', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             <span style={{ fontSize: '30px', fontWeight: 'bold', color: '#16a34a', letterSpacing: '0.5px' }}>
               {formatPrice(car.price)}
             </span>
           </div>
 
+          {/* JAUNĀ RINDA: Valsts un Pilsēta (bez nosaukumiem) */}
+          {(car.country || car.city) && (
+            <div style={{ backgroundColor: '#f9fafb', padding: '12px 16px', borderRadius: '10px', border: '1px solid #e5e7eb', textAlign: 'center', fontSize: '15px', fontWeight: 'bold', color: '#374151', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+              {car.country} {car.city ? ` ${car.city}` : ''}
+            </div>
+          )}
+
+          {/* Pārējie dati */}
           <div style={{ backgroundColor: '#f9fafb', padding: '20px 16px', borderRadius: '10px', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             {car.year && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '10px' }}>
@@ -203,8 +211,6 @@ export default function AutoLapa() {
 
           {/* Kontakti */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            
-            {/* Telefona poga */}
             {car.phone && (
               showPhone ? (
                 <button 
@@ -223,7 +229,6 @@ export default function AutoLapa() {
               )
             )}
 
-            {/* E-pasts */}
             {car.email && (
               showEmail ? (
                 <a href={`mailto:${car.email}`} style={{ padding: '14px 16px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', textAlign: 'center', wordBreak: 'break-all', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '15px' }}>
@@ -318,7 +323,7 @@ export default function AutoLapa() {
         </div>
       )}
 
-      {/* PAPLAŠINĀTAIS SAZIŅAS IZLECOŠAIS LOGS (MODAL) */}
+      {/* SOCIĀLO TĪKLU IZLECOŠAIS LOGS */}
       {showSocialModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '14px', width: '340px', textAlign: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', position: 'relative' }}>
@@ -326,42 +331,27 @@ export default function AutoLapa() {
             <h3 style={{ margin: '0 0 4px 0', fontSize: '18px', color: '#111827' }}>Sazināties ar pārdevēju</h3>
             <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280', fontWeight: 'bold' }}>{car.phone}</p>
 
-            {/* Saziņas iespēju un sociālo tīklu saraksts */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px', maxHeight: '320px', overflowY: 'auto' }}>
-              
-              {/* Parasts zvans */}
               <a href={`tel:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#f3f4f6', color: '#111827', borderRadius: '8px', textDecoration: 'none', fontWeight: '500', fontSize: '14px' }}>
                 📞 Zvanīt parasto zvanu
               </a>
-
-              {/* WhatsApp */}
               <a href={`https://wa.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#25D366', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
                 🟢 WhatsApp čats
               </a>
-
-              {/* Meta Messenger */}
               <a href={`https://m.me/`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#0084FF', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
                 💙 Meta Messenger
               </a>
-
-              {/* Viber */}
               <a href={`viber://chat?number=${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#7360F2', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
                 🟣 Viber ziņa
               </a>
-
-              {/* Telegram */}
               <a href={`https://t.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#229ED9', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
                 ✈️ Telegram ziņa
               </a>
-
-              {/* SMS */}
               <a href={`sms:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#4b5563', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
                 💬 Sūtīt SMS
               </a>
-
             </div>
 
-            {/* Kopēšanas poga */}
             <button 
               onClick={handleCopyPhone}
               style={{ width: '100%', padding: '10px', backgroundColor: '#f0fdf4', border: '1px solid #16a34a', borderRadius: '8px', fontWeight: 'bold', color: '#16a34a', cursor: 'pointer', fontSize: '14px', marginBottom: '8px' }}
@@ -369,7 +359,6 @@ export default function AutoLapa() {
               {copied ? '✅ Numurs nokopēts!' : '📋 Kopēt telefona numuru'}
             </button>
 
-            {/* Aizvērt pogu */}
             <button 
               onClick={() => setShowSocialModal(false)}
               style={{ width: '100%', padding: '10px', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '8px', fontWeight: 'bold', color: '#374151', cursor: 'pointer', fontSize: '14px' }}
