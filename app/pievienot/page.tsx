@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
@@ -161,6 +161,7 @@ export default function PievienotAuto() {
   const [region, setRegion] = useState('')
   const [description, setDescription] = useState('')
   
+  // Kontakta lauki (virs attēliem)
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   
@@ -559,15 +560,15 @@ export default function PievienotAuto() {
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                     >
-                      <span style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: c.hex, border: `1px solid ${c.border}` }}></span>
-                      {c.name}
+                      <span style={{ width: '16px', height: '16px', borderRadius: '50%', backgroundColor: c.hex, border: `1px solid ${c.border}` }}></span>
+                      <span>{c.name}</span>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* PAPILDUS LAUKI: NOBRAUKUMS, TEHNISKĀ APSKATE, VIN KODS */}
+            {/* PAPILDUS LAUKI */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Nobraukums (km)</label>
@@ -575,7 +576,7 @@ export default function PievienotAuto() {
                   type="text"
                   placeholder="Piem., 185000"
                   value={nobraukums}
-                  onChange={(e) => setNobraukums(e.target.value.replace(/\D/g, ''))}
+                  onChange={(e) => setNobraukums(e.target.value)}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
               </div>
@@ -601,7 +602,6 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* STŪRE, DISKI, SALONA KRĀSA */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
               <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Stūre</label>
@@ -615,13 +615,15 @@ export default function PievienotAuto() {
                 />
                 {activeDropdown === 'sture' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {STEERING_TYPES.map((st) => (
+                    {STEERING_TYPES.filter(s => s.toLowerCase().includes(sture.toLowerCase())).map((s) => (
                       <div
-                        key={st}
-                        onClick={() => { setSture(st); setActiveDropdown(null); }}
+                        key={s}
+                        onClick={() => { setSture(s); setActiveDropdown(null); }}
                         style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        {st}
+                        {s}
                       </div>
                     ))}
                   </div>
@@ -645,6 +647,8 @@ export default function PievienotAuto() {
                         key={w}
                         onClick={() => { setDiski(w); setActiveDropdown(null); }}
                         style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
                         {w}
                       </div>
@@ -665,26 +669,29 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* VALSTS UN REGIONS */}
+            {/* VALSTS UN REĢIONS */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Valsts</label>
-                <input
-                  type="text"
-                  value={selectedCountry.name}
+                <div
                   onClick={() => toggleDropdown('country')}
-                  readOnly
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', cursor: 'pointer' }}
-                />
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
+                >
+                  <img src={`https://flagcdn.com/24x18/${selectedCountry.code}.png`} alt={selectedCountry.name} style={{ width: '20px', height: '15px', objectFit: 'cover', borderRadius: '2px' }} />
+                  <span>{selectedCountry.name}</span>
+                </div>
                 {activeDropdown === 'country' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                     {COUNTRIES.map((c) => (
                       <div
                         key={c.name}
                         onClick={() => { setSelectedCountry(c); setRegion(''); setActiveDropdown(null); }}
-                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid #f3f4f6' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        {c.name}
+                        <img src={`https://flagcdn.com/24x18/${c.code}.png`} alt={c.name} style={{ width: '20px', height: '15px', objectFit: 'cover', borderRadius: '2px' }} />
+                        <span>{c.name}</span>
                       </div>
                     ))}
                   </div>
@@ -695,19 +702,21 @@ export default function PievienotAuto() {
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Reģions / Pilsēta / Štats</label>
                 <input
                   type="text"
-                  placeholder="Izvēlieties vai ierakstiet..."
+                  placeholder={`Izvēlieties vai ierakstiet (${selectedCountry.name})...`}
                   value={region}
                   onChange={(e) => { setRegion(e.target.value); setActiveDropdown('region'); }}
                   onClick={() => toggleDropdown('region')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
-                {activeDropdown === 'region' && selectedCountry.regions && (
+                {activeDropdown === 'region' && selectedCountry.regions.length > 0 && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                     {selectedCountry.regions.filter(r => r.toLowerCase().includes(region.toLowerCase())).map((reg) => (
                       <div
                         key={reg}
                         onClick={() => { setRegion(reg); setActiveDropdown(null); }}
                         style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
                         {reg}
                       </div>
@@ -717,13 +726,13 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* KONTAKTI */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            {/* KONTAKTINFORMĀCIJA (Virs attēliem, bez "neobligāti") */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', backgroundColor: '#f9fafb', padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>E-pasts</label>
                 <input
                   type="email"
-                  placeholder="piemers@epasts.lv"
+                  placeholder="piemērs@epasts.lv"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
@@ -741,21 +750,25 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* FOTOGRĀFIJU AUGŠUPIELĀDE */}
-            <div style={{ marginTop: '8px' }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Fotogrāfijas</label>
+            {/* FOTOGRĀFIJU GALERIJA */}
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>
+                Attēli un fotogrāfijas (Pirmā bilde būs titulbilde)
+              </label>
               
               <div 
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
-                style={{ 
-                  border: `2px dashed ${isDragging ? '#2563eb' : '#d1d5db'}`, 
-                  borderRadius: '8px', 
-                  padding: '24px', 
-                  textAlign: 'center', 
-                  backgroundColor: isDragging ? '#eff6ff' : '#f9fafb',
-                  cursor: 'pointer'
+                style={{
+                  border: isDragging ? '2px dashed #16a34a' : '2px dashed #d1d5db',
+                  borderRadius: '10px',
+                  padding: '40px 20px',
+                  textAlign: 'center',
+                  backgroundColor: isDragging ? '#f0fdf4' : '#f9fafb',
+                  cursor: 'pointer',
+                  marginBottom: '16px',
+                  transition: 'background-color 0.2s, border-color 0.2s'
                 }}
               >
                 <input 
@@ -766,41 +779,45 @@ export default function PievienotAuto() {
                   style={{ display: 'none' }} 
                   id="file-upload" 
                 />
-                <label htmlFor="file-upload" style={{ cursor: 'pointer', color: '#4b5563', fontSize: '14px' }}>
-                  <span style={{ fontWeight: 'bold', color: '#2563eb' }}>Ievietojiet failus</span> vai velciet tos šurp (drag and drop)
+                <label htmlFor="file-upload" style={{ cursor: 'pointer', fontSize: '14.5px', color: '#4b5563', display: 'block' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>📁</div>
+                  <strong>Ievelciet bildes šeit</strong> vai <span style={{ color: '#2563eb', textDecoration: 'underline' }}>izvēlieties failus</span> no datora
                 </label>
               </div>
 
-              {/* Attēlu URL ievade alternatīvai */}
-              <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                 <input
                   type="text"
-                  placeholder="Vai ielīmējiet attēla URL adresi..."
+                  placeholder="Vai ielīmējiet attēla URL saiti (https://...)"
                   value={imageUrlInput}
                   onChange={(e) => setImageUrlInput(e.target.value)}
-                  style={{ flex: 1, padding: '8px 10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '13.5px' }}
+                  style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', backgroundColor: '#fff' }}
                 />
                 <button
                   type="button"
                   onClick={handleAddImageUrl}
-                  style={{ padding: '8px 16px', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '13.5px', cursor: 'pointer' }}
+                  style={{ padding: '10px 16px', backgroundColor: '#3b82f6', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
                 >
-                  Pievienot URL
+                  Pievienot saiti
                 </button>
               </div>
 
-              {/* Attēlu režģis un priekšskatījums */}
               {images.length > 0 && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '12px', marginTop: '16px' }}>
-                  {images.map((img, idx) => (
-                    <div key={idx} style={{ position: 'relative', border: '1px solid #e5e7eb', borderRadius: '6px', overflow: 'hidden', height: '100px', backgroundColor: '#f3f4f6' }}>
-                      <img src={img} alt={`Auto ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      <div style={{ position: 'absolute', top: '4px', right: '4px', display: 'flex', gap: '2px' }}>
-                        <button type="button" onClick={() => removeImage(idx)} style={{ background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: '4px', width: '22px', height: '22px', cursor: 'pointer', fontSize: '12px' }}>×</button>
-                      </div>
-                      <div style={{ position: 'absolute', bottom: '4px', left: '4px', right: '4px', display: 'flex', justifyContent: 'space-between' }}>
-                        <button type="button" onClick={() => moveImage(idx, 'left')} disabled={idx === 0} style={{ background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: '4px', padding: '1px 6px', fontSize: '10px', cursor: 'pointer' }}>◀</button>
-                        <button type="button" onClick={() => moveImage(idx, 'right')} disabled={idx === images.length - 1} style={{ background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: '4px', padding: '1px 6px', fontSize: '10px', cursor: 'pointer' }}>▶</button>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '12px', marginTop: '12px' }}>
+                  {images.map((img, index) => (
+                    <div key={index} style={{ position: 'relative', border: index === 0 ? '2px solid #16a34a' : '1px solid #d1d5db', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#f3f4f6', height: '130px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                      <img src={img} alt={`Auto bilde ${index + 1}`} style={{ width: '100%', height: '90px', objectFit: 'cover' }} />
+                      
+                      {index === 0 && (
+                        <span style={{ position: 'absolute', top: '4px', left: '4px', backgroundColor: '#16a34a', color: '#fff', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
+                          Titulbilde
+                        </span>
+                      )}
+
+                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: 'flex', backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'space-between', padding: '4px 8px' }}>
+                        <button type="button" onClick={() => moveImage(index, 'left')} disabled={index === 0} style={{ color: '#fff', background: 'none', border: 'none', cursor: index === 0 ? 'not-allowed' : 'pointer', fontSize: '12px', opacity: index === 0 ? 0.3 : 1 }}>◀</button>
+                        <button type="button" onClick={() => removeImage(index)} style={{ color: '#f87171', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>✕ Dzēst</button>
+                        <button type="button" onClick={() => moveImage(index, 'right')} disabled={index === images.length - 1} style={{ color: '#fff', background: 'none', border: 'none', cursor: index === images.length - 1 ? 'not-allowed' : 'pointer', fontSize: '12px', opacity: index === images.length - 1 ? 0.3 : 1 }}>▶</button>
                       </div>
                     </div>
                   ))}
@@ -808,23 +825,36 @@ export default function PievienotAuto() {
               )}
             </div>
 
-            {/* APRAKSTS */}
+            {/* APRAKSTS (Pārcelts atpakaļ zem fotogrāfijām) */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Apraksts</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Papildu apraksts un komentāri</label>
               <textarea
-                placeholder="Papildus informācija par automašīnu..."
+                rows={4}
+                placeholder="Pastāstiet par auto stāvokli, komplektāciju..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                rows={4}
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
               />
             </div>
 
-            {/* IESNIEDŠANAS POGA */}
+            {/* SAGLABĀŠANAS POGA */}
             <button
               type="submit"
               disabled={loading}
-              style={{ width: '100%', padding: '12px', backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', marginTop: '12px' }}
+              style={{
+                marginTop: '12px',
+                backgroundColor: '#16a34a',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '12px 20px',
+                fontSize: '15px',
+                fontWeight: 'bold',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => !loading && (e.currentTarget.style.backgroundColor = '#15803d')}
+              onMouseLeave={(e) => !loading && (e.currentTarget.style.backgroundColor = '#16a34a')}
             >
               {loading ? 'Saglabā sludinājumu...' : 'Pievienot sludinājumu'}
             </button>
