@@ -57,7 +57,7 @@ export default function AutoDetailsPage() {
     )
   }
 
-  // Apvienojam tilpumu un dzinēja tipu (piemēram, "2.0" un "Dīzelis" -> "2.0 Dīzelis")
+  // Šeit tiek apvienots motora tilpums un degvielas tips (piem., "2.0" un "Dīzelis" -> "2.0 Dīzelis")
   const engineDisplay = [car.volume, car.engine].filter(Boolean).join(' ') || 'Nav norādīts'
 
   const images = car.images && car.images.length > 0 
@@ -125,7 +125,7 @@ export default function AutoDetailsPage() {
           )}
         </div>
 
-        {/* Specifikāciju blokss (Tabula) */}
+        {/* Specifikāciju bloks (Kreisais/Labais stabiņš ar parametriem) */}
         <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#111827', marginTop: 0, marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '10px' }}>
             Galvenie parametri
@@ -148,7 +148,7 @@ export default function AutoDetailsPage() {
               <span style={{ fontWeight: '500', color: '#111827' }}>{car.year || '-'}</span>
             </div>
 
-            {/* Šeit tiek attēlots apvienotais Motora tilpums un tips */}
+            {/* Aile Motors, kurā tagad kopā parādās tilpums un degvielas tips */}
             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f3f4f6', paddingBottom: '8px' }}>
               <span style={{ color: '#6b7280' }}>Motors:</span>
               <span style={{ fontWeight: '500', color: '#111827' }}>{engineDisplay}</span>
