@@ -92,7 +92,7 @@ const MODELS_BY_MAKE: { [key: string]: string[] } = {
     '1007', '2008', '3008', '4007', '4008', '5008', 'Boxer', 'Expert', 'Partner', 'Rifter', 'RCZ', 'iOn'
   ],
   'Renault': [
-    'Alaskan', 'Arkana', 'Austral', 'Av时间', 'Captur', 'Clio', 'Espace', 'Fluence', 'Grand Espace', 'Grand Scenic',
+    'Alaskan', 'Arkana', 'Austral', 'Avantime', 'Captur', 'Clio', 'Espace', 'Fluence', 'Grand Espace', 'Grand Scenic',
     'Kadjar', 'Kangoo', 'Koleos', 'Laguna', 'Latitude', 'Master', 'Megane', 'Megane E-Tech', 'Modus', 'Rafale',
     'Scenic', 'Symbol', 'Talisman', 'Trafic', 'Twingo', 'Twizy', 'Zoe'
   ],
@@ -115,7 +115,7 @@ const MODELS_BY_MAKE: { [key: string]: string[] } = {
     '718 Boxster', '718 Cayman', '911', 'Boxster', 'Cayenne', 'Cayman', 'Macan', 'Panamera', 'Taycan'
   ],
   'Fiat': [
-    '124 Spider', '500', '500C', '500L', '500X', 'Bravo', 'Croma', 'Doblo', 'Ducato', 'Fiorino', 'Freemont', 'Grande Punto', 'Panda', 'Punto', 'Sedici', 'Stilo', 'Tippo', 'Ulysse'
+    '124 Spider', '500', '500C', '500L', '500X', 'Bravo', 'Croma', 'Doblo', 'Ducato', 'Fiorino', 'Freemont', 'Grande Punto', 'Panda', 'Punto', 'Sedici', 'Stilo', 'Tipo', 'Ulysse'
   ],
   'Alfa Romeo': [
     '147', '156', '159', '166', '4C', '8C', 'Brera', 'Giulia', 'Giulietta', 'GT', 'Mito', 'Spider', 'Stelvio', 'Tonale'
@@ -185,15 +185,15 @@ const ENGINE_VOLUMES = [
   '2.2', '2.4', '2.5', '2.8', '3.0', '3.2', '3.5', '4.0', '4.4', '5.0', 'Elektro / Nav'
 ]
 
-// VALSTS IZVĒLNE AR EMOJI KARODZIŅIEM
+// VALSTIS AR ĪSTIEM, KRĀSAINIEM HD SVG KARODZIŅIEM (FlagCDN)
 const COUNTRIES = [
-  { name: 'Latvija', code: 'lv', flag: '🇱🇻', regions: ['Rīga un rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale'] },
-  { name: 'Lietuva', code: 'lt', flag: '🇱🇹', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alytus'] },
-  { name: 'Igaunija', code: 'ee', flag: '🇪🇪', regions: ['Tallina', 'Tartu', 'Narva', 'Pērnava', 'Kohtla-Järve'] },
+  { name: 'Latvija', code: 'lv', flagUrl: 'https://flagcdn.com/w40/lv.png', regions: ['Rīga un rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale'] },
+  { name: 'Lietuva', code: 'lt', flagUrl: 'https://flagcdn.com/w40/lt.png', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alytus'] },
+  { name: 'Igaunija', code: 'ee', flagUrl: 'https://flagcdn.com/w40/ee.png', regions: ['Tallina', 'Tartu', 'Narva', 'Pērnava', 'Kohtla-Järve'] },
   { 
     name: 'Vācija', 
     code: 'de', 
-    flag: '🇩🇪',
+    flagUrl: 'https://flagcdn.com/w40/de.png',
     regions: [
       'Bavārija (Bayern)', 'Bādene-Virtemberga (Baden-Württemberg)', 'Ziemeļreina-Vestfālene (Nordrhein-Westfalen)',
       'Lejassaksija (Niedersachsen)', 'Hesene (Hessen)', 'Reinlande-Pfalca (Rheinland-Pfalz)',
@@ -202,11 +202,11 @@ const COUNTRIES = [
       'Hamburga', 'Berlīne', 'Brēmene', 'Sārija (Saarland)', 'Minhene', 'Frankfurte pie Mainas', 'Ķelne', 'Štutgarte'
     ] 
   },
-  { name: 'Lielbritānija', code: 'gb', flag: '🇬🇧', regions: ['Londona', 'Mančestra', 'Birmingema', 'Liverpūle', 'Skotija', 'Velsa', 'Ziemeļīrija'] },
+  { name: 'Lielbritānija', code: 'gb', flagUrl: 'https://flagcdn.com/w40/gb.png', regions: ['Londona', 'Mančestra', 'Birmingema', 'Liverpūle', 'Skotija', 'Velsa', 'Ziemeļīrija'] },
   { 
     name: 'ASV', 
     code: 'us', 
-    flag: '🇺🇸',
+    flagUrl: 'https://flagcdn.com/w40/us.png',
     regions: [
       'Alabama', 'Aļaska (Alaska)', 'Arizona', 'Arkanzasa (Arkansas)', 'Kalifornija (California)', 
       'Kolorādo', 'Konektikuta (Connecticut)', 'Delavēra (Delaware)', 'Florida', 'Džordžija (Georgia)', 
@@ -221,22 +221,22 @@ const COUNTRIES = [
       'Rietumvirdžīnija (West Virginia)', 'Viskonsina (Wisconsin)', 'Vaiominga (Wyoming)'
     ] 
   },
-  { name: 'Japāna', code: 'jp', flag: '🇯🇵', regions: ['Tokija', 'Osaka', 'Kioto', 'Jokohama', 'Nagoja', 'Fukuoka', 'Hokaido'] },
-  { name: 'Krievija', code: 'ru', flag: '🇷🇺', regions: ['Maskava', 'Sanktpēterburga', 'Novosibirska', 'Jekaterinburga', 'Kazaņa', 'Soči', 'Kaliningrada'] },
-  { name: 'Zviedrija', code: 'se', flag: '🇸🇪', regions: ['Stokholma', 'Gēteborga', 'Malme', 'Uppsala'] },
-  { name: 'Norvēģija', code: 'no', flag: '🇳🇴', regions: ['Oslo', 'Bergena', 'Tronheima', 'Stavangere'] },
-  { name: 'Polija', code: 'pl', flag: '🇵🇱', regions: ['Varšava', 'Krakova', 'Gdaņska', 'Poznaņa', 'Vroclava', 'Lodza'] },
-  { name: 'Somija', code: 'fi', flag: '🇫🇮', regions: ['Helsinki', 'Espo', 'Tamperes', 'Vantaa', 'Oulu'] },
-  { name: 'Dānija', code: 'dk', flag: '🇩🇰', regions: ['Kopenhāgena', 'Orhūsa', 'Odense', 'Olborka'] },
-  { name: 'Francija', code: 'fr', flag: '🇫🇷', regions: ['Parīze', 'Marseļa', 'Liona', 'Tulūza', 'Nica', 'Nante'] },
-  { name: 'Itālija', code: 'it', flag: '🇮🇹', regions: ['Roma', 'Milāna', 'Neapole', 'Turīna', 'Palermo', 'Florence'] },
-  { name: 'Spānija', code: 'es', flag: '🇪🇸', regions: ['Madride', 'Barselona', 'Valensija', 'Seviļa', 'Saragosa', 'Malaga'] },
-  { name: 'Nīderlande', code: 'nl', flag: '🇳🇱', regions: ['Amsterdama', 'Roterdama', 'Hāga', 'Utrehta', 'Eindhovena'] },
-  { name: 'Ķīna', code: 'cn', flag: '🇨🇳', regions: ['Pekina', 'Šanhaja', 'Guandžou', 'Šendžena', 'Čendu'] },
-  { name: 'Dienvidkoreja', code: 'kr', flag: '🇰🇷', regions: ['Seula', 'Pusana', 'Inčhona', 'Tegu'] },
-  { name: 'Apvienotie Arābu Emirāti', code: 'ae', flag: '🇦🇪', regions: ['Dubaija', 'Abū Dabī', 'Šardža'] },
-  { name: 'Kanāda', code: 'ca', flag: '🇨🇦', regions: ['Ontārio', 'Kvebeka', 'Britu Kolumbija', 'Alberta', 'Monreāla', 'Toronto'] },
-  { name: 'Austrālija', code: 'au', flag: '🇦🇺', regions: ['Sidneja', 'Melburna', 'Brisbena', 'Pērta', 'Adelaida'] }
+  { name: 'Japāna', code: 'jp', flagUrl: 'https://flagcdn.com/w40/jp.png', regions: ['Tokija', 'Osaka', 'Kioto', 'Jokohama', 'Nagoja', 'Fukuoka', 'Hokaido'] },
+  { name: 'Krievija', code: 'ru', flagUrl: 'https://flagcdn.com/w40/ru.png', regions: ['Maskava', 'Sanktpēterburga', 'Novosibirska', 'Jekaterinburga', 'Kazaņa', 'Soči', 'Kaliningrada'] },
+  { name: 'Zviedrija', code: 'se', flagUrl: 'https://flagcdn.com/w40/se.png', regions: ['Stokholma', 'Gēteborga', 'Malme', 'Uppsala'] },
+  { name: 'Norvēģija', code: 'no', flagUrl: 'https://flagcdn.com/w40/no.png', regions: ['Oslo', 'Bergena', 'Tronheima', 'Stavangere'] },
+  { name: 'Polija', code: 'pl', flagUrl: 'https://flagcdn.com/w40/pl.png', regions: ['Varšava', 'Krakova', 'Gdaņska', 'Poznaņa', 'Vroclava', 'Lodza'] },
+  { name: 'Somija', code: 'fi', flagUrl: 'https://flagcdn.com/w40/fi.png', regions: ['Helsinki', 'Espo', 'Tamperes', 'Vantaa', 'Oulu'] },
+  { name: 'Dānija', code: 'dk', flagUrl: 'https://flagcdn.com/w40/dk.png', regions: ['Kopenhāgena', 'Orhūsa', 'Odense', 'Olborka'] },
+  { name: 'Francija', code: 'fr', flagUrl: 'https://flagcdn.com/w40/fr.png', regions: ['Parīze', 'Marseļa', 'Liona', 'Tulūza', 'Nica', 'Nante'] },
+  { name: 'Itālija', code: 'it', flagUrl: 'https://flagcdn.com/w40/it.png', regions: ['Roma', 'Milāna', 'Neapole', 'Turīna', 'Palermo', 'Florence'] },
+  { name: 'Spānija', code: 'es', flagUrl: 'https://flagcdn.com/w40/es.png', regions: ['Madride', 'Barselona', 'Valensija', 'Seviļa', 'Saragosa', 'Malaga'] },
+  { name: 'Nīderlande', code: 'nl', flagUrl: 'https://flagcdn.com/w40/nl.png', regions: ['Amsterdama', 'Roterdama', 'Hāga', 'Utrehta', 'Eindhovena'] },
+  { name: 'Ķīna', code: 'cn', flagUrl: 'https://flagcdn.com/w40/cn.png', regions: ['Pekina', 'Šanhaja', 'Guandžou', 'Šendžena', 'Čendu'] },
+  { name: 'Dienvidkoreja', code: 'kr', flagUrl: 'https://flagcdn.com/w40/kr.png', regions: ['Seula', 'Pusana', 'Inčhona', 'Tegu'] },
+  { name: 'Apvienotie Arābu Emirāti', code: 'ae', flagUrl: 'https://flagcdn.com/w40/ae.png', regions: ['Dubaija', 'Abū Dabī', 'Šardža'] },
+  { name: 'Kanāda', code: 'ca', flagUrl: 'https://flagcdn.com/w40/ca.png', regions: ['Ontārio', 'Kvebeka', 'Britu Kolumbija', 'Alberta', 'Monreāla', 'Toronto'] },
+  { name: 'Austrālija', code: 'au', flagUrl: 'https://flagcdn.com/w40/au.png', regions: ['Sidneja', 'Melburna', 'Brisbena', 'Pērta', 'Adelaida'] }
 ]
 
 const CURRENT_YEAR = new Date().getFullYear()
@@ -810,26 +810,90 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* VALSTS UN REĢIONS - AR KARODZIŅIEM */}
+            {/* VALSTS UN REĢIONS - AR KRĀSAINIEM HD KARODZIŅIEM */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div>
+              
+              {/* KRĀSAINA VALSTS IZVĒLNE */}
+              <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Valsts</label>
-                <select
-                  value={selectedCountry.code}
-                  onChange={(e) => {
-                    const cnt = COUNTRIES.find(c => c.code === e.target.value) || COUNTRIES[0]
-                    setSelectedCountry(cnt)
-                    setRegion('')
+                
+                <div
+                  onClick={() => toggleDropdown('country')}
+                  style={{
+                    width: '100%',
+                    padding: '9px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid #d1d5db',
+                    fontSize: '14px',
+                    backgroundColor: '#fff',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    boxSizing: 'border-box'
                   }}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 >
-                  {COUNTRIES.map(c => (
-                    <option key={c.code} value={c.code}>
-                      {c.flag} {c.name}
-                    </option>
-                  ))}
-                </select>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <img 
+                      src={selectedCountry.flagUrl} 
+                      alt={selectedCountry.name} 
+                      style={{ width: '22px', height: '15px', objectFit: 'cover', borderRadius: '2px', border: '1px solid rgba(0,0,0,0.15)' }} 
+                    />
+                    <span style={{ fontWeight: '500', color: '#111827' }}>{selectedCountry.name}</span>
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#6b7280' }}>▼</span>
+                </div>
+
+                {activeDropdown === 'country' && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    backgroundColor: '#fff',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    zIndex: 50,
+                    maxHeight: '220px',
+                    overflowY: 'auto',
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                    marginTop: '4px'
+                  }}>
+                    {COUNTRIES.map((c) => (
+                      <div
+                        key={c.code}
+                        onClick={() => {
+                          setSelectedCountry(c)
+                          setRegion('')
+                          setActiveDropdown(null)
+                        }}
+                        style={{
+                          padding: '9px 12px',
+                          fontSize: '13.5px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          borderBottom: '1px solid #f3f4f6',
+                          backgroundColor: selectedCountry.code === c.code ? '#eff6ff' : '#fff'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = selectedCountry.code === c.code ? '#eff6ff' : '#fff'}
+                      >
+                        <img 
+                          src={c.flagUrl} 
+                          alt={c.name} 
+                          style={{ width: '22px', height: '15px', objectFit: 'cover', borderRadius: '2px', border: '1px solid rgba(0,0,0,0.15)' }} 
+                        />
+                        <span style={{ color: '#111827', fontWeight: selectedCountry.code === c.code ? 'bold' : 'normal' }}>
+                          {c.name}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
+
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Reģions / Pilsēta</label>
                 <select
