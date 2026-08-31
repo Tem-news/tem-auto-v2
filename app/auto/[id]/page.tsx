@@ -23,7 +23,7 @@ export default function AutoDetailsPage() {
   const fetchCarDetails = async () => {
     try {
       const { data, error } = await supabase
-        .from('cars') // Pārliecinies, ka tabulas nosaukums sakrīt ar Tavu datubāzi
+        .from('cars')
         .select('*')
         .eq('id', id)
         .single();
@@ -32,7 +32,6 @@ export default function AutoDetailsPage() {
 
       if (data) {
         setCar(data);
-        // Ja ir masīvs ar bildēm, iestatām pirmo kā aktīvo
         const images = data.images || (data.image_url ? [data.image_url] : []);
         setActiveImage(images[0] || '');
       }
@@ -79,7 +78,7 @@ export default function AutoDetailsPage() {
 
       <div className="max-w-7xl mx-auto px-4 pt-6">
         
-        {/* 1. Virs bildes: Marka / Modelis (lielākiem burtiem pa kreisi) + Publicēšanas datums un skatījumi */}
+        {/* Virs bildes: Marka / Modelis + Publicēšanas datums un skatījumi */}
         <div className="mb-4">
           <div className="flex justify-between items-center text-sm text-gray-400 mb-1">
             <span>Publicēts: {car.created_at ? new Date(car.created_at).toLocaleDateString() : 'N/A'}</span>
@@ -90,10 +89,10 @@ export default function AutoDetailsPage() {
           </h1>
         </div>
 
-        {/* Galvenais satura bloks: Kreisajā pusē dati, Labajā pusē bilde */}
+        {/* Galvenais satura bloks */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* KREISAIS STABIŅŠ: Mašīnas dati un kontakti (izvietoti stabiņā uz leju) */}
+          {/* KREISAIS STABIŅŠ: Mašīnas dati un kontakti */}
           <div className="lg:col-span-4 bg-gray-800 p-5 rounded-xl border border-gray-700 space-y-4">
             <h3 className="text-xl font-semibold border-b border-gray-700 pb-2 text-green-400">
               Galvenie dati
@@ -136,7 +135,7 @@ export default function AutoDetailsPage() {
               </div>
             </div>
 
-            {/* KONTAKTI: Izcelti ar rāmi un krāsu */}
+            {/* KONTAKTI */}
             <div className="mt-6 pt-4 border-t border-gray-700 space-y-3">
               <h4 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
                 Kontaktinformācija
@@ -145,7 +144,7 @@ export default function AutoDetailsPage() {
               <div className="bg-green-950/40 border border-green-600/60 p-3 rounded-lg text-center">
                 <span className="block text-xs text-green-400 mb-1">Telefona numurs</span>
                 <a href={`tel:${car.phone}`} className="text-lg font-bold text-white hover:underline">
-                  {car.phone || Nav norādīts}
+                  {car.phone || 'Nav norādīts'}
                 </a>
               </div>
 
@@ -157,7 +156,7 @@ export default function AutoDetailsPage() {
               </div>
             </div>
 
-            {/* Rediģēt poga (pēc lietotāja prasības novietota zem datiem / kreisajā malā vai zem bildes - šeit ievietojam ērti zem kontaktiem vai var pārvietot) */}
+            {/* Rediģēt poga */}
             <div className="pt-2">
               <button
                 onClick={() => router.push(`/auto/${id}/edit`)}
@@ -169,10 +168,9 @@ export default function AutoDetailsPage() {
 
           </div>
 
-          {/* LABETAIS STABIŅŠ: Lielā bilde, mazās bildes un apraksts apakšā */}
+          {/* LABETAIS STABIŅŠ: Bildes un apraksts */}
           <div className="lg:col-span-8 space-y-6">
             
-            {/* Lielā bilde */}
             <div className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 shadow-lg h-[400px] md:h-[500px] flex items-center justify-center bg-black/40">
               {activeImage ? (
                 <img 
@@ -185,7 +183,6 @@ export default function AutoDetailsPage() {
               )}
             </div>
 
-            {/* Mazās bildes (galerija) */}
             {images.length > 1 && (
               <div className="flex gap-3 overflow-x-auto pb-2">
                 {images.map((img: string, index: number) => (
@@ -202,7 +199,6 @@ export default function AutoDetailsPage() {
               </div>
             )}
 
-            {/* APRAKSTS: Novietots zem lielās un mazajām fotogrāfijām */}
             <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 mt-6">
               <h3 className="text-xl font-semibold mb-4 text-white border-b border-gray-700 pb-2">
                 Apraksts
