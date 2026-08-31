@@ -259,12 +259,12 @@ export default function PievienotAuto() {
     try {
       const uploadedImageUrls: string[] = []
 
+      // Saglabājam secību un augšupielādējam katru bildi
       for (const img of images) {
         if (img.file) {
           const fileExt = img.file.name.split('.').pop()
           const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`
 
-          // Izmantojam 'car-images' bucket, kā teikts Supabase Storage panelī
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('car-images')
             .upload(fileName, img.file, {
@@ -289,6 +289,9 @@ export default function PievienotAuto() {
         }
       }
 
+      // Pirmais attēls no sakārtotā masīva kļūst par galveno titulbildi
+      const mainCoverImage = uploadedImageUrls.length > 0 ? uploadedImageUrls[0] : null
+
       const { error } = await supabase.from('cars').insert([
         {
           make: make.trim(),
@@ -311,8 +314,8 @@ export default function PievienotAuto() {
           description: description.trim(),
           email: email.trim(),
           phone: phone.trim(),
-          images: uploadedImageUrls,
-          image_url: uploadedImageUrls.length > 0 ? uploadedImageUrls[0] : null,
+          images: uploadedImageUrls, // Visi attēli pareizajā secībā
+          image_url: mainCoverImage,  // Titulbilde (pirmā bilde)
           created_at: new Date().toISOString()
         }
       ])
@@ -808,27 +811,68 @@ export default function PievienotAuto() {
                 </button>
               </div>
 
-              {/* Attēlu saraksts/priekšskatījums */}
+              {/* UZLABOTAIS Attēlu priekšskatījums un pārkārtošanas pogas */}
               {images.length > 0 && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: '10px', marginTop: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginTop: '16px' }}>
                   {images.map((img, idx) => (
-                    <div key={idx} style={{ position: 'relative', border: '1px solid #e5e7eb', borderRadius: '6px', overflow: 'hidden', height: '90px', backgroundColor: '#000' }}>
-                      <img src={img.url} alt={`Preview ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <div 
+                      key={idx} 
+                      style={{ 
+                        position: 'relative', 
+                        border: idx === 0 ? '2px solid #2563eb' : '1px solid #e5e7eb', 
+                        borderRadius: '8px', 
+                        overflow: 'hidden', 
+                        height: '110px', 
+                        backgroundColor: '#111827',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                      }}
+                    >
+                      <img src={img.url} alt={`Attēls ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       
-                      {/* Kontroles pogas */}
-                      <div style={{ position: 'absolute', top: 2, right: 2, display: 'flex', gap: '2px' }}>
-                        {idx > 0 && (
-                          <button type="button" onClick={() => moveImage(idx, 'left')} style={{ backgroundColor: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: '3px', width: '20px', height: '20px', cursor: 'pointer', fontSize: '10px' }}>◄</button>
-                        )}
-                        {idx < images.length - 1 && (
-                          <button type="button" onClick={() => moveImage(idx, 'right')} style={{ backgroundColor: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: '3px', width: '20px', height: '20px', cursor: 'pointer', fontSize: '10px' }}>►</button>
-                        )}
-                        <button type="button" onClick={() => removeImage(idx)} style={{ backgroundColor: '#dc2626', color: '#fff', border: 'none', borderRadius: '3px', width: '20px', height: '20px', cursor: 'pointer', fontSize: '10px' }}>✕</button>
-                      </div>
-                      
+                      {/* Titulbildes marķieris pirmajam attēlam */}
                       {idx === 0 && (
-                        <span style={{ position: 'absolute', bottom: 2, left: 2, backgroundColor: '#2563eb', color: '#fff', fontSize: '9px', padding: '2px 4px', borderRadius: '3px', fontWeight: 'bold' }}>Galvenā</span>
+                        <div style={{ position: 'absolute', top: 4, left: 4, backgroundColor: '#2563eb', color: '#fff', fontSize: '10px', padding: '3px 6px', borderRadius: '4px', fontWeight: 'bold', zIndex: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>
+                          ★ Titulbilde
+                        </div>
                       )}
+
+                      {/* Dzēšanas poga */}
+                      <button 
+                        type="button" 
+                        onClick={() => removeImage(idx)} 
+                        title="Dzēst attēlu"
+                        style={{ position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(220, 38, 38, 0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }}
+                      >
+                        ✕
+                      </button>
+
+                      {/* Ērtākas pārvietošanas bultiņas apakšā */}
+                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.65)', padding: '4px 6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        {idx > 0 ? (
+                          <button 
+                            type="button" 
+                            onClick={() => moveImage(idx, 'left')} 
+                            title="Pārvietot pa kreisi"
+                            style={{ backgroundColor: '#374151', color: '#fff', border: '1px solid #6b7280', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                          >
+                            ◄
+                          </button>
+                        ) : <div />}
+                        
+                        <span style={{ color: '#d1d5db', fontSize: '11px', fontWeight: 'bold' }}>#{idx + 1}</span>
+
+                        {idx < images.length - 1 ? (
+                          <button 
+                            type="button" 
+                            onClick={() => moveImage(idx, 'right')} 
+                            title="Pārvietot pa labi"
+                            style={{ backgroundColor: '#374151', color: '#fff', border: '1px solid #6b7280', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                          >
+                            ►
+                          </button>
+                        ) : <div />}
+                      </div>
+
                     </div>
                   ))}
                 </div>
