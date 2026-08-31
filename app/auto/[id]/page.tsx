@@ -121,10 +121,10 @@ export default function AutoLapa() {
   }
 
   return (
-    <div style={{ maxWidth: '1250px', height: 'calc(100vh - 40px)', margin: '20px auto', padding: '0 20px', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box' }}>
+    <div style={{ maxWidth: '1250px', margin: '20px auto', padding: '0 20px', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
       
-      {/* Augšējā daļa: 3 kolonnas (Pilnīgi nekustīgas, bez lēkāšanas) */}
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', flexShrink: 0, marginBottom: '16px' }}>
+      {/* Augšējā daļa: 3 kolonnas (Nekustīgas, nekad nescrollojas) */}
+      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', marginBottom: '16px' }}>
         
         {/* KREISAIS STABIŅŠ */}
         <div style={{ width: '320px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -316,9 +316,9 @@ export default function AutoLapa() {
 
       </div>
 
-      {/* APAKŠĒJĀ DAĻA: APRAKSTS AR MĪKSTU UN TĪRU IEKŠĒJO SKROLLĒŠANU */}
+      {/* APAKŠĒJĀ DAĻA: APRAKSTS AR SAVU ĪPAŠU SKROLLĒŠANU */}
       {car.description && (
-        <div style={{ backgroundColor: '#f9fafb', padding: '16px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box' }}>
+        <div style={{ backgroundColor: '#f9fafb', padding: '16px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', maxHeight: '220px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box', marginBottom: '20px' }}>
           <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#111827', flexShrink: 0 }}>Apraksts</h3>
           <div style={{ overflowY: 'auto', flex: 1, paddingRight: '8px' }}>
             <p style={{ color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-line', margin: 0 }}>{car.description}</p>
@@ -344,7 +344,7 @@ export default function AutoLapa() {
               <a href={`https://m.me/`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#0084FF', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
                 💙 Meta Messenger
               </a>
-              <a href={`viber://chat?number=${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#7360F2', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+              <a href={`viber://chat?number=${cleanParentNumber(cleanPhone)}`} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#7360F2', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
                 🟣 Viber ziņa
               </a>
               <a href={`https://t.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#229ED9', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
