@@ -71,12 +71,16 @@ export default function AutoLapa() {
   }
 
   if (loading) {
-    return <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280' }}>Ielādē datus...</div>
+    return (
+      <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', minHeight: '600px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', fontFamily: 'sans-serif' }}>
+        Ielādē datus...
+      </div>
+    )
   }
 
   if (!car) {
     return (
-      <div style={{ padding: '32px', textAlign: 'center' }}>
+      <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', minHeight: '600px', textAlign: 'center', fontFamily: 'sans-serif' }}>
         <h2>Sludinājums netika atrasts!</h2>
         <Link href="/" style={{ color: '#2563eb', textDecoration: 'underline' }}>Atpakaļ uz sarakstu</Link>
       </div>
@@ -84,10 +88,10 @@ export default function AutoLapa() {
   }
 
   return (
-    <div style={{ maxWidth: '1250px', margin: '20px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
       
       {/* Augšējā daļa: 3 kolonnas (Kreisais stabiņš, Vidus ar bildi, Reklāma labajā malā) */}
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', marginBottom: '24px' }}>
         
         {/* KREISAIS STABIŅŠ: Cena, Dati un Kontakti */}
         <div style={{ width: '320px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -232,13 +236,11 @@ export default function AutoLapa() {
 
       </div>
 
-      {/* APAKŠĒJĀ DAĻA: Apraksts pa visu platumu ar kontrollētu skrollēšanos, ja teksts ir garš */}
+      {/* APAKŠĒJĀ DAĻA: Apraksts pa visu platumu */}
       {car.description && (
-        <div style={{ backgroundColor: '#f9fafb', padding: '24px', borderRadius: '10px', border: '1px solid #e5e7eb', width: '100%', maxHeight: '250px', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '12px', color: '#111827', marginTop: 0, flexShrink: 0 }}>Apraksts</h3>
-          <div style={{ overflowY: 'auto', paddingRight: '8px', flex: 1 }}>
-            <p style={{ color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-line', margin: 0 }}>{car.description}</p>
-          </div>
+        <div style={{ backgroundColor: '#f9fafb', padding: '24px', borderRadius: '10px', border: '1px solid #e5e7eb', width: '100%' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '12px', color: '#111827' }}>Apraksts</h3>
+          <p style={{ color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-line', margin: 0 }}>{car.description}</p>
         </div>
       )}
 
