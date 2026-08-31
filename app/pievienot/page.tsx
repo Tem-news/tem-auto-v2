@@ -259,7 +259,6 @@ export default function PievienotAuto() {
     try {
       const uploadedImageUrls: string[] = []
 
-      // Saglabājam secību un augšupielādējam katru bildi
       for (const img of images) {
         if (img.file) {
           const fileExt = img.file.name.split('.').pop()
@@ -289,7 +288,6 @@ export default function PievienotAuto() {
         }
       }
 
-      // Pirmais attēls no sakārtotā masīva kļūst par galveno titulbildi
       const mainCoverImage = uploadedImageUrls.length > 0 ? uploadedImageUrls[0] : null
 
       const { error } = await supabase.from('cars').insert([
@@ -314,8 +312,8 @@ export default function PievienotAuto() {
           description: description.trim(),
           email: email.trim(),
           phone: phone.trim(),
-          images: uploadedImageUrls, // Visi attēli pareizajā secībā
-          image_url: mainCoverImage,  // Titulbilde (pirmā bilde)
+          images: uploadedImageUrls,
+          image_url: mainCoverImage,
           created_at: new Date().toISOString()
         }
       ])
@@ -725,19 +723,7 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* Apraksts */}
-            <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Apraksts</label>
-              <textarea
-                rows={4}
-                placeholder="Papildus informācija par automašīnu..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', resize: 'vertical' }}
-              />
-            </div>
-
-            {/* Kontaktainformācija */}
+            {/* KONTAKTAINFORMĀCIJA (Tagad atrodas VIRS apraksta) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>E-pasts</label>
@@ -759,6 +745,18 @@ export default function PievienotAuto() {
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box' }}
                 />
               </div>
+            </div>
+
+            {/* APRAKSTS */}
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Apraksts</label>
+              <textarea
+                rows={4}
+                placeholder="Papildus informācija par automašīnu..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', resize: 'vertical' }}
+              />
             </div>
 
             {/* ATTĒLU AUGŠUPIELĀDE */}
@@ -811,9 +809,9 @@ export default function PievienotAuto() {
                 </button>
               </div>
 
-              {/* UZLABOTAIS Attēlu priekšskatījums un pārkārtošanas pogas */}
+              {/* Attēlu priekšskatījums ar ĒRTĀM BULTIŅĀM */}
               {images.length > 0 && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px', marginTop: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(135px, 1fr))', gap: '12px', marginTop: '16px' }}>
                   {images.map((img, idx) => (
                     <div 
                       key={idx} 
@@ -822,14 +820,17 @@ export default function PievienotAuto() {
                         border: idx === 0 ? '2px solid #2563eb' : '1px solid #e5e7eb', 
                         borderRadius: '8px', 
                         overflow: 'hidden', 
-                        height: '110px', 
+                        height: '115px', 
                         backgroundColor: '#111827',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justify: 'space-between'
                       }}
                     >
                       <img src={img.url} alt={`Attēls ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       
-                      {/* Titulbildes marķieris pirmajam attēlam */}
+                      {/* Titulbildes marķieris */}
                       {idx === 0 && (
                         <div style={{ position: 'absolute', top: 4, left: 4, backgroundColor: '#2563eb', color: '#fff', fontSize: '10px', padding: '3px 6px', borderRadius: '4px', fontWeight: 'bold', zIndex: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>
                           ★ Titulbilde
@@ -846,31 +847,57 @@ export default function PievienotAuto() {
                         ✕
                       </button>
 
-                      {/* Ērtākas pārvietošanas bultiņas apakšā */}
-                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.65)', padding: '4px 6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      {/* LIELĀKAS UN ĒRTĀKAS PĀRVIETOŠANAS BULTIŅAS */}
+                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(17, 24, 39, 0.85)', padding: '3px 4px', display: 'flex', gap: '4px', alignItems: 'center', justifyContent: 'space-between' }}>
                         {idx > 0 ? (
                           <button 
                             type="button" 
                             onClick={() => moveImage(idx, 'left')} 
                             title="Pārvietot pa kreisi"
-                            style={{ backgroundColor: '#374151', color: '#fff', border: '1px solid #6b7280', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                            style={{ 
+                              flex: 1, 
+                              backgroundColor: '#374151', 
+                              color: '#ffffff', 
+                              border: '1px solid #4b5563', 
+                              borderRadius: '4px', 
+                              padding: '4px 0', 
+                              cursor: 'pointer', 
+                              fontSize: '14px', 
+                              fontWeight: 'bold',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
                           >
-                            ◄
+                            ←
                           </button>
-                        ) : <div />}
-                        
-                        <span style={{ color: '#d1d5db', fontSize: '11px', fontWeight: 'bold' }}>#{idx + 1}</span>
+                        ) : <div style={{ flex: 1 }} />}
+
+                        <span style={{ color: '#ffffff', fontSize: '11px', fontWeight: 'bold', padding: '0 4px' }}>#{idx + 1}</span>
 
                         {idx < images.length - 1 ? (
                           <button 
                             type="button" 
                             onClick={() => moveImage(idx, 'right')} 
                             title="Pārvietot pa labi"
-                            style={{ backgroundColor: '#374151', color: '#fff', border: '1px solid #6b7280', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                            style={{ 
+                              flex: 1, 
+                              backgroundColor: '#374151', 
+                              color: '#ffffff', 
+                              border: '1px solid #4b5563', 
+                              borderRadius: '4px', 
+                              padding: '4px 0', 
+                              cursor: 'pointer', 
+                              fontSize: '14px', 
+                              fontWeight: 'bold',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
                           >
-                            ►
+                            →
                           </button>
-                        ) : <div />}
+                        ) : <div style={{ flex: 1 }} />}
                       </div>
 
                     </div>
