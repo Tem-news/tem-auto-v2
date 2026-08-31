@@ -18,8 +18,9 @@ export default function AutoLapa() {
   const [showEmail, setShowEmail] = useState(false)
   const [showVin, setShowVin] = useState(false)
 
-  // Stāvoklis sociālo tīklu izlecošajam logam (modālim)
+  // Stāvoklis sociālo tīklu izlecošajam logam (modālim) un kopēšanas paziņojumam
   const [showSocialModal, setShowSocialModal] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -93,8 +94,15 @@ export default function AutoLapa() {
     return vin.slice(0, 4) + '******' + vin.slice(-4)
   }
 
-  // Notīrīt numuru no atstarpēm, lai derētu saitēm
   const cleanPhone = car?.phone ? car.phone.replace(/\s+/g, '') : ''
+
+  // Funkcija numura kopēšanai starplaikā
+  const handleCopyPhone = () => {
+    if (!car?.phone) return
+    navigator.clipboard.writeText(car.phone)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000) // Paziņojums pazudīs pēc 2 sekundēm
+  }
 
   if (loading) {
     return (
@@ -172,7 +180,7 @@ export default function AutoLapa() {
               </div>
             )}
             
-            {/* VIN kods ar maskēšanu */}
+            {/* VIN kods */}
             {car.vin && (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '2px' }}>
                 <span style={{ color: '#6b7280', fontWeight: '500' }}>VIN kods:</span>
@@ -196,7 +204,7 @@ export default function AutoLapa() {
           {/* Kontakti */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             
-            {/* Telefona poga, kas atver sociālo tīklu / saziņas logu */}
+            {/* Telefona poga */}
             {car.phone && (
               showPhone ? (
                 <button 
@@ -310,38 +318,56 @@ export default function AutoLapa() {
         </div>
       )}
 
-      {/* SOCIĀLO TĪKLU UN SAZIŅAS IZLECOŠAIS LOGS (MODAL) */}
+      {/* PAPLAŠINĀTAIS SAZIŅAS IZLECOŠAIS LOGS (MODAL) */}
       {showSocialModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '14px', width: '320px', textAlign: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', position: 'relative' }}>
+          <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '14px', width: '340px', textAlign: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', position: 'relative' }}>
             
-            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', color: '#111827' }}>Sazināties ar pārdevēju</h3>
-            <p style={{ margin: '0 0 20px 0', fontSize: '14px', color: '#6b7280', fontWeight: 'bold' }}>{car.phone}</p>
+            <h3 style={{ margin: '0 0 4px 0', fontSize: '18px', color: '#111827' }}>Sazināties ar pārdevēju</h3>
+            <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280', fontWeight: 'bold' }}>{car.phone}</p>
 
-            {/* Saziņas iespēju saraksts */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+            {/* Saziņas iespēju un sociālo tīklu saraksts */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px', maxHeight: '320px', overflowY: 'auto' }}>
               
               {/* Parasts zvans */}
-              <a href={`tel:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', backgroundColor: '#f3f4f6', color: '#111827', borderRadius: '8px', textDecoration: 'none', fontWeight: '500', fontSize: '14px' }}>
+              <a href={`tel:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#f3f4f6', color: '#111827', borderRadius: '8px', textDecoration: 'none', fontWeight: '500', fontSize: '14px' }}>
                 📞 Zvanīt parasto zvanu
               </a>
 
               {/* WhatsApp */}
-              <a href={`https://wa.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', backgroundColor: '#25D366', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
-                🟢 WhatsApp čats / SMS
+              <a href={`https://wa.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#25D366', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+                🟢 WhatsApp čats
+              </a>
+
+              {/* Meta Messenger (m.me izmanto lietotājvārdus, bet mobilajās ierīcēs vai caur fb var noderēt arī meklēšanai, šeit ieliekam universālu saiti uz Messenger) */}
+              <a href={`https://m.me/`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#0084FF', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+                💙 Meta Messenger
+              </a>
+
+              {/* Viber */}
+              <a href={`viber://chat?number=${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#7360F2', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+                🟣 Viber ziņa
               </a>
 
               {/* Telegram */}
-              <a href={`https://t.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', backgroundColor: '#229ED9', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+              <a href={`https://t.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#229ED9', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' », }}>
                 ✈️ Telegram ziņa
               </a>
 
               {/* SMS */}
-              <a href={`sms:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', backgroundColor: '#4b5563', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
-                💬 Sūtīt parasto SMS
+              <a href={`sms:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', backgroundColor: '#4b5563', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+                💬 Sūtīt SMS
               </a>
 
             </div>
+
+            {/* Kopēšanas poga */}
+            <button 
+              onClick={handleCopyPhone}
+              style={{ width: '100%', padding: '10px', backgroundColor: '#f0fdf4', border: '1px solid #16a34a', borderRadius: '8px', fontWeight: 'bold', color: '#16a34a', cursor: 'pointer', fontSize: '14px', marginBottom: '8px' }}
+            >
+              {copied ? '✅ Numurs nokopēts!' : '📋 Kopēt telefona numuru'}
+            </button>
 
             {/* Aizvērt pogu */}
             <button 
