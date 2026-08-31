@@ -13,38 +13,143 @@ const POPULAR_MAKES = [
 ]
 
 const MODELS_BY_MAKE: { [key: string]: string[] } = {
-  'BMW': ['1 sērija', '3 sērija', '5 sērija', '7 sērija', '8 sērija', 'X1', 'X3', 'X5', 'X6', 'X7', 'Z4', 'i3', 'i4', 'iX'],
-  'Audi': ['A1', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'Q2', 'Q3', 'Q5', 'Q7', 'Q8', 'TT', 'e-tron'],
-  'Volkswagen': ['Golf', 'Passat', 'Tiguan', 'Touareg', 'Polo', 'Touran', 'Transporter', 'Arteon', 'ID.3', 'ID.4', 'T-Roc'],
-  'Volvo': ['S60', 'S90', 'V60', 'V90', 'XC40', 'XC60', 'XC90', 'EX30', 'EX90'],
-  'Toyota': ['Corolla', 'Camry', 'RAV4', 'Land Cruiser', 'Yaris', 'Avensis', 'C-HR', 'Prius', 'Hilux', 'Aygo'],
-  'Mercedes-Benz': ['A-klase', 'B-klase', 'C-klase', 'E-klase', 'S-klase', 'CLA', 'CLS', 'GLA', 'GLB', 'GLC', 'GLE', 'GLS', 'G-klase', 'ML'],
-  'Škoda': ['Octavia', 'Superb', 'Fabia', 'Kodiaq', 'Karoq', 'Kamiq', 'Scala', 'Rapid'],
-  'Ford': ['Focus', 'Mondeo', 'Fiesta', 'Kuga', 'S-Max', 'Ranger', 'Puma', 'Mustang', 'Explorer'],
-  'Hyundai': ['i10', 'i20', 'i30', 'i40', 'Tucson', 'Santa Fe', 'Kona', 'Ioniq 5', 'Ioniq 6'],
-  'Kia': ['Picanto', 'Ceed', 'Sportage', 'Sorento', 'Stonic', 'Niro', 'Rio', 'EV6', 'Stinger'],
-  'Nissan': ['Qashqai', 'X-Trail', 'Juke', 'Leaf', 'Navara', 'Micra', 'Ariya'],
-  'Opel': ['Astra', 'Corsa', 'Insignia', 'Mokka', 'Zafira', 'Crossland', 'Grandland'],
-  'Peugeot': ['208', '308', '508', '2008', '3008', '5008', 'Partner'],
-  'Renault': ['Clio', 'Megane', 'Captur', 'Kadjar', 'Scenic', 'Talisman', 'Arkana', 'Austral'],
-  'Mazda': ['Mazda2', 'Mazda3', 'Mazda6', 'CX-3', 'CX-5', 'CX-30', 'CX-60', 'MX-5'],
-  'Honda': ['Civic', 'Accord', 'CR-V', 'HR-V', 'Jazz'],
-  'Lexus': ['IS', 'ES', 'GS', 'LS', 'NX', 'RX', 'UX', 'RZ'],
-  'Subaru': ['Outback', 'Forester', 'Impreza', 'XV', 'Legacy', 'BRZ'],
-  'Tesla': ['Model 3', 'Model Y', 'Model S', 'Model X', 'Cybertruck'],
-  'Porsche': ['911', 'Cayenne', 'Macan', 'Panamera', 'Taycan'],
-  'Fiat': ['500', 'Panda', 'Tipo', 'Doblo', 'Ducato'],
-  'Alfa Romeo': ['Giulia', 'Stelvio', 'Tonale', 'Giulietta'],
-  'Citroën': ['C3', 'C4', 'C5 Aircross', 'Berlingo'],
-  'Dacia': ['Duster', 'Sandero', 'Logan', 'Jogger'],
-  'Jeep': ['Grand Cherokee', 'Wrangler', 'Renegade', 'Compass'],
-  'Land Rover': ['Range Rover', 'Range Rover Sport', 'Discovery', 'Defender'],
-  'Mitsubishi': ['Outlander', 'ASX', 'Eclipse Cross', 'L200'],
-  'Suzuki': ['Vitara', 'SX4 S-Cross', 'Swift', 'Jimny'],
-  'Mini': ['Cooper', 'Countryman', 'Clubman'],
-  'Chrysler': ['300C', 'Voyager'],
-  'Dodge': ['Charger', 'Challenger', 'Durango'],
-  'Chevrolet': ['Camaro', 'Corvette', 'Silverado', 'Captiva']
+  'BMW': [
+    '1 sērija', '114', '116', '118', '120', '123', '125', '130', '135', 'M135i', 'M140i',
+    '2 sērija', '216', '218', '220', '225', '228', '230', 'M235i', 'M240i', 'M2', '2 Gran Coupe', '2 Active Tourer', '2 Gran Tourer',
+    '3 sērija', '316', '318', '320', '323', '325', '328', '330', '335', '340', 'M340i', 'M3', '3 GT',
+    '4 sērija', '418', '420', '425', '428', '430', '435', '440', 'M440i', 'M4', '4 Gran Coupe',
+    '5 sērija', '518', '520', '523', '525', '528', '530', '535', '540', '545', '550', 'M550i', 'M550d', 'M5', '5 GT',
+    '6 sērija', '630', '635', '640', '650', 'M6', '6 GT',
+    '7 sērija', '728', '730', '735', '740', '745', '750', '760', 'M760Li',
+    '8 sērija', '840', '850', 'M8', 'M850i',
+    'X1', 'X2', 'X3', 'X3 M', 'X4', 'X4 M', 'X5', 'X5 M', 'X6', 'X6 M', 'X7', 'XM', 'Z3', 'Z4', 'Z8',
+    'i3', 'i4', 'i7', 'iX', 'iX1', 'iX2', 'iX3'
+  ],
+  'Audi': [
+    '80', '90', '100', '200', 'A1', 'A2', 'A3', 'S3', 'RS3',
+    'A4', 'S4', 'RS4', 'A4 Allroad',
+    'A5', 'S5', 'RS5',
+    'A6', 'S6', 'RS6', 'A6 Allroad',
+    'A7', 'S7', 'RS7',
+    'A8', 'S8',
+    'Q2', 'SQ2', 'Q3', 'RS Q3', 'Q4 e-tron', 'Q5', 'SQ5', 'Q7', 'SQ7', 'Q8', 'SQ8', 'RS Q8',
+    'TT', 'TTS', 'TT RS', 'R8',
+    'e-tron', 'e-tron GT', 'RS e-tron GT', 'Q8 e-tron'
+  ],
+  'Volkswagen': [
+    'Amarok', 'Arteon', 'Atlas', 'Beetle', 'Bora', 'Caddy', 'California', 'Caravelle', 'CC', 'Corrado',
+    'Crafter', 'EOS', 'Fox', 'Golf', 'Golf Plus', 'Golf Sportsvan', 'Golf Alltrack', 'ID.3', 'ID.4', 'ID.5', 'ID.7', 'ID. Buzz',
+    'Jetta', 'Lupo', 'Multivan', 'Passat', 'Passat CC', 'Phaeton', 'Polo', 'Scirocco', 'Sharan', 'T-Cross', 'T-Roc', 'Taigo',
+    'Tiguan', 'Tiguan Allspace', 'Touareg', 'Touran', 'Transporter', 'Up!'
+  ],
+  'Volvo': [
+    '440', '460', '850', 'C30', 'C70', 'EX30', 'EX90', 'S40', 'S60', 'S70', 'S80', 'S90',
+    'V40', 'V40 Cross Country', 'V50', 'V60', 'V60 Cross Country', 'V70', 'V90', 'V90 Cross Country',
+    'XC40', 'XC60', 'XC70', 'XC90', 'C40 Recharge'
+  ],
+  'Toyota': [
+    'Auris', 'Avensis', 'Avensis Verso', 'Aygo', 'Aygo X', 'bZ4X', 'C-HR', 'Camry', 'Celica', 'Corolla', 'Corolla Verso',
+    'FJ Cruiser', 'GR86', 'GT86', 'Hiace', 'Highlander', 'Hilux', 'IQ', 'Land Cruiser', 'MR2', 'Paseo', 'Prius', 'Prius Plus',
+    'RAV4', 'Sequoia', 'Sienna', 'Supra', 'Tacoma', 'Tundra', 'Urban Cruiser', 'Verso', 'Yaris', 'Yaris Cross'
+  ],
+  'Mercedes-Benz': [
+    'A-klase', 'AMG GT', 'B-klase', 'C-klase', 'CL-klase', 'CLA', 'CLE', 'CLK', 'CLS',
+    'E-klase', 'EQA', 'EQB', 'EQC', 'EQE', 'EQE SUV', 'EQS', 'EQS SUV', 'EQV',
+    'G-klase', 'GL-klase', 'GLA', 'GLB', 'GLC', 'GLE', 'GLE Coupe', 'GLK', 'GLS',
+    'M-klase / ML', 'R-klase', 'S-klase', 'SL-klase', 'SLC', 'SLK', 'SLS AMG',
+    'Citan', 'Sprinter', 'V-klase', 'Vaneo', 'Vito', 'X-klase', '190 (W201)'
+  ],
+  'Škoda': [
+    'Citigo', 'Enyaq iV', 'Fabia', 'Kamiq', 'Karoq', 'Kodiaq', 'Kodiaq GT', 'Octavia', 'Octavia Scout',
+    'Praktik', 'Rapid', 'Roomster', 'Scala', 'Superb', 'Yeti'
+  ],
+  'Ford': [
+    'B-Max', 'C-Max', 'Cougar', 'Crown Victoria', 'Ecosport', 'Edge', 'Escape', 'Excursion', 'Expedition', 'Explorer',
+    'F-150', 'F-250', 'F-350', 'Fiesta', 'Focus', 'Focus C-Max', 'Fusion', 'Galaxy', 'Grand C-Max', 'Ka', 'Kuga',
+    'Maverick', 'Mondeo', 'Mustang', 'Mustang Mach-E', 'Puma', 'Ranger', 'S-Max', 'Scorpio', 'Sierra', 'Streetka', 'Tourneo', 'Transit'
+  ],
+  'Hyundai': [
+    'Accent', 'Bayon', 'Coupe', 'Elantra', 'Getz', 'Grandeur', 'H-1', 'i10', 'i20', 'i30', 'i40', 'Ioniq',
+    'Ioniq 5', 'Ioniq 6', 'IX20', 'IX35', 'IX55', 'Kona', 'Lantra', 'Matrix', 'Palisade', 'Santa Fe', 'Sonata',
+    'Terracan', 'Tucson', 'Veloster', 'Venue'
+  ],
+  'Kia': [
+    'Carens', 'Carnival', 'Ceed', 'ProCeed', 'Ceed SW', 'Cerato', 'EV6', 'EV9', 'Magentis', 'Niro', 'Opirus',
+    'Optima', 'Picanto', 'Rio', 'Sorento', 'Soul', 'Sportage', 'Stinger', 'Stonic', 'Venga', 'XCeed'
+  ],
+  'Nissan': [
+    '100 NX', '200 SX', '350Z', '370Z', 'Almera', 'Almera Tino', 'Ariya', 'Cube', 'GT-R', 'Juke', 'King Cab',
+    'Leaf', 'Maxima', 'Micra', 'Murano', 'Navara', 'Note', 'NV200', 'Pathfinder', 'Patrol', 'Pick Up', 'Pixo',
+    'Primera', 'Pulsar', 'Qashqai', 'Qashqai+2', 'Terrano', 'Tiida', 'X-Trail', 'Z'
+  ],
+  'Opel': [
+    'Adam', 'Agila', 'Ampera', 'Antara', 'Astra', 'Calibra', 'Combo', 'Corsa', 'Crossland', 'Crossland X',
+    'Frontera', 'Grandland', 'Grandland X', 'Insignia', 'Kadett', 'Meriva', 'Mokka', 'Mokka X', 'Movano',
+    'Omega', 'Signum', 'Sintra', 'Tigra', 'Vectra', 'Vivaro', 'Zafira', 'Zafira Tourer'
+  ],
+  'Peugeot': [
+    '106', '107', '108', '206', '207', '208', '301', '306', '307', '308', '406', '407', '408', '508', '607', '807',
+    '1007', '2008', '3008', '4007', '4008', '5008', 'Boxer', 'Expert', 'Partner', 'Rifter', 'RCZ', 'iOn'
+  ],
+  'Renault': [
+    'Alaskan', 'Arkana', 'Austral', 'Av时间', 'Captur', 'Clio', 'Espace', 'Fluence', 'Grand Espace', 'Grand Scenic',
+    'Kadjar', 'Kangoo', 'Koleos', 'Laguna', 'Latitude', 'Master', 'Megane', 'Megane E-Tech', 'Modus', 'Rafale',
+    'Scenic', 'Symbol', 'Talisman', 'Trafic', 'Twingo', 'Twizy', 'Zoe'
+  ],
+  'Mazda': [
+    '2', '3', '323', '5', '6', '626', 'CX-3', 'CX-30', 'CX-5', 'CX-60', 'CX-7', 'CX-80', 'CX-9', 'MX-30', 'MX-5', 'RX-8'
+  ],
+  'Honda': [
+    'Accord', 'City', 'Civic', 'CR-V', 'CR-Z', 'e', 'e:Ny1', 'FR-V', 'HR-V', 'Insight', 'Integra', 'Jazz', 'Legend', 'NSX', 'Prelude', 'S2000', 'ZR-V'
+  ],
+  'Lexus': [
+    'CT', 'ES', 'GS', 'GX', 'IS', 'LC', 'LFA', 'LS', 'LX', 'NX', 'RC', 'RX', 'RZ', 'SC', 'UX', 'LM'
+  ],
+  'Subaru': [
+    'BRZ', 'Forester', 'Impreza', 'Justy', 'Legacy', 'Levorg', 'Outback', 'Solterra', 'SVX', 'Tribeca', 'WRX', 'XV'
+  ],
+  'Tesla': [
+    'Cybertruck', 'Model 3', 'Model S', 'Model X', 'Model Y', 'Roadster'
+  ],
+  'Porsche': [
+    '718 Boxster', '718 Cayman', '911', 'Boxster', 'Cayenne', 'Cayman', 'Macan', 'Panamera', 'Taycan'
+  ],
+  'Fiat': [
+    '124 Spider', '500', '500C', '500L', '500X', 'Bravo', 'Croma', 'Doblo', 'Ducato', 'Fiorino', 'Freemont', 'Grande Punto', 'Panda', 'Punto', 'Sedici', 'Stilo', 'Tippo', 'Ulysse'
+  ],
+  'Alfa Romeo': [
+    '147', '156', '159', '166', '4C', '8C', 'Brera', 'Giulia', 'Giulietta', 'GT', 'Mito', 'Spider', 'Stelvio', 'Tonale'
+  ],
+  'Citroën': [
+    'Berlingo', 'C1', 'C2', 'C3', 'C3 Aircross', 'C3 Pluriel', 'C4', 'C4 Aircross', 'C4 Cactus', 'C4 Grand Picasso', 'C4 Picasso', 'C4 SpaceTourer', 'C5', 'C5 Aircross', 'C5 X', 'C6', 'C8', 'DS3', 'DS4', 'DS5', 'Jumper', 'Jumpy', 'Nemo', 'Saxo', 'SpaceTourer', 'Xantia', 'Xsara', 'Xsara Picasso'
+  ],
+  'Dacia': [
+    'Dokker', 'Duster', 'Lodgy', 'Logan', 'Logan MCV', 'Jogger', 'Sandero', 'Sandero Stepway', 'Spring'
+  ],
+  'Jeep': [
+    'Avenger', 'Cherokee', 'Commander', 'Compass', 'Grand Cherokee', 'Patriot', 'Renegade', 'Wrangler'
+  ],
+  'Land Rover': [
+    'Defender', 'Discovery', 'Discovery Sport', 'Freelander', 'Range Rover', 'Range Rover Evoque', 'Range Rover Sport', 'Range Rover Velar'
+  ],
+  'Mitsubishi': [
+    '3000 GT', 'ASX', 'Carisma', 'Colt', 'Eclipse', 'Eclipse Cross', 'Grandis', 'L200', 'Lancer', 'Outlander', 'Pajero', 'Pajero Pinin', 'Space Star', 'Space Wagon'
+  ],
+  'Suzuki': [
+    'Alto', 'Baleno', 'Grand Vitara', 'Ignis', 'Jimny', 'Kizashi', 'Liana', 'Samurai', 'Splash', 'Swace', 'Swift', 'SX4', 'SX4 S-Cross', 'Vitara', 'Wagon R+'
+  ],
+  'Mini': [
+    'Cabrio', 'Clubman', 'Cooper', 'Cooper S', 'Countryman', 'Coupe', 'One', 'Paceman', 'Roadster'
+  ],
+  'Chrysler': [
+    '300C', '300M', 'Crossfire', 'Grand Voyager', 'PT Cruiser', 'Sebring', 'Town & Country', 'Voyager'
+  ],
+  'Dodge': [
+    'Avenger', 'Caliber', 'Challenger', 'Charger', 'Dakota', 'Dart', 'Durango', 'Grand Caravan', 'Journey', 'Magnum', 'Nitro', 'RAM', 'Viper'
+  ],
+  'Chevrolet': [
+    'Aveo', 'Camaro', 'Captiva', 'Corvette', 'Cruze', 'Epica', 'Equinox', 'HHR', 'Impala', 'Kalos', 'Lacetti', 'Malibu', 'Matiz', 'Orlando', 'Silverado', 'Spark', 'Suburban', 'Tahoe', 'Tracker', 'Trailblazer', 'Trax', 'Volt'
+  ]
 }
 
 const COLORS = [
@@ -80,13 +185,15 @@ const ENGINE_VOLUMES = [
   '2.2', '2.4', '2.5', '2.8', '3.0', '3.2', '3.5', '4.0', '4.4', '5.0', 'Elektro / Nav'
 ]
 
+// VALSTS IZVĒLNE AR EMOJI KARODZIŅIEM
 const COUNTRIES = [
-  { name: 'Latvija', code: 'lv', regions: ['Rīga un rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale'] },
-  { name: 'Lietuva', code: 'lt', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alytus'] },
-  { name: 'Igaunija', code: 'ee', regions: ['Tallina', 'Tartu', 'Narva', 'Pērnava', 'Kohtla-Järve'] },
+  { name: 'Latvija', code: 'lv', flag: '🇱🇻', regions: ['Rīga un rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale'] },
+  { name: 'Lietuva', code: 'lt', flag: '🇱🇹', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alytus'] },
+  { name: 'Igaunija', code: 'ee', flag: '🇪🇪', regions: ['Tallina', 'Tartu', 'Narva', 'Pērnava', 'Kohtla-Järve'] },
   { 
     name: 'Vācija', 
     code: 'de', 
+    flag: '🇩🇪',
     regions: [
       'Bavārija (Bayern)', 'Bādene-Virtemberga (Baden-Württemberg)', 'Ziemeļreina-Vestfālene (Nordrhein-Westfalen)',
       'Lejassaksija (Niedersachsen)', 'Hesene (Hessen)', 'Reinlande-Pfalca (Rheinland-Pfalz)',
@@ -95,10 +202,11 @@ const COUNTRIES = [
       'Hamburga', 'Berlīne', 'Brēmene', 'Sārija (Saarland)', 'Minhene', 'Frankfurte pie Mainas', 'Ķelne', 'Štutgarte'
     ] 
   },
-  { name: 'Lielbritānija', code: 'gb', regions: ['Londona', 'Mančestra', 'Birmingema', 'Liverpūle', 'Skotija', 'Velsa', 'Ziemeļīrija'] },
+  { name: 'Lielbritānija', code: 'gb', flag: '🇬🇧', regions: ['Londona', 'Mančestra', 'Birmingema', 'Liverpūle', 'Skotija', 'Velsa', 'Ziemeļīrija'] },
   { 
     name: 'ASV', 
     code: 'us', 
+    flag: '🇺🇸',
     regions: [
       'Alabama', 'Aļaska (Alaska)', 'Arizona', 'Arkanzasa (Arkansas)', 'Kalifornija (California)', 
       'Kolorādo', 'Konektikuta (Connecticut)', 'Delavēra (Delaware)', 'Florida', 'Džordžija (Georgia)', 
@@ -113,22 +221,22 @@ const COUNTRIES = [
       'Rietumvirdžīnija (West Virginia)', 'Viskonsina (Wisconsin)', 'Vaiominga (Wyoming)'
     ] 
   },
-  { name: 'Japāna', code: 'jp', regions: ['Tokija', 'Osaka', 'Kioto', 'Jokohama', 'Nagoja', 'Fukuoka', 'Hokaido'] },
-  { name: 'Krievija', code: 'ru', regions: ['Maskava', 'Sanktpēterburga', 'Novosibirska', 'Jekaterinburga', 'Kazaņa', 'Soči', 'Kaliningrada'] },
-  { name: 'Zviedrija', code: 'se', regions: ['Stokholma', 'Gēteborga', 'Malme', 'Uppsala'] },
-  { name: 'Norvēģija', code: 'no', regions: ['Oslo', 'Bergena', 'Tronheima', 'Stavangere'] },
-  { name: 'Polija', code: 'pl', regions: ['Varšava', 'Krakova', 'Gdaņska', 'Poznaņa', 'Vroclava', 'Lodza'] },
-  { name: 'Somija', code: 'fi', regions: ['Helsinki', 'Espo', 'Tamperes', 'Vantaa', 'Oulu'] },
-  { name: 'Dānija', code: 'dk', regions: ['Kopenhāgena', 'Orhūsa', 'Odense', 'Olborka'] },
-  { name: 'Francija', code: 'fr', regions: ['Parīze', 'Marseļa', 'Liona', 'Tulūza', 'Nica', 'Nante'] },
-  { name: 'Itālija', code: 'it', regions: ['Roma', 'Milāna', 'Neapole', 'Turīna', 'Palermo', 'Florence'] },
-  { name: 'Spānija', code: 'es', regions: ['Madride', 'Barselona', 'Valensija', 'Seviļa', 'Saragosa', 'Malaga'] },
-  { name: 'Nīderlande', code: 'nl', regions: ['Amsterdama', 'Roterdama', 'Hāga', 'Utrehta', 'Eindhovena'] },
-  { name: 'Ķīna', code: 'cn', regions: ['Pekina', 'Šanhaja', 'Guandžou', 'Šendžena', 'Čendu'] },
-  { name: 'Dienvidkoreja', code: 'kr', regions: ['Seula', 'Pusana', 'Inčhona', 'Tegu'] },
-  { name: 'Apvienotie Arābu Emirāti', code: 'ae', regions: ['Dubaija', 'Abū Dabī', 'Šardža'] },
-  { name: 'Kanāda', code: 'ca', regions: ['Ontārio', 'Kvebeka', 'Britu Kolumbija', 'Alberta', 'Monreāla', 'Toronto'] },
-  { name: 'Austrālija', code: 'au', regions: ['Sidneja', 'Melburna', 'Brisbena', 'Pērta', 'Adelaida'] }
+  { name: 'Japāna', code: 'jp', flag: '🇯🇵', regions: ['Tokija', 'Osaka', 'Kioto', 'Jokohama', 'Nagoja', 'Fukuoka', 'Hokaido'] },
+  { name: 'Krievija', code: 'ru', flag: '🇷🇺', regions: ['Maskava', 'Sanktpēterburga', 'Novosibirska', 'Jekaterinburga', 'Kazaņa', 'Soči', 'Kaliningrada'] },
+  { name: 'Zviedrija', code: 'se', flag: '🇸🇪', regions: ['Stokholma', 'Gēteborga', 'Malme', 'Uppsala'] },
+  { name: 'Norvēģija', code: 'no', flag: '🇳🇴', regions: ['Oslo', 'Bergena', 'Tronheima', 'Stavangere'] },
+  { name: 'Polija', code: 'pl', flag: '🇵🇱', regions: ['Varšava', 'Krakova', 'Gdaņska', 'Poznaņa', 'Vroclava', 'Lodza'] },
+  { name: 'Somija', code: 'fi', flag: '🇫🇮', regions: ['Helsinki', 'Espo', 'Tamperes', 'Vantaa', 'Oulu'] },
+  { name: 'Dānija', code: 'dk', flag: '🇩🇰', regions: ['Kopenhāgena', 'Orhūsa', 'Odense', 'Olborka'] },
+  { name: 'Francija', code: 'fr', flag: '🇫🇷', regions: ['Parīze', 'Marseļa', 'Liona', 'Tulūza', 'Nica', 'Nante'] },
+  { name: 'Itālija', code: 'it', flag: '🇮🇹', regions: ['Roma', 'Milāna', 'Neapole', 'Turīna', 'Palermo', 'Florence'] },
+  { name: 'Spānija', code: 'es', flag: '🇪🇸', regions: ['Madride', 'Barselona', 'Valensija', 'Seviļa', 'Saragosa', 'Malaga'] },
+  { name: 'Nīderlande', code: 'nl', flag: '🇳🇱', regions: ['Amsterdama', 'Roterdama', 'Hāga', 'Utrehta', 'Eindhovena'] },
+  { name: 'Ķīna', code: 'cn', flag: '🇨🇳', regions: ['Pekina', 'Šanhaja', 'Guandžou', 'Šendžena', 'Čendu'] },
+  { name: 'Dienvidkoreja', code: 'kr', flag: '🇰🇷', regions: ['Seula', 'Pusana', 'Inčhona', 'Tegu'] },
+  { name: 'Apvienotie Arābu Emirāti', code: 'ae', flag: '🇦🇪', regions: ['Dubaija', 'Abū Dabī', 'Šardža'] },
+  { name: 'Kanāda', code: 'ca', flag: '🇨🇦', regions: ['Ontārio', 'Kvebeka', 'Britu Kolumbija', 'Alberta', 'Monreāla', 'Toronto'] },
+  { name: 'Austrālija', code: 'au', flag: '🇦🇺', regions: ['Sidneja', 'Melburna', 'Brisbena', 'Pērta', 'Adelaida'] }
 ]
 
 const CURRENT_YEAR = new Date().getFullYear()
@@ -702,7 +810,7 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* VALSTS UN REĢIONS */}
+            {/* VALSTS UN REĢIONS - AR KARODZIŅIEM */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Valsts</label>
@@ -716,7 +824,9 @@ export default function PievienotAuto() {
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 >
                   {COUNTRIES.map(c => (
-                    <option key={c.code} value={c.code}>{c.name}</option>
+                    <option key={c.code} value={c.code}>
+                      {c.flag} {c.name}
+                    </option>
                   ))}
                 </select>
               </div>
