@@ -105,22 +105,6 @@ const REGIONS_BY_COUNTRY: { [key: string]: string[] } = {
 
 const DEFAULT_REGIONS = ['Galvaspilsēta / Centrs', 'Ziemeļu reģions', 'Dienvidu reģions', 'Austrumu reģions', 'Rietumu reģions']
 
-const ENGINE_TYPES = [
-  'Dīzelis', 'Benzīns', 'Benzīns / Gāze', 'Hibrīds (Benzīns)', 'Hibrīds (Dīzelis)', 'Elektriskais'
-]
-
-const GEARBOX_TYPES = [
-  'Mehāniskā', 'Automāts', 'Pusautomāts'
-]
-
-const BODY_TYPES = [
-  'Sedans', 'Universāls', 'Hečbeks', 'Apvidus (SUV)', 'Kupeja', 'Kabriolets', 'Minivens', 'Kompaktvens', 'Pikaps', 'Furgons'
-]
-
-const VOLUMES = [
-  '1.0', '1.2', '1.4', '1.6', '1.8', '2.0', '2.2', '2.5', '3.0', '3.5', '4.0', '5.0'
-]
-
 function normalizeMake(makeStr: string): string {
   if (!makeStr) return ''
   const trimmed = makeStr.trim()
@@ -204,21 +188,34 @@ export default function Sakumlapa() {
 
   useEffect(() => {
     async function fetchData() {
-      // Ielādējam auto kopā ar bildēm no listing_images tabulas
+      // 1. Ielādējam auto datus
       const { data: carsData, error: carsError } = await supabase
         .from('cars')
-        .select('*, listing_images(image_url)')
+        .select('*')
         .order('created_at', { ascending: false })
 
       if (carsError) {
         console.error('Kļūda ielādējot auto:', carsError)
-      } else {
-        const normalizedCars = (carsData || []).map(car => ({
-          ...car,
-          make: normalizeMake(car.make)
-        }))
-        setCars(normalizedCars)
+        setLoading(false)
+        return
       }
+
+      // 2. Ielādējam bildes no listing_images tabulas
+      const { data: imagesData } = await supabase
+        .from('listing_images')
+        .select('*')
+
+      // 3. Savienojam auto ar attiecīgajām bildēm
+      const normalizedCars = (carsData || []).map(car => {
+        const carImages = (imagesData || []).filter(img => img.car_id === car.id || img.listing_id === car.id)
+        return {
+          ...car,
+          make: normalizeMake(car.make),
+          listing_images: carImages
+        }
+      })
+
+      setCars(normalizedCars)
       setLoading(false)
     }
     fetchData()
@@ -490,7 +487,6 @@ export default function Sakumlapa() {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {filteredCars.map((car) => {
-                  // Iegūstam pareizo bildi no tabulas vai vecajiem datiem
                   const imageUrl = car.listing_images?.[0]?.image_url || car.image_url || car.image || 'https://via.placeholder.com/100x65?text=Nav+bildes'
 
                   return (
@@ -546,7 +542,7 @@ export default function Sakumlapa() {
 
         </div>
 
-        {/* LABĀ PUSE - Tukša vai papildu rīkiem */}
+        {/* LABĀ PUSE */}
         <div></div>
 
       </div>
