@@ -78,54 +78,76 @@ export default function AutoDetailsPage() {
 
       <div className="max-w-7xl mx-auto px-4 pt-6">
         
-        {/* Virs bildes: Marka / Modelis + Publicēšanas datums un skatījumi */}
-        <div className="mb-4">
-          <div className="flex justify-between items-center text-sm text-gray-400 mb-1">
-            <span>Publicēts: {car.created_at ? new Date(car.created_at).toLocaleDateString() : 'N/A'}</span>
-            <span>Skatījumi: {car.views || 0}</span>
+        {/* Augšdaļa: Atpakaļ poga, Marka/Modelis, Datums, Skatījumi un Rediģēt poga */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+          <div>
+            <button 
+              onClick={() => router.push('/')}
+              className="text-sm text-gray-400 hover:text-white mb-2 inline-block"
+            >
+              ← Atpakaļ uz sarakstu
+            </button>
+            <div className="flex items-center gap-4 text-sm text-gray-400 mb-1">
+              <span>Publicēts: {car.created_at ? new Date(car.created_at).toLocaleDateString() : 'N/A'}</span>
+              <span>•</span>
+              <span>Skatījumi: {car.views || 0}</span>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-white">
+              {car.brand} {car.model}
+            </h1>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white">
-            {car.brand} {car.model}
-          </h1>
+
+          <button
+            onClick={() => router.push(`/auto/${id}/edit`)}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition duration-200 flex items-center gap-2"
+          >
+            ✏️ Rediģēt
+          </button>
         </div>
 
-        {/* Galvenais satura bloks */}
+        {/* Galvenais divu kolonnu izkārtojums */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* KREISAIS STABIŅŠ: Mašīnas dati un kontakti */}
+          {/* KREISAIS STABIŅŠ: Visi mašīnas dati un izceltie kontakti */}
           <div className="lg:col-span-4 bg-gray-800 p-5 rounded-xl border border-gray-700 space-y-4">
-            <h3 className="text-xl font-semibold border-b border-gray-700 pb-2 text-green-400">
+            
+            {/* Cena */}
+            <div className="text-3xl font-extrabold text-green-400 border-b border-gray-700 pb-3">
+              {car.price ? `€${car.price}` : 'Cena nav norādīta'}
+            </div>
+
+            <h3 className="text-lg font-semibold text-white">
               Galvenie dati
             </h3>
             
             <div className="space-y-3 text-sm">
               <div className="flex justify-between border-b border-gray-700/50 pb-2">
                 <span className="text-gray-400">Izlaiduma gads:</span>
-                <span className="font-medium">{car.year || 'N/A'}</span>
+                <span className="font-medium text-white">{car.year || 'N/A'}</span>
               </div>
               <div className="flex justify-between border-b border-gray-700/50 pb-2">
                 <span className="text-gray-400">Motors:</span>
-                <span className="font-medium">{car.engine || 'N/A'}</span>
+                <span className="font-medium text-white">{car.engine || 'N/A'}</span>
               </div>
               <div className="flex justify-between border-b border-gray-700/50 pb-2">
                 <span className="text-gray-400">Ātrumkārba:</span>
-                <span className="font-medium">{car.transmission || 'N/A'}</span>
+                <span className="font-medium text-white">{car.transmission || 'N/A'}</span>
               </div>
               <div className="flex justify-between border-b border-gray-700/50 pb-2">
                 <span className="text-gray-400">Krāsa:</span>
-                <span className="font-medium">{car.color || 'N/A'}</span>
+                <span className="font-medium text-white">{car.color || 'N/A'}</span>
               </div>
               <div className="flex justify-between border-b border-gray-700/50 pb-2">
                 <span className="text-gray-400">Virsbūves tips:</span>
-                <span className="font-medium">{car.body_type || 'N/A'}</span>
+                <span className="font-medium text-white">{car.body_type || 'N/A'}</span>
               </div>
               <div className="flex justify-between border-b border-gray-700/50 pb-2">
                 <span className="text-gray-400">Nobraukums:</span>
-                <span className="font-medium">{car.mileage ? `${car.mileage} km` : 'N/A'}</span>
+                <span className="font-medium text-white">{car.mileage ? `${car.mileage} km` : 'N/A'}</span>
               </div>
               <div className="flex justify-between border-b border-gray-700/50 pb-2">
                 <span className="text-gray-400">Tehniskā apskate:</span>
-                <span className="font-medium">{car.tech_inspection || 'N/A'}</span>
+                <span className="font-medium text-white">{car.tech_inspection || 'N/A'}</span>
               </div>
               <div className="flex justify-between pb-1">
                 <span className="text-gray-400">VIN kods:</span>
@@ -135,43 +157,34 @@ export default function AutoDetailsPage() {
               </div>
             </div>
 
-            {/* KONTAKTI */}
+            {/* KONTAKTI: Izcelti ar rāmi un krāsu */}
             <div className="mt-6 pt-4 border-t border-gray-700 space-y-3">
               <h4 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
                 Kontaktinformācija
               </h4>
               
-              <div className="bg-green-950/40 border border-green-600/60 p-3 rounded-lg text-center">
-                <span className="block text-xs text-green-400 mb-1">Telefona numurs</span>
+              <div className="bg-green-950/60 border-2 border-green-500 p-3 rounded-lg text-center shadow-md">
+                <span className="block text-xs text-green-400 mb-1 font-medium">Telefona numurs</span>
                 <a href={`tel:${car.phone}`} className="text-lg font-bold text-white hover:underline">
                   {car.phone || 'Nav norādīts'}
                 </a>
               </div>
 
-              <div className="bg-blue-950/40 border border-blue-600/60 p-3 rounded-lg text-center">
-                <span className="block text-xs text-blue-400 mb-1">E-pasts</span>
+              <div className="bg-blue-950/60 border-2 border-blue-500 p-3 rounded-lg text-center shadow-md">
+                <span className="block text-xs text-blue-400 mb-1 font-medium">E-pasts</span>
                 <a href={`mailto:${car.email}`} className="text-sm font-semibold text-white hover:underline break-all">
                   {car.email || 'Nav norādīts'}
                 </a>
               </div>
             </div>
 
-            {/* Rediģēt poga */}
-            <div className="pt-2">
-              <button
-                onClick={() => router.push(`/auto/${id}/edit`)}
-                className="w-full py-2.5 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition duration-200 text-center"
-              >
-                Rediģēt sludinājumu
-              </button>
-            </div>
-
           </div>
 
-          {/* LABETAIS STABIŅŠ: Bildes un apraksts */}
+          {/* LABETAIS STABIŅŠ: Lielā bilde, mazās bildes un apraksts apakšā */}
           <div className="lg:col-span-8 space-y-6">
             
-            <div className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 shadow-lg h-[400px] md:h-[500px] flex items-center justify-center bg-black/40">
+            {/* Lielā bilde (korekti ierobežota augstumā, neiziet ārpus monitora) */}
+            <div className="bg-black/60 rounded-xl overflow-hidden border border-gray-700 shadow-xl h-[400px] md:h-[480px] flex items-center justify-center relative">
               {activeImage ? (
                 <img 
                   src={activeImage} 
@@ -183,6 +196,7 @@ export default function AutoDetailsPage() {
               )}
             </div>
 
+            {/* Mazās bildes (galerija) */}
             {images.length > 1 && (
               <div className="flex gap-3 overflow-x-auto pb-2">
                 {images.map((img: string, index: number) => (
@@ -190,7 +204,7 @@ export default function AutoDetailsPage() {
                     key={index}
                     onClick={() => setActiveImage(img)}
                     className={`flex-shrink-0 w-24 h-20 rounded-lg overflow-hidden border-2 transition ${
-                      activeImage === img ? 'border-green-500 scale-105' : 'border-transparent opacity-70 hover:opacity-100'
+                      activeImage === img ? 'border-green-500 scale-105 shadow-md' : 'border-transparent opacity-70 hover:opacity-100'
                     }`}
                   >
                     <img src={img} alt="" className="w-full h-full object-cover" />
@@ -199,7 +213,8 @@ export default function AutoDetailsPage() {
               </div>
             )}
 
-            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 mt-6">
+            {/* APRAKSTS: Novietots apakšā */}
+            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-md">
               <h3 className="text-xl font-semibold mb-4 text-white border-b border-gray-700 pb-2">
                 Apraksts
               </h3>
