@@ -22,6 +22,18 @@ export default function AutoLapa() {
 
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  // Funkcija, kas droši aizved atpakaļ uz iepriekšējo meklēšanu/filtru
+  const handleBack = () => {
+    if (typeof window !== 'undefined') {
+      const savedUrl = sessionStorage.getItem('lastSearchUrl')
+      if (savedUrl) {
+        router.push(savedUrl)
+        return
+      }
+    }
+    router.push('/')
+  }
+
   // Aizver izkrītošo lodziņu, ja noklikšķina ārpus tā
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -135,7 +147,7 @@ export default function AutoLapa() {
     return (
       <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', minHeight: '600px', textAlign: 'center', fontFamily: 'sans-serif' }}>
         <h2>Sludinājums netika atrasts!</h2>
-        <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: '#2563eb', textDecoration: 'underline', cursor: 'pointer', fontSize: '16px' }}>Atpakaļ</button>
+        <button onClick={handleBack} style={{ background: 'none', border: 'none', color: '#2563eb', textDecoration: 'underline', cursor: 'pointer', fontSize: '16px' }}>Atpakaļ</button>
       </div>
     )
   }
@@ -336,7 +348,7 @@ export default function AutoLapa() {
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', paddingTop: '4px' }}>
             <button 
-              onClick={() => router.back()} 
+              onClick={handleBack} 
               style={{ background: 'none', border: 'none', color: '#2563eb', textDecoration: 'none', fontSize: '14px', cursor: 'pointer', padding: 0 }}
             >
               ← Atpakaļ uz sarakstu
@@ -402,7 +414,7 @@ export default function AutoLapa() {
 
       </div>
 
-      {/* APAKŠĒJĀ DAĻA: APRAKSTS (Optimizēts, nepārsniedz monitora robežas) */}
+      {/* APAKŠĒJĀ DAĻA: APRAKSTS */}
       {car.description && (
         <div style={{ backgroundColor: '#f9fafb', padding: '16px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', maxHeight: '280px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box', marginBottom: '20px' }}>
           <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#111827', flexShrink: 0 }}>Apraksts</h3>
