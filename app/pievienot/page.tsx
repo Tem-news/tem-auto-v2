@@ -857,7 +857,7 @@ export default function PievienotAuto() {
 
             </div>
 
-            {/* Kontakti (E-pasts un Telefons novietoti pirms Apraksta) */}
+            {/* Kontakti (E-pasts un Telefons) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>E-pasts</label>
@@ -882,11 +882,11 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* Apraksts */}
+            {/* Apraksts (palielināts augstums līdz 7 rindām, lai ērtāk drukāt) */}
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Apraksts</label>
               <textarea
-                rows={4}
+                rows={7}
                 placeholder="Papildus informācija par auto stāvokli, komplektāciju..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -894,7 +894,7 @@ export default function PievienotAuto() {
               />
             </div>
 
-            {/* Bilžu augšupielāde */}
+            {/* Bilžu augšupielāde (sašaurināts un pacelts augstāk) */}
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Fotoattēli</label>
               <div
@@ -902,9 +902,11 @@ export default function PievienotAuto() {
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
                 style={{
+                  maxWidth: '75%',
+                  margin: '0 auto',
                   border: `2px dashed ${isDragging ? '#2563eb' : '#d1d5db'}`,
                   borderRadius: '8px',
-                  padding: '24px',
+                  padding: '16px',
                   textAlign: 'center',
                   backgroundColor: isDragging ? '#eff6ff' : '#f9fafb',
                   cursor: 'pointer'
@@ -919,17 +921,17 @@ export default function PievienotAuto() {
                   id="file-upload"
                 />
                 <label htmlFor="file-upload" style={{ cursor: 'pointer', display: 'block' }}>
-                  <span style={{ display: 'block', fontSize: '14px', color: '#374151', fontWeight: '500', marginBottom: '4px' }}>
+                  <span style={{ display: 'block', fontSize: '13.5px', color: '#374151', fontWeight: '500', marginBottom: '2px' }}>
                     Ievilkt attēlus šeit vai <span style={{ color: '#2563eb' }}>izvēlēties failus</span>
                   </span>
-                  <span style={{ fontSize: '12px', color: '#6b7280' }}>PNG, JPG vai WEBP</span>
+                  <span style={{ fontSize: '11.5px', color: '#6b7280' }}>PNG, JPG vai WEBP</span>
                 </label>
               </div>
 
               {images.length > 0 && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '10px', marginTop: '12px' }}>
+                <div style={{ maxWidth: '75%', margin: '12px auto 0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: '10px' }}>
                   {images.map((img, index) => (
-                    <div key={index} style={{ position: 'relative', height: '90px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #d1d5db', backgroundColor: '#f3f4f6' }}>
+                    <div key={index} style={{ position: 'relative', height: '80px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #d1d5db', backgroundColor: '#f3f4f6' }}>
                       <img src={img.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       <div style={{ position: 'absolute', top: '4px', right: '4px', display: 'flex', gap: '2px' }}>
                         {index > 0 && (
