@@ -4,13 +4,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 
-// Inicializējam Supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function AutoLapa({ params }: { params: { id: string } }) {
-  // Next.js 14 versijā params ir parasts objekts, nav nepieciešams 'use()'
   const id = params.id;
   const router = useRouter();
 
@@ -37,9 +35,8 @@ export default function AutoLapa({ params }: { params: { id: string } }) {
         console.error('Kļūda ielādējot auto:', error);
       } else {
         setCar(data);
-        // Ja datubāzē nav funkcijas 'increment_view', šī rinda var izmest kļūdu konsolē, 
-        // bet lapu tai nevajadzētu "nobrucināt".
-        await supabase.rpc('increment_view', { car_id: id }).catch(() => {});
+        // Izsaucam bez await, lai nekritizē tipus un nebremzē lapu
+        supabase.rpc('increment_view', { car_id: id });
       }
       setLoading(false);
     }
