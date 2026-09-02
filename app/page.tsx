@@ -300,7 +300,7 @@ export default function Sakumlapa() {
       
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
-        {/* KREISĀ PUSE - Marku saraksts divās kolonnās */}
+        {/* KREISĀ PUSE - Marku saraksts */}
         <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
@@ -401,11 +401,8 @@ export default function Sakumlapa() {
                     padding: '4px 10px', 
                     cursor: 'pointer', 
                     fontSize: '12px', 
-                    fontWeight: '600',
-                    transition: 'background-color 0.2s'
+                    fontWeight: '600'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fecaca'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fee2e2'}
                 >
                   <span>✕ Notīrīt filtrus</span>
                 </button>
@@ -435,8 +432,6 @@ export default function Sakumlapa() {
                           setActiveDropdown(null); 
                         }}
                         style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
                         <img 
                           src={`https://flagcdn.com/20x15/${c.code}.png`} 
@@ -467,8 +462,6 @@ export default function Sakumlapa() {
                         key={r}
                         onClick={() => { setRegions(r); setActiveDropdown(null); }}
                         style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
                         {r}
                       </div>
@@ -529,8 +522,6 @@ export default function Sakumlapa() {
                         key={d}
                         onClick={() => { setDzinejs(d); setActiveDropdown(null); }}
                         style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
                         {d}
                       </div>
@@ -552,7 +543,7 @@ export default function Sakumlapa() {
                   {activeDropdown === 'minTilpums' && (
                     <div style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                       {VOLUMES.map((v) => (
-                        <div key={v} onClick={() => { setMinTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{v}</div>
+                        <div key={v} onClick={() => { setMinTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>{v}</div>
                       ))}
                     </div>
                   )}
@@ -570,7 +561,7 @@ export default function Sakumlapa() {
                   {activeDropdown === 'maxTilpums' && (
                     <div style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                       {VOLUMES.map((v) => (
-                        <div key={v} onClick={() => { setMaxTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{v}</div>
+                        <div key={v} onClick={() => { setMaxTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>{v}</div>
                       ))}
                     </div>
                   )}
@@ -590,7 +581,7 @@ export default function Sakumlapa() {
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                     <div onClick={() => { setAtrumkarba(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas kārbas</div>
                     {GEARBOX_TYPES.filter(g => g.toLowerCase().includes(atrumkarba.toLowerCase())).map((g) => (
-                      <div key={g} onClick={() => { setAtrumkarba(g); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{g}</div>
+                      <div key={g} onClick={() => { setAtrumkarba(g); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}>{g}</div>
                     ))}
                   </div>
                 )}
@@ -609,7 +600,7 @@ export default function Sakumlapa() {
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                     <div onClick={() => { setVirsbuve(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas virsbūves</div>
                     {BODY_TYPES.filter(b => b.toLowerCase().includes(virsbuve.toLowerCase())).map((b) => (
-                      <div key={b} onClick={() => { setVirsbuve(b); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}>{b}</div>
+                      <div key={b} onClick={() => { setVirsbuve(b); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}>{b}</div>
                     ))}
                   </div>
                 )}
@@ -631,9 +622,7 @@ export default function Sakumlapa() {
                       <div 
                         key={k.name} 
                         onClick={() => { setKrasa(k.name); setActiveDropdown(null); }} 
-                        style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }} 
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} 
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                        style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                       >
                         <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: k.hex, border: `1px solid ${k.border}` }}></span>
                         <span>{k.name}</span>
@@ -645,14 +634,14 @@ export default function Sakumlapa() {
             </div>
           </div>
 
-          {/* SKATS: Grid vai Tabulas rindas */}
+          {/* SKATS */}
           <div>
             {loading ? (
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
             ) : filteredCars.length === 0 ? (
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>Nav atrasts neviens sludinājums ar šādiem kritērijiem.</div>
             ) : searchMake === '' ? (
-              /* PARASTAIS GRID SKATS */
+              /* GRID SKATS */
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
                 {filteredCars.map((car, index) => {
                   const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
@@ -668,11 +657,8 @@ export default function Sakumlapa() {
                         textDecoration: 'none', 
                         color: 'inherit',
                         display: 'flex',
-                        flexDirection: 'column',
-                        transition: 'box-shadow 0.2s'
+                        flexDirection: 'column'
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'}
-                      onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
                     >
                       <div style={{ width: '100%', height: '160px', backgroundColor: '#f3f4f6', overflow: 'hidden' }}>
                         <img 
@@ -700,13 +686,13 @@ export default function Sakumlapa() {
                 })}
               </div>
             ) : (
-              /* TABULAS RINDU SKATS, KAD IZVĒLĒTA MARKA */
-              <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
+              /* TABULAS SKATS - BEZ overflow:hidden augstākajos konteineros! */
+              <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
                 
-                {/* Nekustīgā zaļā galvenes strīpa - tagad korekti pirms saraksta */}
+                {/* Nekustīgā zaļā galvenes strīpa ar pareizu top offset */}
                 <div style={{ 
                   position: 'sticky',
-                  top: '185px', 
+                  top: '160px', 
                   zIndex: 20,
                   display: 'grid', 
                   gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
@@ -754,8 +740,6 @@ export default function Sakumlapa() {
                         fontSize: '14.5px',
                         fontWeight: '600'
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0fdf4'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#f9fafb'}
                     >
                       {/* 1. Foto */}
                       <div>
