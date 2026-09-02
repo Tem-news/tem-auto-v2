@@ -66,6 +66,20 @@ export default function AutoLapa() {
     fetchCarData()
   }, [id])
 
+  // GUDRĀ ATPAKAĻ POGA: Pārbauda iepriekšējo lapu vai izmanto vēsturi
+  const handleSmartBack = () => {
+    if (typeof window !== 'undefined') {
+      const referrer = document.referrer
+      // Ja iepriekšējā lapa ir no mūsu pašu domēna un nav tukša
+      if (referrer && referrer.includes(window.location.origin)) {
+        router.push(referrer)
+        return
+      }
+    }
+    // Fallback uz standarta vēsturi, ja referrer nav pieejams
+    router.back()
+  }
+
   const allImages: string[] = []
   if (car?.image) allImages.push(car.image)
   if (Array.isArray(car?.images)) {
@@ -139,7 +153,7 @@ export default function AutoLapa() {
     return (
       <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', minHeight: '600px', textAlign: 'center', fontFamily: 'sans-serif' }}>
         <h2>Sludinājums netika atrasts!</h2>
-        <button onClick={() => router.back()} style={{ color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontSize: '16px' }}>Atpakaļ</button>
+        <button onClick={handleSmartBack} style={{ color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontSize: '16px' }}>Atpakaļ</button>
       </div>
     )
   }
@@ -340,7 +354,7 @@ export default function AutoLapa() {
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', paddingTop: '4px' }}>
             <button 
-              onClick={() => router.back()} 
+              onClick={handleSmartBack} 
               style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontSize: '14px', padding: 0, textAlign: 'left', fontWeight: 'normal' }}
             >
               ← Atpakaļ uz sarakstu
