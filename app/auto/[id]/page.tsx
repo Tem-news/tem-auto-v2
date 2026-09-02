@@ -40,12 +40,6 @@ export default function AutoDetailsPage() {
     }
   }
 
-  // Palīgfunkcijas telefona numuru sakārtošanai saitēm
-  const cleanPhone = car?.phone ? car.phone.replace(/\D/g, '') : ''
-  const cleanParentNumber = (phoneStr: string) => {
-    return phoneStr ? phoneStr.replace(/\D/g, '') : ''
-  }
-
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '60px', fontSize: '16px', color: '#6b7280' }}>
@@ -63,6 +57,7 @@ export default function AutoDetailsPage() {
     )
   }
 
+  // Šeit tiek apvienots motora tilpums un degvielas tips (piem., "2.0" un "Dīzelis" -> "2.0 Dīzelis")
   const engineDisplay = [car.volume, car.engine].filter(Boolean).join(' ') || 'Nav norādīts'
 
   const images = car.images && car.images.length > 0 
@@ -72,12 +67,14 @@ export default function AutoDetailsPage() {
   return (
     <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '24px 16px', boxSizing: 'border-box' }}>
       
+      {/* Atpakaļ poga */}
       <div style={{ marginBottom: '20px' }}>
         <Link href="/" style={{ fontSize: '14px', color: '#2563eb', textDecoration: 'none', fontWeight: '500' }}>
           ← Atpakaļ uz sludinājumu sarakstu
         </Link>
       </div>
 
+      {/* Virsraksts un Cena */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <h1 style={{ fontSize: '26px', fontWeight: 'bold', color: '#111827', margin: 0 }}>
@@ -92,8 +89,10 @@ export default function AutoDetailsPage() {
         </div>
       </div>
 
+      {/* Galvenā daļa: Attēlu galerija + Pamatinfo */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '24px', alignItems: 'start' }}>
         
+        {/* Attēlu galerija */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div style={{ width: '100%', height: '450px', backgroundColor: '#f3f4f6', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
             <img 
@@ -126,6 +125,7 @@ export default function AutoDetailsPage() {
           )}
         </div>
 
+        {/* Specifikāciju bloks (Kreisais/Labais stabiņš ar parametriem) */}
         <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#111827', marginTop: 0, marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '10px' }}>
             Galvenie parametri
@@ -148,6 +148,7 @@ export default function AutoDetailsPage() {
               <span style={{ fontWeight: '500', color: '#111827' }}>{car.year || '-'}</span>
             </div>
 
+            {/* Aile Motors, kurā tagad kopā parādās tilpums un degvielas tips */}
             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f3f4f6', paddingBottom: '8px' }}>
               <span style={{ color: '#6b7280' }}>Motors:</span>
               <span style={{ fontWeight: '500', color: '#111827' }}>{engineDisplay}</span>
@@ -185,28 +186,18 @@ export default function AutoDetailsPage() {
 
           </div>
 
+          {/* Kontaktinformācijas bloks */}
           <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f9fafb', padding: '12px', borderRadius: '6px' }}>
             <h4 style={{ fontSize: '14px', fontWeight: 'bold', margin: '0 0 8px 0', color: '#111827' }}>Kontakti</h4>
             {car.phone && <p style={{ margin: '4px 0', fontSize: '13.5px', color: '#374151' }}>Tālrunis: <strong>{car.phone}</strong></p>}
             {car.email && <p style={{ margin: '4px 0', fontSize: '13.5px', color: '#374151' }}>E-pasts: <strong>{car.email}</strong></p>}
-
-            {/* Saites uz ziņojumapmaiņu */}
-            {car.phone && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '10px' }}>
-                <a href={`viber://chat?number=${cleanParentNumber(cleanPhone)}`} style={{ fontSize: '13px', color: '#7c3aed', textDecoration: 'none', fontWeight: '500' }}>
-                  💬 Viber ziņa
-                </a>
-                <a href={`https://t.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#2563eb', textDecoration: 'none', fontWeight: '500' }}>
-                  ✈️ Telegram ziņa
-                </a>
-              </div>
-            )}
           </div>
 
         </div>
 
       </div>
 
+      {/* Apraksts */}
       {car.description && (
         <div style={{ marginTop: '32px', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '24px' }}>
           <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827', marginTop: 0, marginBottom: '12px' }}>
