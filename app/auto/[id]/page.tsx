@@ -13,7 +13,6 @@ export default function AutoLapa({ params }: { params: Promise<{ id: string }> }
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
-  // Maskētās informācijas stāvokļi
   const [showPhone, setShowPhone] = useState(false);
   const [showEmail, setShowEmail] = useState(false);
   const [showVin, setShowVin] = useState(false);
@@ -23,7 +22,6 @@ export default function AutoLapa({ params }: { params: Promise<{ id: string }> }
     async function fetchCarData() {
       if (!id) return;
 
-      // Iegūstam auto datus
       const { data, error } = await supabase
         .from('cars')
         .select('*')
@@ -34,8 +32,6 @@ export default function AutoLapa({ params }: { params: Promise<{ id: string }> }
         console.error('Kļūda ielādējot auto:', error);
       } else {
         setCar(data);
-        
-        // Palielinām skatījumu skaitītāju izmantojot RPC
         await supabase.rpc('increment_view', { car_id: id });
       }
       setLoading(false);
@@ -44,7 +40,6 @@ export default function AutoLapa({ params }: { params: Promise<{ id: string }> }
     fetchCarData();
   }, [id, supabase]);
 
-  // Back bultiņas loģika, kas atgriež vienu soli atpakaļ vai uz sākumu
   const handleBack = () => {
     if (window.history.length > 2) {
       router.back();
@@ -65,7 +60,6 @@ export default function AutoLapa({ params }: { params: Promise<{ id: string }> }
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      {/* Atpakaļ poga */}
       <button 
         onClick={handleBack}
         className="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium transition"
@@ -74,7 +68,6 @@ export default function AutoLapa({ params }: { params: Promise<{ id: string }> }
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Attēlu galerija */}
         <div>
           <div className="relative h-80 sm:h-96 rounded-xl overflow-hidden shadow-lg bg-black">
             <img 
@@ -98,7 +91,6 @@ export default function AutoLapa({ params }: { params: Promise<{ id: string }> }
           )}
         </div>
 
-        {/* Auto pamatinformācija un kontakti */}
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{car.make} {car.model}</h1>
           <p className="text-2xl font-semibold text-blue-600 mb-4">{car.price} €</p>
@@ -111,7 +103,6 @@ export default function AutoLapa({ params }: { params: Promise<{ id: string }> }
               <div>Nobraukums: <span className="font-semibold text-gray-900">{car.mileage} km</span></div>
             </div>
 
-            {/* VIN kods */}
             <div className="pt-2 border-t border-gray-200 flex items-center justify-between">
               <span className="text-sm text-gray-600">VIN:</span>
               {showVin ? (
@@ -124,11 +115,9 @@ export default function AutoLapa({ params }: { params: Promise<{ id: string }> }
             </div>
           </div>
 
-          {/* Kontaktu un saziņas sadaļa */}
           <div className="bg-white border border-gray-200 p-6 rounded-xl shadow-sm space-y-4">
             <h3 className="font-bold text-lg text-gray-900">Pārdevēja kontakti</h3>
             
-            {/* Telefons */}
             <div className="flex items-center justify-between">
               <span className="text-gray-600">Telefons:</span>
               {showPhone ? (
@@ -140,7 +129,6 @@ export default function AutoLapa({ params }: { params: Promise<{ id: string }> }
               )}
             </div>
 
-            {/* E-pasts */}
             <div className="flex items-center justify-between">
               <span className="text-gray-600">E-pasts:</span>
               {showEmail ? (
@@ -152,7 +140,6 @@ export default function AutoLapa({ params }: { params: Promise<{ id: string }> }
               )}
             </div>
 
-            {/* Vairāku platformu saziņas izvēlne */}
             <div className="relative pt-2">
               <button 
                 onClick={() => setShowContactMenu(!showContactMenu)}
@@ -177,4 +164,3 @@ export default function AutoLapa({ params }: { params: Promise<{ id: string }> }
     </div>
   );
 }
-```[cite: 2]
