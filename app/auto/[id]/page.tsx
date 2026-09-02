@@ -66,10 +66,13 @@ export default function AutoLapa() {
     setActiveImage(allImages[newIndex])
   }
 
+  // Stingri pielabota cenu formatēšanas funkcija tūkstošu atdalītājiem
   const formatPrice = (price: number | string) => {
     if (!price && price !== 0) return 'Cena nav norādīta'
-    const num = Number(price)
-    if (isNaN(num)) return `${price} €`
+    // Notīrām visu, izņemot ciparus (ja gadījumā iekšā ir burti vai simboli)
+    const cleanNumStr = String(price).replace(/[^\d]/g, '')
+    const num = Number(cleanNumStr)
+    if (isNaN(num) || num === 0) return `${price} €`
     return `${num.toLocaleString('lv-LV')} €`
   }
 
@@ -117,13 +120,11 @@ export default function AutoLapa() {
     )
   }
 
-  // Automātiski atrod nobraukumu datubāzē VAI mēģina izvilkt no apraksta teksta
   const getMileage = () => {
     if (car.mileage) return car.mileage
     if (car.noobraukums) return car.noobraukums
     if (car.km) return car.km
     
-    // Meklējam aprakstā ciparus pirms vārda "km" vai "nobraukums"
     if (car.description) {
       const match = car.description.match(/(\d[\d\s]*)\s*(?:km|nobraukums)/i)
       if (match) {
