@@ -13,12 +13,9 @@ export default function AutoLapa() {
   const [loading, setLoading] = useState(true)
   const [activeImage, setActiveImage] = useState<string>('')
 
-  // Stāvokļi datu maskēšanai
   const [showPhone, setShowPhone] = useState(false)
   const [showEmail, setShowEmail] = useState(false)
   const [showVin, setShowVin] = useState(false)
-
-  // Stāvoklis sociālo tīklu izlecošajam logam un kopēšanai
   const [showSocialModal, setShowSocialModal] = useState(false)
   const [copied, setCopied] = useState(false)
 
@@ -120,22 +117,33 @@ export default function AutoLapa() {
     )
   }
 
+  // Automātiski atrod nobraukumu datubāzē VAI mēģina izvilkt no apraksta teksta
+  const getMileage = () => {
+    if (car.mileage) return car.mileage
+    if (car.noobraukums) return car.noobraukums
+    if (car.km) return car.km
+    
+    // Meklējam aprakstā ciparus pirms vārda "km" vai "nobraukums"
+    if (car.description) {
+      const match = car.description.match(/(\d[\d\s]*)\s*(?:km|nobraukums)/i)
+      if (match) {
+        const cleaned = match[1].replace(/\s+/g, '')
+        if (!isNaN(Number(cleaned))) return cleaned
+      }
+    }
+    return null
+  }
+
+  const finalMileage = getMileage()
+
   return (
     <div style={{ maxWidth: '1250px', margin: '20px auto', padding: '0 20px', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
       
-      {/* Augšējā daļa: 3 kolonnas (Nekustīgas, nekad nescrollojas) */}
       <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', marginBottom: '16px' }}>
         
         {/* KREISAIS STABIŅŠ */}
         <div style={{ width: '320px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
           
-          {/* Cena */}
-          <div style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '10px', border: '1px solid #e5e7eb', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-            <span style={{ fontSize: '28px', fontWeight: 'bold', color: '#16a34a', letterSpacing: '0.5px' }}>
-              {formatPrice(car.price)}
-            </span>
-          </div>
-
           {/* Valsts un Pilsēta */}
           {(car.country || car.city) && (
             <div style={{ backgroundColor: '#f0fdf4', padding: '12px 16px', borderRadius: '10px', border: '1px solid #bbf7d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
@@ -143,6 +151,13 @@ export default function AutoLapa() {
               <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.city || car.region || ''}</span>
             </div>
           )}
+
+          {/* Cena */}
+          <div style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '10px', border: '1px solid #e5e7eb', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <span style={{ fontSize: '28px', fontWeight: 'bold', color: '#16a34a', letterSpacing: '0.5px' }}>
+              {formatPrice(car.price)}
+            </span>
+          </div>
 
           {/* Pārējie dati */}
           <div style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '10px', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
@@ -159,13 +174,13 @@ export default function AutoLapa() {
               </div>
             )}
 
-            {/* Nobraukums novietots zem Motors un virs Ātrumkārbas */}
-            {car.mileage !== undefined && car.mileage !== null && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-                <span style={{ color: '#6b7280', fontWeight: '500' }}>Nobraukums:</span>
-                <span style={{ color: '#111827', fontWeight: 'bold' }}>{Number(car.mileage).toLocaleString('lv-LV')} km</span>
-              </div>
-            )}
+            {/* Nobraukums (Zem Motors, virs Ātrumkārbas) */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+              <span style={{ color: '#6b7280', fontWeight: '500' }}>Nobraukums:</span>
+              <span style={{ color: '#111827', fontWeight: 'bold' }}>
+                {finalMileage ? `${Number(finalMileage).toLocaleString('lv-LV')} km` : 'Nav norādīts'}
+              </span>
+            </div>
 
             {car.gearbox && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
@@ -192,7 +207,6 @@ export default function AutoLapa() {
               </div>
             )}
             
-            {/* VIN kods */}
             {car.vin && (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ color: '#6b7280', fontWeight: '500' }}>VIN kods:</span>
@@ -319,7 +333,7 @@ export default function AutoLapa() {
 
       </div>
 
-      {/* APAKŠĒJĀ DAĻA: APRAKSTS AR SAVU ĪPAŠU SKROLLĒŠANU */}
+      {/* APAKŠĒJĀ DAĻA: APRAKSTS */}
       {car.description && (
         <div style={{ backgroundColor: '#f9fafb', padding: '16px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', maxHeight: '220px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box', marginBottom: '20px' }}>
           <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#111827', flexShrink: 0 }}>Apraksts</h3>
