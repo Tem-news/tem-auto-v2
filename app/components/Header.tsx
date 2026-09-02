@@ -54,7 +54,7 @@ const REGIONS = [
       'Kolorādo (CO)', 'Konektikuta (CT)', 'Delavēra (DE)', 'Florida (FL)', 'Džordžija (GA)', 
       'Havajas (HI)', 'Aidaho (ID)', 'Ilinoisa (IL)', 'Indianāna (IN)', 'Aiova (IA)', 
       'Kanzasa (KS)', 'Kentuki (KY)', 'Luiziāna (LA)', 'Meina (ME)', 'Merilenda (MD)', 
-      ' Masačūsetsa (MA)', 'Mičigana (MI)', 'Minesota (MN)', 'Misisipi (MS)', 'Misūri (MO)', 
+      'Masačūsetsa (MA)', 'Mičigana (MI)', 'Minesota (MN)', 'Misisipi (MS)', 'Misūri (MO)', 
       'Montāna (MT)', 'Nebraska (NE)', 'Nevada (NV)', 'Ņūhempšīra (NH)', 'Ņūdžersija (NJ)', 
       'Ņūmexika (NM)', 'Ņujorka (NY)', 'Ziemeļkarolīna (NC)', 'Ziemeļdakota (ND)', 'Ohaio (OH)', 
       'Oklahoma (OK)', 'Oregonas štats (OR)', 'Pensilvānija (PA)', 'Roda Ailenda (RI)', 'Dienvidkarolīna (SC)', 
@@ -357,7 +357,6 @@ export default function Header() {
                           key={r.name}
                           onMouseEnter={() => setHoveredRegion(r.name)}
                           onClick={() => {
-                            // TAGAD VAR NOFIKSĒT ARĪ PAŠU VALSTI NEATKARĪGI NO TĀ, VAI TAI IR APAKŠREĢIONI!
                             setCurrentRegion(r.name)
                             setRegionOpen(false)
                             setRegionSearch('')
@@ -389,7 +388,6 @@ export default function Header() {
                 {hoveredRegionObj && hoveredRegionObj.subregions && hoveredRegionObj.subregions.length > 0 && (
                   <div style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRight: 'none', borderRadius: '8px 0 0 8px', width: '240px', boxShadow: '-10px 10px 15px -3px rgba(0,0,0,0.5)', padding: '12px', maxHeight: '316px', overflowY: 'auto' }}>
                     
-                    {/* Ērta opcija izvēlēties TIKAI valsti tieši no reģionu saraksta augšas */}
                     <div
                       onClick={() => {
                         setCurrentRegion(hoveredRegionObj.name)
