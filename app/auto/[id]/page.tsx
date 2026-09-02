@@ -22,7 +22,7 @@ export default function AutoLapa() {
 
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Funkcija, kas droši aizved atpakaļ uz iepriekšējo meklēšanu/filtru
+  // 🚀 DROŠA ATGRIEŠANĀS FUNKCIJA
   const handleBack = () => {
     if (typeof window !== 'undefined') {
       const savedUrl = sessionStorage.getItem('lastSearchUrl')
@@ -31,6 +31,7 @@ export default function AutoLapa() {
         return
       }
     }
+    // Ja nav saglabātas iepriekšējās adreses, ejam uz sākumu vai sarakstu
     router.push('/')
   }
 
@@ -347,6 +348,7 @@ export default function AutoLapa() {
         <div style={{ flex: 1, maxWidth: '750px', minWidth: 0 }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', paddingTop: '4px' }}>
+            {/* 🚀 Šeit izmantojam handleBack funkciju */}
             <button 
               onClick={handleBack} 
               style={{ background: 'none', border: 'none', color: '#2563eb', textDecoration: 'none', fontSize: '14px', cursor: 'pointer', padding: 0 }}
