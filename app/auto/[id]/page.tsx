@@ -66,7 +66,7 @@ export default function AutoLapa() {
     setActiveImage(allImages[newIndex])
   }
 
-  // Cenas formatēšana, izmantojot to pašu drošo pieeju kā nobraukumam
+  // Pielabota cenas funkcija, kas garantēti sadala ar atstarpi jebkuru skaitli (arī 4-ciparu)
   const formatPrice = (price: any) => {
     if (price === null || price === undefined || price === '') return 'Cena nav norādīta'
     const rawString = String(price)
@@ -74,7 +74,10 @@ export default function AutoLapa() {
     if (!matches) return `${price} €`
     const numericPrice = Number(matches.join(''))
     if (isNaN(numericPrice)) return `${price} €`
-    return `${numericPrice.toLocaleString('lv-LV')} €`
+    
+    // Uzspiež atstarpi tūkstošiem neatkarīgi no ciparu skaita
+    const formattedNum = numericPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    return `${formattedNum} €`
   }
 
   const maskPhone = (phone: string) => {
