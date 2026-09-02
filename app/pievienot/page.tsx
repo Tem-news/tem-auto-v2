@@ -208,8 +208,8 @@ const COUNTRIES = [
     flagUrl: 'https://flagcdn.com/w40/us.png',
     regions: [
       'Alabama', 'Aļaska (Alaska)', 'Arizona', 'Arkanzasa (Arkansas)', 'Kalifornija (California)', 
-      'Kolorādo', 'Konektikuta (Connecticut)', 'Delavēra (Delaware)', 'Florida', 'Džordžija (Georgia)', 
-      'Havajas (Hawaii)', 'Aidaho (Idaho)', 'Ilinoisa (Illinois)', 'Indiana', 'Aiovas (Iowa)', 
+      'Kolorādo', 'Konektikuta (Connecticut)', 'Delavēra (Delaware)', 'Florida', 'Džordžija (Georgia)',
+      'Havajas (Hawaii)', 'Aidaho (Idaho)', 'Ilinoisa (Illinois)', 'Indiana', 'Aiovas (Iowa)',
       'Kanzasa (Kansas)', 'Kentuki (Kentucky)', 'Luiziāna (Louisiana)', 'Meina (Maine)', 'Merilenda (Maryland)', 
       'Masačūsetsa (Massachusetts)', 'Mičigana (Michigan)', 'Minesota (Minnesota)', 'Misisipi (Mississippi)', 
       'Misūri (Missouri)', 'Montāna (Montana)', 'Nebraska', 'Nevada', 'Ņūhempšīra (New Hampshire)', 
@@ -608,122 +608,16 @@ export default function PievienotAuto() {
                   </div>
                 )}
               </div>
-
-              <div className="dropdown-container" style={{ position: 'relative' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Tilpums (L)</label>
-                <input
-                  type="text"
-                  placeholder="Piem., 2.0"
-                  value={volume}
-                  onChange={(e) => { setVolume(e.target.value); setActiveDropdown('volume'); }}
-                  onClick={() => toggleDropdown('volume')}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
-                />
-                {activeDropdown === 'volume' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {ENGINE_VOLUMES.filter(v => v.includes(volume)).map((v) => (
-                      <div
-                        key={v}
-                        onClick={() => { setVolume(v); setActiveDropdown(null); }}
-                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                      >
-                        {v}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* ĀTRUMKĀRBA UN VIRSBŪVE */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div className="dropdown-container" style={{ position: 'relative' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Ātrumkārba</label>
-                <input
-                  type="text"
-                  placeholder="Izvēlieties kārbu..."
-                  value={gearbox}
-                  onChange={(e) => { setGearbox(e.target.value); setActiveDropdown('gearbox'); }}
-                  onClick={() => toggleDropdown('gearbox')}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
-                />
-                {activeDropdown === 'gearbox' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {GEARBOX_TYPES.filter(gt => gt.toLowerCase().includes(gearbox.toLowerCase())).map((gt) => (
-                      <div
-                        key={gt}
-                        onClick={() => { setGearbox(gt); setActiveDropdown(null); }}
-                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                      >
-                        {gt}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="dropdown-container" style={{ position: 'relative' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Virsbūves tips</label>
-                <input
-                  type="text"
-                  placeholder="Izvēlieties virsbūvi..."
-                  value={bodyType}
-                  onChange={(e) => { setBodyType(e.target.value); setActiveDropdown('bodyType'); }}
-                  onClick={() => toggleDropdown('bodyType')}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
-                />
-                {activeDropdown === 'bodyType' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {BODY_TYPES.filter(bt => bt.toLowerCase().includes(bodyType.toLowerCase())).map((bt) => (
-                      <div
-                        key={bt}
-                        onClick={() => { setBodyType(bt); setActiveDropdown(null); }}
-                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                      >
-                        {bt}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* POGA VAI SAGLABĀŠANA */}
-            <div style={{ marginTop: '20px' }}>
-              <button
-                type="submit"
-                disabled={loading}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  backgroundColor: '#2563eb',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '15px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  opacity: loading ? 0.7 : 1
-                }}
-              >
-                {loading ? 'Saglabā sludinājumu...' : 'Pievienot sludinājumu'}
-              </button>
             </div>
 
           </form>
         </div>
 
-        {/* LABĀ PUSE - Baneris vai tukšums */}
+        {/* LABĀ PUSE - Baneris */}
         <div style={{ position: 'sticky', top: '72px', alignSelf: 'start' }}>
-          <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+          <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '500px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
             <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 3</span>
-            <span>Labais baneris!</span>
+            <span>Labās puses baneris!</span>
           </div>
         </div>
 
