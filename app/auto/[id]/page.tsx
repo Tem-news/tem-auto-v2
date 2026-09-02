@@ -1,14 +1,18 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../lib/supabase'
 
 export default function AutoLapa() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const id = params?.id
+
+  // Nolasām no URL, no kuras markas lietotājs nāca (piemēram, ?from=BMW)
+  const fromMake = searchParams.get('from')
 
   const [car, setCar] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -22,17 +26,13 @@ export default function AutoLapa() {
 
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // 🚀 DROŠA ATGRIEŠANĀS FUNKCIJA
+  // 🚀 DROŠA ATGRIEŠANĀS: ja bija marka,ved atpakaļ uz sarakstu ar šo marku
   const handleBack = () => {
-    if (typeof window !== 'undefined') {
-      const savedUrl = sessionStorage.getItem('lastSearchUrl')
-      if (savedUrl) {
-        router.push(savedUrl)
-        return
-      }
+    if (fromMake) {
+      router.push(`/?marka=${encodeURIComponent(fromMake)}`) // Pielāgo atbilstoši savam sākumlapas parametram, ja tev ir cits nosaukums (piemēram, ?make=...)
+    } else {
+      router.push('/')
     }
-    // Ja nav saglabātas iepriekšējās adreses, ejam uz sākumu vai sarakstu
-    router.push('/')
   }
 
   // Aizver izkrītošo lodziņu, ja noklikšķina ārpus tā
@@ -348,7 +348,6 @@ export default function AutoLapa() {
         <div style={{ flex: 1, maxWidth: '750px', minWidth: 0 }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', paddingTop: '4px' }}>
-            {/* 🚀 Šeit izmantojam handleBack funkciju */}
             <button 
               onClick={handleBack} 
               style={{ background: 'none', border: 'none', color: '#2563eb', textDecoration: 'none', fontSize: '14px', cursor: 'pointer', padding: 0 }}
