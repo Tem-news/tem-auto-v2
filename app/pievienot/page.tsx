@@ -171,16 +171,10 @@ const BODY_TYPES = [
   'Sedans', 'Universāls', 'Hečbeks', 'Apvidus (SUV)', 'Kupeja', 'Kabriolets', 'Minivens', 'Kompaktvens', 'Pikaps', 'Furgons'
 ]
 
-// Šeit ir nomainīts tikai viens vārds: "Mehāniskā" -> "Manuālā"
 const GEARBOX_TYPES = ['Manuālā', 'Automāts', 'Pusautomāts']
 
 const ENGINE_TYPES = ['Dīzelis', 'Benzīns', 'Benzīns / Gāze', 'Hibrīds (Benzīns)', 'Hibrīds (Dīzelis)', 'Elektriskais']
 const STEERING_TYPES = ['Kreisā', 'Labā']
-const WHEEL_TYPES = [
-  'R13 vieglmetāla', 'R14 vieglmetāla', 'R15 vieglmetāla', 'R16 vieglmetāla', 'R17 vieglmetāla', 
-  'R18 vieglmetāla', 'R19 vieglmetāla', 'R20 vieglmetāla', 'R21 vieglmetāla', 'R22 vieglmetāla',
-  'R15 tērauda', 'R16 tērauda'
-]
 
 const ENGINE_VOLUMES = [
   '1.0', '1.2', '1.3', '1.4', '1.5', '1.6', '1.8', '1.9', '2.0', 
@@ -269,7 +263,6 @@ export default function PievienotAuto() {
   const [displayNobraukums, setDisplayNobraukums] = useState('')
   const [tehiskapskate, setTehiskapskate] = useState('')
   const [sture, setSture] = useState('')
-  const [diski, setDiski] = useState('')
   const [salonaKrasa, setSalonaKrasa] = useState('')
   
   const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0])
@@ -416,7 +409,6 @@ export default function PievienotAuto() {
           mileage: nobraukums ? Number(nobraukums) : null,
           tech_inspection: tehiskapskate.trim(),
           steering_wheel: sture.trim() || 'Kreisā',
-          wheels: diski.trim(),
           interior_color: salonaKrasa.trim(),
           country: selectedCountry.name,
           region: region.trim(),
@@ -804,35 +796,38 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* 8. Rinda: Diski / Reģions */}
+            {/* 8. Rinda: Valsts un Reģions / Pilsēta (Novietoti pretī viens otram) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              
+              {/* Valsts */}
               <div className="dropdown-container" style={{ position: 'relative' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Diski</label>
-                <input
-                  type="text"
-                  placeholder="Izvēlieties diskus..."
-                  value={diski}
-                  onChange={(e) => { setDiski(e.target.value); setActiveDropdown('diski'); }}
-                  onClick={() => toggleDropdown('diski')}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
-                />
-                {activeDropdown === 'diski' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {WHEEL_TYPES.filter(w => w.toLowerCase().includes(diski.toLowerCase())).map((w) => (
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Valsts</label>
+                <div 
+                  onClick={() => toggleDropdown('country')}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+                >
+                  <img src={selectedCountry.flagUrl} alt="" style={{ width: '24px', height: '16px', objectFit: 'cover', borderRadius: '2px' }} />
+                  <span>{selectedCountry.name}</span>
+                </div>
+                {activeDropdown === 'country' && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    {COUNTRIES.map((c) => (
                       <div
-                        key={w}
-                        onClick={() => { setDiski(w); setActiveDropdown(null); }}
-                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                        key={c.code}
+                        onClick={() => { setSelectedCountry(c); setRegion(''); setActiveDropdown(null); }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        {w}
+                        <img src={c.flagUrl} alt="" style={{ width: '24px', height: '16px', objectFit: 'cover', borderRadius: '2px' }} />
+                        <span>{c.name}</span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
 
+              {/* Reģions / Pilsēta */}
               <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Reģions / Pilsēta</label>
                 <input
@@ -859,34 +854,7 @@ export default function PievienotAuto() {
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* 9. Valsts izvēle */}
-            <div className="dropdown-container" style={{ position: 'relative' }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Valsts</label>
-              <div 
-                onClick={() => toggleDropdown('country')}
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
-              >
-                <img src={selectedCountry.flagUrl} alt="" style={{ width: '24px', height: '16px', objectFit: 'cover', borderRadius: '2px' }} />
-                <span>{selectedCountry.name}</span>
-              </div>
-              {activeDropdown === 'country' && (
-                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                  {COUNTRIES.map((c) => (
-                    <div
-                      key={c.code}
-                      onClick={() => { setSelectedCountry(c); setRegion(''); setActiveDropdown(null); }}
-                      style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                    >
-                      <img src={c.flagUrl} alt="" style={{ width: '24px', height: '16px', objectFit: 'cover', borderRadius: '2px' }} />
-                      <span>{c.name}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
 
             {/* Apraksts */}
