@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase'; // Tavas esošās Supabase imports
 
 // Krāsu saraksts filtram
 const COLORS = [
@@ -30,18 +29,17 @@ export default function Sakumlapa() {
   const [searchModel, setSearchModel] = useState('');
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
-  // Datu ielāde no Supabase (pielāgots tavai esošajai struktūrai)
+  // Datu ielāde no API (kā bija tavā oriģinālajā kodā)
   useEffect(() => {
     async function fetchCars() {
       try {
-        const { data, error } = await supabase.from('cars').select('*');
-        if (error) {
-          console.error('Kļūda ielādējot auto no Supabase:', error);
-        } else if (data) {
+        const res = await fetch('/api/cars');
+        if (res.ok) {
+          const data = await res.json();
           setCars(data);
         }
       } catch (error) {
-        console.error('Nezināma kļūda:', error);
+        console.error('Kļūda ielādējot auto:', error);
       } finally {
         setLoading(false);
       }
