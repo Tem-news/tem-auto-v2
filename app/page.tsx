@@ -699,7 +699,7 @@ export default function Sakumlapa() {
                 })}
               </div>
             ) : (
-              /* TABULAS RINDU SKATS, KAD IZVĒLĒTA MARKA (Skaidri stabiņi un lielāki, treknāki burti) */
+              /* TABULAS RINDU SKATS, KAD IZVĒLĒTA MARKA (Ar tūkstošatstarpēm cenu cipariem) */
               <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
                 
                 {/* Zaļā galvenes strīpa ar stabiņu nosaukumiem */}
@@ -794,7 +794,7 @@ export default function Sakumlapa() {
                       {/* Tukšs lauks starpposmam */}
                       <div></div>
 
-                      {/* 8. Cena (atvirzīta pa labi) */}
+                      {/* 8. Cena (atvirzīta pa labi, formātā ar atstarpēm tūkstošiem) */}
                       <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '15px' }}>
                         {car.price ? `€${Number(car.price).toLocaleString('lv-LV')}` : ''}
                       </div>
