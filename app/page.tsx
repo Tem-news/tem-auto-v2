@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase'; // Tavas esošās Supabase imports
 
 // Krāsu saraksts filtram
 const COLORS = [
@@ -29,17 +30,18 @@ export default function Sakumlapa() {
   const [searchModel, setSearchModel] = useState('');
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
-  // Datu ielāde no Supabase / API (pielāgojiet endpoint pēc nepieciešamības)
+  // Datu ielāde no Supabase (pielāgots tavai esošajai struktūrai)
   useEffect(() => {
     async function fetchCars() {
       try {
-        const res = await fetch('/api/cars'); // Vai attiecīgais datu avots
-        if (res.ok) {
-          const data = await res.json();
+        const { data, error } = await supabase.from('cars').select('*');
+        if (error) {
+          console.error('Kļūda ielādējot auto no Supabase:', error);
+        } else if (data) {
           setCars(data);
         }
       } catch (error) {
-        console.error('Kļūda ielādējot auto:', error);
+        console.error('Nezināma kļūda:', error);
       } finally {
         setLoading(false);
       }
@@ -190,7 +192,7 @@ export default function Sakumlapa() {
                     )}
                   </div>
 
-                  {/* DATU Rinda (Precīzā secībā) */}
+                  {/* DATU Rinda (Precīzā secībā: Marka Modelis ➔ Izlaiduma gads ➔ Virsbūves tips ➔ Krāsa ➔ Nobraukums ➔ Cena) */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '16px', flexWrap: 'wrap' }}>
                     
                     {/* 2. MARKA MODELIS */}
