@@ -691,7 +691,7 @@ export default function Sakumlapa() {
                         </div>
                         <div style={{ marginTop: 'auto', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <span style={{ fontWeight: 'bold', fontSize: '16px', color: '#111827' }}>
-                            {car.price ? `€${formatNumberWithSpace(car.price)}` : ''}
+                            {car.price ? `${formatNumberWithSpace(car.price)} €` : ''}
                           </span>
                         </div>
                       </div>
@@ -797,7 +797,7 @@ export default function Sakumlapa() {
 
                       {/* 8. Cena */}
                       <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '15px' }}>
-                        {car.price ? `€${formatNumberWithSpace(car.price)}` : ''}
+                        {car.price ? `${formatNumberWithSpace(car.price)} €` : ''}
                       </div>
                     </Link>
                   )
