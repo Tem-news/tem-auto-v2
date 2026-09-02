@@ -686,14 +686,11 @@ export default function Sakumlapa() {
                 })}
               </div>
             ) : (
-              /* TABULAS SKATS - BEZ overflow:hidden augstākajos konteineros! */
-              <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+              /* TABULAS SKATS - Fiksēta zaļā galvene un skrollējams saturs */
+              <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', position: 'relative' }}>
                 
-                {/* Nekustīgā zaļā galvenes strīpa ar pareizu top offset */}
+                {/* Nekustīgā zaļā galvenes strīpa */}
                 <div style={{ 
-                  position: 'sticky',
-                  top: '160px', 
-                  zIndex: 20,
                   display: 'grid', 
                   gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
                   backgroundColor: '#15803d', 
@@ -702,6 +699,8 @@ export default function Sakumlapa() {
                   fontSize: '13px', 
                   fontWeight: 'bold', 
                   alignItems: 'center',
+                  borderTopLeftRadius: '8px',
+                  borderTopRightRadius: '8px',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}>
                   <div>Foto</div>
@@ -715,81 +714,84 @@ export default function Sakumlapa() {
                   <div style={{ textAlign: 'right' }}>Cena</div>
                 </div>
 
-                {filteredCars.map((car, index) => {
-                  const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=300&q=80'
-                  
-                  const engineType = car.engine || car.dzinejs || '-'
-                  const bodyType = car.body_type || car.virsbuve || '-'
-                  const carColor = car.color || car.krasa || '-'
-                  const rawMileage = car.mileage || car.noobraukums || car.nobraukums
-                  const formattedMileage = rawMileage ? `${formatNumberWithSpace(rawMileage)} km` : '-'
+                {/* Skrollējams satura konteiners */}
+                <div style={{ maxHeight: 'calc(100vh - 250px)', overflowY: 'auto' }}>
+                  {filteredCars.map((car, index) => {
+                    const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=300&q=80'
+                    
+                    const engineType = car.engine || car.dzinejs || '-'
+                    const bodyType = car.body_type || car.virsbuve || '-'
+                    const carColor = car.color || car.krasa || '-'
+                    const rawMileage = car.mileage || car.noobraukums || car.nobraukums
+                    const formattedMileage = rawMileage ? `${formatNumberWithSpace(rawMileage)} km` : '-'
 
-                  return (
-                    <Link 
-                      key={car.id || index} 
-                      href={`/auto/${car.id}`} 
-                      style={{ 
-                        display: 'grid', 
-                        gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
-                        alignItems: 'center', 
-                        padding: '10px 12px', 
-                        borderBottom: '1px solid #e5e7eb', 
-                        textDecoration: 'none', 
-                        color: '#1f2937',
-                        backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9fafb',
-                        fontSize: '14.5px',
-                        fontWeight: '600'
-                      }}
-                    >
-                      {/* 1. Foto */}
-                      <div>
-                        <img 
-                          src={imageUrl} 
-                          alt={car.make} 
-                          style={{ width: '95px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #d1d5db' }} 
-                        />
-                      </div>
+                    return (
+                      <Link 
+                        key={car.id || index} 
+                        href={`/auto/${car.id}`} 
+                        style={{ 
+                          display: 'grid', 
+                          gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
+                          alignItems: 'center', 
+                          padding: '10px 12px', 
+                          borderBottom: '1px solid #e5e7eb', 
+                          textDecoration: 'none', 
+                          color: '#1f2937',
+                          backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9fafb',
+                          fontSize: '14.5px',
+                          fontWeight: '600'
+                        }}
+                      >
+                        {/* 1. Foto */}
+                        <div>
+                          <img 
+                            src={imageUrl} 
+                            alt={car.make} 
+                            style={{ width: '95px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #d1d5db' }} 
+                          />
+                        </div>
 
-                      {/* 2. Automobilis */}
-                      <div style={{ color: '#1d4ed8', fontSize: '15px', fontWeight: '700', paddingRight: '8px' }}>
-                        {car.make} {car.model}
-                      </div>
+                        {/* 2. Automobilis */}
+                        <div style={{ color: '#1d4ed8', fontSize: '15px', fontWeight: '700', paddingRight: '8px' }}>
+                          {car.make} {car.model}
+                        </div>
 
-                      {/* 3. Gads */}
-                      <div style={{ color: '#374151' }}>
-                        {car.year || '-'}
-                      </div>
+                        {/* 3. Gads */}
+                        <div style={{ color: '#374151' }}>
+                          {car.year || '-'}
+                        </div>
 
-                      {/* 4. Dzinējs */}
-                      <div style={{ color: '#374151' }}>
-                        {engineType}
-                      </div>
+                        {/* 4. Dzinējs */}
+                        <div style={{ color: '#374151' }}>
+                          {engineType}
+                        </div>
 
-                      {/* 5. Virsbūve */}
-                      <div style={{ color: '#374151' }}>
-                        {bodyType}
-                      </div>
+                        {/* 5. Virsbūve */}
+                        <div style={{ color: '#374151' }}>
+                          {bodyType}
+                        </div>
 
-                      {/* 6. Krāsa */}
-                      <div style={{ color: '#374151' }}>
-                        {carColor}
-                      </div>
+                        {/* 6. Krāsa */}
+                        <div style={{ color: '#374151' }}>
+                          {carColor}
+                        </div>
 
-                      {/* 7. Nobraukums */}
-                      <div style={{ color: '#374151' }}>
-                        {formattedMileage}
-                      </div>
+                        {/* 7. Nobraukums */}
+                        <div style={{ color: '#374151' }}>
+                          {formattedMileage}
+                        </div>
 
-                      {/* Tukšs lauks */}
-                      <div></div>
+                        {/* Tukšs lauks */}
+                        <div></div>
 
-                      {/* 8. Cena */}
-                      <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '15px' }}>
-                        {car.price ? `${formatNumberWithSpace(car.price)} €` : ''}
-                      </div>
-                    </Link>
-                  )
-                })}
+                        {/* 8. Cena */}
+                        <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '15px' }}>
+                          {car.price ? `${formatNumberWithSpace(car.price)} €` : ''}
+                        </div>
+                      </Link>
+                    )
+                  })}
+                </div>
               </div>
             )}
           </div>
