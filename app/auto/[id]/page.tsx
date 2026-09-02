@@ -66,14 +66,15 @@ export default function AutoLapa() {
     setActiveImage(allImages[newIndex])
   }
 
-  // Stingri pielabota cenu formatēšanas funkcija tūkstošu atdalītājiem
-  const formatPrice = (price: number | string) => {
-    if (!price && price !== 0) return 'Cena nav norādīta'
-    // Notīrām visu, izņemot ciparus (ja gadījumā iekšā ir burti vai simboli)
-    const cleanNumStr = String(price).replace(/[^\d]/g, '')
-    const num = Number(cleanNumStr)
-    if (isNaN(num) || num === 0) return `${price} €`
-    return `${num.toLocaleString('lv-LV')} €`
+  // Cenas formatēšana, izmantojot to pašu drošo pieeju kā nobraukumam
+  const formatPrice = (price: any) => {
+    if (price === null || price === undefined || price === '') return 'Cena nav norādīta'
+    const rawString = String(price)
+    const matches = rawString.match(/\d+/g)
+    if (!matches) return `${price} €`
+    const numericPrice = Number(matches.join(''))
+    if (isNaN(numericPrice)) return `${price} €`
+    return `${numericPrice.toLocaleString('lv-LV')} €`
   }
 
   const maskPhone = (phone: string) => {
@@ -175,7 +176,7 @@ export default function AutoLapa() {
               </div>
             )}
 
-            {/* Nobraukums (Zem Motors, virs Ātrumkārbas) */}
+            {/* Nobraukums */}
             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
               <span style={{ color: '#6b7280', fontWeight: '500' }}>Nobraukums:</span>
               <span style={{ color: '#111827', fontWeight: 'bold' }}>
