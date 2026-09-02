@@ -64,14 +64,7 @@ export default function AutoLapa() {
   }, [id])
 
   const handleStorageBack = () => {
-    if (typeof window !== 'undefined') {
-      const savedUrl = localStorage.getItem('last_car_list_url')
-      if (savedUrl) {
-        router.push(savedUrl)
-        return
-      }
-    }
-    router.push('/')
+    router.back()
   }
 
   const allImages: string[] = []
