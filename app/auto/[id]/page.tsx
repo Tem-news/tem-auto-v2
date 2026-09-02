@@ -40,8 +40,12 @@ export default function AutoLapa() {
     if (!id) return
 
     async function fetchCarData() {
-      // Izsaucam rpc, bet neļaujam tam nobremzēt vai nobrecināt lapu, ja funkcijas datubāzē nav
-      supabase.rpc('increment_view', { car_id: id }).catch(() => {});
+      // Izsaucam rpc ar try...catch, lai novērstu TypeScript un build kļūdas
+      try {
+        await supabase.rpc('increment_view', { car_id: id })
+      } catch (e) {
+        // Ignorējam kļūdu, ja funkcija datubāzē nav izveidota
+      }
 
       const { data: carData, error: carError } = await supabase
         .from('cars')
@@ -358,7 +362,6 @@ export default function AutoLapa() {
 
           {activeImage && (
             <div style={{ position: 'relative', width: '100%', height: '380px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#111827', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {/* Labots: objectFit nomainīts uz 'contain', lai bilde nepārplūstu un neizietu ārā no malām */}
               <img src={activeImage} alt={`${car.make} ${car.model}`} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
               
               {allImages.length > 1 && (
