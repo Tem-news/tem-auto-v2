@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../lib/supabase'
 
 export default function AutoLapa() {
   const params = useParams()
+  const router = useRouter()
   const id = params?.id
 
   const [car, setCar] = useState<any>(null)
@@ -40,7 +41,6 @@ export default function AutoLapa() {
     if (!id) return
 
     async function fetchCarData() {
-      // Izsaucam rpc ar try...catch, lai novērstu TypeScript un build kļūdas
       try {
         await supabase.rpc('increment_view', { car_id: id })
       } catch (e) {
@@ -139,7 +139,7 @@ export default function AutoLapa() {
     return (
       <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', minHeight: '600px', textAlign: 'center', fontFamily: 'sans-serif' }}>
         <h2>Sludinājums netika atrasts!</h2>
-        <Link href="/" style={{ color: '#2563eb', textDecoration: 'underline' }}>Atpakaļ uz sarakstu</Link>
+        <button onClick={() => router.back()} style={{ color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontSize: '16px' }}>Atpakaļ</button>
       </div>
     )
   }
@@ -339,9 +339,12 @@ export default function AutoLapa() {
         <div style={{ flex: 1, maxWidth: '750px', minWidth: 0 }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', paddingTop: '4px' }}>
-            <Link href="/" style={{ color: '#2563eb', textDecoration: 'none', fontSize: '14px' }}>
+            <button 
+              onClick={() => router.back()} 
+              style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontSize: '14px', padding: 0, textAlign: 'left', fontWeight: 'normal' }}
+            >
               ← Atpakaļ uz sarakstu
-            </Link>
+            </button>
             <div>
               <Link href={`/auto/${id}/edit`} style={{ padding: '6px 14px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold', display: 'inline-block' }}>
                 ✏️ Rediģēt
