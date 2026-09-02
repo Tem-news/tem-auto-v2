@@ -703,7 +703,7 @@ export default function Sakumlapa() {
               /* TABULAS RINDU SKATS, KAD IZVĒLĒTA MARKA */
               <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
                 
-                {/* Nekustīgā zaļā galvenes strīpa */}
+                {/* Nekustīgā zaļā galvenes strīpa - tagad korekti pirms saraksta */}
                 <div style={{ 
                   position: 'sticky',
                   top: '185px', 
