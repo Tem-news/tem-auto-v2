@@ -35,7 +35,6 @@ export default function AutoLapa({ params }: { params: { id: string } }) {
         console.error('Kļūda ielādējot auto:', error);
       } else {
         setCar(data);
-        // Izsaucam bez await, lai nekritizē tipus un nebremzē lapu
         supabase.rpc('increment_view', { car_id: id });
       }
       setLoading(false);
@@ -44,11 +43,16 @@ export default function AutoLapa({ params }: { params: { id: string } }) {
     fetchCarData();
   }, [id]);
 
+  // Droša atpakaļ pogas funkcija, kas garantēti nostrādā
   const handleBack = () => {
-    if (window.history.length > 2) {
-      router.back();
-    } else {
-      router.push('/');
+    try {
+      if (window.history.length > 2) {
+        router.back();
+      } else {
+        router.push('/');
+      }
+    } catch (e) {
+      window.location.href = '/';
     }
   };
 
@@ -66,18 +70,19 @@ export default function AutoLapa({ params }: { params: { id: string } }) {
     <div className="max-w-6xl mx-auto px-4 py-8">
       <button 
         onClick={handleBack}
-        className="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium transition"
+        className="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium transition cursor-pointer"
       >
         ← Atpakaļ
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Attēlu galerija ar ierobežotu augstumu un object-contain, lai bilde nekropļotos un neizietu ārā */}
         <div>
-          <div className="relative h-80 sm:h-96 rounded-xl overflow-hidden shadow-lg bg-black">
+          <div className="relative h-[400px] sm:h-[450px] rounded-xl overflow-hidden shadow-lg bg-gray-900 flex items-center justify-center">
             <img 
               src={images[currentImageIndex]} 
               alt={car.title || 'Auto attēls'} 
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </div>
           {images.length > 1 && (
@@ -86,7 +91,7 @@ export default function AutoLapa({ params }: { params: { id: string } }) {
                 <button
                   key={index}
                   onClick={() => setCurrentImageIndex(index)}
-                  className={`relative w-20 h-16 rounded-lg overflow-hidden border-2 flex-shrink-0 ${currentImageIndex === index ? 'border-blue-600' : 'border-transparent'}`}
+                  className={`relative w-20 h-16 rounded-lg overflow-hidden border-2 flex-shrink-0 cursor-pointer ${currentImageIndex === index ? 'border-blue-600' : 'border-transparent'}`}
                 >
                   <img src={img} alt="" className="w-full h-full object-cover" />
                 </button>
@@ -112,7 +117,7 @@ export default function AutoLapa({ params }: { params: { id: string } }) {
               {showVin ? (
                 <span className="font-mono font-semibold text-gray-900">{car.vin}</span>
               ) : (
-                <button onClick={() => setShowVin(true)} className="text-sm text-blue-600 hover:underline">
+                <button onClick={() => setShowVin(true)} className="text-sm text-blue-600 hover:underline cursor-pointer">
                   Parādīt VIN
                 </button>
               )}
@@ -127,7 +132,7 @@ export default function AutoLapa({ params }: { params: { id: string } }) {
               {showPhone ? (
                 <a href={`tel:${car.phone}`} className="font-semibold text-blue-600">{car.phone}</a>
               ) : (
-                <button onClick={() => setShowPhone(true)} className="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-100">
+                <button onClick={() => setShowPhone(true)} className="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-100 cursor-pointer">
                   Parādīt numuru
                 </button>
               )}
@@ -138,7 +143,7 @@ export default function AutoLapa({ params }: { params: { id: string } }) {
               {showEmail ? (
                 <a href={`mailto:${car.email}`} className="font-semibold text-blue-600">{car.email}</a>
               ) : (
-                <button onClick={() => setShowEmail(true)} className="px-4 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200">
+                <button onClick={() => setShowEmail(true)} className="px-4 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 cursor-pointer">
                   Parādīt e-pastu
                 </button>
               )}
@@ -147,7 +152,7 @@ export default function AutoLapa({ params }: { params: { id: string } }) {
             <div className="relative pt-2">
               <button 
                 onClick={() => setShowContactMenu(!showContactMenu)}
-                className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition text-center"
+                className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition text-center cursor-pointer"
               >
                 Sazināties ar pārdevēju
               </button>
