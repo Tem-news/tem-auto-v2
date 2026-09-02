@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -10,7 +9,6 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function AutoLapa({ params }: { params: { id: string } }) {
   const id = params.id;
-  const router = useRouter();
 
   const [car, setCar] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -43,15 +41,11 @@ export default function AutoLapa({ params }: { params: { id: string } }) {
     fetchCarData();
   }, [id]);
 
-  // Droša atpakaļ pogas funkcija, kas garantēti nostrādā
+  // Garantēta pārlūka līmeņa atpakaļ poga
   const handleBack = () => {
-    try {
-      if (window.history.length > 2) {
-        router.back();
-      } else {
-        router.push('/');
-      }
-    } catch (e) {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
       window.location.href = '/';
     }
   };
@@ -76,13 +70,13 @@ export default function AutoLapa({ params }: { params: { id: string } }) {
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Attēlu galerija ar ierobežotu augstumu un object-contain, lai bilde nekropļotos un neizietu ārā */}
+        {/* Attēlu galerija ar stingru ietvaru un object-contain */}
         <div>
-          <div className="relative h-[400px] sm:h-[450px] rounded-xl overflow-hidden shadow-lg bg-gray-900 flex items-center justify-center">
+          <div className="relative w-full h-[400px] bg-gray-900 rounded-xl overflow-hidden shadow-lg flex items-center justify-center">
             <img 
               src={images[currentImageIndex]} 
               alt={car.title || 'Auto attēls'} 
-              className="w-full h-full object-contain"
+              className="max-h-full max-w-full object-contain"
             />
           </div>
           {images.length > 1 && (
