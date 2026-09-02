@@ -63,7 +63,6 @@ export default function AutoLapa() {
     fetchCarData()
   }, [id])
 
-  // Dzelžaini droša atpakaļ poga, kas nolasa saglabāto ceļu no localStorage
   const handleStorageBack = () => {
     if (typeof window !== 'undefined') {
       const savedUrl = localStorage.getItem('last_car_list_url')
@@ -402,7 +401,7 @@ export default function AutoLapa() {
         {/* LABĀ MALA */}
         <div style={{ width: '240px', flexShrink: '0' }}>
           <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '360px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' %>Reklāma</span>
+            <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
             <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Ekskluzīvs baneris šeit!<br/><span style={{ fontSize: '12px' }}>(Maksimāla uzmanība)</span></p>
           </div>
         </div>
