@@ -145,10 +145,11 @@ function normalizeMake(makeStr: string): string {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
 }
 
-function formatPriceInput(value: string): string {
-  const cleanNums = value.replace(/\D/g, '')
-  if (!cleanNums) return ''
-  return cleanNums.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+function formatNumberWithSpace(value: number | string): string {
+  if (!value && value !== 0) return ''
+  const num = typeof value === 'number' ? value : Number(value.toString().replace(/\s/g, ''))
+  if (isNaN(num)) return value.toString()
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
 
 export default function Sakumlapa() {
@@ -482,7 +483,7 @@ export default function Sakumlapa() {
                   placeholder="Cena no" 
                   value={displayMinPrice} 
                   onChange={(e) => {
-                    const formatted = formatPriceInput(e.target.value)
+                    const formatted = formatNumberWithSpace(e.target.value)
                     setDisplayMinPrice(formatted)
                     setMinPrice(formatted.replace(/\s/g, ''))
                   }} 
@@ -494,7 +495,7 @@ export default function Sakumlapa() {
                   placeholder="līdz" 
                   value={displayMaxPrice} 
                   onChange={(e) => {
-                    const formatted = formatPriceInput(e.target.value)
+                    const formatted = formatNumberWithSpace(e.target.value)
                     setDisplayMaxPrice(formatted)
                     setMaxPrice(formatted.replace(/\s/g, ''))
                   }} 
@@ -644,14 +645,14 @@ export default function Sakumlapa() {
             </div>
           </div>
 
-          {/* SKATS: Grid (ja nav izvēlēta marka) vai Tabulas rindas (ja marka izvēlēta) */}
+          {/* SKATS: Grid vai Tabulas rindas */}
           <div>
             {loading ? (
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
             ) : filteredCars.length === 0 ? (
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>Nav atrasts neviens sludinājums ar šādiem kritērijiem.</div>
             ) : searchMake === '' ? (
-              /* PARASTAIS GRID SKATS TITULLAPĀ */
+              /* PARASTAIS GRID SKATS */
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
                 {filteredCars.map((car, index) => {
                   const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
@@ -690,7 +691,7 @@ export default function Sakumlapa() {
                         </div>
                         <div style={{ marginTop: 'auto', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <span style={{ fontWeight: 'bold', fontSize: '16px', color: '#111827' }}>
-                            {car.price ? `€${Number(car.price).toLocaleString('lv-LV')}` : ''}
+                            {car.price ? `€${formatNumberWithSpace(car.price)}` : ''}
                           </span>
                         </div>
                       </div>
@@ -699,10 +700,10 @@ export default function Sakumlapa() {
                 })}
               </div>
             ) : (
-              /* TABULAS RINDU SKATS, KAD IZVĒLĒTA MARKA (Ar tūkstošatstarpēm cenu cipariem) */
+              /* TABULAS RINDU SKATS, KAD IZVĒLĒTA MARKA */
               <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
                 
-                {/* Zaļā galvenes strīpa ar stabiņu nosaukumiem */}
+                {/* Zaļā galvenes strīpa */}
                 <div style={{ 
                   display: 'grid', 
                   gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
@@ -731,7 +732,7 @@ export default function Sakumlapa() {
                   const bodyType = car.body_type || car.virsbuve || '-'
                   const carColor = car.color || car.krasa || '-'
                   const rawMileage = car.mileage || car.noobraukums || car.nobraukums
-                  const formattedMileage = rawMileage ? `${Number(rawMileage).toLocaleString('lv-LV')} km` : '-'
+                  const formattedMileage = rawMileage ? `${formatNumberWithSpace(rawMileage)} km` : '-'
 
                   return (
                     <Link 
@@ -761,7 +762,7 @@ export default function Sakumlapa() {
                         />
                       </div>
 
-                      {/* 2. Automobilis (Marka Modelis) */}
+                      {/* 2. Automobilis */}
                       <div style={{ color: '#1d4ed8', fontSize: '15px', fontWeight: '700', paddingRight: '8px' }}>
                         {car.make} {car.model}
                       </div>
@@ -791,12 +792,12 @@ export default function Sakumlapa() {
                         {formattedMileage}
                       </div>
 
-                      {/* Tukšs lauks starpposmam */}
+                      {/* Tukšs lauks */}
                       <div></div>
 
-                      {/* 8. Cena (atvirzīta pa labi, formātā ar atstarpēm tūkstošiem) */}
+                      {/* 8. Cena */}
                       <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '15px' }}>
-                        {car.price ? `€${Number(car.price).toLocaleString('lv-LV')}` : ''}
+                        {car.price ? `€${formatNumberWithSpace(car.price)}` : ''}
                       </div>
                     </Link>
                   )
