@@ -123,7 +123,7 @@ export default function AutoLapa() {
   return (
     <div style={{ maxWidth: '1250px', margin: '20px auto', padding: '0 20px', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
       
-      {/* Augšējā daļa: 3 kolonnas */}
+      {/* Augšējā daļa: 3 kolonnas (Nekustīgas, nekad nescrollojas) */}
       <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', marginBottom: '16px' }}>
         
         {/* KREISAIS STABIŅŠ */}
@@ -319,7 +319,7 @@ export default function AutoLapa() {
 
       </div>
 
-      {/* APAKŠĒJĀ DAĻA: APRAKSTS */}
+      {/* APAKŠĒJĀ DAĻA: APRAKSTS AR SAVU ĪPAŠU SKROLLĒŠANU */}
       {car.description && (
         <div style={{ backgroundColor: '#f9fafb', padding: '16px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', maxHeight: '220px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box', marginBottom: '20px' }}>
           <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#111827', flexShrink: 0 }}>Apraksts</h3>
