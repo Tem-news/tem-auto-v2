@@ -796,7 +796,7 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* 8. Rinda: Valsts un Reģions / Pilsēta (Novietoti pretī viens otram) */}
+            {/* 8. Rinda: Valsts un Reģions / Pilsēta */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               
               {/* Valsts */}
@@ -857,19 +857,7 @@ export default function PievienotAuto() {
 
             </div>
 
-            {/* Apraksts */}
-            <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Apraksts</label>
-              <textarea
-                rows={4}
-                placeholder="Papildus informācija par auto stāvokli, komplektāciju..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', resize: 'vertical' }}
-              />
-            </div>
-
-            {/* Kontakti */}
+            {/* Kontakti (E-pasts un Telefons novietoti pirms Apraksta) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>E-pasts</label>
@@ -892,6 +880,18 @@ export default function PievienotAuto() {
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
               </div>
+            </div>
+
+            {/* Apraksts */}
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Apraksts</label>
+              <textarea
+                rows={4}
+                placeholder="Papildus informācija par auto stāvokli, komplektāciju..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', resize: 'vertical' }}
+              />
             </div>
 
             {/* Bilžu augšupielāde */}
