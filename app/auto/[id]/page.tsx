@@ -398,12 +398,12 @@ export default function AutoLapa() {
 
       </div>
 
-      {/* APAKŠĒJĀ DAĻA: APRAKSTS */}
+      {/* APAKŠĒJĀ DAĻA: APRAKSTS (Palielināts augstums un uzlabota pārskatāmība) */}
       {car.description && (
-        <div style={{ backgroundColor: '#f9fafb', padding: '16px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', maxHeight: '220px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#111827', flexShrink: 0 }}>Apraksts</h3>
+        <div style={{ backgroundColor: '#f9fafb', padding: '20px 24px', borderRadius: '10px', border: '1px solid #e5e7eb', maxHeight: '450px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box', marginBottom: '20px' }}>
+          <h3 style={{ fontSize: '17px', fontWeight: 'bold', marginBottom: '12px', color: '#111827', flexShrink: 0 }}>Apraksts</h3>
           <div style={{ overflowY: 'auto', flex: 1, paddingRight: '8px' }}>
-            <p style={{ color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-line', margin: 0 }}>{car.description}</p>
+            <p style={{ color: '#374151', lineHeight: '1.7', fontSize: '14px', whiteSpace: 'pre-line', margin: 0 }}>{car.description}</p>
           </div>
         </div>
       )}
