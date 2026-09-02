@@ -2,12 +2,16 @@
 
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
-import createClient from '../../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+// Inicializējam Supabase tieši šeit, lai izvairītos no importa kļūdām
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function AutoLapa({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const supabase = createClient();
 
   const [car, setCar] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +42,7 @@ export default function AutoLapa({ params }: { params: Promise<{ id: string }> }
     }
 
     fetchCarData();
-  }, [id, supabase]);
+  }, [id]);
 
   const handleBack = () => {
     if (window.history.length > 2) {
