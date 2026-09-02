@@ -472,6 +472,92 @@ export default function PievienotAuto() {
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
+            {/* FOTOATTĒLU SADAĻA - Augstāka (aptuveni 2/3 / minHeight 380px) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151' }}>Fotoattēli</label>
+              
+              <div
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={handleDrop}
+                style={{
+                  border: `2px dashed ${isDragging ? '#2563eb' : '#cbd5e1'}`,
+                  borderRadius: '10px',
+                  backgroundColor: isDragging ? '#eff6ff' : '#f8fafc',
+                  minHeight: '380px',
+                  padding: '24px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  boxSizing: 'border-box',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer',
+                  position: 'relative'
+                }}
+                onClick={() => document.getElementById('car-file-input')?.click()}
+              >
+                <input
+                  id="car-file-input"
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  style={{ display: 'none' }}
+                />
+
+                {images.length === 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', pointerEvents: 'none' }}>
+                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                      <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '15px', fontWeight: '600', color: '#334155', margin: '0 0 4px 0' }}>
+                        Ievelciet bildes šeit vai <span style={{ color: '#2563eb', textDecoration: 'underline' }}>izvēlietiesfailus</span>
+                      </p>
+                      <p style={{ fontSize: '12.5px', color: '#64748b', margin: 0 }}>
+                        Varat augšupielādēt vairākus fotoattēlus vienlaikus (PNG, JPG, WEBP)
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div 
+                    style={{ width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: '12px', width: '100%', maxHeight: '340px', overflowY: 'auto', padding: '4px' }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {images.map((img, idx) => (
+                      <div key={idx} style={{ position: 'relative', aspectRatio: '4/3', borderRadius: '8px', overflow: 'hidden', border: idx === 0 ? '3px solid #2563eb' : '1px solid #cbd5e1', backgroundColor: '#e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                        <img src={img.url} alt={`Auto foto ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        
+                        {idx === 0 && (
+                          <span style={{ position: 'absolute', top: '4px', left: '4px', backgroundColor: '#2563eb', color: '#fff', fontSize: '9px', fontWeight: 'bold', padding: '2px 5px', borderRadius: '4px', zIndex: 2 }}>
+                            Galvenais
+                          </span>
+                        )}
+
+                        <div style={{ position: 'absolute', bottom: '4px', left: '4px', right: '4px', display: 'flex', justifyContent: 'space-between', backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: '4px', padding: '2px', zIndex: 2 }}>
+                          <button type="button" onClick={() => moveImage(idx, 'left')} disabled={idx === 0} style={{ background: 'none', border: 'none', color: idx === 0 ? '#64748b' : '#fff', cursor: idx === 0 ? 'default' : 'pointer', fontSize: '11px', padding: '0 4px' }}>◀</button>
+                          <button type="button" onClick={() => removeImage(idx)} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold', padding: '0 4px' }}>✕</button>
+                          <button type="button" onClick={() => moveImage(idx, 'right')} disabled={idx === images.length - 1} style={{ background: 'none', border: 'none', color: idx === images.length - 1 ? '#64748b' : '#fff', cursor: idx === images.length - 1 ? 'default' : 'pointer', fontSize: '11px', padding: '0 4px' }}>▶</button>
+                        </div>
+                      </div>
+                    ))}
+
+                    <div 
+                      onClick={() => document.getElementById('car-file-input')?.click()}
+                      style={{ border: '2px dashed #94a3b8', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', aspectRatio: '4/3', cursor: 'pointer', backgroundColor: '#f1f5f9', color: '#64748b', fontSize: '12px', fontWeight: '500' }}
+                    >
+                      <span style={{ fontSize: '20px', lineHeight: '1' }}>+</span>
+                      <span>Pievienot vēl</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* 1. Rinda: Marka / Modelis */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="dropdown-container" style={{ position: 'relative' }}>
@@ -604,7 +690,7 @@ export default function PievienotAuto() {
               </div>
 
               <div className="dropdown-container" style={{ position: 'relative' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Dzinēja tilpums (L)</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Tilpums (l)</label>
                 <input
                   type="text"
                   placeholder="Piem., 2.0"
@@ -614,12 +700,12 @@ export default function PievienotAuto() {
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'volume' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {ENGINE_VOLUMES.filter(v => v.includes(volume)).map((v) => (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '180px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    {ENGINE_VOLUMES.map((v) => (
                       <div
                         key={v}
-                        onClick={() => { setVolume(v); setActiveDropdown(null); }}
-                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                        onClick={() => { setVolume(v === 'Elektro / Nav' ? '' : v); setActiveDropdown(null); }}
+                        style={{ padding: '7px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
@@ -645,7 +731,7 @@ export default function PievienotAuto() {
                 />
                 {activeDropdown === 'gearbox' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {GEARBOX_TYPES.filter(gt => gt.toLowerCase().includes(gearbox.toLowerCase())).map((gt) => (
+                    {GEARBOX_TYPES.map((gt) => (
                       <div
                         key={gt}
                         onClick={() => { setGearbox(gt); setActiveDropdown(null); }}
@@ -671,12 +757,12 @@ export default function PievienotAuto() {
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'bodyType' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {BODY_TYPES.filter(bt => bt.toLowerCase().includes(bodyType.toLowerCase())).map((bt) => (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '180px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    {BODY_TYPES.map((bt) => (
                       <div
                         key={bt}
                         onClick={() => { setBodyType(bt); setActiveDropdown(null); }}
-                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                        style={{ padding: '7px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
@@ -702,11 +788,11 @@ export default function PievienotAuto() {
                 />
                 {activeDropdown === 'color' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {COLORS.filter(c => c.name.toLowerCase().includes(color.toLowerCase())).map((c) => (
+                    {COLORS.map((c) => (
                       <div
                         key={c.name}
                         onClick={() => { setColor(c.name); setActiveDropdown(null); }}
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                        style={{ padding: '7px 12px', fontSize: '13.5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #f3f4f6' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
@@ -722,7 +808,7 @@ export default function PievienotAuto() {
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Nobraukums (km)</label>
                 <input
                   type="text"
-                  placeholder="Piem., 180 000"
+                  placeholder="Piem., 185 000"
                   value={displayNobraukums}
                   onChange={(e) => handleNobraukumsChange(e.target.value)}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
@@ -730,24 +816,39 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* 6. Rinda: VIN kods / Stūres novietojums */}
+            {/* 6. Rinda: VIN kods / Tehniskā apskate */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>VIN kods</label>
                 <input
                   type="text"
-                  placeholder="Ievadiet VIN kods"
+                  placeholder="17 simboli"
+                  maxLength={17}
                   value={vin}
-                  onChange={(e) => setVin(e.target.value)}
+                  onChange={(e) => setVin(e.target.value.toUpperCase())}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
               </div>
 
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Tehniskā apskate</label>
+                <input
+                  type="text"
+                  placeholder="Piem., Līdz 05.2027"
+                  value={tehiskapskate}
+                  onChange={(e) => setTehiskapskate(e.target.value)}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
+                />
+              </div>
+            </div>
+
+            {/* 7. Rinda: Stūres novietojums / Salona krāsa */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Stūres novietojums</label>
                 <input
                   type="text"
-                  placeholder="Izvēlieties..."
+                  placeholder="Kreisā / Labā"
                   value={sture}
                   onChange={(e) => { setSture(e.target.value); setActiveDropdown('sture'); }}
                   onClick={() => toggleDropdown('sture')}
@@ -755,40 +856,26 @@ export default function PievienotAuto() {
                 />
                 {activeDropdown === 'sture' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {STEERING_TYPES.filter(st => st.toLowerCase().includes(sture.toLowerCase())).map((st) => (
+                    {STEERING_TYPES.map((s) => (
                       <div
-                        key={st}
-                        onClick={() => { setSture(st); setActiveDropdown(null); }}
+                        key={s}
+                        onClick={() => { setSture(s); setActiveDropdown(null); }}
                         style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        {st}
+                        {s}
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* 7. Rinda: Tehniskā apskate / Salona krāsa */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Tehniskā apskate līdz</label>
-                <input
-                  type="text"
-                  placeholder="MM/GGGG vai Datums"
-                  value={tehiskapskate}
-                  onChange={(e) => setTehiskapskate(e.target.value)}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
-                />
-              </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Salona krāsa</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Salona krāsa / apdare</label>
                 <input
                   type="text"
-                  placeholder="Piem., Melna āda"
+                  placeholder="Piem., Melns ādas salons"
                   value={salonaKrasa}
                   onChange={(e) => setSalonaKrasa(e.target.value)}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
@@ -796,38 +883,35 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* 8. Rinda: Valsts un Reģions / Pilsēta */}
+            {/* 8. Rinda: Valsts / Reģions */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              
-              {/* Valsts */}
               <div className="dropdown-container" style={{ position: 'relative' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Valsts</label>
-                <div 
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Atrašanās vieta (Valsts)</label>
+                <input
+                  type="text"
+                  value={selectedCountry.name}
                   onClick={() => toggleDropdown('country')}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
-                >
-                  <img src={selectedCountry.flagUrl} alt="" style={{ width: '24px', height: '16px', objectFit: 'cover', borderRadius: '2px' }} />
-                  <span>{selectedCountry.name}</span>
-                </div>
+                  readOnly
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', cursor: 'pointer' }}
+                />
                 {activeDropdown === 'country' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                     {COUNTRIES.map((c) => (
                       <div
                         key={c.code}
                         onClick={() => { setSelectedCountry(c); setRegion(''); setActiveDropdown(null); }}
-                        style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #f3f4f6' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        <img src={c.flagUrl} alt="" style={{ width: '24px', height: '16px', objectFit: 'cover', borderRadius: '2px' }} />
-                        <span>{c.name}</span>
+                        <img src={c.flagUrl} alt="" style={{ width: '20px', height: 'auto', borderRadius: '2px' }} />
+                        {c.name}
                       </div>
                     ))}
                   </div>
                 )}
               </div>
 
-              {/* Reģions / Pilsēta */}
               <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Reģions / Pilsēta</label>
                 <input
@@ -839,31 +923,42 @@ export default function PievienotAuto() {
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'region' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {selectedCountry.regions.filter(r => r.toLowerCase().includes(region.toLowerCase())).map((r) => (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '180px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    {selectedCountry.regions.map((reg) => (
                       <div
-                        key={r}
-                        onClick={() => { setRegion(r); setActiveDropdown(null); }}
-                        style={{ padding: '8px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
+                        key={reg}
+                        onClick={() => { setRegion(reg); setActiveDropdown(null); }}
+                        style={{ padding: '7px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        {r}
+                        {reg}
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-
             </div>
 
-            {/* Kontakti (E-pasts un Telefons) */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            {/* Apraksts */}
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Apraksts un papildus informācija</label>
+              <textarea
+                rows={4}
+                placeholder="Aprakstiet automašīnas stāvokli, komplektāciju, veiktos remontdarbus..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', resize: 'vertical' }}
+              />
+            </div>
+
+            {/* Kontaktdati */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>E-pasts</label>
                 <input
                   type="email"
-                  placeholder="tavs@epasts.lv"
+                  placeholder="jusu@epasts.lv"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
@@ -871,10 +966,10 @@ export default function PievienotAuto() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Telefons</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Telefona numurs</label>
                 <input
                   type="text"
-                  placeholder="+371 ..."
+                  placeholder="+371 20000000"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
@@ -882,90 +977,23 @@ export default function PievienotAuto() {
               </div>
             </div>
 
-            {/* Apraksts (palielināts augstums līdz 7 rindām, lai ērtāk drukāt) */}
-            <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Apraksts</label>
-              <textarea
-                rows={7}
-                placeholder="Papildus informācija par auto stāvokli, komplektāciju..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', resize: 'vertical' }}
-              />
-            </div>
-
-            {/* Bilžu augšupielāde (sašaurināts un pacelts augstāk) */}
-            <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Fotoattēli</label>
-              <div
-                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                onDragLeave={() => setIsDragging(false)}
-                onDrop={handleDrop}
-                style={{
-                  maxWidth: '75%',
-                  margin: '0 auto',
-                  border: `2px dashed ${isDragging ? '#2563eb' : '#d1d5db'}`,
-                  borderRadius: '8px',
-                  padding: '16px',
-                  textAlign: 'center',
-                  backgroundColor: isDragging ? '#eff6ff' : '#f9fafb',
-                  cursor: 'pointer'
-                }}
-              >
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  style={{ display: 'none' }}
-                  id="file-upload"
-                />
-                <label htmlFor="file-upload" style={{ cursor: 'pointer', display: 'block' }}>
-                  <span style={{ display: 'block', fontSize: '13.5px', color: '#374151', fontWeight: '500', marginBottom: '2px' }}>
-                    Ievilkt attēlus šeit vai <span style={{ color: '#2563eb' }}>izvēlēties failus</span>
-                  </span>
-                  <span style={{ fontSize: '11.5px', color: '#6b7280' }}>PNG, JPG vai WEBP</span>
-                </label>
-              </div>
-
-              {images.length > 0 && (
-                <div style={{ maxWidth: '75%', margin: '12px auto 0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: '10px' }}>
-                  {images.map((img, index) => (
-                    <div key={index} style={{ position: 'relative', height: '80px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #d1d5db', backgroundColor: '#f3f4f6' }}>
-                      <img src={img.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      <div style={{ position: 'absolute', top: '4px', right: '4px', display: 'flex', gap: '2px' }}>
-                        {index > 0 && (
-                          <button type="button" onClick={() => moveImage(index, 'left')} style={{ background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: '3px', width: '20px', height: '20px', fontSize: '10px', cursor: 'pointer' }}>◀</button>
-                        )}
-                        {index < images.length - 1 && (
-                          <button type="button" onClick={() => moveImage(index, 'right')} style={{ background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: '3px', width: '20px', height: '20px', fontSize: '10px', cursor: 'pointer' }}>▶</button>
-                        )}
-                        <button type="button" onClick={() => removeImage(index)} style={{ background: 'rgba(220,38,38,0.8)', color: '#fff', border: 'none', borderRadius: '3px', width: '20px', height: '20px', fontSize: '10px', cursor: 'pointer' }}>✕</button>
-                      </div>
-                      {index === 0 && (
-                        <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: '9px', textAlign: 'center', padding: '2px 0' }}>Galvenā</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Iesniegšanas poga */}
+            {/* Apstiprināšanas poga */}
             <div style={{ marginTop: '12px' }}>
               <button
                 type="submit"
                 disabled={loading}
                 style={{
                   width: '100%',
-                  padding: '12px',
-                  backgroundColor: loading ? '#9ca3af' : '#2563eb',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '15px',
+                  backgroundColor: loading ? '#93c5fd' : '#2563eb',
+                  color: '#ffffff',
                   fontWeight: 'bold',
-                  cursor: loading ? 'not-allowed' : 'pointer'
+                  padding: '12px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  fontSize: '15px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)',
+                  transition: 'background-color 0.2s'
                 }}
               >
                 {loading ? 'Pievieno sludinājumu...' : 'Pievienot sludinājumu'}
@@ -979,11 +1007,11 @@ export default function PievienotAuto() {
         <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
             <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 3</span>
-            <span>Sānu baneris labajā pusē (augšā)!</span>
+            <span>Sānu baneris augšējais!</span>
           </div>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
             <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 4</span>
-            <span>Sānu baneris labajā pusē (apakšā)!</span>
+            <span>Sānu baneris apakšējais!</span>
           </div>
         </div>
 
