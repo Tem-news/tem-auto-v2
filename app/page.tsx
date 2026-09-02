@@ -703,8 +703,11 @@ export default function Sakumlapa() {
               /* TABULAS RINDU SKATS, KAD IZVĒLĒTA MARKA */
               <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
                 
-                {/* Zaļā galvenes strīpa */}
+                {/* Nekustīgā zaļā galvenes strīpa */}
                 <div style={{ 
+                  position: 'sticky',
+                  top: '185px', 
+                  zIndex: 20,
                   display: 'grid', 
                   gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
                   backgroundColor: '#15803d', 
@@ -712,7 +715,8 @@ export default function Sakumlapa() {
                   padding: '10px 12px', 
                   fontSize: '13px', 
                   fontWeight: 'bold', 
-                  alignItems: 'center' 
+                  alignItems: 'center',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}>
                   <div>Foto</div>
                   <div>Automobilis</div>
