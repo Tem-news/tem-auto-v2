@@ -2,7 +2,7 @@
 
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '../../../lib/supabase';
+import createClient from '../../../lib/supabase';
 
 export default function AutoLapa({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
