@@ -1,5 +1,4 @@
 'use client'
-
 import { useEffect, useState, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -156,7 +155,6 @@ export default function Sakumlapa() {
   const router = useRouter()
   const [cars, setCars] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-
   const [searchMake, setSearchMake] = useState('')
   const [searchModel, setSearchModel] = useState('')
   
@@ -167,7 +165,6 @@ export default function Sakumlapa() {
   const [maxPrice, setMaxPrice] = useState('')
   const [displayMinPrice, setDisplayMinPrice] = useState('')
   const [displayMaxPrice, setDisplayMaxPrice] = useState('')
-
   const [minYear, setMinYear] = useState('')
   const [maxYear, setMaxYear] = useState('')
   const [dzinejs, setDzinejs] = useState('')
@@ -184,13 +181,10 @@ export default function Sakumlapa() {
     setActiveDropdown(prev => prev === name ? null : name)
   }
 
-  // Galvenajā lapā (kad marka nav izvēlēta) poga parādās, ja ir jebkāds filtrs.
-  // Markas lapā (kad marka ir izvēlēta) poga parādās TIKAI tad, ja papildus markai ir ievadīts vēl kāds cits filtrs.
   const hasActiveFilters = searchMake 
     ? Boolean(searchModel || valsts || regions || minPrice || maxPrice || minYear || maxYear || dzinejs || minTilpums || maxTilpums || atrumkarba || virsbuve || krasa)
     : Boolean(searchMake || searchModel || valsts || regions || minPrice || maxPrice || minYear || maxYear || dzinejs || minTilpums || maxTilpums || atrumkarba || virsbuve || krasa)
 
-  // Notīra visus filtrus, bet SAGLABĀ izvēlēto marku (ja tāda bija izvēlēta), neaizvedot lietotāju atpakaļ uz visām markām.
   const clearAllFilters = () => {
     setSearchModel('')
     setValsts('')
@@ -333,7 +327,6 @@ export default function Sakumlapa() {
                 <span>Visas markas</span>
                 <span style={{ fontSize: '12px', color: '#6b7280' }}>({cars.length})</span>
               </button>
-
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
                 {makeCounts.map(([make, count]) => {
                   const isSelected = searchMake.toLowerCase() === make.toLowerCase()
@@ -393,7 +386,6 @@ export default function Sakumlapa() {
                 {searchMake ? `${searchMake} sludinājumi` : 'Visi auto sludinājumi'}
               </h2>
               
-              {/* NOTĪRĪT FILTRU POGA - parādās tikai tad, ja ir aktīvi papildu filtri (vai marka galvenajā lapā) */}
               {hasActiveFilters && (
                 <button 
                   onClick={clearAllFilters} 
@@ -421,7 +413,6 @@ export default function Sakumlapa() {
 
             {/* 1. Rinda */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-              
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
                   type="text"
@@ -520,7 +511,6 @@ export default function Sakumlapa() {
 
             {/* 2. Rinda */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-              
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
                   type="text"
@@ -651,7 +641,6 @@ export default function Sakumlapa() {
                   </div>
                 )}
               </div>
-
             </div>
           </div>
 
@@ -662,7 +651,7 @@ export default function Sakumlapa() {
             ) : filteredCars.length === 0 ? (
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>Nav atrasts neviens sludinājums ar šādiem kritērijiem.</div>
             ) : searchMake === '' ? (
-              /* PARASTAIS GRID SKATS TITULLAPĀ (Lielākas bildes) */
+              /* PARASTAIS GRID SKATS TITULLAPĀ */
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
                 {filteredCars.map((car, index) => {
                   const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
@@ -710,56 +699,79 @@ export default function Sakumlapa() {
                 })}
               </div>
             ) : (
-              /* TABULAS RINDU SKATS, KAD IZVĒLĒTA MARKA (Jeep, Ford, BMW utt.) */
+              /* TABULAS RINDU SKATS, KAD IZVĒLĒTA MARKA (Secība: Foto | Marka Modelis | Gads | Virsbūve | Krāsa | Nobraukums | Cena) */
               <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 90px 100px', backgroundColor: '#15803d', color: '#ffffff', padding: '10px 12px', fontSize: '13px', fontWeight: 'bold' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr 75px 110px 90px 100px 90px', backgroundColor: '#15803d', color: '#ffffff', padding: '10px 12px', fontSize: '12.5px', fontWeight: 'bold', alignItems: 'center' }}>
                   <div>Foto</div>
-                  <div>Sludinājums / Apraksts</div>
+                  <div>Marka Modelis</div>
                   <div style={{ textAlign: 'center' }}>Gads</div>
+                  <div>Virsbūve</div>
+                  <div>Krāsa</div>
+                  <div style={{ textAlign: 'right' }}>Nobraukums</div>
                   <div style={{ textAlign: 'right' }}>Cena</div>
                 </div>
 
                 {filteredCars.map((car, index) => {
                   const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=300&q=80'
+                  
+                  // Nobraukuma formatējums (ja datubāzē ir skaitlis, pievienojam "km")
+                  const rawMileage = car.mileage || car.noobraukums || car.nobraukums
+                  const formattedMileage = rawMileage ? `${Number(rawMileage).toLocaleString('lv-LV')} km` : ''
+
                   return (
                     <Link 
                       key={car.id || index} 
                       href={`/auto/${car.id}`} 
                       style={{ 
                         display: 'grid', 
-                        gridTemplateColumns: '120px 1fr 90px 100px', 
+                        gridTemplateColumns: '110px 1fr 75px 110px 90px 100px 90px', 
                         alignItems: 'center', 
                         padding: '10px 12px', 
                         borderBottom: '1px solid #e5e7eb', 
                         textDecoration: 'none', 
                         color: 'inherit',
-                        backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9fafb'
+                        backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9fafb',
+                        fontSize: '13px'
                       }}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0fdf4'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#f9fafb'}
                     >
+                      {/* 1. Foto */}
                       <div>
                         <img 
                           src={imageUrl} 
                           alt={car.make} 
-                          style={{ width: '100px', height: '65px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #d1d5db' }} 
+                          style={{ width: '95px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #d1d5db' }} 
                         />
                       </div>
 
-                      <div style={{ paddingRight: '12px', overflow: 'hidden' }}>
-                        <div style={{ fontWeight: 'bold', color: '#1d4ed8', fontSize: '14px', marginBottom: '2px' }}>
-                          {car.make} {car.model} {car.volume ? `(${car.volume})` : ''}
-                        </div>
-                        <div style={{ fontSize: '12px', color: '#4b5563', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {car.description || car.comment || `${car.make} ${car.model} labā stāvoklī.`}
-                        </div>
+                      {/* 2. Marka Modelis */}
+                      <div style={{ fontWeight: 'bold', color: '#1d4ed8', paddingRight: '8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {car.make} {car.model}
                       </div>
 
-                      <div style={{ textAlign: 'center', fontSize: '13px', color: '#374151' }}>
-                        {car.year ? `${car.year} g.` : ''}
+                      {/* 3. Izlaiduma gads */}
+                      <div style={{ textAlign: 'center', color: '#374151' }}>
+                        {car.year || ''}
                       </div>
 
-                      <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '14px' }}>
+                      {/* 4. Virsbūves tips */}
+                      <div style={{ color: '#4b5563', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {car.body_type || car.virsbuve || ''}
+                      </div>
+
+                      {/* 5. Krāsa */}
+                      <div style={{ color: '#4b5563', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {car.color || car.krasa || ''}
+                      </div>
+
+                      {/* 6. Nobraukums */}
+                      <div style={{ textAlign: 'right', color: '#374151' }}>
+                        {formattedMileage}
+                      </div>
+
+                      {/* 7. Cena */}
+                      <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827' }}>
                         {car.price ? `€${Number(car.price).toLocaleString('lv-LV')}` : ''}
                       </div>
                     </Link>
