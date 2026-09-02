@@ -267,7 +267,7 @@ export default function AutoLapa() {
                   </button>
                 )}
 
-                {/* Saziņas izlecošais logs, kas izbrauc tajā pašā vietā */}
+                {/* Saziņas izlecošais logs */}
                 {showSocialDropdown && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, width: '100%', marginTop: '6px', backgroundColor: '#fff', padding: '16px', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', zIndex: 1000, border: '1px solid #e5e7eb', boxSizing: 'border-box' }}>
                     <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', color: '#111827', textAlign: 'center' }}>Sazināties ar pārdevēju</h4>
@@ -398,12 +398,12 @@ export default function AutoLapa() {
 
       </div>
 
-      {/* APAKŠĒJĀ DAĻA: APRAKSTS (Palielināts augstums un uzlabota pārskatāmība) */}
+      {/* APAKŠĒJĀ DAĻA: APRAKSTS (Optimizēts, nepārsniedz monitora robežas) */}
       {car.description && (
-        <div style={{ backgroundColor: '#f9fafb', padding: '20px 24px', borderRadius: '10px', border: '1px solid #e5e7eb', maxHeight: '450px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '17px', fontWeight: 'bold', marginBottom: '12px', color: '#111827', flexShrink: 0 }}>Apraksts</h3>
+        <div style={{ backgroundColor: '#f9fafb', padding: '16px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', maxHeight: '280px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box', marginBottom: '20px' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#111827', flexShrink: 0 }}>Apraksts</h3>
           <div style={{ overflowY: 'auto', flex: 1, paddingRight: '8px' }}>
-            <p style={{ color: '#374151', lineHeight: '1.7', fontSize: '14px', whiteSpace: 'pre-line', margin: 0 }}>{car.description}</p>
+            <p style={{ color: '#374151', lineHeight: '1.6', fontSize: '14px', whiteSpace: 'pre-line', margin: 0 }}>{car.description}</p>
           </div>
         </div>
       )}
