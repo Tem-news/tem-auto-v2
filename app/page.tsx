@@ -699,11 +699,27 @@ export default function Sakumlapa() {
                 })}
               </div>
             ) : (
-              /* TABULAS RINDU SKATS, KAD IZVĒLĒTA MARKA (Sabīdīts pa kreisi aiz bildes, cena pa labi) */
+              /* TABULAS RINDU SKATS, KAD IZVĒLĒTA MARKA (Skaidri stabiņi un lielāki, treknāki burti) */
               <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '110px max-content 1fr 100px', backgroundColor: '#15803d', color: '#ffffff', padding: '10px 12px', fontSize: '12.5px', fontWeight: 'bold', alignItems: 'center' }}>
+                
+                {/* Zaļā galvenes strīpa ar stabiņu nosaukumiem */}
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
+                  backgroundColor: '#15803d', 
+                  color: '#ffffff', 
+                  padding: '10px 12px', 
+                  fontSize: '13px', 
+                  fontWeight: 'bold', 
+                  alignItems: 'center' 
+                }}>
                   <div>Foto</div>
-                  <div>Automobilis un parametri</div>
+                  <div>Automobilis</div>
+                  <div>Gads</div>
+                  <div>Dzinējs</div>
+                  <div>Virsbūve</div>
+                  <div>Krāsa</div>
+                  <div>Nobraukums</div>
                   <div></div>
                   <div style={{ textAlign: 'right' }}>Cena</div>
                 </div>
@@ -711,10 +727,11 @@ export default function Sakumlapa() {
                 {filteredCars.map((car, index) => {
                   const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=300&q=80'
                   
-                  // Iegūstam dzinēja tipu un nobraukumu ar fallback variantiem datubāzē
-                  const engineType = car.engine || car.dzinejs || ''
+                  const engineType = car.engine || car.dzinejs || '-'
+                  const bodyType = car.body_type || car.virsbuve || '-'
+                  const carColor = car.color || car.krasa || '-'
                   const rawMileage = car.mileage || car.noobraukums || car.nobraukums
-                  const formattedMileage = rawMileage ? `${Number(rawMileage).toLocaleString('lv-LV')} km` : ''
+                  const formattedMileage = rawMileage ? `${Number(rawMileage).toLocaleString('lv-LV')} km` : '-'
 
                   return (
                     <Link 
@@ -722,14 +739,15 @@ export default function Sakumlapa() {
                       href={`/auto/${car.id}`} 
                       style={{ 
                         display: 'grid', 
-                        gridTemplateColumns: '110px max-content 1fr 100px', 
+                        gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
                         alignItems: 'center', 
                         padding: '10px 12px', 
                         borderBottom: '1px solid #e5e7eb', 
                         textDecoration: 'none', 
-                        color: 'inherit',
+                        color: '#1f2937',
                         backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9fafb',
-                        fontSize: '13px'
+                        fontSize: '14.5px',
+                        fontWeight: '600'
                       }}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0fdf4'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#f9fafb'}
@@ -743,48 +761,41 @@ export default function Sakumlapa() {
                         />
                       </div>
 
-                      {/* 2. Sabīdītie parametri uzreiz aiz foto: Marka Modelis - Gads - Dzinējs - Virsbūve - Krāsa - Nobraukums */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', paddingRight: '12px' }}>
-                        <span style={{ fontWeight: 'bold', color: '#1d4ed8', fontSize: '13.5px' }}>
-                          {car.make} {car.model}
-                        </span>
-                        
-                        {car.year && (
-                          <span style={{ color: '#374151' }}>
-                            {car.year}
-                          </span>
-                        )}
+                      {/* 2. Automobilis (Marka Modelis) */}
+                      <div style={{ color: '#1d4ed8', fontSize: '15px', fontWeight: '700', paddingRight: '8px' }}>
+                        {car.make} {car.model}
+                      </div>
 
-                        {engineType && (
-                          <span style={{ color: '#4b5563' }}>
-                            {engineType}
-                          </span>
-                        )}
+                      {/* 3. Gads */}
+                      <div style={{ color: '#374151' }}>
+                        {car.year || '-'}
+                      </div>
 
-                        {(car.body_type || car.virsbuve) && (
-                          <span style={{ color: '#4b5563' }}>
-                            {car.body_type || car.virsbuve}
-                          </span>
-                        )}
+                      {/* 4. Dzinējs */}
+                      <div style={{ color: '#374151' }}>
+                        {engineType}
+                      </div>
 
-                        {(car.color || car.krasa) && (
-                          <span style={{ color: '#4b5563' }}>
-                            {car.color || car.krasa}
-                          </span>
-                        )}
+                      {/* 5. Virsbūve */}
+                      <div style={{ color: '#374151' }}>
+                        {bodyType}
+                      </div>
 
-                        {formattedMileage && (
-                          <span style={{ color: '#374151' }}>
-                            {formattedMileage}
-                          </span>
-                        )}
+                      {/* 6. Krāsa */}
+                      <div style={{ color: '#374151' }}>
+                        {carColor}
+                      </div>
+
+                      {/* 7. Nobraukums */}
+                      <div style={{ color: '#374151' }}>
+                        {formattedMileage}
                       </div>
 
                       {/* Tukšs lauks starpposmam */}
                       <div></div>
 
-                      {/* 3. Cena (atvirzīta pa labi) */}
-                      <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '14px' }}>
+                      {/* 8. Cena (atvirzīta pa labi) */}
+                      <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '15px' }}>
                         {car.price ? `€${Number(car.price).toLocaleString('lv-LV')}` : ''}
                       </div>
                     </Link>
