@@ -236,6 +236,24 @@ export default function Sakumlapa() {
     fetchData()
   }, [])
 
+  // ŠEIT TIKA PIEVIENOTA FILTRĒŠANAS LOĢIKA, LAI `filteredCars` EKSISTĒTU
+  const filteredCars = useMemo(() => {
+    return cars.filter(car => {
+      if (searchMake && car.make?.toLowerCase() !== searchMake.toLowerCase()) return false
+      if (valsts && car.country?.toLowerCase() !== valsts.toLowerCase() && car.valsts?.toLowerCase() !== valsts.toLowerCase()) return false
+      if (regions && car.region?.toLowerCase() !== regions.toLowerCase() && car.regions?.toLowerCase() !== regions.toLowerCase()) return false
+      if (minPrice && Number(car.price) < Number(minPrice)) return false
+      if (maxPrice && Number(car.price) > Number(maxPrice)) return false
+      if (minYear && Number(car.year) < Number(minYear)) return false
+      if (maxYear && Number(car.year) > Number(maxYear)) return false
+      if (dzinejs && car.engine?.toLowerCase() !== dzinejs.toLowerCase() && car.dzinejs?.toLowerCase() !== dzinejs.toLowerCase()) return false
+      if (atrumkarba && car.gearbox?.toLowerCase() !== atrumkarba.toLowerCase() && car.atrumkarba?.toLowerCase() !== atrumkarba.toLowerCase()) return false
+      if (virsbuve && car.body_type?.toLowerCase() !== virsbuve.toLowerCase() && car.virsbuve?.toLowerCase() !== virsbuve.toLowerCase()) return false
+      if (krasa && car.color?.toLowerCase() !== krasa.toLowerCase() && car.krasa?.toLowerCase() !== krasa.toLowerCase()) return false
+      return true
+    })
+  }, [cars, searchMake, valsts, regions, minPrice, maxPrice, minYear, maxYear, dzinejs, atrumkarba, virsbuve, krasa])
+
   const availableRegions = useMemo(() => {
     if (!valsts) {
       return REGIONS_BY_COUNTRY['Latvija']
