@@ -1,218 +1,413 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+
+import { useEffect, useState, useRef } from 'react'
+import { useParams } from 'next/navigation'
+import Link from 'next/link'
 import { supabase } from '../../../lib/supabase'
 
-function formatNumberWithSpace(value: number | string): string {
-  if (!value && value !== 0) return ''
-  const num = typeof value === 'number' ? value : Number(value.toString().replace(/\s/g, ''))
-  if (isNaN(num)) return value.toString()
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-}
-
-export default function AutoDetailsPage() {
-  const router = useRouter()
+export default function AutoLapa() {
   const params = useParams()
   const id = params?.id
 
   const [car, setCar] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [selectedImage, setSelectedImage] = useState<string>('')
+  const [activeImage, setActiveImage] = useState<string>('')
+
+  const [showPhone, setShowPhone] = useState(false)
+  const [showEmail, setShowEmail] = useState(false)
+  const [showVin, setShowVin] = useState(false)
+  const [showSocialDropdown, setShowSocialDropdown] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Aizver izkrītošo lodziņu, ja noklikšķina ārpus tā
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowSocialDropdown(false)
+      }
+    }
+    if (showSocialDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showSocialDropdown])
 
   useEffect(() => {
     if (!id) return
 
-    async function fetchCarDetails() {
-      const { data, error } = await supabase
+    async function fetchCarData() {
+      await supabase.rpc('increment_view', { car_id: id })
+
+      const { data: carData, error: carError } = await supabase
         .from('cars')
         .select('*')
         .eq('id', id)
         .single()
 
-      if (error) {
-        console.error('Kļūda ielādējot auto datus:', error)
-      } else {
-        setCar(data)
-        // Ja auto ir vairāki attēli masīvā, iestatām pirmo kā noklusēto
-        if (data?.images && data.images.length > 0) {
-          setSelectedImage(data.images[0])
-        } else if (data?.image_url) {
-          setSelectedImage(data.image_url)
-        }
+      if (carError) {
+        console.error('Kļūda ielādējot auto:', carError)
+      } else if (carData) {
+        setCar(carData)
+        const mainImg = carData.image || (carData.images && carData.images[0]) || ''
+        setActiveImage(mainImg)
       }
       setLoading(false)
     }
 
-    fetchCarDetails()
+    fetchCarData()
   }, [id])
+
+  const allImages: string[] = []
+  if (car?.image) allImages.push(car.image)
+  if (Array.isArray(car?.images)) {
+    car.images.forEach((img: string) => {
+      if (img && !allImages.includes(img)) allImages.push(img)
+    })
+  }
+
+  const handlePrevImage = () => {
+    if (allImages.length <= 1) return
+    const currentIndex = allImages.indexOf(activeImage)
+    const newIndex = currentIndex === 0 ? allImages.length - 1 : currentIndex - 1
+    setActiveImage(allImages[newIndex])
+  }
+
+  const handleNextImage = () => {
+    if (allImages.length <= 1) return
+    const currentIndex = allImages.indexOf(activeImage)
+    const newIndex = currentIndex === allImages.length - 1 ? 0 : currentIndex + 1
+    setActiveImage(allImages[newIndex])
+  }
+
+  const formatPrice = (price: any) => {
+    if (price === null || price === undefined || price === '') return 'Cena nav norādīta'
+    const rawString = String(price)
+    const matches = rawString.match(/\d+/g)
+    if (!matches) return `${price} €`
+    const numericPrice = Number(matches.join(''))
+    if (isNaN(numericPrice)) return `${price} €`
+    
+    const formattedNum = numericPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    return `${formattedNum} €`
+  }
+
+  const maskPhone = (phone: string) => {
+    if (phone.length <= 4) return '***'
+    return phone.slice(0, 4) + '***' + phone.slice(-2)
+  }
+
+  const maskEmail = (email: string) => {
+    const parts = email.split('@')
+    if (parts.length !== 2) return '*****@*****'
+    const name = parts[0]
+    const maskedName = name.length > 2 ? name.slice(0, 2) + '***' : '***'
+    return `${maskedName}@${parts[1]}`
+  }
+
+  const maskVin = (vin: string) => {
+    if (vin.length <= 6) return '******'
+    return vin.slice(0, 4) + '******' + vin.slice(-4)
+  }
+
+  const cleanPhone = car?.phone ? car.phone.replace(/\s+/g, '') : ''
+
+  const handleCopyPhone = () => {
+    if (!car?.phone) return
+    navigator.clipboard.writeText(car.phone)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   if (loading) {
     return (
-      <div style={{ padding: '60px', textAlign: 'center', fontFamily: 'Arial, sans-serif', color: '#6b7280' }}>
-        Ielādē auto informāciju...
+      <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', minHeight: '600px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', fontFamily: 'sans-serif' }}>
+        Ielādē datus...
       </div>
     )
   }
 
   if (!car) {
     return (
-      <div style={{ padding: '60px', textAlign: 'center', fontFamily: 'Arial, sans-serif' }}>
-        <h2 style={{ color: '#111827', marginBottom: '16px' }}>Auto nav atrasts</h2>
-        <button 
-          onClick={() => router.back()}
-          style={{
-            padding: '8px 16px',
-            cursor: 'pointer',
-            backgroundColor: '#0284c7',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '14px',
-            fontWeight: '600'
-          }}
-        >
-          ← Atpakaļ
-        </button>
+      <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', minHeight: '600px', textAlign: 'center', fontFamily: 'sans-serif' }}>
+        <h2>Sludinājums netika atrasts!</h2>
+        <Link href="/" style={{ color: '#2563eb', textDecoration: 'underline' }}>Atpakaļ uz sarakstu</Link>
       </div>
     )
   }
 
-  // Savācam visus pieejamos attēlus (ja ir masīvs vai atsevišķs image_url)
-  const allImages = car.images && car.images.length > 0 
-    ? car.images 
-    : car.image_url ? [car.image_url] : []
+  const getMileage = () => {
+    if (car.mileage) return car.mileage
+    if (car.noobraukums) return car.noobraukums
+    if (car.km) return car.km
+    
+    if (car.description) {
+      const match = car.description.match(/(\d[\d\s]*)\s*(?:km|nobraukums)/i)
+      if (match) {
+        const cleaned = match[1].replace(/\s+/g, '')
+        if (!isNaN(Number(cleaned))) return cleaned
+      }
+    }
+    return null
+  }
+
+  const finalMileage = getMileage()
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px 16px', fontFamily: 'Arial, sans-serif', boxSizing: 'border-box' }}>
+    <div style={{ maxWidth: '1250px', margin: '20px auto', padding: '0 20px', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
       
-      {/* ATPAKAĻ POGA */}
-      <button 
-        onClick={() => router.back()}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          padding: '8px 16px',
-          marginBottom: '20px',
-          cursor: 'pointer',
-          backgroundColor: '#f3f4f6',
-          border: '1px solid #d1d5db',
-          borderRadius: '6px',
-          fontSize: '14px',
-          fontWeight: '600',
-          color: '#1f2937'
-        }}
-      >
-        ← Atpakaļ
-      </button>
-
-      {/* Virsraksts un cena */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
-        <div>
-          <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', margin: '0 0 8px 0' }}>
-            {car.make} {car.model}
-          </h1>
-          <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
-            Izlaiduma gads: <strong>{car.year}</strong> | Atrašanās vieta: <strong>{car.country || car.valsts}, {car.region || car.regions}</strong>
-          </p>
-        </div>
-        <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#0369a1' }}>
-          {formatNumberWithSpace(car.price)} €
-        </div>
-      </div>
-
-      {/* Galvenais saturs: Attēli un Parametri */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '24px', alignItems: 'start' }}>
+      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', marginBottom: '16px' }}>
         
-        {/* Kreisā puse: Attēli */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ width: '100%', height: '450px', backgroundColor: '#e5e7eb', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
-            {selectedImage ? (
-              <img 
-                src={selectedImage} 
-                alt={`${car.make} ${car.model}`} 
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-              />
-            ) : (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af', fontSize: '14px' }}>
-                Nav pieejamu attēlu
+        {/* KREISAIS STABIŅŠ */}
+        <div style={{ width: '320px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          
+          {/* Valsts un Pilsēta */}
+          {(car.country || car.city) && (
+            <div style={{ backgroundColor: '#f0fdf4', padding: '12px 16px', borderRadius: '10px', border: '1px solid #bbf7d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+              <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.country || 'Latvija'}</span>
+              <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.city || car.region || ''}</span>
+            </div>
+          )}
+
+          {/* Cena */}
+          <div style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '10px', border: '1px solid #e5e7eb', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <span style={{ fontSize: '28px', fontWeight: 'bold', color: '#16a34a', letterSpacing: '0.5px' }}>
+              {formatPrice(car.price)}
+            </span>
+          </div>
+
+          {/* Pārējie dati */}
+          <div style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '10px', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            {car.year && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>Izlaiduma gads:</span>
+                <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.year}</span>
+              </div>
+            )}
+            {car.engine && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>Motors:</span>
+                <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.engine}</span>
+              </div>
+            )}
+
+            {/* Nobraukums */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+              <span style={{ color: '#6b7280', fontWeight: '500' }}>Nobraukums:</span>
+              <span style={{ color: '#111827', fontWeight: 'bold' }}>
+                {finalMileage ? `${Number(finalMileage).toLocaleString('lv-LV')} km` : 'Nav norādīts'}
+              </span>
+            </div>
+
+            {car.gearbox && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>Ātrumkārba:</span>
+                <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.gearbox}</span>
+              </div>
+            )}
+            {car.color && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>Krāsa:</span>
+                <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.color}</span>
+              </div>
+            )}
+            {car.body_type && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>Virsbūves tips:</span>
+                <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.body_type}</span>
+              </div>
+            )}
+            {car.tech_inspection && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>Tehniskā apskate:</span>
+                <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.tech_inspection}</span>
+              </div>
+            )}
+            
+            {car.vin && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>VIN kods:</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ color: '#111827', fontWeight: 'bold', fontSize: '13px' }}>
+                    {showVin ? car.vin : maskVin(car.vin)}
+                  </span>
+                  {!showVin && (
+                    <button
+                      onClick={() => setShowVin(true)}
+                      style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontSize: '12px', padding: 0, textDecoration: 'underline' }}
+                    >
+                      Skatīt
+                    </button>
+                  )}
+                </div>
               </div>
             )}
           </div>
 
-          {/* Sīktēlu galerija, ja ir vairāk par 1 bildi */}
-          {allImages.length > 1 && (
-            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
-              {allImages.map((img: string, index: number) => (
-                <div 
-                  key={index} 
-                  onClick={() => setSelectedImage(img)}
-                  style={{ 
-                    width: '90px', 
-                    height: '65px', 
-                    flexShrink: 0, 
-                    borderRadius: '6px', 
-                    overflow: 'hidden', 
-                    cursor: 'pointer',
-                    border: selectedImage === img ? '2px solid #0284c7' : '1px solid #d1d5db',
-                    opacity: selectedImage === img ? 1 : 0.7
-                  }}
+          {/* Kontakti */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {car.phone && (
+              <div style={{ position: 'relative' }} ref={dropdownRef}>
+                {showPhone ? (
+                  <button 
+                    onClick={() => setShowSocialDropdown(!showSocialDropdown)}
+                    style={{ width: '100%', padding: '12px 16px', backgroundColor: '#16a34a', color: '#fff', borderRadius: '10px', border: 'none', fontWeight: 'bold', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '14px', cursor: 'pointer' }}
+                  >
+                    📞 {car.phone}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowPhone(true)}
+                    style={{ width: '100%', padding: '12px 16px', backgroundColor: '#16a34a', color: '#fff', borderRadius: '10px', border: 'none', fontWeight: 'bold', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '14px', cursor: 'pointer' }}
+                  >
+                    📞 {maskPhone(car.phone)} (Parādīt)
+                  </button>
+                )}
+
+                {/* Saziņas izlecošais logs */}
+                {showSocialDropdown && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, width: '100%', marginTop: '6px', backgroundColor: '#fff', padding: '16px', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', zIndex: 1000, border: '1px solid #e5e7eb', boxSizing: 'border-box' }}>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', color: '#111827', textAlign: 'center' }}>Sazināties ar pārdevēju</h4>
+                    <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#6b7280', fontWeight: 'bold', textAlign: 'center' }}>{car.phone}</p>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
+                      <a href={`tel:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#f3f4f6', color: '#111827', borderRadius: '8px', textDecoration: 'none', fontWeight: '500', fontSize: '13px' }}>
+                        📞 Zvanīt parasto zvanu
+                      </a>
+                      <a href={`https://wa.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#25D366', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
+                        🟢 WhatsApp čats
+                      </a>
+                      <a href={`https://m.me/`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#0084FF', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
+                        💙 Meta Messenger
+                      </a>
+                      <a href={`viber://chat?number=${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#7360F2', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
+                        🟣 Viber ziņa
+                      </a>
+                      <a href={`https://t.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#229ED9', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
+                        ✈️ Telegram ziņa
+                      </a>
+                      <a href={`sms:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#4b5563', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
+                        💬 Sūtīt SMS
+                      </a>
+                    </div>
+
+                    <button
+                      onClick={handleCopyPhone}
+                      style={{ width: '100%', padding: '8px', backgroundColor: '#f0fdf4', border: '1px solid #16a34a', borderRadius: '8px', fontWeight: 'bold', color: '#16a34a', cursor: 'pointer', fontSize: '13px', marginBottom: '6px' }}
+                    >
+                      {copied ? '✅ Numurs nokopēts!' : '📋 Kopēt telefona numuru'}
+                    </button>
+
+                    <button
+                      onClick={() => setShowSocialDropdown(false)}
+                      style={{ width: '100%', padding: '8px', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '8px', fontWeight: 'bold', color: '#374151', cursor: 'pointer', fontSize: '13px' }}
+                    >
+                      Aizvērt
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {car.email && (
+              showEmail ? (
+                <a href={`mailto:${car.email}`} style={{ padding: '12px 16px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', textAlign: 'center', wordBreak: 'break-all', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '14px' }}>
+                  ✉️ {car.email}
+                </a>
+              ) : (
+                <button 
+                  onClick={() => setShowEmail(true)}
+                  style={{ padding: '12px 16px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '10px', border: 'none', fontWeight: 'bold', textAlign: 'center', wordBreak: 'break-all', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '14px', cursor: 'pointer' }}
                 >
-                  <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
+                  ✉️ {maskEmail(car.email)} (Parādīt)
+                </button>
+              )
+            )}
+          </div>
+
+        </div>
+
+        {/* VIDĒJĀ DAĻA: Bildes un virsraksts */}
+        <div style={{ flex: 1, maxWidth: '750px', minWidth: 0 }}>
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', paddingTop: '4px' }}>
+            <Link href="/" style={{ color: '#2563eb', textDecoration: 'none', fontSize: '14px' }}>
+              ← Atpakaļ uz sarakstu
+            </Link>
+            <div>
+              <Link href={`/auto/${id}/edit`} style={{ padding: '6px 14px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold', display: 'inline-block' }}>
+                ✏️ Rediģēt
+              </Link>
+            </div>
+          </div>
+
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#111827' }}>
+            {car.make} {car.model}
+          </h1>
+
+          <div style={{ display: 'flex', gap: '16px', color: '#6b7280', fontSize: '13px', marginBottom: '10px' }}>
+            {car.created_at && (
+              <span>📅 Publicēts: {new Date(car.created_at).toLocaleDateString('lv-LV')}</span>
+            )}
+            <span>👁️ Skatījumi: <strong>{car.views ?? 0}</strong></span>
+          </div>
+
+          {activeImage && (
+            <div style={{ position: 'relative', width: '100%', height: '280px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', marginBottom: '8px' }}>
+              <img src={activeImage} alt={`${car.make} ${car.model}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              
+              {allImages.length > 1 && (
+                <>
+                  <button onClick={handlePrevImage} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '36px', height: '36px', fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    ❮
+                  </button>
+                  <button onClick={handleNextImage} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '36px', height: '36px', fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    ❯
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
+          {allImages.length > 1 && (
+            <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px' }}>
+              {allImages.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img}
+                  alt=""
+                  onClick={() => setActiveImage(img)}
+                  style={{ width: '65px', height: '48px', objectFit: 'cover', borderRadius: '6px', cursor: 'pointer', border: activeImage === img ? '3px solid #2563eb' : '1px solid #d1d5db', opacity: activeImage === img ? 1 : 0.7 }}
+                />
               ))}
             </div>
           )}
 
-          {/* Apraksta sadala */}
-          {car.description && (
-            <div style={{ marginTop: '20px', backgroundColor: '#f9fafb', padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 8px 0', color: '#111827' }}>Apraksts</h3>
-              <p style={{ fontSize: '14px', color: '#4b5563', lineHeight: '1.5', margin: 0, whiteSpace: 'pre-line' }}>
-                {car.description}
-              </p>
-            </div>
-          )}
         </div>
 
-        {/* Labā puse: Tehniskie parametri */}
-        <div style={{ backgroundColor: '#f9fafb', padding: '20px', borderRadius: '8px', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#111827', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-            Tehniskie dati
-          </h3>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', paddingBottom: '8px', borderBottom: '1px solid #f3f4f6' }}>
-            <span style={{ color: '#6b7280' }}>Dzinējs:</span>
-            <span style={{ fontWeight: '600', color: '#111827' }}>{car.engine || car.dzinejs || 'Nav norādīts'}</span>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', paddingBottom: '8px', borderBottom: '1px solid #f3f4f6' }}>
-            <span style={{ color: '#6b7280' }}>Tilpums:</span>
-            <span style={{ fontWeight: '600', color: '#111827' }}>{car.volume ? `${car.volume} L` : 'Nav norādīts'}</span>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', paddingBottom: '8px', borderBottom: '1px solid #f3f4f6' }}>
-            <span style={{ color: '#6b7280' }}>Ātrumkārba:</span>
-            <span style={{ fontWeight: '600', color: '#111827' }}>{car.gearbox || car.atrumkarba || 'Nav norādīts'}</span>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', paddingBottom: '8px', borderBottom: '1px solid #f3f4f6' }}>
-            <span style={{ color: '#6b7280' }}>Virsbūves tips:</span>
-            <span style={{ fontWeight: '600', color: '#111827' }}>{car.body_type || car.virsbuve || 'Nav norādīts'}</span>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', paddingBottom: '8px', borderBottom: '1px solid #f3f4f6' }}>
-            <span style={{ color: '#6b7280' }}>Krāsa:</span>
-            <span style={{ fontWeight: '600', color: '#111827' }}>{car.color || car.krasa || 'Nav norādīts'}</span>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', paddingBottom: '8px' }}>
-            <span style={{ color: '#6b7280' }}>Nobraukums:</span>
-            <span style={{ fontWeight: '600', color: '#111827' }}>{car.mileage ? `${formatNumberWithSpace(car.mileage)} km` : 'Nav norādīts'}</span>
+        {/* LABĀ MALA: Reklāma */}
+        <div style={{ width: '240px', flexShrink: '0' }}>
+          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '360px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
+            <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Ekskluzīvs baneris šeit!<br/><span style={{ fontSize: '12px' }}>(Maksimāla uzmanība)</span></p>
           </div>
         </div>
 
       </div>
+
+      {/* APAKŠĒJĀ DAĻA: APRAKSTS (Optimizēts, nepārsniedz monitora robežas) */}
+      {car.description && (
+        <div style={{ backgroundColor: '#f9fafb', padding: '16px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', maxHeight: '280px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box', marginBottom: '20px' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#111827', flexShrink: 0 }}>Apraksts</h3>
+          <div style={{ overflowY: 'auto', flex: 1, paddingRight: '8px' }}>
+            <p style={{ color: '#374151', lineHeight: '1.6', fontSize: '14px', whiteSpace: 'pre-line', margin: 0 }}>{car.description}</p>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
