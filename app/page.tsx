@@ -236,24 +236,6 @@ export default function Sakumlapa() {
     fetchData()
   }, [])
 
-  // ŠEIT TIKA PIEVIENOTA FILTRĒŠANAS LOĢIKA, LAI `filteredCars` EKSISTĒTU
-  const filteredCars = useMemo(() => {
-    return cars.filter(car => {
-      if (searchMake && car.make?.toLowerCase() !== searchMake.toLowerCase()) return false
-      if (valsts && car.country?.toLowerCase() !== valsts.toLowerCase() && car.valsts?.toLowerCase() !== valsts.toLowerCase()) return false
-      if (regions && car.region?.toLowerCase() !== regions.toLowerCase() && car.regions?.toLowerCase() !== regions.toLowerCase()) return false
-      if (minPrice && Number(car.price) < Number(minPrice)) return false
-      if (maxPrice && Number(car.price) > Number(maxPrice)) return false
-      if (minYear && Number(car.year) < Number(minYear)) return false
-      if (maxYear && Number(car.year) > Number(maxYear)) return false
-      if (dzinejs && car.engine?.toLowerCase() !== dzinejs.toLowerCase() && car.dzinejs?.toLowerCase() !== dzinejs.toLowerCase()) return false
-      if (atrumkarba && car.gearbox?.toLowerCase() !== atrumkarba.toLowerCase() && car.atrumkarba?.toLowerCase() !== atrumkarba.toLowerCase()) return false
-      if (virsbuve && car.body_type?.toLowerCase() !== virsbuve.toLowerCase() && car.virsbuve?.toLowerCase() !== virsbuve.toLowerCase()) return false
-      if (krasa && car.color?.toLowerCase() !== krasa.toLowerCase() && car.krasa?.toLowerCase() !== krasa.toLowerCase()) return false
-      return true
-    })
-  }, [cars, searchMake, valsts, regions, minPrice, maxPrice, minYear, maxYear, dzinejs, atrumkarba, virsbuve, krasa])
-
   const availableRegions = useMemo(() => {
     if (!valsts) {
       return REGIONS_BY_COUNTRY['Latvija']
@@ -277,6 +259,34 @@ export default function Sakumlapa() {
     return Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0]))
   }, [cars])
 
+  const filteredCars = cars.filter((car) => {
+    const matchesMake = searchMake ? (car.make || '').toLowerCase().includes(searchMake.toLowerCase()) : true
+    const matchesModel = searchModel ? (car.model || '').toLowerCase().includes(searchModel.toLowerCase()) : true
+    
+    const carPrice = Number(car.price)
+    const matchesMinPrice = minPrice ? carPrice >= Number(minPrice) : true
+    const matchesMaxPrice = maxPrice ? carPrice <= Number(maxPrice) : true
+
+    const carYear = Number(car.year)
+    const matchesMinYear = minYear ? carYear >= Number(minYear) : true
+    const matchesMaxYear = maxYear ? carYear <= Number(maxYear) : true
+
+    const carVolume = Number(car.volume || car.engine_volume || 0)
+    const matchesMinTilpums = minTilpums ? carVolume >= Number(minTilpums) : true
+    const matchesMaxTilpums = maxTilpums ? carVolume <= Number(maxTilpums) : true
+
+    const matchesValsts = valsts ? (car.country || car.valsts || '').toLowerCase().includes(valsts.toLowerCase()) : true
+    const matchesRegions = regions ? (car.region || car.regions || '').toLowerCase().includes(regions.toLowerCase()) : true
+    const matchesDzinejs = dzinejs ? (car.engine || car.dzinejs || '').toLowerCase().includes(dzinejs.toLowerCase()) : true
+    const matchesAtrumkarba = atrumkarba ? (car.gearbox || car.atrumkarba || '').toLowerCase().includes(atrumkarba.toLowerCase()) : true
+    const matchesVirsbuve = virsbuve ? (car.body_type || car.virsbuve || '').toLowerCase().includes(virsbuve.toLowerCase()) : true
+    const matchesKrasa = krasa ? (car.color || car.krasa || '').toLowerCase().includes(krasa.toLowerCase()) : true
+
+    return matchesMake && matchesModel && matchesMinPrice && matchesMaxPrice && 
+           matchesMinYear && matchesMaxYear && matchesMinTilpums && matchesMaxTilpums &&
+           matchesValsts && matchesRegions && matchesDzinejs && matchesAtrumkarba && matchesVirsbuve && matchesKrasa
+  })
+
   const handleMakeSelect = (make: string) => {
     if (searchMake.toLowerCase() === make.toLowerCase()) {
       setSearchMake('')
@@ -287,6 +297,7 @@ export default function Sakumlapa() {
 
   return (
     <div ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
+      
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
         {/* KREISĀ PUSE - Marku saraksts */}
@@ -614,67 +625,188 @@ export default function Sakumlapa() {
                         style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                       >
                         <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: k.hex, border: `1px solid ${k.border}` }}></span>
-                        {k.name}
+                        <span>{k.name}</span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
             </div>
-
           </div>
 
-          {/* SLUDINĀJUMU SARAKSTS */}
+          {/* SKATS */}
           <div>
             {loading ? (
-              <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Ielādē sludinājumus...</div>
+              <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
             ) : filteredCars.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px', backgroundColor: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb', color: '#6b7280' }}>
-                Nav atrasts neviens auto pēc norādītajiem kritērijiem.
+              <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>Nav atrasts neviens sludinājums ar šādiem kritērijiem.</div>
+            ) : searchMake === '' ? (
+              /* GRID SKATS */
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
+                {filteredCars.map((car, index) => {
+                  const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
+                  return (
+                    <Link 
+                      key={car.id || index} 
+                      href={`/auto/${car.id}`} 
+                      style={{ 
+                        backgroundColor: '#ffffff', 
+                        border: '1px solid #e5e7eb', 
+                        borderRadius: '8px', 
+                        overflow: 'hidden', 
+                        textDecoration: 'none', 
+                        color: 'inherit',
+                        display: 'flex',
+                        flexDirection: 'column'
+                      }}
+                    >
+                      <div style={{ width: '100%', height: '160px', backgroundColor: '#f3f4f6', overflow: 'hidden' }}>
+                        <img 
+                          src={imageUrl} 
+                          alt={car.make} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        />
+                      </div>
+                      <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                        <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#1d4ed8' }}>
+                          {car.make} {car.model}
+                        </div>
+                        <div style={{ fontSize: '13px', color: '#4b5563', display: 'flex', justifyContent: 'space-between' }}>
+                          <span>{car.year ? `${car.year} g.` : ''}</span>
+                          <span>{car.volume ? `${car.volume}L` : ''}</span>
+                        </div>
+                        <div style={{ marginTop: 'auto', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontWeight: 'bold', fontSize: '16px', color: '#111827' }}>
+                            {car.price ? `${formatNumberWithSpace(car.price)} €` : ''}
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                })}
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {filteredCars.map((car) => (
-                  <Link 
-                    key={car.id} 
-                    href={`/auto/${car.id}`}
-                    style={{ textDecoration: 'none', color: 'inherit' }}
-                  >
-                    <div style={{ display: 'flex', backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.2s' }}>
-                      {/* Attēls */}
-                      <div style={{ width: '220px', height: '140px', backgroundColor: '#e5e7eb', flexShrink: 0, position: 'relative' }}>
-                        {car.image_url || (car.images && car.images[0]) ? (
-                          <img 
-                            src={car.image_url || car.images[0]} 
-                            alt={`${car.make} ${car.model}`} 
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                          />
-                        ) : (
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af', fontSize: '12px' }}>Nav attēla</div>
-                        )}
-                      </div>
-                      {/* Apraksts */}
-                      <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: 1 }}>
+              /* TABULAS SKATS - Fiksēta zaļā galvene un skrollējams saturs */
+              <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', position: 'relative' }}>
+                
+                {/* Nekustīgā zaļā galvenes strīpa */}
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
+                  backgroundColor: '#15803d', 
+                  color: '#ffffff', 
+                  padding: '10px 12px', 
+                  fontSize: '13px', 
+                  fontWeight: 'bold', 
+                  alignItems: 'center',
+                  borderTopLeftRadius: '8px',
+                  borderTopRightRadius: '8px',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}>
+                  <div>Foto</div>
+                  <div>Automobilis</div>
+                  <div>Gads</div>
+                  <div>Dzinējs</div>
+                  <div>Virsbūve</div>
+                  <div>Krāsa</div>
+                  <div>Nobraukums</div>
+                  <div></div>
+                  <div style={{ textAlign: 'right' }}>Cena</div>
+                </div>
+
+                {/* Skrollējams satura konteiners */}
+                <div style={{ maxHeight: 'calc(100vh - 250px)', overflowY: 'auto' }}>
+                  {filteredCars.map((car, index) => {
+                    const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=300&q=80'
+                    
+                    const engineType = car.engine || car.dzinejs || '-'
+                    const bodyType = car.body_type || car.virsbuve || '-'
+                    const carColor = car.color || car.krasa || '-'
+                    const rawMileage = car.mileage || car.noobraukums || car.nobraukums
+                    const formattedMileage = rawMileage ? `${formatNumberWithSpace(rawMileage)} km` : '-'
+
+                    return (
+                      <Link 
+                        key={car.id || index} 
+                        href={`/auto/${car.id}`} 
+                        style={{ 
+                          display: 'grid', 
+                          gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
+                          alignItems: 'center', 
+                          padding: '10px 12px', 
+                          borderBottom: '1px solid #e5e7eb', 
+                          textDecoration: 'none', 
+                          color: '#1f2937',
+                          backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9fafb',
+                          fontSize: '14.5px',
+                          fontWeight: '600'
+                        }}
+                      >
+                        {/* 1. Foto */}
                         <div>
-                          <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 'bold', color: '#111827' }}>
-                            {car.make} {car.model}
-                          </h3>
-                          <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#4b5563' }}>
-                            {car.year} g., {car.engine || car.dzinejs} {car.volume ? `(${car.volume} L)` : ''}, {car.gearbox || car.atrumkarba}
-                          </p>
+                          <img 
+                            src={imageUrl} 
+                            alt={car.make} 
+                            style={{ width: '95px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #d1d5db' }} 
+                          />
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '12px', color: '#6b7280' }}>{car.country || car.valsts}, {car.region || car.regions}</span>
-                          <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#0369a1' }}>{formatNumberWithSpace(car.price)} €</span>
+
+                        {/* 2. Automobilis */}
+                        <div style={{ color: '#1d4ed8', fontSize: '15px', fontWeight: '700', paddingRight: '8px' }}>
+                          {car.make} {car.model}
                         </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
+
+                        {/* 3. Gads */}
+                        <div style={{ color: '#374151' }}>
+                          {car.year || '-'}
+                        </div>
+
+                        {/* 4. Dzinējs */}
+                        <div style={{ color: '#374151' }}>
+                          {engineType}
+                        </div>
+
+                        {/* 5. Virsbūve */}
+                        <div style={{ color: '#374151' }}>
+                          {bodyType}
+                        </div>
+
+                        {/* 6. Krāsa */}
+                        <div style={{ color: '#374151' }}>
+                          {carColor}
+                        </div>
+
+                        {/* 7. Nobraukums */}
+                        <div style={{ color: '#374151' }}>
+                          {formattedMileage}
+                        </div>
+
+                        {/* Tukšs lauks */}
+                        <div></div>
+
+                        {/* 8. Cena */}
+                        <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '15px' }}>
+                          {car.price ? `${formatNumberWithSpace(car.price)} €` : ''}
+                        </div>
+                      </Link>
+                    )
+                  })}
+                </div>
               </div>
             )}
           </div>
+        </div>
 
+        {/* LABĀ PUSE - Reklāmas vieta */}
+        <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA</span>
+            <span>Globālais baneris šeit!</span>
+          </div>
+          <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA</span>
+            <span>Globālais baneris šeit!</span>
+          </div>
         </div>
 
       </div>
