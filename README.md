@@ -5,11 +5,12 @@ TemAuto is an independent global vehicle marketplace for buying and selling cars
 ## Project identity
 
 - Project: TemAuto
-- Repository: `Tem-news/tem-auto-v2`
+- Repository: Tem-news/tem-auto-v2
 - Application framework: Next.js
 - Database and storage: Supabase
 - Hosting: Vercel
-- Primary branch: `main`
+- Primary branch: main
+- Development branch: develop
 
 ## Product direction
 
@@ -28,10 +29,27 @@ Planned capabilities include:
 
 ## Environment variables
 
-Create a local `.env.local` file using `.env.example` as the reference.
+Create a local .env.local file using .env.example as the reference.
 
 Required public variables:
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+Never commit real passwords, private keys or Supabase service-role keys.
+
+## Development
+
+Install dependencies: npm install
+
+Start the local development server: npm run dev
+
+Create a production build: npm run build
+
+## Isolation rule
+
+TemAuto is a separate project and must not use TEM News repositories, Cloudflare Workers, secrets, domains or deployment configuration.
+
+## Development workflow
+
+New changes are first committed to the develop branch and verified in a Vercel Preview deployment. Only approved changes are merged into main.
