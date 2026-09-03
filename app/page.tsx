@@ -3,8 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '../../../lib/supabase'
-
+import { supabase } from '../lib/supabase' // 
 export default function AutoLapa() {
   const params = useParams()
   const router = useRouter()
