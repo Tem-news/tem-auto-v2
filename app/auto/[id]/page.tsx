@@ -165,9 +165,9 @@ export default function AutoLapa() {
   const finalMileage = getMileage()
 
   return (
-    <div style={{ maxWidth: '1250px', margin: '20px auto', padding: '0 20px', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
+    <div data-temauto-listing-detail="true" style={{ width: '100%', maxWidth: '1760px', margin: '16px auto', padding: '0 16px', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
       
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'flex-start', marginBottom: '16px', width: '100%' }}>
         
         {/* KREISAIS STABIŅŠ */}
         <div style={{ width: '320px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -339,7 +339,7 @@ export default function AutoLapa() {
         </div>
 
         {/* VIDĒJĀ DAĻA: Bildes un virsraksts */}
-        <div style={{ flex: 1, maxWidth: '750px', minWidth: 0 }}>
+        <div style={{ flex: '1 1 auto', minWidth: 0 }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', paddingTop: '4px' }}>
             <Link href="/" style={{ color: '#2563eb', textDecoration: 'none', fontSize: '14px' }}>
@@ -366,7 +366,7 @@ export default function AutoLapa() {
           </div>
 
           {activeImage && (
-            <div style={{ position: 'relative', width: '100%', height: '280px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', marginBottom: '8px' }}>
+            <div style={{ position: 'relative', width: '100%', height: 'clamp(280px, 38vh, 520px)', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', marginBottom: '8px' }}>
               <img src={activeImage} alt={`${car.make} ${car.model}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               
               {allImages.length > 1 && (
@@ -399,9 +399,25 @@ export default function AutoLapa() {
         </div>
 
         {/* LABĀ MALA: Reklāma — two equal banners below the Rediģēt row */}
-        <div data-temauto-sponsor-rail="true" style={{ width: '240px', flexShrink: '0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <TemAutoSponsorPlacement />
-          <TemAutoSponsorPlacement />
+        <div
+          data-temauto-sponsor-rail="true"
+          style={{
+            width: '240px',
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+            position: 'sticky',
+            top: '72px',
+            alignSelf: 'start',
+            height: 'calc(100vh - 88px)',
+            minHeight: '576px',
+            maxHeight: 'calc(100vh - 72px)',
+            boxSizing: 'border-box'
+          }}
+        >
+          <TemAutoSponsorPlacement stretch />
+          <TemAutoSponsorPlacement stretch />
         </div>
 
       </div>
