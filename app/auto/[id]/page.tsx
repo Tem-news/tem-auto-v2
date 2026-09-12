@@ -399,7 +399,7 @@ export default function AutoLapa() {
         </div>
 
         {/* LABĀ MALA: Reklāma — two equal banners below the Rediģēt row */}
-        <div style={{ width: '240px', flexShrink: '0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div data-ad-column="true" style={{ width: '240px', flexShrink: '0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <AdPlaceholder />
           <AdPlaceholder />
         </div>

@@ -306,12 +306,12 @@ export default function Sakumlapa() {
   }
 
   return (
-    <div ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '12px 12px 16px', boxSizing: 'border-box' }}>
+    <div ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
       
       <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
         {/* KREISĀ PUSE - Marku saraksts */}
-        <div style={{ position: 'sticky', top: 'var(--temauto-header-height, 56px)', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
+        <div data-makes-column="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
           ) : (
@@ -374,23 +374,17 @@ export default function Sakumlapa() {
         {/* VIDUS: Filtri un Sludinājumu saraksts */}
         <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
-          {/* FILTRI — sticky flush under the header; opaque so cards cannot show through */}
-          <div style={{
-            position: 'sticky',
-            top: 'var(--temauto-header-height, 56px)',
-            zIndex: 40,
-            backgroundColor: '#f8fafc',
-            paddingTop: '12px',
-            paddingBottom: '16px',
-            marginLeft: '-4px',
-            marginRight: '-4px',
-            paddingLeft: '4px',
-            paddingRight: '4px'
-          }}>
-          <div style={{ 
+          {/* FILTRI */}
+          <div data-filter-row="true" style={{ 
+            position: 'sticky', 
+            top: '72px', 
+            zIndex: 30, 
             backgroundColor: '#f3f4f6', 
             padding: '12px', 
+            paddingTop: '20px', 
+            marginTop: '-12px', 
             borderRadius: '8px', 
+            marginBottom: '16px', 
             display: 'flex', 
             flexDirection: 'column', 
             gap: '8px', 
@@ -649,7 +643,6 @@ export default function Sakumlapa() {
               </div>
             </div>
           </div>
-          </div>
 
           {/* SKATS */}
           <div>
@@ -819,7 +812,7 @@ export default function Sakumlapa() {
         </div>
 
         {/* LABĀ PUSE - Reklāmas vieta */}
-        <div style={{ position: 'sticky', top: 'var(--temauto-header-height, 56px)', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div data-ad-column="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <AdPlaceholder />
           <AdPlaceholder />
         </div>
