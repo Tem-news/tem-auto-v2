@@ -23,22 +23,12 @@ const placementStyle: CSSProperties = {
   flexShrink: 0
 }
 
-export default function TemAutoSponsorPlacement({ stretch = false }: { stretch?: boolean }) {
-  const style: CSSProperties = stretch
-    ? {
-        ...placementStyle,
-        height: 'auto',
-        minHeight: '280px',
-        flex: '1 1 0',
-        maxHeight: '52vh'
-      }
-    : placementStyle
-
+export default function TemAutoSponsorPlacement() {
   return (
     <aside
       data-temauto-sponsor-placement="true"
       aria-label="REKLĀMA"
-      style={style}
+      style={placementStyle}
     >
       <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA</span>
       <span>REKLĀMA — vieta reklāmas devējam</span>
