@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
+import { canUseDevPreviewFallback, isPreviewListing, loadAdaptedPreviewCars } from '../lib/previewFallback'
 	
 const OFFICIAL_MAKES: { [key: string]: string } = {
   'bmw': 'BMW',
@@ -224,12 +225,20 @@ export default function Sakumlapa() {
 
       if (carsError) {
         console.error('Kļūda ielādējot auto:', carsError)
-      } else {
+      } else if ((carsData || []).length > 0) {
         const normalizedCars = (carsData || []).map(car => ({
           ...car,
           make: normalizeMake(car.make)
         }))
         setCars(normalizedCars)
+      } else if (canUseDevPreviewFallback()) {
+        const previewCars = loadAdaptedPreviewCars().map(car => ({
+          ...car,
+          make: normalizeMake(car.make || '')
+        }))
+        setCars(previewCars)
+      } else {
+        setCars([])
       }
       setLoading(false)
     }
@@ -645,10 +654,12 @@ export default function Sakumlapa() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
                 {filteredCars.map((car, index) => {
                   const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
+                  const previewCard = isPreviewListing(car)
                   return (
                     <Link 
                       key={car.id || index} 
-                      href={`/auto/${car.id}`} 
+                      href={`/auto/${car.id}`}
+                      data-preview-listing={previewCard ? 'true' : undefined} 
                       style={{ 
                         backgroundColor: '#ffffff', 
                         border: '1px solid #e5e7eb', 
@@ -718,6 +729,7 @@ export default function Sakumlapa() {
                 <div style={{ maxHeight: 'calc(100vh - 250px)', overflowY: 'auto' }}>
                   {filteredCars.map((car, index) => {
                     const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=300&q=80'
+                    const previewCard = isPreviewListing(car)
                     
                     const engineType = car.engine || car.dzinejs || '-'
                     const bodyType = car.body_type || car.virsbuve || '-'
@@ -728,7 +740,8 @@ export default function Sakumlapa() {
                     return (
                       <Link 
                         key={car.id || index} 
-                        href={`/auto/${car.id}`} 
+                        href={`/auto/${car.id}`}
+                        data-preview-listing={previewCard ? 'true' : undefined} 
                         style={{ 
                           display: 'grid', 
                           gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 

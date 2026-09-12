@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../lib/supabase'
+import { canUseDevPreviewFallback, getAdaptedPreviewCarById, isPreviewListing } from '../../../lib/previewFallback'
 
 export default function AutoLapa() {
   const params = useParams()
@@ -40,20 +41,26 @@ export default function AutoLapa() {
     if (!id) return
 
     async function fetchCarData() {
-      await supabase.rpc('increment_view', { car_id: id })
-
       const { data: carData, error: carError } = await supabase
         .from('cars')
         .select('*')
         .eq('id', id)
-        .single()
+        .maybeSingle()
 
-      if (carError) {
-        console.error('Kļūda ielādējot auto:', carError)
-      } else if (carData) {
+      if (!carError && carData) {
+        await supabase.rpc('increment_view', { car_id: id })
         setCar(carData)
         const mainImg = carData.image || (carData.images && carData.images[0]) || ''
         setActiveImage(mainImg)
+      } else if (canUseDevPreviewFallback()) {
+        const previewCar = getAdaptedPreviewCarById(String(id))
+        if (previewCar) {
+          setCar(previewCar)
+          const mainImg = previewCar.image || (previewCar.images && previewCar.images[0]) || ''
+          setActiveImage(mainImg)
+        }
+      } else if (carError) {
+        console.error('Kļūda ielādējot auto:', carError)
       }
       setLoading(false)
     }
@@ -337,11 +344,13 @@ export default function AutoLapa() {
             <Link href="/" style={{ color: '#2563eb', textDecoration: 'none', fontSize: '14px' }}>
               ← Atpakaļ uz sarakstu
             </Link>
-            <div>
-              <Link href={`/auto/${id}/edit`} style={{ padding: '6px 14px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold', display: 'inline-block' }}>
-                ✏️ Rediģēt
-              </Link>
-            </div>
+            {!isPreviewListing(car) && (
+              <div>
+                <Link href={`/auto/${id}/edit`} style={{ padding: '6px 14px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold', display: 'inline-block' }}>
+                  ✏️ Rediģēt
+                </Link>
+              </div>
+            )}
           </div>
 
           <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#111827' }}>

@@ -72,7 +72,7 @@ export default function RedigetAuto() {
       setEmail(data.email || '')
       
       const existing = Array.isArray(data.images) ? data.images : (data.images ? [data.images] : [])
-      setImages(existing.map(url => ({ url, isNew: false })))
+      setImages(existing.map((url: string) => ({ url, isNew: false })))
       
       setLoading(false)
     }
