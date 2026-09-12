@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../lib/supabase'
 import { canUseDevPreviewFallback, getAdaptedPreviewCarById, isPreviewListing } from '../../../lib/previewFallback'
+import AdPlaceholder from '../../components/AdPlaceholder'
 
 export default function AutoLapa() {
   const params = useParams()
@@ -397,12 +398,10 @@ export default function AutoLapa() {
 
         </div>
 
-        {/* LABĀ MALA: Reklāma */}
-        <div style={{ width: '240px', flexShrink: '0' }}>
-          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '360px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
-            <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Ekskluzīvs baneris šeit!<br/><span style={{ fontSize: '12px' }}>(Maksimāla uzmanība)</span></p>
-          </div>
+        {/* LABĀ MALA: Reklāma — two equal banners below the Rediģēt row */}
+        <div style={{ width: '240px', flexShrink: '0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <AdPlaceholder />
+          <AdPlaceholder />
         </div>
 
       </div>

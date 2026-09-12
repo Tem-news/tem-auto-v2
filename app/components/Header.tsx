@@ -127,6 +127,20 @@ export default function Header() {
 
   const langRef = useRef<HTMLDivElement>(null)
   const regionRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const header = headerRef.current
+    if (!header || typeof ResizeObserver === 'undefined') return
+
+    const publishHeight = () => {
+      document.documentElement.style.setProperty('--temauto-header-height', `${header.offsetHeight}px`)
+    }
+    publishHeight()
+    const observer = new ResizeObserver(publishHeight)
+    observer.observe(header)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -198,6 +212,7 @@ export default function Header() {
 
   return (
     <header 
+      ref={headerRef}
       style={{ 
         backgroundColor: '#0f172a', 
         color: '#ffffff', 
