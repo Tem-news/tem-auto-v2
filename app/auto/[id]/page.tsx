@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../lib/supabase'
 import { canUseDevPreviewFallback, getAdaptedPreviewCarById, isPreviewListing } from '../../../lib/previewFallback'
-import AdPlaceholder from '../../components/AdPlaceholder'
+import TemAutoSponsorPlacement from '../../components/TemAutoSponsorPlacement'
 
 export default function AutoLapa() {
   const params = useParams()
@@ -399,9 +399,9 @@ export default function AutoLapa() {
         </div>
 
         {/* LABĀ MALA: Reklāma — two equal banners below the Rediģēt row */}
-        <div data-ad-column="true" style={{ width: '240px', flexShrink: '0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <AdPlaceholder />
-          <AdPlaceholder />
+        <div data-temauto-sponsor-rail="true" style={{ width: '240px', flexShrink: '0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <TemAutoSponsorPlacement />
+          <TemAutoSponsorPlacement />
         </div>
 
       </div>

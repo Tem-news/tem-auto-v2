@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 import { canUseDevPreviewFallback, isPreviewListing, loadAdaptedPreviewCars } from '../lib/previewFallback'
-import AdPlaceholder from './components/AdPlaceholder'
+import TemAutoSponsorPlacement from './components/TemAutoSponsorPlacement'
 	
 const OFFICIAL_MAKES: { [key: string]: string } = {
   'bmw': 'BMW',
@@ -811,10 +811,10 @@ export default function Sakumlapa() {
           </div>
         </div>
 
-        {/* LABĀ PUSE - Reklāmas vieta */}
-        <div data-ad-column="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <AdPlaceholder />
-          <AdPlaceholder />
+        {/* LABĀ PUSE - first-party sponsor placements */}
+        <div data-temauto-sponsor-rail="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <TemAutoSponsorPlacement />
+          <TemAutoSponsorPlacement />
         </div>
 
       </div>
