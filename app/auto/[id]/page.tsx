@@ -5,7 +5,6 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../lib/supabase'
 import { canUseDevPreviewFallback, getAdaptedPreviewCarById, isPreviewListing } from '../../../lib/previewFallback'
-import TemAutoSponsorPlacement from '../../components/TemAutoSponsorPlacement'
 
 export default function AutoLapa() {
   const params = useParams()
@@ -165,12 +164,12 @@ export default function AutoLapa() {
   const finalMileage = getMileage()
 
   return (
-    <div style={{ maxWidth: '1250px', margin: '20px auto', padding: '0 20px', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
+    <div style={{ width: 'calc(100% - 40px)', maxWidth: '1320px', height: 'calc(100dvh - 100px)', margin: '20px 20px 0', padding: 0, fontFamily: 'sans-serif', display: 'grid', gridTemplateColumns: '320px minmax(0, 1fr) 240px', gridTemplateRows: 'auto minmax(0, 1fr)', columnGap: '24px', rowGap: '16px', overflow: 'hidden', boxSizing: 'border-box' }}>
       
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', marginBottom: '16px' }}>
+      <div style={{ display: 'contents' }}>
         
         {/* KREISAIS STABIŅŠ */}
-        <div style={{ width: '320px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div style={{ gridColumn: '1', gridRow: '1', width: '320px', minHeight: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
           
           {/* Valsts un Pilsēta */}
           {(car.country || car.city) && (
@@ -339,7 +338,7 @@ export default function AutoLapa() {
         </div>
 
         {/* VIDĒJĀ DAĻA: Bildes un virsraksts */}
-        <div style={{ flex: 1, maxWidth: '750px', minWidth: 0 }}>
+        <div style={{ gridColumn: '2', gridRow: '1', width: '100%', maxWidth: '750px', minWidth: 0 }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', paddingTop: '4px' }}>
             <Link href="/" style={{ color: '#2563eb', textDecoration: 'none', fontSize: '14px' }}>
@@ -367,7 +366,7 @@ export default function AutoLapa() {
 
           {activeImage && (
             <div style={{ position: 'relative', width: '100%', height: '280px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', marginBottom: '8px' }}>
-              <img src={activeImage} alt={`${car.make} ${car.model}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={activeImage} alt={`${car.make} ${car.model}`} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               
               {allImages.length > 1 && (
                 <>
@@ -398,17 +397,25 @@ export default function AutoLapa() {
 
         </div>
 
-        {/* LABĀ MALA: Reklāma — two equal banners below the Rediģēt row */}
-        <div data-temauto-sponsor-rail="true" style={{ width: '240px', flexShrink: '0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <TemAutoSponsorPlacement />
-          <TemAutoSponsorPlacement />
+        {/* LABĀ MALA: divi vienādi, gari platformā integrēti sponsoru lauki */}
+        <div style={{ gridColumn: '3', gridRow: '1 / span 2', width: '240px', height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {[1, 2].map((placement) => (
+            <aside
+              key={placement}
+              aria-label="Sponsora vieta"
+              style={{ width: '100%', minHeight: 0, flex: '1 1 0', boxSizing: 'border-box', border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}
+            >
+              <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>SPONSORS</span>
+              <span>Vieta sadarbības partnerim</span>
+            </aside>
+          ))}
         </div>
 
       </div>
 
       {/* APAKŠĒJĀ DAĻA: APRAKSTS (Optimizēts, nepārsniedz monitora robežas) */}
       {car.description && (
-        <div style={{ backgroundColor: '#f9fafb', padding: '16px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', maxHeight: '280px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box', marginBottom: '20px' }}>
+        <div style={{ gridColumn: '1 / 3', gridRow: '2', height: '100%', minHeight: 0, backgroundColor: '#f9fafb', padding: '16px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box' }}>
           <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#111827', flexShrink: 0 }}>Apraksts</h3>
           <div style={{ overflowY: 'auto', flex: 1, paddingRight: '8px' }}>
             <p style={{ color: '#374151', lineHeight: '1.6', fontSize: '14px', whiteSpace: 'pre-line', margin: 0 }}>{car.description}</p>
