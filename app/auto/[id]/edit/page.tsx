@@ -17,12 +17,7 @@ export default function RedigetAuto() {
   // Visi lauki
   const [make, setMake] = useState('')
   const [model, setModel] = useState('')
-  const [year, setYear] = useState('')
   const [price, setPrice] = useState('')
-  const [mileage, setMileage] = useState('')
-  const [engine, setEngine] = useState('')
-  const [fuel, setFuel] = useState('Dīzelis')
-  const [gearbox, setGearbox] = useState('Automāts')
   const [description, setDescription] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
@@ -61,12 +56,7 @@ export default function RedigetAuto() {
       // Ja viss kārtībā, aizpildām datus
       setMake(data.make || '')
       setModel(data.model || '')
-      setYear(data.year ? String(data.year) : '')
       setPrice(data.price ? String(data.price) : '')
-      setMileage(data.mileage ? String(data.mileage) : '')
-      setEngine(data.engine || '')
-      setFuel(data.fuel || 'Dīzelis')
-      setGearbox(data.gearbox || 'Automāts')
       setDescription(data.description || '')
       setPhone(data.phone || '')
       setEmail(data.email || '')
@@ -113,12 +103,7 @@ export default function RedigetAuto() {
     }
 
     await supabase.from('cars').update({
-      year: year ? Number(year) : null,
       price: price ? Number(price) : null,
-      mileage: mileage ? Number(mileage) : null,
-      engine,
-      fuel,
-      gearbox,
       description,
       phone,
       email,
@@ -171,47 +156,9 @@ export default function RedigetAuto() {
           <h1 style={{ marginBottom: '20px', color: '#111', fontSize: '24px' }}>Rediģēt sludinājumu: {make} {model}</h1>
           
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <div style={{ padding: '12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-              <strong>Marka un modelis:</strong> {make} {model} <span style={{ color: '#64748b', fontSize: '14px' }}>(Nav maināmi)</span>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Gads</label>
-              <input type="number" placeholder="Piem. 2018" value={year} onChange={(e) => setYear(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
-            </div>
-
             <div>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Cena (€)</label>
               <input type="number" placeholder="Piem. 12500" value={price} onChange={(e) => setPrice(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Nobraukums (km)</label>
-              <input type="number" placeholder="Piem. 180000" value={mileage} onChange={(e) => setMileage(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Dzinējs</label>
-              <input type="text" placeholder="Piem. 2.0" value={engine} onChange={(e) => setEngine(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Degvielas tips</label>
-              <select value={fuel} onChange={(e) => setFuel(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', boxSizing: 'border-box' }}>
-                <option>Dīzelis</option>
-                <option>Benzīns</option>
-                <option>Hibrīds</option>
-                <option>Elektriskais</option>
-                <option>Gāze / Benzīns</option>
-              </select>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Ātrumkārba</label>
-              <select value={gearbox} onChange={(e) => setGearbox(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', boxSizing: 'border-box' }}>
-                <option>Automāts</option>
-                <option>Mehāniska</option>
-              </select>
             </div>
 
             <div>
