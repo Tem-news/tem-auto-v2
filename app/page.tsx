@@ -1,6 +1,5 @@
 'use client'
 import { useEffect, useState, useMemo, useRef } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 import { canUseDevPreviewFallback, isPreviewListing, loadAdaptedPreviewCars } from '../lib/previewFallback'
@@ -657,7 +656,7 @@ export default function Sakumlapa() {
                   const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
                   const previewCard = isPreviewListing(car)
                   return (
-                    <Link 
+                    <a 
                       key={car.id || index} 
                       href={`/auto/${car.id}`}
                       data-preview-listing={previewCard ? 'true' : undefined} 
@@ -693,7 +692,7 @@ export default function Sakumlapa() {
                           </span>
                         </div>
                       </div>
-                    </Link>
+                    </a>
                   )
                 })}
               </div>
@@ -739,7 +738,7 @@ export default function Sakumlapa() {
                     const formattedMileage = rawMileage ? `${formatNumberWithSpace(rawMileage)} km` : '-'
 
                     return (
-                      <Link 
+                      <a 
                         key={car.id || index} 
                         href={`/auto/${car.id}`}
                         data-preview-listing={previewCard ? 'true' : undefined} 
@@ -802,7 +801,7 @@ export default function Sakumlapa() {
                         <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '15px' }}>
                           {car.price ? `${formatNumberWithSpace(car.price)} €` : ''}
                         </div>
-                      </Link>
+                      </a>
                     )
                   })}
                 </div>
