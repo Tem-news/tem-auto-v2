@@ -13,6 +13,9 @@ export default function AutoLapa() {
   const [car, setCar] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [activeImage, setActiveImage] = useState<string>('')
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false)
+  const [imageZoom, setImageZoom] = useState(1)
+  const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 })
 
   const [showPhone, setShowPhone] = useState(false)
   const [showEmail, setShowEmail] = useState(false)
@@ -36,6 +39,20 @@ export default function AutoLapa() {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [showSocialDropdown])
+
+  useEffect(() => {
+    if (!isImageViewerOpen) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsImageViewerOpen(false)
+        setImageZoom(1)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isImageViewerOpen])
 
   useEffect(() => {
     if (!id) return
@@ -376,7 +393,17 @@ export default function AutoLapa() {
 
           {activeImage && (
             <div style={{ position: 'relative', width: '100%', height: '280px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', marginBottom: '8px' }}>
-              <img src={activeImage} alt={`${car.make} ${car.model}`} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              <img
+                src={activeImage}
+                alt={`${car.make} ${car.model}`}
+                onClick={() => {
+                  setImageZoom(1)
+                  setZoomOrigin({ x: 50, y: 50 })
+                  setIsImageViewerOpen(true)
+                }}
+                title="Atvērt foto pilnekrānā"
+                style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'zoom-in' }}
+              />
               
               {allImages.length > 1 && (
                 <>
@@ -429,6 +456,73 @@ export default function AutoLapa() {
           <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#111827', flexShrink: 0 }}>Apraksts</h3>
           <div style={{ overflowY: 'auto', flex: 1, paddingRight: '8px' }}>
             <p style={{ color: '#374151', lineHeight: '1.6', fontSize: '14px', whiteSpace: 'pre-line', margin: 0 }}>{car.description}</p>
+          </div>
+        </div>
+      )}
+
+      {isImageViewerOpen && activeImage && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Foto pilnekrāna skatītājs"
+          onClick={() => {
+            setIsImageViewerOpen(false)
+            setImageZoom(1)
+          }}
+          style={{ position: 'fixed', inset: 0, zIndex: 10000, backgroundColor: 'rgba(0, 0, 0, 0.94)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}
+        >
+          <div
+            onClick={(event) => event.stopPropagation()}
+            onWheel={(event) => {
+              event.preventDefault()
+              const rect = event.currentTarget.getBoundingClientRect()
+              setZoomOrigin({
+                x: ((event.clientX - rect.left) / rect.width) * 100,
+                y: ((event.clientY - rect.top) / rect.height) * 100
+              })
+              setImageZoom((current) => Math.min(4, Math.max(1, current + (event.deltaY < 0 ? 0.25 : -0.25))))
+            }}
+            style={{ position: 'relative', width: '100vw', height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}
+          >
+            <img
+              src={activeImage}
+              alt={`${car.make} ${car.model}`}
+              draggable={false}
+              onDoubleClick={(event) => {
+                const rect = event.currentTarget.getBoundingClientRect()
+                setZoomOrigin({
+                  x: ((event.clientX - rect.left) / rect.width) * 100,
+                  y: ((event.clientY - rect.top) / rect.height) * 100
+                })
+                setImageZoom((current) => current === 1 ? 2 : 1)
+              }}
+              style={{ maxWidth: '92vw', maxHeight: '88dvh', objectFit: 'contain', transform: `scale(${imageZoom})`, transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`, transition: 'transform 120ms ease-out', cursor: imageZoom > 1 ? 'zoom-out' : 'zoom-in', userSelect: 'none' }}
+            />
+
+            <button
+              type="button"
+              aria-label="Aizvērt foto"
+              onClick={() => {
+                setIsImageViewerOpen(false)
+                setImageZoom(1)
+              }}
+              style={{ position: 'absolute', top: '18px', right: '22px', width: '44px', height: '44px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.45)', backgroundColor: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: '28px', lineHeight: 1, cursor: 'pointer' }}
+            >
+              ×
+            </button>
+
+            {allImages.length > 1 && (
+              <>
+                <button type="button" aria-label="Iepriekšējais foto" onClick={() => { handlePrevImage(); setImageZoom(1) }} style={{ position: 'absolute', left: '22px', top: '50%', transform: 'translateY(-50%)', width: '48px', height: '48px', borderRadius: '50%', border: 'none', backgroundColor: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: '24px', cursor: 'pointer' }}>❮</button>
+                <button type="button" aria-label="Nākamais foto" onClick={() => { handleNextImage(); setImageZoom(1) }} style={{ position: 'absolute', right: '22px', top: '50%', transform: 'translateY(-50%)', width: '48px', height: '48px', borderRadius: '50%', border: 'none', backgroundColor: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: '24px', cursor: 'pointer' }}>❯</button>
+              </>
+            )}
+
+            <div style={{ position: 'absolute', left: '50%', bottom: '20px', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', borderRadius: '24px', backgroundColor: 'rgba(0,0,0,0.68)', color: '#fff' }}>
+              <button type="button" aria-label="Samazināt" onClick={() => setImageZoom((current) => Math.max(1, current - 0.25))} style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.45)', background: 'transparent', color: '#fff', fontSize: '22px', cursor: 'pointer' }}>−</button>
+              <span style={{ minWidth: '52px', textAlign: 'center', fontSize: '14px' }}>{Math.round(imageZoom * 100)}%</span>
+              <button type="button" aria-label="Palielināt" onClick={() => setImageZoom((current) => Math.min(4, current + 0.25))} style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.45)', background: 'transparent', color: '#fff', fontSize: '22px', cursor: 'pointer' }}>+</button>
+            </div>
           </div>
         </div>
       )}
