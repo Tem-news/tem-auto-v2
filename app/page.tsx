@@ -3,7 +3,6 @@ import { useEffect, useState, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 import { canUseDevPreviewFallback, isPreviewListing, loadAdaptedPreviewCars } from '../lib/previewFallback'
-import TemAutoSponsorPlacement from './components/TemAutoSponsorPlacement'
 	
 const LISTINGS_PER_PAGE = 48
 
@@ -878,10 +877,18 @@ export default function Sakumlapa() {
           </div>
         </div>
 
-        {/* LABĀ PUSE - first-party sponsor placements */}
-        <div data-temauto-sponsor-rail="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <TemAutoSponsorPlacement />
-          <TemAutoSponsorPlacement />
+        {/* LABĀ PUSE - divi gari, nekustīgi platformas sponsoru lauki */}
+        <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', height: 'calc(100dvh - 88px)', minHeight: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {[1, 2].map((placement) => (
+            <aside
+              key={placement}
+              aria-label="Sponsora vieta"
+              style={{ width: '100%', minHeight: 0, flex: '1 1 0', boxSizing: 'border-box', border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}
+            >
+              <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>SPONSORS</span>
+              <span>Vieta sadarbības partnerim</span>
+            </aside>
+          ))}
         </div>
 
       </div>
