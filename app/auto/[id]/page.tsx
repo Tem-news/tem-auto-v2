@@ -164,7 +164,7 @@ export default function AutoLapa() {
   const finalMileage = getMileage()
 
   return (
-    <div style={{ width: 'calc(100% - 40px)', maxWidth: '1320px', height: 'calc(100dvh - 100px)', margin: '20px 20px 0', padding: 0, fontFamily: 'sans-serif', display: 'grid', gridTemplateColumns: '320px minmax(0, 1fr) 240px', gridTemplateRows: 'auto minmax(0, 1fr)', columnGap: '24px', rowGap: '16px', overflow: 'hidden', boxSizing: 'border-box' }}>
+    <div style={{ width: 'calc(100% - 40px)', maxWidth: '1320px', height: 'calc(100dvh - 100px)', margin: '20px auto 0', padding: 0, fontFamily: 'sans-serif', display: 'grid', gridTemplateColumns: '320px minmax(0, 1fr) 240px', gridTemplateRows: 'auto minmax(0, 1fr)', columnGap: '24px', rowGap: '16px', overflow: 'hidden', boxSizing: 'border-box' }}>
       
       <div style={{ display: 'contents' }}>
         
