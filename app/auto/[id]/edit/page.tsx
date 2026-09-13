@@ -168,7 +168,7 @@ export default function RedigetAuto() {
 
             <div>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Apraksts</label>
-              <textarea placeholder="Papildus informācija par auto..." value={description} onChange={(e) => setDescription(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', height: '120px', resize: 'vertical', boxSizing: 'border-box' }} />
+              <textarea placeholder="Papildus informācija par auto..." value={description} onChange={(e) => setDescription(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', height: '240px', resize: 'vertical', boxSizing: 'border-box' }} />
             </div>
 
             <div>
