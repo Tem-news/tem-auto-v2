@@ -731,8 +731,7 @@ export default function Sakumlapa() {
                         </div>
                         <div style={{ fontSize: '13px', color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <span>{car.year ? `${car.year} g.` : ''}</span>
-                          <span>{car.price ? `${formatNumberWithSpace(car.price)} €` : ''}</span>
-                          <span style={{ marginLeft: 'auto' }}>{car.volume ? `${car.volume}L` : ''}</span>
+                          <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.price ? `${formatNumberWithSpace(car.price)} €` : ''}</span>
                         </div>
                       </div>
                     </a>
