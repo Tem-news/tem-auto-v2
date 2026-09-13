@@ -5,6 +5,8 @@ import { supabase } from '../lib/supabase'
 import { canUseDevPreviewFallback, isPreviewListing, loadAdaptedPreviewCars } from '../lib/previewFallback'
 import TemAutoSponsorPlacement from './components/TemAutoSponsorPlacement'
 	
+const LISTINGS_PER_PAGE = 12
+
 const OFFICIAL_MAKES: { [key: string]: string } = {
   'bmw': 'BMW',
   'audi': 'Audi',
@@ -159,11 +161,15 @@ export default function Sakumlapa() {
   const [loading, setLoading] = useState(true)
   const [searchMake, setSearchMake] = useState('')
   const [searchModel, setSearchModel] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
   
   useEffect(() => {
     const syncMakeFromAddress = () => {
-      const makeFromAddress = new URLSearchParams(window.location.search).get('make') || ''
+      const addressParams = new URLSearchParams(window.location.search)
+      const makeFromAddress = addressParams.get('make') || ''
+      const pageFromAddress = Number(addressParams.get('page') || '1')
       setSearchMake(makeFromAddress)
+      setCurrentPage(Number.isInteger(pageFromAddress) && pageFromAddress > 0 ? pageFromAddress : 1)
     }
 
     syncMakeFromAddress()
@@ -307,9 +313,31 @@ export default function Sakumlapa() {
            matchesValsts && matchesRegions && matchesDzinejs && matchesAtrumkarba && matchesVirsbuve && matchesKrasa
   })
 
+  const totalPages = Math.max(1, Math.ceil(filteredCars.length / LISTINGS_PER_PAGE))
+  const safeCurrentPage = Math.min(currentPage, totalPages)
+  const paginatedCars = filteredCars.slice(
+    (safeCurrentPage - 1) * LISTINGS_PER_PAGE,
+    safeCurrentPage * LISTINGS_PER_PAGE
+  )
+
+  const setPageAndHistory = (page: number) => {
+    const nextPage = Math.min(Math.max(page, 1), totalPages)
+    setCurrentPage(nextPage)
+    const nextAddress = new URL(window.location.href)
+    if (nextPage === 1) {
+      nextAddress.searchParams.delete('page')
+    } else {
+      nextAddress.searchParams.set('page', String(nextPage))
+    }
+    window.history.pushState({}, '', nextAddress.pathname + nextAddress.search)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const setMakeAndHistory = (make: string) => {
     setSearchMake(make)
+    setCurrentPage(1)
     const nextAddress = new URL(window.location.href)
+    nextAddress.searchParams.delete('page')
     if (make) {
       nextAddress.searchParams.set('make', make)
     } else {
@@ -671,7 +699,7 @@ export default function Sakumlapa() {
             ) : searchMake === '' ? (
               /* GRID SKATS */
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
-                {filteredCars.map((car, index) => {
+                {paginatedCars.map((car, index) => {
                   const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
                   const previewCard = isPreviewListing(car)
                   return (
@@ -746,7 +774,7 @@ export default function Sakumlapa() {
 
                 {/* Skrollējams satura konteiners */}
                 <div style={{ maxHeight: 'calc(100vh - 250px)', overflowY: 'auto' }}>
-                  {filteredCars.map((car, index) => {
+                  {paginatedCars.map((car, index) => {
                     const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=300&q=80'
                     const previewCard = isPreviewListing(car)
                     
@@ -825,6 +853,32 @@ export default function Sakumlapa() {
                   })}
                 </div>
               </div>
+            )}
+
+            {!loading && filteredCars.length > 0 && totalPages > 1 && (
+              <nav aria-label="Sludinājumu lapas" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: '8px', padding: '18px 0 4px' }}>
+                {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                  <button
+                    key={page}
+                    type="button"
+                    onClick={() => setPageAndHistory(page)}
+                    aria-current={safeCurrentPage === page ? 'page' : undefined}
+                    style={{
+                      minWidth: '36px',
+                      height: '36px',
+                      padding: '0 10px',
+                      borderRadius: '6px',
+                      border: safeCurrentPage === page ? '1px solid #1d4ed8' : '1px solid #d1d5db',
+                      backgroundColor: safeCurrentPage === page ? '#2563eb' : '#ffffff',
+                      color: safeCurrentPage === page ? '#ffffff' : '#1f2937',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </nav>
             )}
           </div>
         </div>
