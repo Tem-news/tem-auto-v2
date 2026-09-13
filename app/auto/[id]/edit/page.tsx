@@ -4,6 +4,11 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '../../../../lib/supabase'
 
+const formatPriceInput = (value: string) => {
+  const digits = value.replace(/\D/g, '')
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+}
+
 export default function RedigetAuto() {
   const params = useParams()
   const router = useRouter()
@@ -56,7 +61,7 @@ export default function RedigetAuto() {
       // Ja viss kārtībā, aizpildām datus
       setMake(data.make || '')
       setModel(data.model || '')
-      setPrice(data.price ? String(data.price) : '')
+      setPrice(data.price ? formatPriceInput(String(data.price)) : '')
       setDescription(data.description || '')
       setPhone(data.phone || '')
       setEmail(data.email || '')
@@ -103,7 +108,7 @@ export default function RedigetAuto() {
     }
 
     await supabase.from('cars').update({
-      price: price ? Number(price) : null,
+      price: price ? Number(price.replace(/\s/g, '')) : null,
       description,
       phone,
       email,
@@ -158,7 +163,7 @@ export default function RedigetAuto() {
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <div>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Cena (€)</label>
-              <input type="number" placeholder="Piem. 12500" value={price} onChange={(e) => setPrice(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+              <input type="text" inputMode="numeric" placeholder="Piem. 12 500" value={price} onChange={(e) => setPrice(formatPriceInput(e.target.value))} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
             </div>
 
             <div>
