@@ -160,6 +160,17 @@ export default function Sakumlapa() {
   const [searchMake, setSearchMake] = useState('')
   const [searchModel, setSearchModel] = useState('')
   
+  useEffect(() => {
+    const syncMakeFromAddress = () => {
+      const makeFromAddress = new URLSearchParams(window.location.search).get('make') || ''
+      setSearchMake(makeFromAddress)
+    }
+
+    syncMakeFromAddress()
+    window.addEventListener('popstate', syncMakeFromAddress)
+    return () => window.removeEventListener('popstate', syncMakeFromAddress)
+  }, [])
+
   const [valsts, setValsts] = useState('')
   const [regions, setRegions] = useState('')
   
@@ -296,12 +307,20 @@ export default function Sakumlapa() {
            matchesValsts && matchesRegions && matchesDzinejs && matchesAtrumkarba && matchesVirsbuve && matchesKrasa
   })
 
-  const handleMakeSelect = (make: string) => {
-    if (searchMake.toLowerCase() === make.toLowerCase()) {
-      setSearchMake('')
+  const setMakeAndHistory = (make: string) => {
+    setSearchMake(make)
+    const nextAddress = new URL(window.location.href)
+    if (make) {
+      nextAddress.searchParams.set('make', make)
     } else {
-      setSearchMake(make)
+      nextAddress.searchParams.delete('make')
     }
+    window.history.pushState({}, '', nextAddress.pathname + nextAddress.search)
+  }
+
+  const handleMakeSelect = (make: string) => {
+    const nextMake = searchMake.toLowerCase() === make.toLowerCase() ? '' : make
+    setMakeAndHistory(nextMake)
   }
 
   return (
@@ -316,7 +335,7 @@ export default function Sakumlapa() {
           ) : (
             <div>
               <button
-                onClick={() => setSearchMake('')}
+                onClick={() => setMakeAndHistory('')}
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
