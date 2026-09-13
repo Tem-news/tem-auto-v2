@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '../../../../lib/supabase'
 
@@ -18,6 +18,14 @@ export default function RedigetAuto() {
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const hasUnsavedChangesRef = useRef(false)
+  const allowNavigationRef = useRef(false)
+  const skipNextPopRef = useRef(false)
+
+  const markUnsaved = () => {
+    hasUnsavedChangesRef.current = true
+  }
+
 
   // Visi lauki
   const [make, setMake] = useState('')
@@ -29,6 +37,53 @@ export default function RedigetAuto() {
 
   // Bilžu state
   const [images, setImages] = useState<{ url: string; isNew: boolean; file?: File }[]>([])
+
+  useEffect(() => {
+    const confirmExit = () => window.confirm('Ir nesaglabātas izmaiņas. Vai tiešām iziet, tās nesaglabājot?')
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!hasUnsavedChangesRef.current || allowNavigationRef.current) return
+      event.preventDefault()
+      event.returnValue = ''
+    }
+
+    const handleLinkClick = (event: MouseEvent) => {
+      if (!hasUnsavedChangesRef.current || allowNavigationRef.current) return
+      const target = event.target as Element | null
+      const anchor = target?.closest('a')
+      if (!anchor || anchor.target === '_blank' || !anchor.href) return
+      if (!confirmExit()) {
+        event.preventDefault()
+        event.stopPropagation()
+        return
+      }
+      allowNavigationRef.current = true
+    }
+
+    const handlePopState = () => {
+      if (skipNextPopRef.current) {
+        skipNextPopRef.current = false
+        return
+      }
+      if (!hasUnsavedChangesRef.current || allowNavigationRef.current) return
+      if (!confirmExit()) {
+        skipNextPopRef.current = true
+        window.history.forward()
+      } else {
+        allowNavigationRef.current = true
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    window.addEventListener('popstate', handlePopState)
+    document.addEventListener('click', handleLinkClick, true)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      window.removeEventListener('popstate', handlePopState)
+      document.removeEventListener('click', handleLinkClick, true)
+    }
+  }, [])
 
   useEffect(() => {
     if (!id) return
@@ -83,16 +138,19 @@ export default function RedigetAuto() {
     const [moved] = updated.splice(index, 1)
     updated.splice(newIndex, 0, moved)
     setImages(updated)
+    markUnsaved()
   }
 
   // Dzēst bildi
   const removeImage = (index: number) => {
     setImages(images.filter((_, i) => i !== index))
+    markUnsaved()
   }
 
   // Saglabāt izmaiņas
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!window.confirm('Vai saglabāt izmaiņas?')) return
     setSaving(true)
     
     let finalUrls = []
@@ -116,6 +174,8 @@ export default function RedigetAuto() {
       image: finalUrls[0] || null
     }).eq('id', id)
 
+    hasUnsavedChangesRef.current = false
+    allowNavigationRef.current = true
     router.push(`/auto/${id}`)
   }
 
@@ -131,6 +191,8 @@ export default function RedigetAuto() {
     if (error) {
       alert('Kļūda dzēšot sludinājumu: ' + error.message)
     } else {
+      hasUnsavedChangesRef.current = false
+      allowNavigationRef.current = true
       alert('Sludinājums veiksmīgi izdzēsts!')
       router.push('/')
       router.refresh()
@@ -163,22 +225,22 @@ export default function RedigetAuto() {
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <div>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Cena (€)</label>
-              <input type="text" inputMode="numeric" placeholder="Piem. 12 500" value={price} onChange={(e) => setPrice(formatPriceInput(e.target.value))} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+              <input type="text" inputMode="numeric" placeholder="Piem. 12 500" value={price} onChange={(e) => { setPrice(formatPriceInput(e.target.value)); markUnsaved() }} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
             </div>
 
             <div>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Apraksts</label>
-              <textarea placeholder="Papildus informācija par auto..." value={description} onChange={(e) => setDescription(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', height: '240px', resize: 'vertical', boxSizing: 'border-box' }} />
+              <textarea placeholder="Papildus informācija par auto..." value={description} onChange={(e) => { setDescription(e.target.value); markUnsaved() }} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', height: '240px', resize: 'vertical', boxSizing: 'border-box' }} />
             </div>
 
             <div>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Telefona numurs</label>
-              <input type="text" placeholder="Piem. +371 29000000" value={phone} onChange={(e) => setPhone(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+              <input type="text" placeholder="Piem. +371 29000000" value={phone} onChange={(e) => { setPhone(e.target.value); markUnsaved() }} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
             </div>
 
             <div>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>E-pasts</label>
-              <input type="email" placeholder="Piem. epasts@inbox.lv" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+              <input type="email" placeholder="Piem. epasts@inbox.lv" value={email} onChange={(e) => { setEmail(e.target.value); markUnsaved() }} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
             </div>
 
             {/* BILŽU SADAĻA */}
@@ -249,6 +311,7 @@ export default function RedigetAuto() {
                   if (e.target.files) {
                     const addedFiles = Array.from(e.target.files).map(file => ({ url: '', isNew: true, file }))
                     setImages([...images, ...addedFiles])
+                    markUnsaved()
                   }
                 }} 
                 style={{ padding: '8px 0' }} 
