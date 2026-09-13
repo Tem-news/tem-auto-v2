@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase'
 import { canUseDevPreviewFallback, isPreviewListing, loadAdaptedPreviewCars } from '../lib/previewFallback'
 import TemAutoSponsorPlacement from './components/TemAutoSponsorPlacement'
 	
-const LISTINGS_PER_PAGE = 12
+const LISTINGS_PER_PAGE = 48
 
 const OFFICIAL_MAKES: { [key: string]: string } = {
   'bmw': 'BMW',
@@ -698,7 +698,7 @@ export default function Sakumlapa() {
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>Nav atrasts neviens sludinājums ar šādiem kritērijiem.</div>
             ) : searchMake === '' ? (
               /* GRID SKATS */
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '16px' }}>
                 {paginatedCars.map((car, index) => {
                   const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
                   const previewCard = isPreviewListing(car)
