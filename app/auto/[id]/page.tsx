@@ -368,9 +368,19 @@ export default function AutoLapa() {
         <div style={{ gridColumn: '2', gridRow: '1', width: '100%', maxWidth: '750px', minWidth: 0 }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', paddingTop: '4px' }}>
-            <Link href="/" style={{ color: '#2563eb', textDecoration: 'none', fontSize: '14px' }}>
+            <button
+              type="button"
+              onClick={() => {
+                if (window.history.length > 1) {
+                  window.history.back()
+                } else {
+                  window.location.assign('/')
+                }
+              }}
+              style={{ color: '#2563eb', background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'inherit', fontSize: '14px' }}
+            >
               ← Atpakaļ uz sarakstu
-            </Link>
+            </button>
             {!isPreviewListing(car) && (
               <div>
                 <Link href={`/auto/${id}/edit`} style={{ padding: '6px 14px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold', display: 'inline-block' }}>
