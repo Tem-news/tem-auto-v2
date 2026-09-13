@@ -392,7 +392,7 @@ export default function AutoLapa() {
           )}
 
           {allImages.length > 1 && (
-            <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', paddingBottom: '2px' }}>
               {allImages.map((img, idx) => (
                 <img
                   key={idx}
