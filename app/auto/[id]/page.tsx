@@ -235,7 +235,7 @@ export default function AutoLapa() {
             )}
             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
               <span style={{ color: '#6b7280', fontWeight: '500' }}>Salons:</span>
-              <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.interior_color || 'Nav norādīts'}</span>
+              <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.interior_color || '–'}</span>
             </div>
             {car.tech_inspection && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
