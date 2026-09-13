@@ -264,11 +264,15 @@ export default function RedigetAuto() {
           </form>
         </div>
 
-        {/* Labā puse: Reklāmas baneris */}
-        <div style={{ width: '260px', flexShrink: 0, position: 'sticky', top: '20px' }}>
-          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
-            <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Ekskluzīvs baneris šeit!<br/><span style={{ fontSize: '12px' }}>(Maksimāla uzmanība)</span></p>
+        {/* Labā puse: divi nekustīgi, vienāda izmēra reklāmas baneri */}
+        <div style={{ width: '260px', flexShrink: 0 }}>
+          <div style={{ position: 'fixed', top: '100px', width: '260px', height: 'calc(100dvh - 120px)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {[1, 2].map((placement) => (
+              <div key={placement} style={{ flex: '1 1 0', minHeight: 0, boxSizing: 'border-box', backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
+                <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Ekskluzīvs baneris šeit!<br/><span style={{ fontSize: '12px' }}>(Maksimāla uzmanība)</span></p>
+              </div>
+            ))}
           </div>
         </div>
 
