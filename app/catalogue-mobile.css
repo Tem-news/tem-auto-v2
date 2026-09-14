@@ -472,7 +472,12 @@
   }
 
   [data-listings-grid='true'] > a > div:first-child {
-    height: 220px !important;
+    height: 190px !important;
+  }
+
+  [data-listings-grid='true'] > a > div:nth-child(2) {
+    padding: 8px 10px !important;
+    gap: 3px !important;
   }
 
   [data-listings-grid='true'] img {
@@ -558,7 +563,7 @@
 
 @media (max-width: 380px) {
   [data-listings-grid='true'] > a > div:first-child {
-    height: 195px !important;
+    height: 175px !important;
   }
 
   [data-make-table-row='true'] {
