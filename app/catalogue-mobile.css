@@ -106,13 +106,30 @@
   }
 
   [data-makes-column='true'] {
-    position: static !important;
-    top: auto !important;
-    height: auto !important;
-    min-height: 0 !important;
+    display: contents !important;
+  }
+
+  [data-makes-panel='true'] {
     order: 1;
-    width: 100% !important;
-    box-sizing: border-box !important;
+    width: 100%;
+    max-height: 196px;
+    overflow-y: auto;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 6px;
+    box-sizing: border-box;
+  }
+
+  [data-makes-info='true'] {
+    order: 5;
+    margin-top: 0 !important;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px;
   }
 
   [data-makes-list='true'] {

@@ -393,6 +393,7 @@ export default function Sakumlapa() {
         
         {/* KREISĀ PUSE - Marku saraksts */}
         <div data-makes-column="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', height: 'calc(100dvh - 88px)', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
+          <div data-makes-panel="true" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
           ) : (
@@ -450,8 +451,10 @@ export default function Sakumlapa() {
               </div>
             </div>
           )}
+          </div>
 
           <nav
+            data-makes-info="true"
             aria-label="Informācija"
             style={{
               display: 'grid',
