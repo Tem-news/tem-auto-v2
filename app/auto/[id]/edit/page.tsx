@@ -18,6 +18,7 @@ export default function RedigetAuto() {
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const [ownerUserId, setOwnerUserId] = useState<string | null>(null)
   const hasUnsavedChangesRef = useRef(false)
   const allowNavigationRef = useRef(false)
   const skipNextPopRef = useRef(false)
@@ -107,13 +108,14 @@ export default function RedigetAuto() {
       }
 
       // 3. Pārbaudām, vai ielogotais lietotājs ir šī sludinājuma īpašnieks
-      if (data.user_id && data.user_id !== session.user.id) {
+      if (!data.user_id || data.user_id !== session.user.id) {
         setErrorMsg('Tev nav tiesību rediģēt šo sludinājumu!')
         setLoading(false)
         return
       }
 
       // Ja viss kārtībā, aizpildām datus
+      setOwnerUserId(session.user.id)
       setMake(data.make || '')
       setModel(data.model || '')
       setPrice(data.price ? formatPriceInput(String(data.price)) : '')
@@ -150,6 +152,10 @@ export default function RedigetAuto() {
   // Saglabāt izmaiņas
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!ownerUserId) {
+      alert('Tev nav tiesību rediģēt šo sludinājumu!')
+      return
+    }
     if (!window.confirm('Vai saglabāt izmaiņas?')) return
     setSaving(true)
     
@@ -165,14 +171,20 @@ export default function RedigetAuto() {
       }
     }
 
-    await supabase.from('cars').update({
+    const { error } = await supabase.from('cars').update({
       price: price ? Number(price.replace(/\s/g, '')) : null,
       description,
       phone,
       email,
       images: finalUrls,
       image: finalUrls[0] || null
-    }).eq('id', id)
+    }).eq('id', id).eq('user_id', ownerUserId)
+
+    setSaving(false)
+    if (error) {
+      alert('Kļūda saglabājot sludinājumu: ' + error.message)
+      return
+    }
 
     hasUnsavedChangesRef.current = false
     allowNavigationRef.current = true
@@ -181,11 +193,15 @@ export default function RedigetAuto() {
 
   // Dzēst visu sludinājumu no rediģēšanas lapas
   const handleDeleteCar = async () => {
+    if (!ownerUserId) {
+      alert('Tev nav tiesību dzēst šo sludinājumu!')
+      return
+    }
     const confirmDelete = window.confirm('Vai tiešām vēlaties neatgriezeniski dzēst šo sludinājumu?')
     if (!confirmDelete) return
 
     setDeleting(true)
-    const { error } = await supabase.from('cars').delete().eq('id', id)
+    const { error } = await supabase.from('cars').delete().eq('id', id).eq('user_id', ownerUserId)
     setDeleting(false)
 
     if (error) {
