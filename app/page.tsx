@@ -949,6 +949,7 @@ export default function Sakumlapa() {
                     const formattedMileage = rawMileage ? `${formatNumberWithSpace(rawMileage)} km` : '-'
 
                     return (
+                      <Fragment key={car.id || index}>
                       <a 
                         key={car.id || index} 
                         href={`/auto/${car.id}`}
@@ -1043,6 +1044,13 @@ export default function Sakumlapa() {
                           {car.price ? `${formatNumberWithSpace(car.price)} €` : ''}
                         </div>
                       </a>
+                      {(index + 1) % 5 === 0 && (
+                        <div data-mobile-sponsor="true" aria-label="Sponsora vieta">
+                          <strong>SPONSORS</strong>
+                          <span>Vieta sadarbības partnerim</span>
+                        </div>
+                      )}
+                      </Fragment>
                     )
                   })}
                 </div>
