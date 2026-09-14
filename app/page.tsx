@@ -897,7 +897,7 @@ export default function Sakumlapa() {
                         </div>
                       </div>
                     </a>
-                    {(index + 1) % 4 === 0 && (
+                    {(index + 1) % 5 === 0 && (
                       <div data-mobile-sponsor="true" aria-label="Sponsora vieta">
                         <strong>SPONSORS</strong>
                         <span>Vieta sadarbības partnerim</span>
