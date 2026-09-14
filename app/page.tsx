@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, useMemo, useRef } from 'react'
+import { Fragment, useEffect, useState, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 import { canUseDevPreviewFallback, isPreviewListing, loadAdaptedPreviewCars } from '../lib/previewFallback'
@@ -814,11 +814,6 @@ export default function Sakumlapa() {
             </div>
           </div>
 
-          <div data-mobile-sponsor="true" aria-label="Sponsora vieta">
-            <strong>SPONSORS</strong>
-            <span>Vieta sadarbības partnerim</span>
-          </div>
-
           {/* SKATS */}
           <div data-listings="true">
             {loading ? (
@@ -832,6 +827,7 @@ export default function Sakumlapa() {
                   const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
                   const previewCard = isPreviewListing(car)
                   return (
+                    <Fragment key={car.id || index}>
                     <a 
                       key={car.id || index} 
                       href={`/auto/${car.id}`}
@@ -893,6 +889,13 @@ export default function Sakumlapa() {
                         </div>
                       </div>
                     </a>
+                    {(index + 1) % 4 === 0 && (
+                      <div data-mobile-sponsor="true" aria-label="Sponsora vieta">
+                        <strong>SPONSORS</strong>
+                        <span>Vieta sadarbības partnerim</span>
+                      </div>
+                    )}
+                    </Fragment>
                   )
                 })}
               </div>
