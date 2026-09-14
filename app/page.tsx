@@ -165,6 +165,8 @@ export default function Sakumlapa() {
   const [currentPage, setCurrentPage] = useState(1)
   const [favoriteIds, setFavoriteIds] = useState<string[]>([])
   const [showFavorites, setShowFavorites] = useState(false)
+  const [mobileMakesOpen, setMobileMakesOpen] = useState(false)
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   useEffect(() => {
     try {
@@ -384,15 +386,41 @@ export default function Sakumlapa() {
   const handleMakeSelect = (make: string) => {
     const nextMake = searchMake.toLowerCase() === make.toLowerCase() ? '' : make
     setMakeAndHistory(nextMake)
+    setMobileMakesOpen(false)
   }
 
   return (
     <div data-catalogue-page="true" ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
+
+      <div data-mobile-catalogue-actions="true" aria-label="Kataloga izvēlne">
+        <button
+          type="button"
+          aria-expanded={mobileMakesOpen}
+          onClick={() => {
+            setMobileMakesOpen(current => !current)
+            setMobileFiltersOpen(false)
+          }}
+        >
+          <span>Visas markas</span>
+          <span>({cars.length}) {mobileMakesOpen ? '▴' : '▾'}</span>
+        </button>
+        <button
+          type="button"
+          aria-expanded={mobileFiltersOpen}
+          onClick={() => {
+            setMobileFiltersOpen(current => !current)
+            setMobileMakesOpen(false)
+          }}
+        >
+          <span>Filtri</span>
+          <span>{hasActiveFilters ? '● ' : ''}{mobileFiltersOpen ? '▴' : '▾'}</span>
+        </button>
+      </div>
       
       <div data-catalogue-layout="true" style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
         {/* KREISĀ PUSE - Marku saraksts */}
-        <div data-makes-column="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', height: 'calc(100dvh - 88px)', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
+        <div data-makes-column="true" data-mobile-open={mobileMakesOpen ? 'true' : 'false'} style={{ position: 'sticky', top: '72px', alignSelf: 'start', height: 'calc(100dvh - 88px)', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
           <div data-makes-panel="true" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
@@ -496,7 +524,7 @@ export default function Sakumlapa() {
         <div data-catalogue-center="true" style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
           {/* FILTRI */}
-          <div data-filter-row="true" style={{ 
+          <div data-filter-row="true" data-mobile-open={mobileFiltersOpen ? 'true' : 'false'} style={{ 
             position: 'sticky', 
             top: '72px', 
             zIndex: 30, 
@@ -784,6 +812,11 @@ export default function Sakumlapa() {
                 )}
               </div>
             </div>
+          </div>
+
+          <div data-mobile-sponsor="true" aria-label="Sponsora vieta">
+            <strong>SPONSORS</strong>
+            <span>Vieta sadarbības partnerim</span>
           </div>
 
           {/* SKATS */}
