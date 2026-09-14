@@ -479,6 +479,10 @@ export default function Sakumlapa() {
               </div>
             </div>
           )}
+          <div data-mobile-sponsor="true" aria-label="Sponsora vieta">
+            <strong>SPONSORS</strong>
+            <span>Vieta sadarbības partnerim</span>
+          </div>
           </div>
 
           <nav
@@ -812,6 +816,10 @@ export default function Sakumlapa() {
                 )}
               </div>
             </div>
+          <div data-mobile-sponsor="true" aria-label="Sponsora vieta">
+            <strong>SPONSORS</strong>
+            <span>Vieta sadarbības partnerim</span>
+          </div>
           </div>
 
           {/* SKATS */}
