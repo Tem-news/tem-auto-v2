@@ -142,6 +142,7 @@
   body:has([data-catalogue-page='true']) [data-header-add='true'] {
     grid-column: 2;
     grid-row: 1;
+    margin-left: 10px;
   }
 
   body:has([data-catalogue-page='true']) [data-mobile-menu-toggle='true'] {
