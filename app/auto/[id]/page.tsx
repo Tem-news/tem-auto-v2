@@ -28,6 +28,12 @@ export default function AutoLapa() {
   const [isFavorite, setIsFavorite] = useState(false)
 
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const imageFrameRatioLocked = useRef(false)
+
+  useEffect(() => {
+    imageFrameRatioLocked.current = false
+    setActiveImageRatio(16 / 9)
+  }, [id])
 
   useEffect(() => {
     if (!id) return
@@ -468,8 +474,9 @@ export default function AutoLapa() {
                 alt={`${car.make} ${car.model}`}
                 onLoad={(event) => {
                   const image = event.currentTarget
-                  if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+                  if (!imageFrameRatioLocked.current && image.naturalWidth > 0 && image.naturalHeight > 0) {
                     setActiveImageRatio(image.naturalWidth / image.naturalHeight)
+                    imageFrameRatioLocked.current = true
                   }
                 }}
                 onClick={() => {
