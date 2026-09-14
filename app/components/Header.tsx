@@ -121,6 +121,7 @@ export default function Header() {
   const [langOpen, setLangOpen] = useState(false)
   const [regionOpen, setRegionOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [visitorStatsOpen, setVisitorStatsOpen] = useState(false)
   const [hoveredRegion, setHoveredRegion] = useState<string | null>('Latvija (EUR)')
   
   const [langSearch, setLangSearch] = useState('')
@@ -220,23 +221,37 @@ export default function Header() {
             TemAuto
           </Link>
 
-          <div
-            data-header-visitors="true"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '5px 12px',
-              backgroundColor: '#1e293b',
-              border: '1px solid #334155',
-              borderRadius: '20px',
-              fontSize: '13px',
-              color: '#e2e8f0',
-              fontWeight: '500'
-            }}
-          >
-            <span>👥</span>
-            <span>Apmeklētāji 24h: <strong style={{ color: '#22c55e' }}>{visitCount}</strong></span>
+          <div data-header-visitor-wrap="true" style={{ position: 'relative' }}>
+            <button
+              type="button"
+              data-header-visitors="true"
+              aria-label="Apmeklējumi pēdējās 24 stundās"
+              aria-expanded={visitorStatsOpen}
+              onClick={() => setVisitorStatsOpen(current => !current)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '5px 12px',
+                backgroundColor: '#1e293b',
+                border: '1px solid #334155',
+                borderRadius: '20px',
+                fontSize: '13px',
+                color: '#e2e8f0',
+                fontWeight: '500',
+                cursor: 'pointer'
+              }}
+            >
+              <span aria-hidden="true">👤</span>
+              <span>24h: <strong style={{ color: '#22c55e' }}>{visitCount}</strong></span>
+            </button>
+            {visitorStatsOpen && (
+              <div data-header-visitor-stats="true">
+                <strong>Apmeklējumi pa reģioniem</strong>
+                <div><span>Kopā 24h</span><b>{visitCount}</b></div>
+                <small>Detalizēts sadalījums būs redzams pēc reģionu uzskaites pieslēgšanas.</small>
+              </div>
+            )}
           </div>
         </div>
 
