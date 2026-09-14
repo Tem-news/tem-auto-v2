@@ -458,7 +458,7 @@ export default function Header() {
                 </a>
               </>
             ) : (
-              <Link href="/login" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>
+              <Link href="/login?mode=register" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>
                 Reģistrēties
               </Link>
             )}
