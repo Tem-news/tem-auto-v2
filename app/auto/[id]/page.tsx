@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { supabase } from '../../../lib/supabase'
 import { canUseDevPreviewFallback, getAdaptedPreviewCarById, isPreviewListing } from '../../../lib/previewFallback'
 
+const FAVORITES_STORAGE_KEY = 'temauto-favorite-car-ids'
+
 export default function AutoLapa() {
   const params = useParams()
   const id = params?.id
@@ -22,8 +24,41 @@ export default function AutoLapa() {
   const [showVin, setShowVin] = useState(false)
   const [showSocialDropdown, setShowSocialDropdown] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false)
 
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!id) return
+    try {
+      const savedFavoriteIds = JSON.parse(localStorage.getItem(FAVORITES_STORAGE_KEY) || '[]')
+      setIsFavorite(Array.isArray(savedFavoriteIds) && savedFavoriteIds.map(String).includes(String(id)))
+    } catch {
+      setIsFavorite(false)
+    }
+  }, [id])
+
+  const toggleFavorite = () => {
+    if (!id) return
+
+    let savedFavoriteIds: string[] = []
+    try {
+      const storedValue = JSON.parse(localStorage.getItem(FAVORITES_STORAGE_KEY) || '[]')
+      if (Array.isArray(storedValue)) {
+        savedFavoriteIds = storedValue.map(String)
+      }
+    } catch {
+      savedFavoriteIds = []
+    }
+
+    const normalizedId = String(id)
+    const nextFavoriteIds = savedFavoriteIds.includes(normalizedId)
+      ? savedFavoriteIds.filter(savedId => savedId !== normalizedId)
+      : [...savedFavoriteIds, normalizedId]
+
+    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(nextFavoriteIds))
+    setIsFavorite(nextFavoriteIds.includes(normalizedId))
+  }
 
   // Aizver izkrītošo lodziņu, ja noklikšķina ārpus tā
   useEffect(() => {
@@ -394,11 +429,31 @@ export default function AutoLapa() {
             {car.make} {car.model}
           </h1>
 
-          <div style={{ display: 'flex', gap: '16px', color: '#6b7280', fontSize: '13px', marginBottom: '10px' }}>
-            {car.created_at && (
-              <span>📅 Publicēts: {new Date(car.created_at).toLocaleDateString('lv-LV')}</span>
-            )}
-            <span>👁️ Skatījumi: <strong>{car.views ?? 0}</strong></span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', color: '#6b7280', fontSize: '13px', marginBottom: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              {car.created_at && (
+                <span>📅 Publicēts: {new Date(car.created_at).toLocaleDateString('lv-LV')}</span>
+              )}
+              <span>👁️ Skatījumi: <strong>{car.views ?? 0}</strong></span>
+            </div>
+            <button
+              type="button"
+              aria-pressed={isFavorite}
+              onClick={toggleFavorite}
+              style={{
+                flexShrink: 0,
+                padding: 0,
+                background: 'none',
+                border: 'none',
+                color: isFavorite ? '#15803d' : '#9ca3af',
+                fontFamily: 'inherit',
+                fontSize: '12px',
+                fontWeight: isFavorite ? '700' : '500',
+                cursor: 'pointer'
+              }}
+            >
+              Mans favorīts
+            </button>
           </div>
 
           {activeImage && (
