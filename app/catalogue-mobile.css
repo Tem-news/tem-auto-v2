@@ -473,6 +473,12 @@
   [data-listings-grid='true'] > a {
     width: 100% !important;
     min-width: 0 !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-listings-grid='true'] [role='button'][aria-pressed] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   [data-listings-grid='true'] > a > div:first-child {
