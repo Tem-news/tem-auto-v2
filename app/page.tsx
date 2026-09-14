@@ -781,41 +781,42 @@ export default function Sakumlapa() {
                         />
                       </div>
                       <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
-                        <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#1d4ed8' }}>
-                          {car.make} {car.model}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                          <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#1d4ed8', minWidth: 0 }}>
+                            {car.make} {car.model}
+                          </div>
+                          <span
+                            role="button"
+                            tabIndex={0}
+                            aria-pressed={favoriteIds.includes(String(car.id))}
+                            onClick={(event) => {
+                              event.preventDefault()
+                              event.stopPropagation()
+                              toggleFavorite(car.id)
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault()
+                                event.stopPropagation()
+                                toggleFavorite(car.id)
+                              }
+                            }}
+                            style={{
+                              flexShrink: 0,
+                              color: favoriteIds.includes(String(car.id)) ? '#15803d' : '#9ca3af',
+                              fontSize: '12px',
+                              fontWeight: favoriteIds.includes(String(car.id)) ? '700' : '500',
+                              cursor: 'pointer',
+                              userSelect: 'none'
+                            }}
+                          >
+                            Mans favorīts
+                          </span>
                         </div>
                         <div style={{ fontSize: '13px', color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <span>{car.year ? `${car.year} g.` : ''}</span>
                           <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.price ? `${formatNumberWithSpace(car.price)} €` : ''}</span>
                         </div>
-                        <span
-                          role="button"
-                          tabIndex={0}
-                          aria-pressed={favoriteIds.includes(String(car.id))}
-                          onClick={(event) => {
-                            event.preventDefault()
-                            event.stopPropagation()
-                            toggleFavorite(car.id)
-                          }}
-                          onKeyDown={(event) => {
-                            if (event.key === 'Enter' || event.key === ' ') {
-                              event.preventDefault()
-                              event.stopPropagation()
-                              toggleFavorite(car.id)
-                            }
-                          }}
-                          style={{
-                            alignSelf: 'flex-end',
-                            marginTop: 'auto',
-                            color: favoriteIds.includes(String(car.id)) ? '#15803d' : '#9ca3af',
-                            fontSize: '12px',
-                            fontWeight: favoriteIds.includes(String(car.id)) ? '700' : '500',
-                            cursor: 'pointer',
-                            userSelect: 'none'
-                          }}
-                        >
-                          Mans favorīts
-                        </span>
                       </div>
                     </a>
                   )
