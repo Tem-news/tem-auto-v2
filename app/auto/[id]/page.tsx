@@ -26,6 +26,7 @@ export default function AutoLapa() {
   const [showSocialDropdown, setShowSocialDropdown] = useState(false)
   const [copied, setCopied] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
   const dropdownRef = useRef<HTMLDivElement>(null)
   const imageFrameRatioLocked = useRef(false)
@@ -34,6 +35,18 @@ export default function AutoLapa() {
     imageFrameRatioLocked.current = false
     setActiveImageRatio(16 / 9)
   }, [id])
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setCurrentUserId(session?.user.id ?? null)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setCurrentUserId(session?.user.id ?? null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   useEffect(() => {
     if (!id) return
@@ -425,7 +438,7 @@ export default function AutoLapa() {
             >
               ← Atpakaļ uz sarakstu
             </button>
-            {!isPreviewListing(car) && (
+            {!isPreviewListing(car) && Boolean(car.user_id) && car.user_id === currentUserId && (
               <div>
                 <Link href={`/auto/${id}/edit`} style={{ padding: '6px 14px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold', display: 'inline-block' }}>
                   ✏️ Rediģēt
