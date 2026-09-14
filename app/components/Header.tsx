@@ -442,26 +442,24 @@ export default function Header() {
           {/* Autentifikācija un Pievienot poga */}
           <nav style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {user ? (
-              <>
-                <Link
-                  href="/kabinets"
-                  style={{ fontSize: '12px', color: '#cbd5e1', backgroundColor: '#1e293b', padding: '5px 10px', borderRadius: '12px', border: '1px solid #334155', textDecoration: 'none', cursor: 'pointer' }}
-                >
-                  {user.user_metadata?.nickname || user.email}
-                </Link>
-                <a
-                  href="/pievienot"
-                  onClick={handleAddCarClick}
-                  style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
-                >
-                  + Pievienot auto
-                </a>
-              </>
+              <Link
+                href="/kabinets"
+                style={{ fontSize: '12px', color: '#cbd5e1', backgroundColor: '#1e293b', padding: '5px 10px', borderRadius: '12px', border: '1px solid #334155', textDecoration: 'none', cursor: 'pointer' }}
+              >
+                {user.user_metadata?.nickname || user.email}
+              </Link>
             ) : (
               <Link href="/login?mode=register" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>
                 Reģistrēties
               </Link>
             )}
+            <a
+              href="/pievienot"
+              onClick={handleAddCarClick}
+              style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
+            >
+              + Pievienot auto
+            </a>
           </nav>
 
         </div>
