@@ -15,6 +15,7 @@ export default function AutoLapa() {
   const [car, setCar] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [activeImage, setActiveImage] = useState<string>('')
+  const [activeImageRatio, setActiveImageRatio] = useState(16 / 9)
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false)
   const [imageZoom, setImageZoom] = useState(1)
   const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 })
@@ -127,6 +128,8 @@ export default function AutoLapa() {
       if (img && !allImages.includes(img)) allImages.push(img)
     })
   }
+
+  const activeImageFrameWidth = `min(100%, ${Math.round(360 * activeImageRatio)}px)`
 
   const handlePrevImage = () => {
     if (allImages.length <= 1) return
@@ -425,42 +428,50 @@ export default function AutoLapa() {
             )}
           </div>
 
-          <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#111827' }}>
-            {car.make} {car.model}
-          </h1>
+          <div style={{ width: activeImageFrameWidth, margin: '0 auto' }}>
+            <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#111827' }}>
+              {car.make} {car.model}
+            </h1>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', color: '#6b7280', fontSize: '13px', marginBottom: '10px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              {car.created_at && (
-                <span>📅 Publicēts: {new Date(car.created_at).toLocaleDateString('lv-LV')}</span>
-              )}
-              <span>👁️ Skatījumi: <strong>{car.views ?? 0}</strong></span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', color: '#6b7280', fontSize: '13px', marginBottom: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                {car.created_at && (
+                  <span>📅 Publicēts: {new Date(car.created_at).toLocaleDateString('lv-LV')}</span>
+                )}
+                <span>👁️ Skatījumi: <strong>{car.views ?? 0}</strong></span>
+              </div>
+              <button
+                type="button"
+                aria-pressed={isFavorite}
+                onClick={toggleFavorite}
+                style={{
+                  flexShrink: 0,
+                  padding: 0,
+                  background: 'none',
+                  border: 'none',
+                  color: isFavorite ? '#15803d' : '#9ca3af',
+                  fontFamily: 'inherit',
+                  fontSize: '12px',
+                  fontWeight: isFavorite ? '700' : '500',
+                  cursor: 'pointer'
+                }}
+              >
+                Mans favorīts
+              </button>
             </div>
-            <button
-              type="button"
-              aria-pressed={isFavorite}
-              onClick={toggleFavorite}
-              style={{
-                flexShrink: 0,
-                padding: 0,
-                background: 'none',
-                border: 'none',
-                color: isFavorite ? '#15803d' : '#9ca3af',
-                fontFamily: 'inherit',
-                fontSize: '12px',
-                fontWeight: isFavorite ? '700' : '500',
-                cursor: 'pointer'
-              }}
-            >
-              Mans favorīts
-            </button>
           </div>
 
           {activeImage && (
-            <div style={{ position: 'relative', width: '100%', height: '280px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', marginBottom: '8px' }}>
+            <div style={{ position: 'relative', width: activeImageFrameWidth, aspectRatio: String(activeImageRatio), maxHeight: '360px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', margin: '0 auto 8px' }}>
               <img
                 src={activeImage}
                 alt={`${car.make} ${car.model}`}
+                onLoad={(event) => {
+                  const image = event.currentTarget
+                  if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+                    setActiveImageRatio(image.naturalWidth / image.naturalHeight)
+                  }
+                }}
                 onClick={() => {
                   setImageZoom(1)
                   setZoomOrigin({ x: 50, y: 50 })
