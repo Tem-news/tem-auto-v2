@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 import { canUseDevPreviewFallback, isPreviewListing, loadAdaptedPreviewCars } from '../lib/previewFallback'
+import './catalogue-mobile.css'
 	
 const LISTINGS_PER_PAGE = 48
 const FAVORITES_STORAGE_KEY = 'temauto-favorite-car-ids'
@@ -386,9 +387,9 @@ export default function Sakumlapa() {
   }
 
   return (
-    <div ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
+    <div data-catalogue-page="true" ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
       
-      <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
+      <div data-catalogue-layout="true" style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
         {/* KREISĀ PUSE - Marku saraksts */}
         <div data-makes-column="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', height: 'calc(100dvh - 88px)', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
@@ -418,7 +419,7 @@ export default function Sakumlapa() {
                 <span>Visas markas</span>
                 <span style={{ fontSize: '12px', color: '#6b7280' }}>({cars.length})</span>
               </button>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
+              <div data-makes-list="true" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
                 {makeCounts.map(([make, count]) => {
                   const isSelected = searchMake.toLowerCase() === make.toLowerCase()
                   return (
@@ -489,7 +490,7 @@ export default function Sakumlapa() {
         </div>
 
         {/* VIDUS: Filtri un Sludinājumu saraksts */}
-        <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
+        <div data-catalogue-center="true" style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
           {/* FILTRI */}
           <div data-filter-row="true" style={{ 
@@ -509,7 +510,7 @@ export default function Sakumlapa() {
             boxShadow: '0 -24px 0 #f8fafc, 0 4px 6px -1px rgba(0, 0, 0, 0.05)'
           }}>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+            <div data-filter-heading="true" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
               <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0, color: '#111827' }}>
                 {showFavorites ? 'Mani favorīti' : searchMake ? `${searchMake} sludinājumi` : 'Visi auto sludinājumi'}
               </h2>
@@ -783,14 +784,14 @@ export default function Sakumlapa() {
           </div>
 
           {/* SKATS */}
-          <div>
+          <div data-listings="true">
             {loading ? (
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
             ) : filteredCars.length === 0 ? (
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>Nav atrasts neviens sludinājums ar šādiem kritērijiem.</div>
             ) : searchMake === '' ? (
               /* GRID SKATS */
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '16px' }}>
+              <div data-listings-grid="true" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '16px' }}>
                 {paginatedCars.map((car, index) => {
                   const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
                   const previewCard = isPreviewListing(car)
@@ -861,10 +862,10 @@ export default function Sakumlapa() {
               </div>
             ) : (
               /* TABULAS SKATS - Fiksēta zaļā galvene un skrollējams saturs */
-              <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', position: 'relative' }}>
+              <div data-make-table="true" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', position: 'relative' }}>
                 
                 {/* Nekustīgā zaļā galvenes strīpa */}
-                <div style={{ 
+                <div data-make-table-header="true" style={{ 
                   display: 'grid', 
                   gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
                   backgroundColor: '#15803d', 
@@ -889,7 +890,7 @@ export default function Sakumlapa() {
                 </div>
 
                 {/* Skrollējams satura konteiners */}
-                <div style={{ maxHeight: 'calc(100vh - 250px)', overflowY: 'auto' }}>
+                <div data-make-table-body="true" style={{ maxHeight: 'calc(100vh - 250px)', overflowY: 'auto' }}>
                   {paginatedCars.map((car, index) => {
                     const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=300&q=80'
                     const previewCard = isPreviewListing(car)
@@ -905,6 +906,7 @@ export default function Sakumlapa() {
                         key={car.id || index} 
                         href={`/auto/${car.id}`}
                         data-preview-listing={previewCard ? 'true' : undefined} 
+                        data-make-table-row="true"
                         style={{ 
                           display: 'grid', 
                           gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
@@ -919,7 +921,7 @@ export default function Sakumlapa() {
                         }}
                       >
                         {/* 1. Foto */}
-                        <div>
+                        <div data-cell="photo">
                           <img 
                             src={imageUrl} 
                             alt={car.make} 
@@ -928,7 +930,7 @@ export default function Sakumlapa() {
                         </div>
 
                         {/* 2. Automobilis */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingRight: '8px' }}>
+                        <div data-cell="car" style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingRight: '8px' }}>
                           <span style={{ color: '#1d4ed8', fontSize: '15px', fontWeight: '700' }}>
                             {car.make} {car.model}
                           </span>
@@ -962,35 +964,35 @@ export default function Sakumlapa() {
                         </div>
 
                         {/* 3. Gads */}
-                        <div style={{ color: '#374151' }}>
+                        <div data-cell="year" style={{ color: '#374151' }}>
                           {car.year || '-'}
                         </div>
 
                         {/* 4. Dzinējs */}
-                        <div style={{ color: '#374151' }}>
+                        <div data-cell="engine" style={{ color: '#374151' }}>
                           {engineType}
                         </div>
 
                         {/* 5. Virsbūve */}
-                        <div style={{ color: '#374151' }}>
+                        <div data-cell="body" style={{ color: '#374151' }}>
                           {bodyType}
                         </div>
 
                         {/* 6. Krāsa */}
-                        <div style={{ color: '#374151' }}>
+                        <div data-cell="color" style={{ color: '#374151' }}>
                           {carColor}
                         </div>
 
                         {/* 7. Nobraukums */}
-                        <div style={{ color: '#374151' }}>
+                        <div data-cell="mileage" style={{ color: '#374151' }}>
                           {formattedMileage}
                         </div>
 
                         {/* Tukšs lauks */}
-                        <div></div>
+                        <div data-cell="spacer"></div>
 
                         {/* 8. Cena */}
-                        <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '15px' }}>
+                        <div data-cell="price" style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '15px' }}>
                           {car.price ? `${formatNumberWithSpace(car.price)} €` : ''}
                         </div>
                       </a>
@@ -1001,7 +1003,7 @@ export default function Sakumlapa() {
             )}
 
             {!loading && filteredCars.length > 0 && totalPages > 1 && (
-              <nav aria-label="Sludinājumu lapas" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: '8px', padding: '18px 0 4px' }}>
+              <nav data-pagination="true" aria-label="Sludinājumu lapas" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: '8px', padding: '18px 0 4px' }}>
                 {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
                   <button
                     key={page}
@@ -1029,10 +1031,11 @@ export default function Sakumlapa() {
         </div>
 
         {/* LABĀ PUSE - divi gari, nekustīgi platformas sponsoru lauki */}
-        <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', height: 'calc(100dvh - 88px)', minHeight: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div data-sponsor-rail="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', height: 'calc(100dvh - 88px)', minHeight: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {[1, 2].map((placement) => (
             <aside
               key={placement}
+              data-temauto-sponsor-placement="true"
               aria-label="Sponsora vieta"
               style={{ width: '100%', minHeight: 0, flex: '1 1 0', boxSizing: 'border-box', border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}
             >

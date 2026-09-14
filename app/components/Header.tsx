@@ -190,7 +190,8 @@ export default function Header() {
   const hoveredRegionObj = REGIONS.find(r => r.name === hoveredRegion)
 
   return (
-    <header 
+    <header
+      data-temauto-header="true"
       style={{ 
         backgroundColor: '#0f172a', 
         color: '#ffffff', 
@@ -203,10 +204,10 @@ export default function Header() {
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1), 0 16px 0 0 #f8fafc'
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
+      <div data-header-shell="true" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
         
         {/* KREISĀ PUSE: Logo un Apmeklētāji */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <div data-header-brand="true" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <Link 
             href="/" 
             onClick={(e) => {
@@ -219,6 +220,7 @@ export default function Header() {
           </Link>
 
           <div
+            data-header-visitors="true"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -238,7 +240,7 @@ export default function Header() {
         </div>
 
         {/* LABĀ PUSE: Valodas, Reģioni un Navigācija */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+        <div data-header-controls="true" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
           
           {/* Valodas izvēlne */}
           <div style={{ position: 'relative' }} ref={langRef}>
@@ -269,7 +271,7 @@ export default function Header() {
             </button>
 
             {langOpen && (
-              <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '230px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
+              <div data-header-lang-panel="true" style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '230px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
                 <input
                   type="text"
                   placeholder="Meklēt valodu..."
@@ -324,14 +326,14 @@ export default function Header() {
                   style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} 
                 />
               )}
-              {currentRegion} ▾
+              <span data-header-region-label="true">{currentRegion}</span> ▾
             </button>
 
             {regionOpen && (
-              <div style={{ display: 'flex', flexDirection: 'row-reverse', position: 'absolute', top: '100%', right: 0, marginTop: '6px', zIndex: 100 }}>
+              <div data-header-region-flyout="true" style={{ display: 'flex', flexDirection: 'row-reverse', position: 'absolute', top: '100%', right: 0, marginTop: '6px', zIndex: 100 }}>
                 
                 {/* Galvenais valstu saraksts (atrodas pa labi, tieši zem izvēlnes pogas) */}
-                <div style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '0 8px 8px 0', width: '260px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px' }}>
+                <div data-header-region-panel="true" style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '0 8px 8px 0', width: '260px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px' }}>
                   <input
                     type="text"
                     placeholder="Meklēt valsti..."
@@ -380,7 +382,7 @@ export default function Header() {
 
                 {/* Papildu info logs, kas izpeld BLAKUS PA KREISI */}
                 {hoveredRegionObj && hoveredRegionObj.subregions && hoveredRegionObj.subregions.length > 0 && (
-                  <div style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRight: 'none', borderRadius: '8px 0 0 8px', width: '240px', boxShadow: '-10px 10px 15px -3px rgba(0,0,0,0.5)', padding: '12px', maxHeight: '316px', overflowY: 'auto' }}>
+                  <div data-header-region-subregions="true" style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRight: 'none', borderRadius: '8px 0 0 8px', width: '240px', boxShadow: '-10px 10px 15px -3px rgba(0,0,0,0.5)', padding: '12px', maxHeight: '316px', overflowY: 'auto' }}>
                     
                     {/* Ērta opcija izvēlēties TIKAI valsti tieši no reģionu saraksta augšas */}
                     <div
@@ -455,6 +457,7 @@ export default function Header() {
             )}
             <a
               href="/pievienot"
+              data-header-add="true"
               onClick={handleAddCarClick}
               style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
             >
