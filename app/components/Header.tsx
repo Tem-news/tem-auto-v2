@@ -120,6 +120,7 @@ export default function Header() {
 
   const [langOpen, setLangOpen] = useState(false)
   const [regionOpen, setRegionOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [hoveredRegion, setHoveredRegion] = useState<string | null>('Latvija (EUR)')
   
   const [langSearch, setLangSearch] = useState('')
@@ -455,6 +456,19 @@ export default function Header() {
                 Reģistrēties
               </Link>
             )}
+            <button
+              type="button"
+              data-mobile-menu-toggle="true"
+              aria-label="Atvērt izvēlni"
+              aria-expanded={mobileMenuOpen}
+              onClick={() => {
+                setMobileMenuOpen(current => !current)
+                setLangOpen(false)
+                setRegionOpen(false)
+              }}
+            >
+              <span aria-hidden="true">☰</span>
+            </button>
             <a
               href="/pievienot"
               data-header-add="true"
@@ -464,6 +478,47 @@ export default function Header() {
               + Pievienot auto
             </a>
           </nav>
+
+          {mobileMenuOpen && (
+            <div data-mobile-menu="true">
+              <div data-mobile-menu-selectors="true">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    setLangOpen(true)
+                    setRegionOpen(false)
+                  }}
+                >
+                  <span>Valoda</span>
+                  <strong>{currentLang} ›</strong>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    setRegionOpen(true)
+                    setLangOpen(false)
+                  }}
+                >
+                  <span>Reģions</span>
+                  <strong>{currentRegion} ›</strong>
+                </button>
+              </div>
+              <nav aria-label="Informācija">
+                {['Lietošanas noteikumi', 'Privātuma politika', 'Drošība un krāpniecība', 'Kontakti', 'Ieteikumi'].map((label) => (
+                  <button
+                    key={label}
+                    type="button"
+                    disabled
+                    title="Sadaļas saturs tiks pievienots"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </nav>
+            </div>
+          )}
 
         </div>
 
