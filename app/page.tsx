@@ -449,6 +449,42 @@ export default function Sakumlapa() {
               </div>
             </div>
           )}
+
+          <nav
+            aria-label="Informācija"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '4px',
+              marginTop: '8px',
+              paddingTop: '8px',
+              borderTop: '1px solid #e5e7eb'
+            }}
+          >
+            {['Lietošanas noteikumi', 'Privātuma politika', 'Drošība un krāpniecība', 'Kontakti', 'Ieteikumi'].map((label) => (
+              <button
+                key={label}
+                type="button"
+                disabled
+                title="Sadaļas saturs tiks pievienots"
+                style={{
+                  minHeight: '28px',
+                  padding: '4px 6px',
+                  backgroundColor: '#ffffff',
+                  color: '#4b5563',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '5px',
+                  fontFamily: 'inherit',
+                  fontSize: '10.5px',
+                  lineHeight: '1.2',
+                  textAlign: 'left',
+                  opacity: 1
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
         </div>
 
         {/* VIDUS: Filtri un Sludinājumu saraksts */}
