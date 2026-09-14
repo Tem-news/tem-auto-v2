@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { canUseDevPreviewFallback, isPreviewListing, loadAdaptedPreviewCars } from '../lib/previewFallback'
 	
 const LISTINGS_PER_PAGE = 48
+const FAVORITES_STORAGE_KEY = 'temauto-favorite-car-ids'
 
 const OFFICIAL_MAKES: { [key: string]: string } = {
   'bmw': 'BMW',
@@ -161,6 +162,39 @@ export default function Sakumlapa() {
   const [searchMake, setSearchMake] = useState('')
   const [searchModel, setSearchModel] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([])
+  const [showFavorites, setShowFavorites] = useState(false)
+
+  useEffect(() => {
+    try {
+      const savedFavoriteIds = JSON.parse(localStorage.getItem(FAVORITES_STORAGE_KEY) || '[]')
+      if (Array.isArray(savedFavoriteIds)) {
+        setFavoriteIds(savedFavoriteIds.map(String))
+      }
+    } catch {
+      setFavoriteIds([])
+    }
+  }, [])
+
+  const toggleFavorite = (carId: number | string) => {
+    const normalizedId = String(carId)
+    setFavoriteIds(currentIds => {
+      const nextIds = currentIds.includes(normalizedId)
+        ? currentIds.filter(id => id !== normalizedId)
+        : [...currentIds, normalizedId]
+
+      localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(nextIds))
+      if (nextIds.length === 0) {
+        setShowFavorites(false)
+      }
+      return nextIds
+    })
+  }
+
+  const toggleFavoritesView = () => {
+    setShowFavorites(current => !current)
+    setCurrentPage(1)
+  }
   
   useEffect(() => {
     const syncMakeFromAddress = () => {
@@ -287,6 +321,7 @@ export default function Sakumlapa() {
   const filteredCars = cars.filter((car) => {
     const matchesMake = searchMake ? (car.make || '').toLowerCase().includes(searchMake.toLowerCase()) : true
     const matchesModel = searchModel ? (car.model || '').toLowerCase().includes(searchModel.toLowerCase()) : true
+    const matchesFavorite = showFavorites ? favoriteIds.includes(String(car.id)) : true
     
     const carPrice = Number(car.price)
     const matchesMinPrice = minPrice ? carPrice >= Number(minPrice) : true
@@ -307,7 +342,7 @@ export default function Sakumlapa() {
     const matchesVirsbuve = virsbuve ? (car.body_type || car.virsbuve || '').toLowerCase().includes(virsbuve.toLowerCase()) : true
     const matchesKrasa = krasa ? (car.color || car.krasa || '').toLowerCase().includes(krasa.toLowerCase()) : true
 
-    return matchesMake && matchesModel && matchesMinPrice && matchesMaxPrice && 
+    return matchesMake && matchesModel && matchesFavorite && matchesMinPrice && matchesMaxPrice && 
            matchesMinYear && matchesMaxYear && matchesMinTilpums && matchesMaxTilpums &&
            matchesValsts && matchesRegions && matchesDzinejs && matchesAtrumkarba && matchesVirsbuve && matchesKrasa
   })
@@ -439,29 +474,50 @@ export default function Sakumlapa() {
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
               <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0, color: '#111827' }}>
-                {searchMake ? `${searchMake} sludinājumi` : 'Visi auto sludinājumi'}
+                {showFavorites ? 'Mani favorīti' : searchMake ? `${searchMake} sludinājumi` : 'Visi auto sludinājumi'}
               </h2>
-              
-              {hasActiveFilters && (
-                <button 
-                  onClick={clearAllFilters} 
-                  style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '4px', 
-                    backgroundColor: '#fee2e2', 
-                    color: '#991b1b', 
-                    border: '1px solid #fecaca', 
-                    borderRadius: '6px', 
-                    padding: '4px 10px', 
-                    cursor: 'pointer', 
-                    fontSize: '12px', 
-                    fontWeight: '600'
-                  }}
-                >
-                  <span>✕ Notīrīt filtrus</span>
-                </button>
-              )}
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {favoriteIds.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={toggleFavoritesView}
+                    style={{
+                      backgroundColor: showFavorites ? '#15803d' : '#dcfce7',
+                      color: showFavorites ? '#ffffff' : '#166534',
+                      border: '1px solid #86efac',
+                      borderRadius: '6px',
+                      padding: '4px 10px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: '700'
+                    }}
+                  >
+                    {showFavorites ? 'Rādīt visus' : `Mani favorīti (${favoriteIds.length})`}
+                  </button>
+                )}
+
+                {hasActiveFilters && (
+                  <button 
+                    onClick={clearAllFilters} 
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '4px', 
+                      backgroundColor: '#fee2e2', 
+                      color: '#991b1b', 
+                      border: '1px solid #fecaca', 
+                      borderRadius: '6px', 
+                      padding: '4px 10px', 
+                      cursor: 'pointer', 
+                      fontSize: '12px', 
+                      fontWeight: '600'
+                    }}
+                  >
+                    <span>✕ Notīrīt filtrus</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* 1. Rinda */}
@@ -732,6 +788,34 @@ export default function Sakumlapa() {
                           <span>{car.year ? `${car.year} g.` : ''}</span>
                           <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.price ? `${formatNumberWithSpace(car.price)} €` : ''}</span>
                         </div>
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          aria-pressed={favoriteIds.includes(String(car.id))}
+                          onClick={(event) => {
+                            event.preventDefault()
+                            event.stopPropagation()
+                            toggleFavorite(car.id)
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                              event.preventDefault()
+                              event.stopPropagation()
+                              toggleFavorite(car.id)
+                            }
+                          }}
+                          style={{
+                            alignSelf: 'flex-end',
+                            marginTop: 'auto',
+                            color: favoriteIds.includes(String(car.id)) ? '#15803d' : '#9ca3af',
+                            fontSize: '12px',
+                            fontWeight: favoriteIds.includes(String(car.id)) ? '700' : '500',
+                            cursor: 'pointer',
+                            userSelect: 'none'
+                          }}
+                        >
+                          Mans favorīts
+                        </span>
                       </div>
                     </a>
                   )
