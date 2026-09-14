@@ -307,6 +307,12 @@
     border-color: #38bdf8;
   }
 
+  body:has([data-makes-column='true'][data-mobile-open='true']),
+  body:has([data-filter-row='true'][data-mobile-open='true']) {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+  }
+
   [data-catalogue-layout='true'] {
     display: block !important;
     width: 100% !important;
@@ -329,15 +335,31 @@
     display: none !important;
   }
 
+  [data-makes-column='true'][data-mobile-open='true'] {
+    position: fixed !important;
+    top: 145px !important;
+    right: 10px !important;
+    bottom: 0 !important;
+    left: 10px !important;
+    z-index: 998 !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    overflow: hidden !important;
+  }
+
   [data-makes-column='true'][data-mobile-open='true'] [data-makes-panel='true'] {
     display: block !important;
     width: 100% !important;
-    max-height: 55vh !important;
+    height: 100% !important;
+    max-height: none !important;
     overflow-y: auto !important;
+    overscroll-behavior: contain;
     padding: 8px !important;
     background: #ffffff !important;
     border: 1px solid #cbd5e1 !important;
-    border-radius: 8px !important;
+    border-radius: 8px 8px 0 0 !important;
     box-sizing: border-box !important;
   }
 
@@ -365,15 +387,23 @@
   }
 
   [data-filter-row='true'][data-mobile-open='true'] {
-    position: static !important;
+    position: fixed !important;
+    top: 145px !important;
+    right: 10px !important;
+    bottom: 0 !important;
+    left: 10px !important;
+    z-index: 998 !important;
     display: flex !important;
-    width: 100% !important;
-    margin: 0 0 10px !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
     padding: 12px !important;
     gap: 10px !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
     background: #f1f5f9 !important;
     border: 1px solid #cbd5e1 !important;
-    border-radius: 8px !important;
+    border-radius: 8px 8px 0 0 !important;
     box-shadow: none !important;
     box-sizing: border-box !important;
   }
