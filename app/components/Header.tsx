@@ -165,13 +165,6 @@ export default function Header() {
     }
   }, [])
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-    router.push('/')
-    router.refresh()
-  }
-
   const handleAddCarClick = (e: React.MouseEvent) => {
     e.preventDefault()
     if (!user) {
@@ -449,30 +442,26 @@ export default function Header() {
           {/* Autentifikācija un Pievienot poga */}
           <nav style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {user ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '12px', color: '#cbd5e1', backgroundColor: '#1e293b', padding: '3px 10px', borderRadius: '12px', border: '1px solid #334155' }}>
-                  {user.email}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: '14px' }}
+              <>
+                <Link
+                  href="/kabinets"
+                  style={{ fontSize: '12px', color: '#cbd5e1', backgroundColor: '#1e293b', padding: '5px 10px', borderRadius: '12px', border: '1px solid #334155', textDecoration: 'none', cursor: 'pointer' }}
                 >
-                  Izlogoties
-                </button>
-              </div>
+                  {user.user_metadata?.nickname || user.email}
+                </Link>
+                <a
+                  href="/pievienot"
+                  onClick={handleAddCarClick}
+                  style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
+                >
+                  + Pievienot auto
+                </a>
+              </>
             ) : (
-              <Link href="/login" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '14px' }}>
-                Ielogoties
+              <Link href="/login" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>
+                Reģistrēties
               </Link>
             )}
-
-            <a
-              href="/pievienot"
-              onClick={handleAddCarClick}
-              style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
-            >
-              + Pievienot auto
-            </a>
           </nav>
 
         </div>
