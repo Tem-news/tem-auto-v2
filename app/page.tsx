@@ -891,8 +891,37 @@ export default function Sakumlapa() {
                         </div>
 
                         {/* 2. Automobilis */}
-                        <div style={{ color: '#1d4ed8', fontSize: '15px', fontWeight: '700', paddingRight: '8px' }}>
-                          {car.make} {car.model}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingRight: '8px' }}>
+                          <span style={{ color: '#1d4ed8', fontSize: '15px', fontWeight: '700' }}>
+                            {car.make} {car.model}
+                          </span>
+                          <span
+                            role="button"
+                            tabIndex={0}
+                            aria-pressed={favoriteIds.includes(String(car.id))}
+                            onClick={(event) => {
+                              event.preventDefault()
+                              event.stopPropagation()
+                              toggleFavorite(car.id)
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault()
+                                event.stopPropagation()
+                                toggleFavorite(car.id)
+                              }
+                            }}
+                            style={{
+                              flexShrink: 0,
+                              color: favoriteIds.includes(String(car.id)) ? '#15803d' : '#9ca3af',
+                              fontSize: '11px',
+                              fontWeight: favoriteIds.includes(String(car.id)) ? '700' : '500',
+                              cursor: 'pointer',
+                              userSelect: 'none'
+                            }}
+                          >
+                            Mans favorīts
+                          </span>
                         </div>
 
                         {/* 3. Gads */}
