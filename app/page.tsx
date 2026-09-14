@@ -434,7 +434,7 @@ export default function Sakumlapa() {
             flexDirection: 'column', 
             gap: '8px', 
             border: '1px solid #e5e7eb',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+            boxShadow: '0 -24px 0 #f8fafc, 0 4px 6px -1px rgba(0, 0, 0, 0.05)'
           }}>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
