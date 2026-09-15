@@ -157,12 +157,56 @@ function formatNumberWithSpace(value: number | string): string {
 }
 
 function ListingCardGallery({ images, alt }: { images: string[]; alt: string }) {
+  const galleryRef = useRef<HTMLDivElement>(null)
   const touchStartX = useRef<number | null>(null)
   const didSwipe = useRef(false)
+  const scrollEndTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isLooping = images.length > 1
+  const loopImages = isLooping ? [images[images.length - 1], ...images, images[0]] : images
+
+  const jumpTo = (left: number) => {
+    const gallery = galleryRef.current
+    if (!gallery) return
+    gallery.style.scrollBehavior = 'auto'
+    gallery.scrollLeft = left
+    requestAnimationFrame(() => {
+      gallery.style.scrollBehavior = ''
+    })
+  }
+
+  useEffect(() => {
+    if (!isLooping) return
+
+    const placeOnFirstImage = () => {
+      const gallery = galleryRef.current
+      if (gallery?.clientWidth) jumpTo(gallery.clientWidth)
+    }
+
+    placeOnFirstImage()
+    window.addEventListener('resize', placeOnFirstImage)
+    return () => {
+      window.removeEventListener('resize', placeOnFirstImage)
+      if (scrollEndTimer.current) clearTimeout(scrollEndTimer.current)
+    }
+  }, [isLooping, images.length])
+
+  const handleScroll = () => {
+    if (!isLooping || !galleryRef.current) return
+    if (scrollEndTimer.current) clearTimeout(scrollEndTimer.current)
+    scrollEndTimer.current = setTimeout(() => {
+      const gallery = galleryRef.current
+      if (!gallery?.clientWidth) return
+      const slide = Math.round(gallery.scrollLeft / gallery.clientWidth)
+      if (slide === 0) jumpTo(images.length * gallery.clientWidth)
+      if (slide === images.length + 1) jumpTo(gallery.clientWidth)
+    }, 80)
+  }
 
   return (
     <div
+      ref={galleryRef}
       data-card-gallery="true"
+      onScroll={handleScroll}
       onTouchStart={(event) => {
         touchStartX.current = event.touches[0]?.clientX ?? null
         didSwipe.current = false
@@ -182,11 +226,11 @@ function ListingCardGallery({ images, alt }: { images: string[]; alt: string }) 
       }}
       style={{ width: '100%', height: '160px', backgroundColor: '#f3f4f6', overflow: 'hidden', display: 'flex' }}
     >
-      {images.map((image, index) => (
+      {loopImages.map((image, index) => (
         <img
           key={`${image}-${index}`}
           src={image}
-          alt={index === 0 ? alt : ''}
+          alt={(!isLooping && index === 0) || (isLooping && index === 1) ? alt : ''}
           draggable={false}
           style={{ width: '100%', minWidth: '100%', height: '100%', objectFit: 'cover' }}
         />
