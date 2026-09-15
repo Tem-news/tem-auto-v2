@@ -256,15 +256,26 @@ export default function AutoLapa() {
             overflow: visible !important;
           }
 
+          [data-listing-detail-header="true"] {
+            height: 48px !important;
+            min-height: 48px !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            box-shadow: none !important;
+          }
+
           [data-listing-detail-gallery="true"] {
             order: 1;
-            position: sticky;
+            position: fixed;
             top: 48px;
+            left: 0;
             z-index: 900;
-            width: calc(100% + 32px) !important;
+            width: 100vw !important;
             max-width: none !important;
             min-width: 0 !important;
-            margin: 0 -16px !important;
+            margin: 0 !important;
             background: #f3f4f6;
           }
 
@@ -294,6 +305,7 @@ export default function AutoLapa() {
             order: 2;
             width: 100% !important;
             min-width: 0 !important;
+            margin-top: calc(75vw + 16px) !important;
           }
 
           [data-listing-detail-description="true"] {
