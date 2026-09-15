@@ -295,7 +295,7 @@ export default function AutoLapa() {
             width: 100% !important;
             max-width: none !important;
             max-height: none !important;
-            aspect-ratio: 4 / 3 !important;
+            aspect-ratio: 16 / 9 !important;
             margin: 0 !important;
             border-radius: 0 !important;
           }
@@ -311,7 +311,7 @@ export default function AutoLapa() {
             order: 2;
             width: 100% !important;
             min-width: 0 !important;
-            margin-top: calc(75vw + 64px) !important;
+            margin-top: calc(56.25vw + 64px) !important;
           }
 
           [data-listing-detail-description="true"] {
