@@ -142,6 +142,7 @@ export default function AutoLapa() {
 
   const allImages: string[] = []
   if (car?.image) allImages.push(car.image)
+  if (car?.image_url && !allImages.includes(car.image_url)) allImages.push(car.image_url)
   if (Array.isArray(car?.images)) {
     car.images.forEach((img: string) => {
       if (img && !allImages.includes(img)) allImages.push(img)
@@ -150,6 +151,7 @@ export default function AutoLapa() {
 
   const activeImageFrameWidth = `min(100%, ${Math.round(360 * activeImageRatio)}px)`
   const activeImageIndex = Math.max(0, allImages.indexOf(activeImage))
+  const imageCount = Math.max(1, allImages.length)
 
   const handlePrevImage = () => {
     if (allImages.length <= 1) return
@@ -502,27 +504,27 @@ export default function AutoLapa() {
                 style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'zoom-in' }}
               />
               
-              {allImages.length > 0 && (
-                <div
-                  aria-label={`Foto ${activeImageIndex + 1} no ${allImages.length}`}
-                  style={{
-                    position: 'absolute',
-                    left: '10px',
-                    bottom: '10px',
-                    zIndex: 2,
-                    padding: '5px 9px',
-                    borderRadius: '12px',
-                    backgroundColor: 'rgba(0, 0, 0, 0.62)',
-                    color: '#ffffff',
-                    fontSize: '13px',
-                    fontWeight: '700',
-                    lineHeight: 1,
-                    pointerEvents: 'none'
-                  }}
-                >
-                  {activeImageIndex + 1}/{allImages.length}
-                </div>
-              )}
+              <div
+                data-image-position="true"
+                aria-label={`Foto ${activeImageIndex + 1} no ${imageCount}`}
+                style={{
+                  position: 'absolute',
+                  left: '10px',
+                  bottom: '10px',
+                  zIndex: 20,
+                  padding: '6px 10px',
+                  borderRadius: '14px',
+                  backgroundColor: 'rgba(0, 0, 0, 0.78)',
+                  color: '#ffffff',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  lineHeight: 1,
+                  boxShadow: '0 1px 4px rgba(0, 0, 0, 0.35)',
+                  pointerEvents: 'none'
+                }}
+              >
+                {activeImageIndex + 1}/{imageCount}
+              </div>
               
               {allImages.length > 1 && (
                 <>
