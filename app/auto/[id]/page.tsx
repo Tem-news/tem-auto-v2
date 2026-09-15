@@ -370,7 +370,46 @@ export default function AutoLapa() {
   return (
     <>
       <style>{`
+        [data-listing-mobile-titlebar="true"] {
+          display: none;
+        }
+
         @media (max-width: 767px) {
+          [data-listing-mobile-titlebar="true"] {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1001;
+            width: 100%;
+            height: 48px;
+            padding: 0 20px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            background: #0f172a;
+            color: #ffffff;
+          }
+
+          [data-listing-mobile-titlebar="true"] strong {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 18px;
+          }
+
+          [data-listing-mobile-views="true"] {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            font-weight: 700;
+          }
+
           [data-listing-detail-layout="true"] {
             width: 100% !important;
             max-width: none !important;
@@ -454,6 +493,13 @@ export default function AutoLapa() {
           }
         }
       `}</style>
+      <div data-listing-mobile-titlebar="true">
+        <strong>{car.make} {car.model}</strong>
+        <span data-listing-mobile-views="true" aria-label={`Skatījumi: ${car.views ?? 0}`}>
+          <span aria-hidden="true">👁️</span>
+          <span>{car.views ?? 0}</span>
+        </span>
+      </div>
       <div data-listing-detail-layout="true" style={{ width: 'calc(100% - 40px)', maxWidth: '1320px', height: 'calc(100dvh - 100px)', margin: '20px auto 0', padding: 0, fontFamily: 'sans-serif', display: 'grid', gridTemplateColumns: '320px minmax(0, 1fr) 240px', gridTemplateRows: 'auto minmax(0, 1fr)', columnGap: '24px', rowGap: '0', overflow: 'hidden', boxSizing: 'border-box' }}>
       
       <div style={{ display: 'contents' }}>
