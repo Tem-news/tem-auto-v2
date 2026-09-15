@@ -364,6 +364,10 @@
     box-sizing: border-box !important;
   }
 
+  [data-makes-panel='true'] > div > button:first-child {
+    display: none !important;
+  }
+
   [data-makes-list='true'] {
     grid-template-columns: 1fr 1fr !important;
     gap: 3px 8px !important;
