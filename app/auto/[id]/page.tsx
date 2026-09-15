@@ -487,17 +487,21 @@ export default function AutoLapa() {
           }
 
           [data-listing-specifications="true"] {
-            padding: 6px 16px !important;
+            padding: 3px 16px !important;
             gap: 0 !important;
             font-size: 14px !important;
             border-radius: 10px !important;
           }
 
           [data-listing-specifications="true"] > div {
-            min-height: 38px;
-            padding: 6px 0 !important;
+            min-height: 32px;
+            padding: 3px 0 !important;
             box-sizing: border-box;
             align-items: center;
+          }
+
+          [data-listing-compact-location="true"] {
+            display: flex !important;
           }
 
           [data-listing-specifications="true"] > div:last-child {
@@ -631,6 +635,16 @@ export default function AutoLapa() {
                 </div>
               </div>
             )}
+
+            <div
+              data-listing-compact-location="true"
+              style={{ display: 'none', justifyContent: 'space-between', borderBottom: 'none', paddingBottom: '8px' }}
+            >
+              <span style={{ color: '#6b7280', fontWeight: '500' }}>Valsts / Reģions:</span>
+              <span style={{ color: '#111827', fontWeight: 'bold' }}>
+                {car.country || '–'}{(car.region || car.city) ? ` / ${car.region || car.city}` : ''}
+              </span>
+            </div>
           </div>
 
           {/* Kontakti */}
