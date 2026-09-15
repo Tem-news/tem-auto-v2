@@ -613,9 +613,8 @@ export default function AutoLapa() {
           <div data-listing-specifications="true" style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '10px', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             {car.year && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-                <span style={{ color: '#6b7280', fontWeight: '500' }}>Izlaiduma gads:</span>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '9px' }}>
-                  <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.year}</span>
+                <span style={{ color: '#111827', fontSize: '17px', fontWeight: '800' }}>{car.year}</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                   <button
                     type="button"
                     data-listing-year-favorite="true"
