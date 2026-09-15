@@ -149,6 +149,7 @@ export default function AutoLapa() {
   }
 
   const activeImageFrameWidth = `min(100%, ${Math.round(360 * activeImageRatio)}px)`
+  const activeImageIndex = Math.max(0, allImages.indexOf(activeImage))
 
   const handlePrevImage = () => {
     if (allImages.length <= 1) return
@@ -500,6 +501,28 @@ export default function AutoLapa() {
                 title="Atvērt foto pilnekrānā"
                 style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'zoom-in' }}
               />
+              
+              {allImages.length > 0 && (
+                <div
+                  aria-label={`Foto ${activeImageIndex + 1} no ${allImages.length}`}
+                  style={{
+                    position: 'absolute',
+                    left: '10px',
+                    bottom: '10px',
+                    zIndex: 2,
+                    padding: '5px 9px',
+                    borderRadius: '12px',
+                    backgroundColor: 'rgba(0, 0, 0, 0.62)',
+                    color: '#ffffff',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    lineHeight: 1,
+                    pointerEvents: 'none'
+                  }}
+                >
+                  {activeImageIndex + 1}/{allImages.length}
+                </div>
+              )}
               
               {allImages.length > 1 && (
                 <>
