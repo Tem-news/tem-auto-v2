@@ -430,10 +430,30 @@ export default function AutoLapa() {
 
           [data-listing-mobile-titlebar="true"] strong {
             min-width: 0;
+            max-width: calc(50% - 34px);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
             font-size: 18px;
+          }
+
+          [data-listing-home-logo="true"] {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 58px;
+            height: 34px;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            text-decoration: none;
+            -webkit-tap-highlight-color: transparent;
+          }
+
+          [data-listing-home-logo="true"]:active {
+            transform: translate(-50%, -50%) scale(0.94);
           }
 
           [data-listing-mobile-views="true"] {
@@ -582,6 +602,42 @@ export default function AutoLapa() {
       `}</style>
       <div data-listing-mobile-titlebar="true">
         <strong>{car.make} {car.model}</strong>
+        <Link
+          href="/"
+          data-listing-home-logo="true"
+          aria-label="Atgriezties TemAuto sākumlapā"
+          title="Uz sākumlapu"
+        >
+          <svg
+            viewBox="0 0 64 32"
+            width="58"
+            height="30"
+            role="img"
+            aria-hidden="true"
+          >
+            <path
+              d="M6 20.5l3.5-6.2c.7-1.3 2-2.1 3.5-2.1h6.2l4.5-5h16.8c2.2 0 4.3 1 5.6 2.8l3.2 4.2 6.6 2.1c1.3.4 2.1 1.6 2.1 2.9v4.3H6z"
+              fill="rgba(34,197,94,0.18)"
+              stroke="#22c55e"
+              strokeWidth="2"
+              strokeLinejoin="round"
+            />
+            <circle cx="16" cy="23.5" r="3.5" fill="#0f172a" stroke="#ffffff" strokeWidth="1.5" />
+            <circle cx="49" cy="23.5" r="3.5" fill="#0f172a" stroke="#ffffff" strokeWidth="1.5" />
+            <text
+              x="32"
+              y="20"
+              textAnchor="middle"
+              fill="#ffffff"
+              fontSize="11"
+              fontWeight="900"
+              fontFamily="Arial, sans-serif"
+              letterSpacing="1"
+            >
+              TA
+            </text>
+          </svg>
+        </Link>
         <span data-listing-mobile-views="true" aria-label={`Skatījumi: ${car.views ?? 0}`}>
           <span aria-hidden="true">👁️</span>
           <span>{car.views ?? 0}</span>
