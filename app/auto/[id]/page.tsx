@@ -241,12 +241,53 @@ export default function AutoLapa() {
   const finalMileage = getMileage()
 
   return (
-    <div style={{ width: 'calc(100% - 40px)', maxWidth: '1320px', height: 'calc(100dvh - 100px)', margin: '20px auto 0', padding: 0, fontFamily: 'sans-serif', display: 'grid', gridTemplateColumns: '320px minmax(0, 1fr) 240px', gridTemplateRows: 'auto minmax(0, 1fr)', columnGap: '24px', rowGap: '0', overflow: 'hidden', boxSizing: 'border-box' }}>
+    <>
+      <style>{`
+        @media (max-width: 767px) {
+          [data-listing-detail-layout="true"] {
+            width: 100% !important;
+            max-width: none !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 16px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 16px !important;
+            overflow: visible !important;
+          }
+
+          [data-listing-detail-gallery="true"] {
+            order: 1;
+            width: 100% !important;
+            max-width: none !important;
+            min-width: 0 !important;
+          }
+
+          [data-listing-detail-data="true"] {
+            order: 2;
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+
+          [data-listing-detail-description="true"] {
+            order: 3;
+            width: 100% !important;
+            height: auto !important;
+            min-height: 240px !important;
+          }
+
+          [data-listing-detail-sponsors="true"] {
+            order: 4;
+            width: 100% !important;
+          }
+        }
+      `}</style>
+      <div data-listing-detail-layout="true" style={{ width: 'calc(100% - 40px)', maxWidth: '1320px', height: 'calc(100dvh - 100px)', margin: '20px auto 0', padding: 0, fontFamily: 'sans-serif', display: 'grid', gridTemplateColumns: '320px minmax(0, 1fr) 240px', gridTemplateRows: 'auto minmax(0, 1fr)', columnGap: '24px', rowGap: '0', overflow: 'hidden', boxSizing: 'border-box' }}>
       
       <div style={{ display: 'contents' }}>
         
         {/* KREISAIS STABIŅŠ */}
-        <div style={{ gridColumn: '1', gridRow: '1', width: '320px', minHeight: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div data-listing-detail-data="true" style={{ gridColumn: '1', gridRow: '1', width: '320px', minHeight: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
           
           {/* Valsts un Pilsēta */}
           {(car.country || car.city) && (
@@ -425,7 +466,7 @@ export default function AutoLapa() {
         </div>
 
         {/* VIDĒJĀ DAĻA: Bildes un virsraksts */}
-        <div style={{ gridColumn: '2', gridRow: '1', width: '100%', maxWidth: '750px', minWidth: 0 }}>
+        <div data-listing-detail-gallery="true" style={{ gridColumn: '2', gridRow: '1', width: '100%', maxWidth: '750px', minWidth: 0 }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', paddingTop: '4px' }}>
             <button
@@ -556,7 +597,7 @@ export default function AutoLapa() {
         </div>
 
         {/* LABĀ MALA: divi vienādi, gari platformā integrēti sponsoru lauki */}
-        <div style={{ gridColumn: '3', gridRow: '1 / span 2', width: '240px', height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div data-listing-detail-sponsors="true" style={{ gridColumn: '3', gridRow: '1 / span 2', width: '240px', height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {[1, 2].map((placement) => (
             <aside
               key={placement}
@@ -573,7 +614,7 @@ export default function AutoLapa() {
 
       {/* APAKŠĒJĀ DAĻA: APRAKSTS (Optimizēts, nepārsniedz monitora robežas) */}
       {car.description && (
-        <div style={{ gridColumn: '1 / 3', gridRow: '2', height: '100%', minHeight: 0, backgroundColor: '#f9fafb', padding: '16px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box' }}>
+        <div data-listing-detail-description="true" style={{ gridColumn: '1 / 3', gridRow: '2', height: '100%', minHeight: 0, backgroundColor: '#f9fafb', padding: '16px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box' }}>
           <div style={{ overflowY: 'auto', flex: 1, paddingRight: '8px' }}>
             <p style={{ color: '#374151', lineHeight: '1.6', fontSize: '14px', whiteSpace: 'pre-line', margin: 0 }}>{car.description}</p>
           </div>
@@ -647,6 +688,7 @@ export default function AutoLapa() {
         </div>
       )}
 
-    </div>
+      </div>
+    </>
   )
 }
