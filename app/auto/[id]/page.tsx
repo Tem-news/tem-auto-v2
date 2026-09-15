@@ -30,6 +30,8 @@ export default function AutoLapa() {
 
   const dropdownRef = useRef<HTMLDivElement>(null)
   const imageFrameRatioLocked = useRef(false)
+  const imageTouchStart = useRef<{ x: number; y: number } | null>(null)
+  const imageSwipeHandled = useRef(false)
 
   useEffect(() => {
     imageFrameRatioLocked.current = false
@@ -165,6 +167,36 @@ export default function AutoLapa() {
     const currentIndex = allImages.indexOf(activeImage)
     const newIndex = currentIndex === allImages.length - 1 ? 0 : currentIndex + 1
     setActiveImage(allImages[newIndex])
+  }
+
+  const handleImageTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    const touch = event.touches[0]
+    imageTouchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null
+    imageSwipeHandled.current = false
+  }
+
+  const handleImageTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const start = imageTouchStart.current
+    const touch = event.changedTouches[0]
+    imageTouchStart.current = null
+
+    if (!start || !touch) return
+
+    const distanceX = touch.clientX - start.x
+    const distanceY = touch.clientY - start.y
+
+    if (Math.abs(distanceX) < 45 || Math.abs(distanceX) <= Math.abs(distanceY)) return
+
+    imageSwipeHandled.current = true
+    if (distanceX < 0) {
+      handleNextImage()
+    } else {
+      handlePrevImage()
+    }
+
+    window.setTimeout(() => {
+      imageSwipeHandled.current = false
+    }, 0)
   }
 
   const formatPrice = (price: any) => {
@@ -570,7 +602,12 @@ export default function AutoLapa() {
           </div>
 
           {activeImage && (
-            <div data-listing-main-photo="true" style={{ position: 'relative', width: activeImageFrameWidth, aspectRatio: String(activeImageRatio), maxHeight: '360px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', margin: '0 auto 8px' }}>
+            <div
+              data-listing-main-photo="true"
+              onTouchStart={handleImageTouchStart}
+              onTouchEnd={handleImageTouchEnd}
+              style={{ position: 'relative', width: activeImageFrameWidth, aspectRatio: String(activeImageRatio), maxHeight: '360px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', margin: '0 auto 8px', touchAction: 'pan-y' }}
+            >
               <img
                 src={activeImage}
                 alt={`${car.make} ${car.model}`}
@@ -582,6 +619,7 @@ export default function AutoLapa() {
                   }
                 }}
                 onClick={() => {
+                  if (imageSwipeHandled.current) return
                   setImageZoom(1)
                   setZoomOrigin({ x: 50, y: 50 })
                   setIsImageViewerOpen(true)
