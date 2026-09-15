@@ -204,8 +204,11 @@ export default function Sakumlapa() {
       const addressParams = new URLSearchParams(window.location.search)
       const makeFromAddress = addressParams.get('make') || ''
       const pageFromAddress = Number(addressParams.get('page') || '1')
+      const mobileOverlay = window.history.state?.temAutoCatalogueOverlay
       setSearchMake(makeFromAddress)
       setCurrentPage(Number.isInteger(pageFromAddress) && pageFromAddress > 0 ? pageFromAddress : 1)
+      setMobileMakesOpen(mobileOverlay === 'makes')
+      setMobileFiltersOpen(mobileOverlay === 'filters')
     }
 
     syncMakeFromAddress()
@@ -389,6 +392,30 @@ export default function Sakumlapa() {
     setMobileMakesOpen(false)
   }
 
+  const toggleMobileCatalogueOverlay = (overlay: 'makes' | 'filters') => {
+    const isOpen = overlay === 'makes' ? mobileMakesOpen : mobileFiltersOpen
+    const currentOverlay = window.history.state?.temAutoCatalogueOverlay
+
+    if (isOpen) {
+      if (currentOverlay === overlay) {
+        window.history.back()
+      } else {
+        setMobileMakesOpen(false)
+        setMobileFiltersOpen(false)
+      }
+      return
+    }
+
+    const nextState = { ...window.history.state, temAutoCatalogueOverlay: overlay }
+    if (currentOverlay) {
+      window.history.replaceState(nextState, '', window.location.href)
+    } else {
+      window.history.pushState(nextState, '', window.location.href)
+    }
+    setMobileMakesOpen(overlay === 'makes')
+    setMobileFiltersOpen(overlay === 'filters')
+  }
+
   return (
     <div data-catalogue-page="true" ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
 
@@ -396,10 +423,7 @@ export default function Sakumlapa() {
         <button
           type="button"
           aria-expanded={mobileMakesOpen}
-          onClick={() => {
-            setMobileMakesOpen(current => !current)
-            setMobileFiltersOpen(false)
-          }}
+          onClick={() => toggleMobileCatalogueOverlay('makes')}
         >
           <span>Visas markas</span>
           <span>({cars.length}) {mobileMakesOpen ? '▴' : '▾'}</span>
@@ -407,10 +431,7 @@ export default function Sakumlapa() {
         <button
           type="button"
           aria-expanded={mobileFiltersOpen}
-          onClick={() => {
-            setMobileFiltersOpen(current => !current)
-            setMobileMakesOpen(false)
-          }}
+          onClick={() => toggleMobileCatalogueOverlay('filters')}
         >
           <span>Filtri</span>
           <span>{hasActiveFilters ? '● ' : ''}{mobileFiltersOpen ? '▴' : '▾'}</span>
