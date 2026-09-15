@@ -477,7 +477,40 @@ export default function AutoLapa() {
             order: 2;
             width: 100% !important;
             min-width: 0 !important;
-            margin-top: calc(56.25vw + 64px) !important;
+            margin-top: calc(56.25vw + 48px) !important;
+            gap: 0 !important;
+          }
+
+          [data-listing-location-card="true"],
+          [data-listing-price-card="true"] {
+            display: none !important;
+          }
+
+          [data-listing-specifications="true"] {
+            padding: 6px 16px !important;
+            gap: 0 !important;
+            font-size: 14px !important;
+            border-radius: 10px !important;
+          }
+
+          [data-listing-specifications="true"] > div {
+            min-height: 38px;
+            padding: 6px 0 !important;
+            box-sizing: border-box;
+            align-items: center;
+          }
+
+          [data-listing-specifications="true"] > div:last-child {
+            border-bottom: none !important;
+          }
+
+          [data-listing-specifications="true"] > div > span:last-child,
+          [data-listing-specifications="true"] > div > div:last-child {
+            text-align: right;
+          }
+
+          [data-listing-contacts="true"] {
+            margin-top: 12px;
           }
 
           [data-listing-detail-description="true"] {
@@ -509,21 +542,21 @@ export default function AutoLapa() {
           
           {/* Valsts un Pilsēta */}
           {(car.country || car.city) && (
-            <div style={{ backgroundColor: '#f0fdf4', padding: '12px 16px', borderRadius: '10px', border: '1px solid #bbf7d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <div data-listing-location-card="true" style={{ backgroundColor: '#f0fdf4', padding: '12px 16px', borderRadius: '10px', border: '1px solid #bbf7d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.country || 'Latvija'}</span>
               <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.city || car.region || ''}</span>
             </div>
           )}
 
           {/* Cena */}
-          <div style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '10px', border: '1px solid #e5e7eb', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div data-listing-price-card="true" style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '10px', border: '1px solid #e5e7eb', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             <span style={{ fontSize: '28px', fontWeight: 'bold', color: '#16a34a', letterSpacing: '0.5px' }}>
               {formatPrice(car.price)}
             </span>
           </div>
 
           {/* Pārējie dati */}
-          <div style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '10px', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div data-listing-specifications="true" style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '10px', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             {car.year && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
                 <span style={{ color: '#6b7280', fontWeight: '500' }}>Izlaiduma gads:</span>
@@ -601,7 +634,7 @@ export default function AutoLapa() {
           </div>
 
           {/* Kontakti */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div data-listing-contacts="true" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {car.phone && (
               <div style={{ position: 'relative' }} ref={dropdownRef}>
                 {showPhone ? (
