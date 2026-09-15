@@ -249,7 +249,7 @@ export default function AutoLapa() {
             max-width: none !important;
             height: auto !important;
             margin: 0 !important;
-            padding: 16px !important;
+            padding: 0 16px 16px !important;
             display: flex !important;
             flex-direction: column !important;
             gap: 16px !important;
@@ -258,9 +258,27 @@ export default function AutoLapa() {
 
           [data-listing-detail-gallery="true"] {
             order: 1;
-            width: 100% !important;
+            position: sticky;
+            top: 48px;
+            z-index: 900;
+            width: calc(100% + 32px) !important;
             max-width: none !important;
             min-width: 0 !important;
+            margin: 0 -16px !important;
+            background: #f3f4f6;
+          }
+
+          [data-listing-gallery-actions="true"],
+          [data-listing-gallery-info="true"],
+          [data-listing-thumbnails="true"] {
+            display: none !important;
+          }
+
+          [data-listing-main-photo="true"] {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
           }
 
           [data-listing-detail-data="true"] {
@@ -468,7 +486,7 @@ export default function AutoLapa() {
         {/* VIDĒJĀ DAĻA: Bildes un virsraksts */}
         <div data-listing-detail-gallery="true" style={{ gridColumn: '2', gridRow: '1', width: '100%', maxWidth: '750px', minWidth: 0 }}>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', paddingTop: '4px' }}>
+          <div data-listing-gallery-actions="true" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', paddingTop: '4px' }}>
             <button
               type="button"
               onClick={() => {
@@ -491,7 +509,7 @@ export default function AutoLapa() {
             )}
           </div>
 
-          <div style={{ width: activeImageFrameWidth, margin: '0 auto' }}>
+          <div data-listing-gallery-info="true" style={{ width: activeImageFrameWidth, margin: '0 auto' }}>
             <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#111827' }}>
               {car.make} {car.model}
             </h1>
@@ -525,7 +543,7 @@ export default function AutoLapa() {
           </div>
 
           {activeImage && (
-            <div style={{ position: 'relative', width: activeImageFrameWidth, aspectRatio: String(activeImageRatio), maxHeight: '360px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', margin: '0 auto 8px' }}>
+            <div data-listing-main-photo="true" style={{ position: 'relative', width: activeImageFrameWidth, aspectRatio: String(activeImageRatio), maxHeight: '360px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', margin: '0 auto 8px' }}>
               <img
                 src={activeImage}
                 alt={`${car.make} ${car.model}`}
@@ -581,7 +599,7 @@ export default function AutoLapa() {
           )}
 
           {allImages.length > 1 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', paddingBottom: '2px' }}>
+            <div data-listing-thumbnails="true" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', paddingBottom: '2px' }}>
               {allImages.map((img, idx) => (
                 <img
                   key={idx}
