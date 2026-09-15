@@ -202,6 +202,7 @@ export default function Sakumlapa() {
   useEffect(() => {
     let scrollGuardAdded = window.history.state?.temAutoScrollGuard === true
     let returningToTop = false
+    let lastKnownScrollY = window.scrollY
     let releaseScrollTimer: number | null = null
     const previousScrollRestoration = window.history.scrollRestoration
     window.history.scrollRestoration = 'manual'
@@ -220,7 +221,8 @@ export default function Sakumlapa() {
         scrollGuardAdded &&
         historyState.temAutoScrollGuard !== true &&
         window.location.pathname === '/' &&
-        makeFromAddress === ''
+        makeFromAddress === '' &&
+        lastKnownScrollY > 80
       ) {
         scrollGuardAdded = false
         returningToTop = true
@@ -238,6 +240,19 @@ export default function Sakumlapa() {
         }
         releaseScrollTimer = window.setTimeout(() => {
           window.scrollTo(0, 0)
+          lastKnownScrollY = 0
+
+          const currentState = { ...(window.history.state || {}) }
+          delete currentState.temAutoCatalogueOverlay
+          delete currentState.temAutoScrollGuard
+          window.history.replaceState(currentState, '', window.location.href)
+          window.history.pushState(
+            { ...currentState, temAutoScrollGuard: true },
+            '',
+            window.location.href
+          )
+
+          scrollGuardAdded = true
           returningToTop = false
           releaseScrollTimer = null
         }, 250)
@@ -249,6 +264,7 @@ export default function Sakumlapa() {
     }
 
     const addScrollGuard = () => {
+      lastKnownScrollY = window.scrollY
       if (returningToTop) return
 
       const addressParams = new URLSearchParams(window.location.search)
