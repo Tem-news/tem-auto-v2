@@ -857,13 +857,6 @@ export default function AutoLapa() {
               ×
             </button>
 
-            {allImages.length > 1 && (
-              <>
-                <button type="button" aria-label="Iepriekšējais foto" onClick={() => { handlePrevImage(); setImageZoom(1) }} style={{ position: 'absolute', left: '22px', top: '50%', transform: 'translateY(-50%)', width: '48px', height: '48px', borderRadius: '50%', border: 'none', backgroundColor: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: '24px', cursor: 'pointer' }}>❮</button>
-                <button type="button" aria-label="Nākamais foto" onClick={() => { handleNextImage(); setImageZoom(1) }} style={{ position: 'absolute', right: '22px', top: '50%', transform: 'translateY(-50%)', width: '48px', height: '48px', borderRadius: '50%', border: 'none', backgroundColor: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: '24px', cursor: 'pointer' }}>❯</button>
-              </>
-            )}
-
             <div style={{ position: 'absolute', left: '50%', bottom: '20px', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', borderRadius: '24px', backgroundColor: 'rgba(0,0,0,0.68)', color: '#fff' }}>
               <button type="button" aria-label="Samazināt" onClick={() => setImageZoom((current) => Math.max(1, current - 0.25))} style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.45)', background: 'transparent', color: '#fff', fontSize: '22px', cursor: 'pointer' }}>−</button>
               <span style={{ minWidth: '52px', textAlign: 'center', fontSize: '14px' }}>{Math.round(imageZoom * 100)}%</span>
