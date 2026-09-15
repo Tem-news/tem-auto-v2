@@ -429,12 +429,21 @@ export default function AutoLapa() {
           }
 
           [data-listing-mobile-titlebar="true"] strong {
+            position: absolute;
+            left: 20px;
+            top: 8px;
+            z-index: 1002;
+            width: calc(100% - 158px);
             min-width: 0;
-            flex: 1 1 auto;
+            max-height: 42px;
+            display: -webkit-box;
             overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-size: 18px;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            white-space: normal;
+            font-size: 17px;
+            line-height: 21px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
           }
 
           [data-listing-home-logo="true"] {
