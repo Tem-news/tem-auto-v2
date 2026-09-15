@@ -257,6 +257,12 @@ export default function AutoLapa() {
           }
 
           [data-listing-detail-header="true"] {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 1000 !important;
+            width: 100% !important;
             height: 48px !important;
             min-height: 48px !important;
             padding-top: 0 !important;
@@ -305,7 +311,7 @@ export default function AutoLapa() {
             order: 2;
             width: 100% !important;
             min-width: 0 !important;
-            margin-top: calc(75vw + 16px) !important;
+            margin-top: calc(75vw + 64px) !important;
           }
 
           [data-listing-detail-description="true"] {
