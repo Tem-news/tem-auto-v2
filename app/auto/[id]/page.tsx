@@ -500,8 +500,12 @@ export default function AutoLapa() {
             align-items: center;
           }
 
-          [data-listing-compact-location="true"] {
+          [data-listing-specifications="true"] > [data-listing-compact-location="true"] {
             display: flex !important;
+            padding: 3px 8px !important;
+            margin: 2px -8px 0;
+            border-radius: 7px;
+            background-color: #f0fdf4;
           }
 
           [data-listing-specifications="true"] > div:last-child {
@@ -638,12 +642,10 @@ export default function AutoLapa() {
 
             <div
               data-listing-compact-location="true"
-              style={{ display: 'none', justifyContent: 'space-between', borderBottom: 'none', paddingBottom: '8px' }}
+              style={{ display: 'none', justifyContent: 'space-between', borderBottom: 'none' }}
             >
-              <span style={{ color: '#6b7280', fontWeight: '500' }}>Valsts / Reģions:</span>
-              <span style={{ color: '#111827', fontWeight: 'bold' }}>
-                {car.country || '–'}{(car.region || car.city) ? ` / ${car.region || car.city}` : ''}
-              </span>
+              <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.country || '–'}</span>
+              <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.region || car.city || '–'}</span>
             </div>
           </div>
 
