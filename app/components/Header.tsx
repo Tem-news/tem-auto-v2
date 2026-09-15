@@ -161,7 +161,9 @@ export default function Header() {
       }
     }
     const syncHeaderOverlayFromHistory = () => {
-      setMobileMenuOpen(window.history.state?.temAutoHeaderOverlay === 'menu')
+      const headerOverlay = window.history.state?.temAutoHeaderOverlay
+      setMobileMenuOpen(headerOverlay === 'menu')
+      setVisitorStatsOpen(headerOverlay === 'visitors')
     }
 
     document.addEventListener('mousedown', handleClickOutside)
@@ -215,6 +217,30 @@ export default function Header() {
       window.location.href
     )
     setMobileMenuOpen(true)
+    setVisitorStatsOpen(false)
+    setLangOpen(false)
+    setRegionOpen(false)
+  }
+
+  const toggleVisitorStats = () => {
+    const currentOverlay = window.history.state?.temAutoHeaderOverlay
+
+    if (visitorStatsOpen) {
+      if (currentOverlay === 'visitors') {
+        window.history.back()
+      } else {
+        setVisitorStatsOpen(false)
+      }
+      return
+    }
+
+    window.history.pushState(
+      { ...window.history.state, temAutoHeaderOverlay: 'visitors' },
+      '',
+      window.location.href
+    )
+    setVisitorStatsOpen(true)
+    setMobileMenuOpen(false)
     setLangOpen(false)
     setRegionOpen(false)
   }
@@ -255,7 +281,7 @@ export default function Header() {
               data-header-visitors="true"
               aria-label="Apmeklējumi pēdējās 24 stundās"
               aria-expanded={visitorStatsOpen}
-              onClick={() => setVisitorStatsOpen(current => !current)}
+              onClick={toggleVisitorStats}
               style={{
                 display: 'flex',
                 alignItems: 'center',
