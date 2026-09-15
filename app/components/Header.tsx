@@ -160,9 +160,15 @@ export default function Header() {
         setRegionOpen(false)
       }
     }
+    const syncHeaderOverlayFromHistory = () => {
+      setMobileMenuOpen(window.history.state?.temAutoHeaderOverlay === 'menu')
+    }
+
     document.addEventListener('mousedown', handleClickOutside)
+    window.addEventListener('popstate', syncHeaderOverlayFromHistory)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
+      window.removeEventListener('popstate', syncHeaderOverlayFromHistory)
       subscription.unsubscribe()
     }
   }, [])
@@ -190,6 +196,28 @@ export default function Header() {
   const currentLangObj = LANGUAGES.find(l => l.code === currentLang)
   const currentRegionObj = REGIONS.find(r => r.name === currentRegion || r.subregions?.includes(currentRegion))
   const hoveredRegionObj = REGIONS.find(r => r.name === hoveredRegion)
+
+  const toggleMobileMenu = () => {
+    const currentOverlay = window.history.state?.temAutoHeaderOverlay
+
+    if (mobileMenuOpen) {
+      if (currentOverlay === 'menu') {
+        window.history.back()
+      } else {
+        setMobileMenuOpen(false)
+      }
+      return
+    }
+
+    window.history.pushState(
+      { ...window.history.state, temAutoHeaderOverlay: 'menu' },
+      '',
+      window.location.href
+    )
+    setMobileMenuOpen(true)
+    setLangOpen(false)
+    setRegionOpen(false)
+  }
 
   return (
     <header
@@ -476,11 +504,7 @@ export default function Header() {
               data-mobile-menu-toggle="true"
               aria-label="Atvērt izvēlni"
               aria-expanded={mobileMenuOpen}
-              onClick={() => {
-                setMobileMenuOpen(current => !current)
-                setLangOpen(false)
-                setRegionOpen(false)
-              }}
+              onClick={toggleMobileMenu}
             >
               <span aria-hidden="true">☰</span>
             </button>
