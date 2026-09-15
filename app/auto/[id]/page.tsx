@@ -277,8 +277,17 @@ export default function AutoLapa() {
           [data-listing-main-photo="true"] {
             width: 100% !important;
             max-width: none !important;
+            max-height: none !important;
+            aspect-ratio: 4 / 3 !important;
             margin: 0 !important;
             border-radius: 0 !important;
+          }
+
+          [data-listing-main-photo="true"] > img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            object-position: center !important;
           }
 
           [data-listing-detail-data="true"] {
