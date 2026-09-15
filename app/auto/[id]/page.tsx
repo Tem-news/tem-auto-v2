@@ -401,11 +401,15 @@ export default function AutoLapa() {
   return (
     <>
       <style>{`
-        [data-listing-mobile-titlebar="true"] {
+        [data-listing-mobile-titlebar="true"],
+        [data-listing-photo-favorite="true"] {
           display: none;
         }
 
         @media (max-width: 767px) {
+          [data-listing-photo-favorite="true"] {
+            display: block !important;
+          }
           [data-listing-mobile-titlebar="true"] {
             position: fixed;
             top: 0;
@@ -859,6 +863,39 @@ export default function AutoLapa() {
                 style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'zoom-in' }}
               />
               
+              <button
+                type="button"
+                data-listing-photo-favorite="true"
+                aria-pressed={isFavorite}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  toggleFavorite()
+                }}
+                style={{
+                  display: 'none',
+                  position: 'absolute',
+                  top: '9px',
+                  right: '10px',
+                  zIndex: 25,
+                  padding: '6px 10px',
+                  borderRadius: '14px',
+                  border: isFavorite ? '1px solid rgba(255,255,255,0.75)' : '1px solid rgba(17,24,39,0.18)',
+                  backgroundColor: isFavorite ? 'rgba(21,128,61,0.92)' : 'rgba(255,255,255,0.86)',
+                  color: isFavorite ? '#ffffff' : '#374151',
+                  fontFamily: 'inherit',
+                  fontSize: '12px',
+                  fontWeight: isFavorite ? '700' : '600',
+                  lineHeight: 1,
+                  boxShadow: '0 1px 5px rgba(0,0,0,0.28)',
+                  backdropFilter: 'blur(3px)',
+                  WebkitBackdropFilter: 'blur(3px)',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                Mans favorīts
+              </button>
+
               <div
                 data-image-position="true"
                 aria-label={`Foto ${activeImageIndex + 1} no ${imageCount}`}
