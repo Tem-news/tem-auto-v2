@@ -200,39 +200,54 @@ export default function Sakumlapa() {
   }
   
   useEffect(() => {
-    let scrollGuardAdded = window.history.state?.temAutoScrollGuard === true
-    let returningToTop = false
     let lastKnownScrollY = window.scrollY
+    let restoringGuard = false
     let releaseScrollTimer: number | null = null
     const previousScrollRestoration = window.history.scrollRestoration
     window.history.scrollRestoration = 'manual'
 
-    const syncMakeFromAddress = () => {
+    const ensureScrollGuard = () => {
+      const currentState = { ...(window.history.state || {}) }
+
+      if (currentState.temAutoScrollGuard === true) return
+
+      delete currentState.temAutoCatalogueOverlay
+      window.history.replaceState(currentState, '', window.location.href)
+      window.history.pushState(
+        { ...currentState, temAutoScrollGuard: true },
+        '',
+        window.location.href
+      )
+    }
+
+    const syncFromAddress = (event?: PopStateEvent) => {
       const addressParams = new URLSearchParams(window.location.search)
       const makeFromAddress = addressParams.get('make') || ''
       const pageFromAddress = Number(addressParams.get('page') || '1')
-      const historyState = window.history.state || {}
+      const historyState = event?.state || window.history.state || {}
       const mobileOverlay = historyState.temAutoCatalogueOverlay
 
       setSearchMake(makeFromAddress)
       setCurrentPage(Number.isInteger(pageFromAddress) && pageFromAddress > 0 ? pageFromAddress : 1)
 
-      if (
-        scrollGuardAdded &&
+      if (restoringGuard && historyState.temAutoScrollGuard === true) {
+        restoringGuard = false
+        setMobileMakesOpen(false)
+        setMobileFiltersOpen(false)
+        return
+      }
+
+      const shouldReturnToTop =
         historyState.temAutoScrollGuard !== true &&
         window.location.pathname === '/' &&
         makeFromAddress === '' &&
-        lastKnownScrollY > 80
-      ) {
-        scrollGuardAdded = false
-        returningToTop = true
+        Math.max(lastKnownScrollY, window.scrollY) > 80
+
+      if (shouldReturnToTop) {
+        restoringGuard = true
         setMobileMakesOpen(false)
         setMobileFiltersOpen(false)
-
-        const cleanState = { ...historyState }
-        delete cleanState.temAutoCatalogueOverlay
-        delete cleanState.temAutoScrollGuard
-        window.history.replaceState(cleanState, '', window.location.href)
+        window.history.forward()
         window.scrollTo(0, 0)
 
         if (releaseScrollTimer !== null) {
@@ -241,19 +256,6 @@ export default function Sakumlapa() {
         releaseScrollTimer = window.setTimeout(() => {
           window.scrollTo(0, 0)
           lastKnownScrollY = 0
-
-          const currentState = { ...(window.history.state || {}) }
-          delete currentState.temAutoCatalogueOverlay
-          delete currentState.temAutoScrollGuard
-          window.history.replaceState(currentState, '', window.location.href)
-          window.history.pushState(
-            { ...currentState, temAutoScrollGuard: true },
-            '',
-            window.location.href
-          )
-
-          scrollGuardAdded = true
-          returningToTop = false
           releaseScrollTimer = null
         }, 250)
         return
@@ -261,41 +263,31 @@ export default function Sakumlapa() {
 
       setMobileMakesOpen(mobileOverlay === 'makes')
       setMobileFiltersOpen(mobileOverlay === 'filters')
-    }
-
-    const addScrollGuard = () => {
-      lastKnownScrollY = window.scrollY
-      if (returningToTop) return
-
-      const addressParams = new URLSearchParams(window.location.search)
-      const historyState = window.history.state || {}
 
       if (
-        !scrollGuardAdded &&
+        historyState.temAutoScrollGuard !== true &&
         window.location.pathname === '/' &&
-        !addressParams.get('make') &&
-        window.scrollY > 80 &&
-        !historyState.temAutoCatalogueOverlay
+        makeFromAddress === '' &&
+        !mobileOverlay
       ) {
-        const cleanState = { ...historyState }
-        delete cleanState.temAutoCatalogueOverlay
-        delete cleanState.temAutoScrollGuard
-        window.history.replaceState(cleanState, '', window.location.href)
-        window.history.pushState(
-          { ...cleanState, temAutoScrollGuard: true },
-          '',
-          window.location.href
-        )
-        scrollGuardAdded = true
+        window.history.back()
       }
     }
 
-    syncMakeFromAddress()
-    window.addEventListener('popstate', syncMakeFromAddress)
-    window.addEventListener('scroll', addScrollGuard, { passive: true })
+    const rememberScrollPosition = () => {
+      if (!restoringGuard) {
+        lastKnownScrollY = window.scrollY
+      }
+    }
+
+    ensureScrollGuard()
+    syncFromAddress()
+    window.addEventListener('popstate', syncFromAddress)
+    window.addEventListener('scroll', rememberScrollPosition, { passive: true })
+
     return () => {
-      window.removeEventListener('popstate', syncMakeFromAddress)
-      window.removeEventListener('scroll', addScrollGuard)
+      window.removeEventListener('popstate', syncFromAddress)
+      window.removeEventListener('scroll', rememberScrollPosition)
       if (releaseScrollTimer !== null) {
         window.clearTimeout(releaseScrollTimer)
       }
