@@ -8,6 +8,37 @@ import { canUseDevPreviewFallback, getAdaptedPreviewCarById, isPreviewListing } 
 
 const FAVORITES_STORAGE_KEY = 'temauto-favorite-car-ids'
 
+const COUNTRY_FLAG_CODES: Record<string, string> = {
+  Latvija: 'lv',
+  Lietuva: 'lt',
+  Igaunija: 'ee',
+  Vācija: 'de',
+  Lielbritānija: 'gb',
+  ASV: 'us',
+  Japāna: 'jp',
+  Krievija: 'ru',
+  Zviedrija: 'se',
+  Norvēģija: 'no',
+  Polija: 'pl',
+  Somija: 'fi',
+  Dānija: 'dk',
+  Francija: 'fr',
+  Itālija: 'it',
+  Spānija: 'es',
+  Nīderlande: 'nl',
+  Ķīna: 'cn',
+  Dienvidkoreja: 'kr',
+  'Apvienotie Arābu Emirāti': 'ae',
+  Kanāda: 'ca',
+  Austrālija: 'au'
+}
+
+const getCountryFlagCode = (country: string, storedCode?: string) => {
+  const normalizedStoredCode = storedCode?.trim().toLowerCase()
+  if (normalizedStoredCode && /^[a-z]{2}$/.test(normalizedStoredCode)) return normalizedStoredCode
+  return COUNTRY_FLAG_CODES[country] || ''
+}
+
 export default function AutoLapa() {
   const params = useParams()
   const id = params?.id
@@ -644,7 +675,16 @@ export default function AutoLapa() {
               data-listing-compact-location="true"
               style={{ display: 'none', justifyContent: 'space-between', borderBottom: 'none' }}
             >
-              <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.country || '–'}</span>
+              <span style={{ color: '#166534', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '7px' }}>
+                {getCountryFlagCode(car.country || '', car.country_code) && (
+                  <img
+                    src={`https://flagcdn.com/w40/${getCountryFlagCode(car.country || '', car.country_code)}.png`}
+                    alt={`${car.country || 'Valsts'} karogs`}
+                    style={{ width: '22px', height: '15px', objectFit: 'cover', borderRadius: '2px', flexShrink: 0 }}
+                  />
+                )}
+                <span>{car.country || '–'}</span>
+              </span>
               <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.region || car.city || '–'}</span>
             </div>
           </div>
