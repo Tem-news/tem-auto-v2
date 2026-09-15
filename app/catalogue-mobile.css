@@ -517,6 +517,9 @@
   }
 
   [data-make-table='true'] {
+    width: calc(100% + 20px) !important;
+    max-width: none !important;
+    margin-left: -10px !important;
     background: transparent !important;
     border: 0 !important;
   }
@@ -556,6 +559,7 @@
   }
 
   [data-make-table-row='true'] > [data-cell='photo'] img {
+    display: block !important;
     width: 112px !important;
     height: 84px !important;
     max-width: 100% !important;
