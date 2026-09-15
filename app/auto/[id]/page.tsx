@@ -443,7 +443,7 @@ export default function AutoLapa() {
             width: 54px;
             height: 32px;
             margin-left: auto;
-            margin-right: -4px;
+            margin-right: 8px;
             transform: rotate(-3deg);
             display: flex;
             align-items: center;
@@ -458,9 +458,11 @@ export default function AutoLapa() {
           }
 
           [data-listing-mobile-views="true"] {
-            flex-shrink: 0;
+            flex: 0 0 50px;
+            min-width: 50px;
             display: flex;
             align-items: center;
+            justify-content: flex-end;
             gap: 5px;
             font-size: 14px;
             font-weight: 700;
