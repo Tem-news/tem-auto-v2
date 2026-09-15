@@ -556,12 +556,15 @@
   [data-make-table-row='true'] > [data-cell='photo'] {
     grid-column: 1;
     grid-row: 1 / span 3;
+    align-self: center;
+    line-height: 0;
   }
 
   [data-make-table-row='true'] > [data-cell='photo'] img {
     display: block !important;
     width: 112px !important;
-    height: 84px !important;
+    height: 68px !important;
+    object-fit: cover !important;
     max-width: 100% !important;
   }
 
@@ -608,6 +611,6 @@
 
   [data-make-table-row='true'] > [data-cell='photo'] img {
     width: 96px !important;
-    height: 76px !important;
+    height: 62px !important;
   }
 }
