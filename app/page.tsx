@@ -201,6 +201,7 @@ export default function Sakumlapa() {
   
   useEffect(() => {
     let scrollGuardAdded = window.history.state?.temAutoScrollGuard === true
+    let returningToTop = false
 
     const syncMakeFromAddress = () => {
       const addressParams = new URLSearchParams(window.location.search)
@@ -219,10 +220,12 @@ export default function Sakumlapa() {
         makeFromAddress === ''
       ) {
         scrollGuardAdded = false
+        returningToTop = true
         setMobileMakesOpen(false)
         setMobileFiltersOpen(false)
+        window.scrollTo({ top: 0, behavior: 'auto' })
         window.requestAnimationFrame(() => {
-          window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }))
+          returningToTop = false
         })
         return
       }
@@ -232,6 +235,8 @@ export default function Sakumlapa() {
     }
 
     const addScrollGuard = () => {
+      if (returningToTop) return
+
       const addressParams = new URLSearchParams(window.location.search)
       const historyState = window.history.state || {}
 
