@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
 const LANGUAGES = [
@@ -112,6 +112,8 @@ const REGIONS = [
 
 export default function Header() {
   const router = useRouter()
+  const pathname = usePathname()
+  const isListingDetail = /^\/auto\/[^/]+\/?$/.test(pathname)
   const [user, setUser] = useState<any>(null)
   const [visitCount, setVisitCount] = useState<number>(0)
 
@@ -243,6 +245,38 @@ export default function Header() {
     setMobileMenuOpen(false)
     setLangOpen(false)
     setRegionOpen(false)
+  }
+
+  if (isListingDetail) {
+    return (
+      <header
+        data-temauto-header="true"
+        data-listing-detail-header="true"
+        style={{
+          backgroundColor: '#0f172a',
+          color: '#ffffff',
+          padding: '12px 20px',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1000,
+          width: '100%',
+          boxSizing: 'border-box',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+        }}
+      >
+        <Link
+          href="/"
+          style={{
+            fontSize: '20px',
+            fontWeight: 'bold',
+            color: '#22c55e',
+            textDecoration: 'none'
+          }}
+        >
+          TemAuto
+        </Link>
+      </header>
+    )
   }
 
   return (
