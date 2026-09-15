@@ -423,14 +423,14 @@ export default function AutoLapa() {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 16px;
+            gap: 8px;
             background: #0f172a;
             color: #ffffff;
           }
 
           [data-listing-mobile-titlebar="true"] strong {
             min-width: 0;
-            max-width: calc(50% - 34px);
+            flex: 1 1 auto;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -438,12 +438,13 @@ export default function AutoLapa() {
           }
 
           [data-listing-home-logo="true"] {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 58px;
-            height: 34px;
-            transform: translate(-50%, -50%);
+            position: static;
+            flex: 0 0 54px;
+            width: 54px;
+            height: 32px;
+            margin-left: auto;
+            margin-right: -4px;
+            transform: rotate(-3deg);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -453,7 +454,7 @@ export default function AutoLapa() {
           }
 
           [data-listing-home-logo="true"]:active {
-            transform: translate(-50%, -50%) scale(0.94);
+            transform: rotate(-3deg) scale(0.94);
           }
 
           [data-listing-mobile-views="true"] {
