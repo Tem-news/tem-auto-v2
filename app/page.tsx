@@ -156,6 +156,45 @@ function formatNumberWithSpace(value: number | string): string {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
 
+function ListingCardGallery({ images, alt }: { images: string[]; alt: string }) {
+  const touchStartX = useRef<number | null>(null)
+  const didSwipe = useRef(false)
+
+  return (
+    <div
+      data-card-gallery="true"
+      onTouchStart={(event) => {
+        touchStartX.current = event.touches[0]?.clientX ?? null
+        didSwipe.current = false
+      }}
+      onTouchMove={(event) => {
+        const currentX = event.touches[0]?.clientX
+        if (touchStartX.current !== null && currentX !== undefined && Math.abs(currentX - touchStartX.current) > 8) {
+          didSwipe.current = true
+        }
+      }}
+      onClickCapture={(event) => {
+        if (didSwipe.current) {
+          event.preventDefault()
+          event.stopPropagation()
+          didSwipe.current = false
+        }
+      }}
+      style={{ width: '100%', height: '160px', backgroundColor: '#f3f4f6', overflow: 'hidden', display: 'flex' }}
+    >
+      {images.map((image, index) => (
+        <img
+          key={`${image}-${index}`}
+          src={image}
+          alt={index === 0 ? alt : ''}
+          draggable={false}
+          style={{ width: '100%', minWidth: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      ))}
+    </div>
+  )
+}
+
 export default function Sakumlapa() {
   const router = useRouter()
   const [cars, setCars] = useState<any[]>([])
@@ -932,7 +971,13 @@ export default function Sakumlapa() {
               /* GRID SKATS */
               <div data-listings-grid="true" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '16px' }}>
                 {paginatedCars.map((car, index) => {
-                  const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
+                  const fallbackImage = 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
+                  const galleryImages = Array.from(new Set([
+                    car.image,
+                    car.image_url,
+                    ...(Array.isArray(car.images) ? car.images : [])
+                  ].filter((image): image is string => Boolean(image))))
+                  if (galleryImages.length === 0) galleryImages.push(fallbackImage)
                   const previewCard = isPreviewListing(car)
                   return (
                     <Fragment key={car.id || index}>
@@ -951,13 +996,7 @@ export default function Sakumlapa() {
                         flexDirection: 'column'
                       }}
                     >
-                      <div style={{ width: '100%', height: '160px', backgroundColor: '#f3f4f6', overflow: 'hidden' }}>
-                        <img 
-                          src={imageUrl} 
-                          alt={car.make} 
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                        />
-                      </div>
+                      <ListingCardGallery images={galleryImages} alt={`${car.make} ${car.model || ''}`.trim()} />
                       <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
                           <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#1d4ed8', minWidth: 0 }}>
