@@ -3,7 +3,8 @@
 [data-mobile-catalogue-actions='true'],
 [data-mobile-sponsor='true'],
 [data-mobile-menu-toggle='true'],
-[data-mobile-menu='true'] {
+[data-mobile-menu='true'],
+[data-mobile-engine-summary='true'] {
   display: none;
 }
 
@@ -606,6 +607,20 @@
   [data-make-table-row='true'] > [data-cell='year'] {
     grid-column: 2;
     grid-row: 2;
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  [data-mobile-engine-summary='true'] {
+    display: inline !important;
+    margin-left: auto;
+    overflow: hidden;
+    color: #374151;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   [data-make-table-row='true'] > [data-cell='price'] {
