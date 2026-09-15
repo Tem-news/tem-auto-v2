@@ -1126,6 +1126,8 @@ export default function Sakumlapa() {
                     const previewCard = isPreviewListing(car)
                     
                     const engineType = car.engine || car.dzinejs || '-'
+                    const engineVolume = car.volume !== null && car.volume !== undefined && car.volume !== '' ? `${car.volume}L` : ''
+                    const mobileEngineSummary = [engineType === '-' ? '' : engineType, engineVolume].filter(Boolean).join(' ')
                     const bodyType = car.body_type || car.virsbuve || '-'
                     const carColor = car.color || car.krasa || '-'
                     const rawMileage = car.mileage || car.noobraukums || car.nobraukums
@@ -1196,7 +1198,8 @@ export default function Sakumlapa() {
 
                         {/* 3. Gads */}
                         <div data-cell="year" style={{ color: '#374151' }}>
-                          {car.year || '-'}
+                          <span>{car.year || '-'}</span>
+                          {mobileEngineSummary && <span data-mobile-engine-summary="true">{mobileEngineSummary}</span>}
                         </div>
 
                         {/* 4. Dzinējs */}
