@@ -516,6 +516,34 @@
     max-width: 100% !important;
   }
 
+  [data-listings-grid='true'] [data-card-gallery='true'] {
+    display: flex !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  [data-listings-grid='true'] [data-card-gallery='true']::-webkit-scrollbar {
+    display: none;
+  }
+
+  [data-listings-grid='true'] [data-card-gallery='true'] > img {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
   [data-make-table='true'] {
     width: calc(100% + 20px) !important;
     max-width: none !important;
