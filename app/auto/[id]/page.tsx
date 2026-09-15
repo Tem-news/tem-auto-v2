@@ -65,7 +65,7 @@ export default function AutoLapa() {
   const imageTouchStart = useRef<{ x: number; y: number } | null>(null)
   const imageSwipeHandled = useRef(false)
   const viewerGesture = useRef<{
-    mode: 'pinch' | 'pan'
+    mode: 'pinch' | 'pan' | 'swipe'
     distance: number
     zoom: number
     x: number
@@ -266,10 +266,10 @@ export default function AutoLapa() {
       return
     }
 
-    if (event.touches.length === 1 && imageZoom > 1) {
+    if (event.touches.length === 1) {
       const touch = event.touches[0]
       viewerGesture.current = {
-        mode: 'pan',
+        mode: imageZoom > 1 ? 'pan' : 'swipe',
         distance: 0,
         zoom: imageZoom,
         x: touch.clientX,
@@ -307,6 +307,20 @@ export default function AutoLapa() {
 
   const handleViewerTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
     if (event.touches.length === 0) {
+      const gesture = viewerGesture.current
+      const touch = event.changedTouches[0]
+
+      if (gesture?.mode === 'swipe' && imageZoom === 1 && touch) {
+        const distanceX = touch.clientX - gesture.x
+        const distanceY = touch.clientY - gesture.y
+        if (Math.abs(distanceX) >= 45 && Math.abs(distanceX) > Math.abs(distanceY)) {
+          if (distanceX < 0) handleNextImage()
+          else handlePrevImage()
+          setImagePan({ x: 0, y: 0 })
+          setZoomOrigin({ x: 50, y: 50 })
+        }
+      }
+
       viewerGesture.current = null
       return
     }
