@@ -19,6 +19,7 @@ export default function AutoLapa() {
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false)
   const [imageZoom, setImageZoom] = useState(1)
   const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 })
+  const [imagePan, setImagePan] = useState({ x: 0, y: 0 })
 
   const [showPhone, setShowPhone] = useState(false)
   const [showEmail, setShowEmail] = useState(false)
@@ -32,6 +33,15 @@ export default function AutoLapa() {
   const imageFrameRatioLocked = useRef(false)
   const imageTouchStart = useRef<{ x: number; y: number } | null>(null)
   const imageSwipeHandled = useRef(false)
+  const viewerGesture = useRef<{
+    mode: 'pinch' | 'pan'
+    distance: number
+    zoom: number
+    x: number
+    y: number
+    panX: number
+    panY: number
+  } | null>(null)
 
   useEffect(() => {
     imageFrameRatioLocked.current = false
@@ -104,6 +114,7 @@ export default function AutoLapa() {
       if (event.key === 'Escape') {
         setIsImageViewerOpen(false)
         setImageZoom(1)
+        setImagePan({ x: 0, y: 0 })
       }
     }
 
@@ -197,6 +208,90 @@ export default function AutoLapa() {
     window.setTimeout(() => {
       imageSwipeHandled.current = false
     }, 0)
+  }
+
+  const handleViewerTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (event.touches.length >= 2) {
+      const first = event.touches[0]
+      const second = event.touches[1]
+      const distance = Math.hypot(second.clientX - first.clientX, second.clientY - first.clientY)
+      const rect = event.currentTarget.getBoundingClientRect()
+      const midpointX = (first.clientX + second.clientX) / 2
+      const midpointY = (first.clientY + second.clientY) / 2
+
+      setZoomOrigin({
+        x: ((midpointX - rect.left) / rect.width) * 100,
+        y: ((midpointY - rect.top) / rect.height) * 100
+      })
+      viewerGesture.current = {
+        mode: 'pinch',
+        distance,
+        zoom: imageZoom,
+        x: midpointX,
+        y: midpointY,
+        panX: imagePan.x,
+        panY: imagePan.y
+      }
+      return
+    }
+
+    if (event.touches.length === 1 && imageZoom > 1) {
+      const touch = event.touches[0]
+      viewerGesture.current = {
+        mode: 'pan',
+        distance: 0,
+        zoom: imageZoom,
+        x: touch.clientX,
+        y: touch.clientY,
+        panX: imagePan.x,
+        panY: imagePan.y
+      }
+    }
+  }
+
+  const handleViewerTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    const gesture = viewerGesture.current
+    if (!gesture) return
+
+    event.preventDefault()
+
+    if (gesture.mode === 'pinch' && event.touches.length >= 2) {
+      const first = event.touches[0]
+      const second = event.touches[1]
+      const distance = Math.hypot(second.clientX - first.clientX, second.clientY - first.clientY)
+      const nextZoom = Math.min(4, Math.max(1, gesture.zoom * (distance / Math.max(1, gesture.distance))))
+      setImageZoom(nextZoom)
+      if (nextZoom === 1) setImagePan({ x: 0, y: 0 })
+      return
+    }
+
+    if (gesture.mode === 'pan' && event.touches.length === 1 && imageZoom > 1) {
+      const touch = event.touches[0]
+      setImagePan({
+        x: gesture.panX + touch.clientX - gesture.x,
+        y: gesture.panY + touch.clientY - gesture.y
+      })
+    }
+  }
+
+  const handleViewerTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (event.touches.length === 0) {
+      viewerGesture.current = null
+      return
+    }
+
+    if (event.touches.length === 1 && imageZoom > 1) {
+      const touch = event.touches[0]
+      viewerGesture.current = {
+        mode: 'pan',
+        distance: 0,
+        zoom: imageZoom,
+        x: touch.clientX,
+        y: touch.clientY,
+        panX: imagePan.x,
+        panY: imagePan.y
+      }
+    }
   }
 
   const formatPrice = (price: any) => {
@@ -621,6 +716,7 @@ export default function AutoLapa() {
                 onClick={() => {
                   if (imageSwipeHandled.current) return
                   setImageZoom(1)
+        setImagePan({ x: 0, y: 0 })
                   setZoomOrigin({ x: 50, y: 50 })
                   setIsImageViewerOpen(true)
                 }}
@@ -712,11 +808,16 @@ export default function AutoLapa() {
           onClick={() => {
             setIsImageViewerOpen(false)
             setImageZoom(1)
+        setImagePan({ x: 0, y: 0 })
           }}
           style={{ position: 'fixed', inset: 0, zIndex: 10000, backgroundColor: 'rgba(0, 0, 0, 0.94)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}
         >
           <div
             onClick={(event) => event.stopPropagation()}
+            onTouchStart={handleViewerTouchStart}
+            onTouchMove={handleViewerTouchMove}
+            onTouchEnd={handleViewerTouchEnd}
+            onTouchCancel={() => { viewerGesture.current = null }}
             onWheel={(event) => {
               event.preventDefault()
               const rect = event.currentTarget.getBoundingClientRect()
@@ -726,7 +827,7 @@ export default function AutoLapa() {
               })
               setImageZoom((current) => Math.min(4, Math.max(1, current + (event.deltaY < 0 ? 0.25 : -0.25))))
             }}
-            style={{ position: 'relative', width: '100vw', height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}
+            style={{ position: 'relative', width: '100vw', height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', touchAction: 'none' }}
           >
             <img
               src={activeImage}
@@ -740,7 +841,7 @@ export default function AutoLapa() {
                 })
                 setImageZoom((current) => current === 1 ? 2 : 1)
               }}
-              style={{ maxWidth: '92vw', maxHeight: '88dvh', objectFit: 'contain', transform: `scale(${imageZoom})`, transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`, transition: 'transform 120ms ease-out', cursor: imageZoom > 1 ? 'zoom-out' : 'zoom-in', userSelect: 'none' }}
+              style={{ maxWidth: '92vw', maxHeight: '88dvh', objectFit: 'contain', transform: `translate3d(${imagePan.x}px, ${imagePan.y}px, 0) scale(${imageZoom})`, transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`, transition: 'transform 120ms ease-out', cursor: imageZoom > 1 ? 'zoom-out' : 'zoom-in', userSelect: 'none' }}
             />
 
             <button
@@ -749,6 +850,7 @@ export default function AutoLapa() {
               onClick={() => {
                 setIsImageViewerOpen(false)
                 setImageZoom(1)
+        setImagePan({ x: 0, y: 0 })
               }}
               style={{ position: 'absolute', top: '18px', right: '22px', width: '44px', height: '44px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.45)', backgroundColor: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: '28px', lineHeight: 1, cursor: 'pointer' }}
             >
