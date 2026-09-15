@@ -792,6 +792,30 @@ export default function AutoLapa() {
                 {activeImageIndex + 1}/{imageCount}
               </div>
               
+              {car.price !== null && car.price !== undefined && car.price !== '' && (
+                <div
+                  data-listing-photo-price="true"
+                  aria-label={`Cena: ${formatPrice(car.price)}`}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    bottom: '10px',
+                    zIndex: 20,
+                    color: '#111827',
+                    fontSize: '20px',
+                    fontWeight: '800',
+                    lineHeight: 1,
+                    WebkitTextStroke: '1px rgba(255, 255, 255, 0.98)',
+                    paintOrder: 'stroke fill',
+                    textShadow: '-1px -1px 0 rgba(255,255,255,0.9), 1px -1px 0 rgba(255,255,255,0.9), -1px 1px 0 rgba(255,255,255,0.9), 1px 1px 0 rgba(255,255,255,0.9)',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {formatPrice(car.price)}
+                </div>
+              )}
+
             </div>
           )}
 
