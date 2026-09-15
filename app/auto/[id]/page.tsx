@@ -1149,9 +1149,7 @@ export default function AutoLapa() {
             </button>
 
             <div style={{ position: 'absolute', left: '50%', bottom: '20px', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', borderRadius: '24px', backgroundColor: 'rgba(0,0,0,0.68)', color: '#fff' }}>
-              <button type="button" aria-label="Samazināt" onClick={() => setImageZoom((current) => Math.max(1, current - 0.25))} style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.45)', background: 'transparent', color: '#fff', fontSize: '22px', cursor: 'pointer' }}>−</button>
               <span style={{ minWidth: '52px', textAlign: 'center', fontSize: '14px' }}>{Math.round(imageZoom * 100)}%</span>
-              <button type="button" aria-label="Palielināt" onClick={() => setImageZoom((current) => Math.min(4, current + 0.25))} style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.45)', background: 'transparent', color: '#fff', fontSize: '22px', cursor: 'pointer' }}>+</button>
             </div>
           </div>
         </div>
