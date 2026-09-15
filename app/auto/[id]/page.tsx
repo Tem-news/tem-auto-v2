@@ -566,6 +566,17 @@ export default function AutoLapa() {
           [data-listing-detail-sponsors="true"] {
             order: 4;
             width: 100% !important;
+            height: auto !important;
+            gap: 0 !important;
+          }
+
+          [data-listing-detail-sponsors="true"] > aside:first-child {
+            min-height: 300px !important;
+            flex: none !important;
+          }
+
+          [data-listing-detail-sponsors="true"] > aside:nth-child(2) {
+            display: none !important;
           }
         }
       `}</style>
