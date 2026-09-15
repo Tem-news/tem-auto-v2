@@ -1,8 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '../../../../lib/supabase'
+
+const formatPriceInput = (value: string) => {
+  const digits = value.replace(/\D/g, '')
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+}
 
 export default function RedigetAuto() {
   const params = useParams()
@@ -13,22 +18,73 @@ export default function RedigetAuto() {
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const [ownerUserId, setOwnerUserId] = useState<string | null>(null)
+  const hasUnsavedChangesRef = useRef(false)
+  const allowNavigationRef = useRef(false)
+  const skipNextPopRef = useRef(false)
+
+  const markUnsaved = () => {
+    hasUnsavedChangesRef.current = true
+  }
+
 
   // Visi lauki
   const [make, setMake] = useState('')
   const [model, setModel] = useState('')
-  const [year, setYear] = useState('')
   const [price, setPrice] = useState('')
-  const [mileage, setMileage] = useState('')
-  const [engine, setEngine] = useState('')
-  const [fuel, setFuel] = useState('Dīzelis')
-  const [gearbox, setGearbox] = useState('Automāts')
   const [description, setDescription] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
 
   // Bilžu state
   const [images, setImages] = useState<{ url: string; isNew: boolean; file?: File }[]>([])
+
+  useEffect(() => {
+    const confirmExit = () => window.confirm('Ir nesaglabātas izmaiņas. Vai tiešām iziet, tās nesaglabājot?')
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!hasUnsavedChangesRef.current || allowNavigationRef.current) return
+      event.preventDefault()
+      event.returnValue = ''
+    }
+
+    const handleLinkClick = (event: MouseEvent) => {
+      if (!hasUnsavedChangesRef.current || allowNavigationRef.current) return
+      const target = event.target as Element | null
+      const anchor = target?.closest('a')
+      if (!anchor || anchor.target === '_blank' || !anchor.href) return
+      if (!confirmExit()) {
+        event.preventDefault()
+        event.stopPropagation()
+        return
+      }
+      allowNavigationRef.current = true
+    }
+
+    const handlePopState = () => {
+      if (skipNextPopRef.current) {
+        skipNextPopRef.current = false
+        return
+      }
+      if (!hasUnsavedChangesRef.current || allowNavigationRef.current) return
+      if (!confirmExit()) {
+        skipNextPopRef.current = true
+        window.history.forward()
+      } else {
+        allowNavigationRef.current = true
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    window.addEventListener('popstate', handlePopState)
+    document.addEventListener('click', handleLinkClick, true)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      window.removeEventListener('popstate', handlePopState)
+      document.removeEventListener('click', handleLinkClick, true)
+    }
+  }, [])
 
   useEffect(() => {
     if (!id) return
@@ -52,27 +108,23 @@ export default function RedigetAuto() {
       }
 
       // 3. Pārbaudām, vai ielogotais lietotājs ir šī sludinājuma īpašnieks
-      if (data.user_id && data.user_id !== session.user.id) {
+      if (!data.user_id || data.user_id !== session.user.id) {
         setErrorMsg('Tev nav tiesību rediģēt šo sludinājumu!')
         setLoading(false)
         return
       }
 
       // Ja viss kārtībā, aizpildām datus
+      setOwnerUserId(session.user.id)
       setMake(data.make || '')
       setModel(data.model || '')
-      setYear(data.year ? String(data.year) : '')
-      setPrice(data.price ? String(data.price) : '')
-      setMileage(data.mileage ? String(data.mileage) : '')
-      setEngine(data.engine || '')
-      setFuel(data.fuel || 'Dīzelis')
-      setGearbox(data.gearbox || 'Automāts')
+      setPrice(data.price ? formatPriceInput(String(data.price)) : '')
       setDescription(data.description || '')
       setPhone(data.phone || '')
       setEmail(data.email || '')
       
       const existing = Array.isArray(data.images) ? data.images : (data.images ? [data.images] : [])
-      setImages(existing.map(url => ({ url, isNew: false })))
+      setImages(existing.map((url: string) => ({ url, isNew: false })))
       
       setLoading(false)
     }
@@ -88,16 +140,23 @@ export default function RedigetAuto() {
     const [moved] = updated.splice(index, 1)
     updated.splice(newIndex, 0, moved)
     setImages(updated)
+    markUnsaved()
   }
 
   // Dzēst bildi
   const removeImage = (index: number) => {
     setImages(images.filter((_, i) => i !== index))
+    markUnsaved()
   }
 
   // Saglabāt izmaiņas
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!ownerUserId) {
+      alert('Tev nav tiesību rediģēt šo sludinājumu!')
+      return
+    }
+    if (!window.confirm('Vai saglabāt izmaiņas?')) return
     setSaving(true)
     
     let finalUrls = []
@@ -112,35 +171,44 @@ export default function RedigetAuto() {
       }
     }
 
-    await supabase.from('cars').update({
-      year: year ? Number(year) : null,
-      price: price ? Number(price) : null,
-      mileage: mileage ? Number(mileage) : null,
-      engine,
-      fuel,
-      gearbox,
+    const { error } = await supabase.from('cars').update({
+      price: price ? Number(price.replace(/\s/g, '')) : null,
       description,
       phone,
       email,
       images: finalUrls,
       image: finalUrls[0] || null
-    }).eq('id', id)
+    }).eq('id', id).eq('user_id', ownerUserId)
 
+    setSaving(false)
+    if (error) {
+      alert('Kļūda saglabājot sludinājumu: ' + error.message)
+      return
+    }
+
+    hasUnsavedChangesRef.current = false
+    allowNavigationRef.current = true
     router.push(`/auto/${id}`)
   }
 
   // Dzēst visu sludinājumu no rediģēšanas lapas
   const handleDeleteCar = async () => {
+    if (!ownerUserId) {
+      alert('Tev nav tiesību dzēst šo sludinājumu!')
+      return
+    }
     const confirmDelete = window.confirm('Vai tiešām vēlaties neatgriezeniski dzēst šo sludinājumu?')
     if (!confirmDelete) return
 
     setDeleting(true)
-    const { error } = await supabase.from('cars').delete().eq('id', id)
+    const { error } = await supabase.from('cars').delete().eq('id', id).eq('user_id', ownerUserId)
     setDeleting(false)
 
     if (error) {
       alert('Kļūda dzēšot sludinājumu: ' + error.message)
     } else {
+      hasUnsavedChangesRef.current = false
+      allowNavigationRef.current = true
       alert('Sludinājums veiksmīgi izdzēsts!')
       router.push('/')
       router.refresh()
@@ -171,62 +239,24 @@ export default function RedigetAuto() {
           <h1 style={{ marginBottom: '20px', color: '#111', fontSize: '24px' }}>Rediģēt sludinājumu: {make} {model}</h1>
           
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <div style={{ padding: '12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-              <strong>Marka un modelis:</strong> {make} {model} <span style={{ color: '#64748b', fontSize: '14px' }}>(Nav maināmi)</span>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Gads</label>
-              <input type="number" placeholder="Piem. 2018" value={year} onChange={(e) => setYear(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
-            </div>
-
             <div>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Cena (€)</label>
-              <input type="number" placeholder="Piem. 12500" value={price} onChange={(e) => setPrice(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Nobraukums (km)</label>
-              <input type="number" placeholder="Piem. 180000" value={mileage} onChange={(e) => setMileage(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Dzinējs</label>
-              <input type="text" placeholder="Piem. 2.0" value={engine} onChange={(e) => setEngine(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Degvielas tips</label>
-              <select value={fuel} onChange={(e) => setFuel(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', boxSizing: 'border-box' }}>
-                <option>Dīzelis</option>
-                <option>Benzīns</option>
-                <option>Hibrīds</option>
-                <option>Elektriskais</option>
-                <option>Gāze / Benzīns</option>
-              </select>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Ātrumkārba</label>
-              <select value={gearbox} onChange={(e) => setGearbox(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', boxSizing: 'border-box' }}>
-                <option>Automāts</option>
-                <option>Mehāniska</option>
-              </select>
+              <input type="text" inputMode="numeric" placeholder="Piem. 12 500" value={price} onChange={(e) => { setPrice(formatPriceInput(e.target.value)); markUnsaved() }} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
             </div>
 
             <div>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Apraksts</label>
-              <textarea placeholder="Papildus informācija par auto..." value={description} onChange={(e) => setDescription(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', height: '120px', resize: 'vertical', boxSizing: 'border-box' }} />
+              <textarea placeholder="Papildus informācija par auto..." value={description} onChange={(e) => { setDescription(e.target.value); markUnsaved() }} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', height: '240px', resize: 'vertical', boxSizing: 'border-box' }} />
             </div>
 
             <div>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Telefona numurs</label>
-              <input type="text" placeholder="Piem. +371 29000000" value={phone} onChange={(e) => setPhone(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+              <input type="text" placeholder="Piem. +371 29000000" value={phone} onChange={(e) => { setPhone(e.target.value); markUnsaved() }} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
             </div>
 
             <div>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>E-pasts</label>
-              <input type="email" placeholder="Piem. epasts@inbox.lv" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+              <input type="email" placeholder="Piem. epasts@inbox.lv" value={email} onChange={(e) => { setEmail(e.target.value); markUnsaved() }} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
             </div>
 
             {/* BILŽU SADAĻA */}
@@ -297,6 +327,7 @@ export default function RedigetAuto() {
                   if (e.target.files) {
                     const addedFiles = Array.from(e.target.files).map(file => ({ url: '', isNew: true, file }))
                     setImages([...images, ...addedFiles])
+                    markUnsaved()
                   }
                 }} 
                 style={{ padding: '8px 0' }} 
@@ -317,11 +348,15 @@ export default function RedigetAuto() {
           </form>
         </div>
 
-        {/* Labā puse: Reklāmas baneris */}
-        <div style={{ width: '260px', flexShrink: 0, position: 'sticky', top: '20px' }}>
-          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
-            <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Ekskluzīvs baneris šeit!<br/><span style={{ fontSize: '12px' }}>(Maksimāla uzmanība)</span></p>
+        {/* Labā puse: divi nekustīgi, vienāda izmēra reklāmas baneri */}
+        <div style={{ width: '260px', flexShrink: 0 }}>
+          <div style={{ position: 'fixed', top: '100px', width: '260px', height: 'calc(100dvh - 120px)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {[1, 2].map((placement) => (
+              <div key={placement} style={{ flex: '1 1 0', minHeight: 0, boxSizing: 'border-box', backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
+                <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Ekskluzīvs baneris šeit!<br/><span style={{ fontSize: '12px' }}>(Maksimāla uzmanība)</span></p>
+              </div>
+            ))}
           </div>
         </div>
 

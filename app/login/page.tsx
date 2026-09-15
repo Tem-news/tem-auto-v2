@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../lib/supabase'
@@ -13,6 +13,11 @@ export default function LoginPage() {
   const [isRegistering, setIsRegistering] = useState(false)
   const [message, setMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const mode = new URLSearchParams(window.location.search).get('mode')
+    if (mode === 'register') setIsRegistering(true)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
