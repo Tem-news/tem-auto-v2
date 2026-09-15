@@ -200,20 +200,66 @@ export default function Sakumlapa() {
   }
   
   useEffect(() => {
+    let scrollGuardAdded = window.history.state?.temAutoScrollGuard === true
+
     const syncMakeFromAddress = () => {
       const addressParams = new URLSearchParams(window.location.search)
       const makeFromAddress = addressParams.get('make') || ''
       const pageFromAddress = Number(addressParams.get('page') || '1')
-      const mobileOverlay = window.history.state?.temAutoCatalogueOverlay
+      const historyState = window.history.state || {}
+      const mobileOverlay = historyState.temAutoCatalogueOverlay
+
       setSearchMake(makeFromAddress)
       setCurrentPage(Number.isInteger(pageFromAddress) && pageFromAddress > 0 ? pageFromAddress : 1)
+
+      if (
+        scrollGuardAdded &&
+        historyState.temAutoScrollGuard !== true &&
+        window.location.pathname === '/' &&
+        makeFromAddress === ''
+      ) {
+        scrollGuardAdded = false
+        setMobileMakesOpen(false)
+        setMobileFiltersOpen(false)
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }))
+        })
+        return
+      }
+
       setMobileMakesOpen(mobileOverlay === 'makes')
       setMobileFiltersOpen(mobileOverlay === 'filters')
     }
 
+    const addScrollGuard = () => {
+      const addressParams = new URLSearchParams(window.location.search)
+      const historyState = window.history.state || {}
+
+      if (
+        !scrollGuardAdded &&
+        window.location.pathname === '/' &&
+        !addressParams.get('make') &&
+        window.scrollY > 80 &&
+        !historyState.temAutoCatalogueOverlay
+      ) {
+        const { temAutoCatalogueOverlay: _overlay, temAutoScrollGuard: _guard, ...cleanState } = historyState
+        window.history.replaceState(cleanState, '', window.location.href)
+        window.history.pushState(
+          { ...cleanState, temAutoScrollGuard: true },
+          '',
+          window.location.href
+        )
+        scrollGuardAdded = true
+      }
+    }
+
     syncMakeFromAddress()
     window.addEventListener('popstate', syncMakeFromAddress)
-    return () => window.removeEventListener('popstate', syncMakeFromAddress)
+    window.addEventListener('scroll', addScrollGuard, { passive: true })
+    return () => {
+      window.removeEventListener('popstate', syncMakeFromAddress)
+      window.removeEventListener('scroll', addScrollGuard)
+    }
   }, [])
 
   const [valsts, setValsts] = useState('')
