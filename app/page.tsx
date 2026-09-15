@@ -242,7 +242,9 @@ export default function Sakumlapa() {
         window.scrollY > 80 &&
         !historyState.temAutoCatalogueOverlay
       ) {
-        const { temAutoCatalogueOverlay: _overlay, temAutoScrollGuard: _guard, ...cleanState } = historyState
+        const cleanState = { ...historyState }
+        delete cleanState.temAutoCatalogueOverlay
+        delete cleanState.temAutoScrollGuard
         window.history.replaceState(cleanState, '', window.location.href)
         window.history.pushState(
           { ...cleanState, temAutoScrollGuard: true },
