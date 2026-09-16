@@ -562,6 +562,15 @@
     order: 1;
   }
 
+  [data-card-price='true'],
+  [data-make-table-row='true'] > [data-cell='price'],
+  [data-listing-photo-price='true'],
+  [data-listing-price-card='true'] > span {
+    text-decoration: underline !important;
+    text-decoration-thickness: 1px !important;
+    text-underline-offset: 3px !important;
+  }
+
   [data-card-year='true'] {
     order: 2;
   }
