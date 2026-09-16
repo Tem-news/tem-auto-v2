@@ -798,6 +798,18 @@
     border-color: #475569 !important;
   }
 
+  html[data-temauto-theme='night'] [data-filter-row='true'],
+  html[data-temauto-theme='night'] [data-filter-row='true'] label,
+  html[data-temauto-theme='night'] [data-filter-row='true'] span,
+  html[data-temauto-theme='night'] [data-filter-row='true'] strong {
+    color: #f1f5f9 !important;
+  }
+
+  html[data-temauto-theme='night'] [data-filter-row='true'] input::placeholder {
+    color: #cbd5e1 !important;
+    opacity: 1;
+  }
+
   html[data-temauto-theme='night'] [data-listings-grid='true'] > a,
   html[data-temauto-theme='night'] [data-listings-grid='true'] > a > div:nth-child(2),
   html[data-temauto-theme='night'] [data-make-table-row='true'] {
