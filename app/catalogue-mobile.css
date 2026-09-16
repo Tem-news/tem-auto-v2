@@ -70,6 +70,17 @@
     font-size: 0 !important;
   }
 
+  body:has([data-catalogue-page='true']) [data-header-home-link='true']::after {
+    content: '';
+    position: fixed;
+    top: 30px;
+    left: 31px;
+    z-index: 3;
+    width: 44px;
+    height: 24px;
+    cursor: pointer;
+  }
+
   body:has([data-catalogue-page='true']) [data-header-visitor-wrap='true'] {
     position: relative !important;
     grid-column: 1;
