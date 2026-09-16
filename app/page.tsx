@@ -281,6 +281,14 @@ export default function Sakumlapa() {
   const toggleFavoritesView = () => {
     setShowFavorites(current => !current)
     setCurrentPage(1)
+
+    if (mobileFiltersOpen) {
+      if (window.history.state?.temAutoCatalogueOverlay === 'filters') {
+        window.history.back()
+      } else {
+        setMobileFiltersOpen(false)
+      }
+    }
   }
   
   useEffect(() => {
