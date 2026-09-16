@@ -7,6 +7,8 @@ import './catalogue-mobile.css'
 	
 const LISTINGS_PER_PAGE = 48
 const FAVORITES_STORAGE_KEY = 'temauto-favorite-car-ids'
+const RECENTLY_VIEWED_STORAGE_KEY = 'temauto-recently-viewed-listings'
+const RECENTLY_VIEWED_TTL_MS = 24 * 60 * 60 * 1000
 
 const OFFICIAL_MAKES: { [key: string]: string } = {
   'bmw': 'BMW',
@@ -248,6 +250,7 @@ export default function Sakumlapa() {
   const [searchModel, setSearchModel] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [favoriteIds, setFavoriteIds] = useState<string[]>([])
+  const [recentlyViewedIds, setRecentlyViewedIds] = useState<string[]>([])
   const [showFavorites, setShowFavorites] = useState(false)
   const [mobileMakesOpen, setMobileMakesOpen] = useState(false)
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
@@ -272,6 +275,45 @@ export default function Sakumlapa() {
       setFavoriteIds([])
     }
   }, [])
+
+  useEffect(() => {
+    try {
+      const now = Date.now()
+      const savedViews = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_STORAGE_KEY) || '{}') as Record<string, number>
+      const activeViews = Object.fromEntries(
+        Object.entries(savedViews).filter(([, viewedAt]) =>
+          typeof viewedAt === 'number' && now - viewedAt < RECENTLY_VIEWED_TTL_MS
+        )
+      )
+
+      setRecentlyViewedIds(Object.keys(activeViews))
+      localStorage.setItem(RECENTLY_VIEWED_STORAGE_KEY, JSON.stringify(activeViews))
+    } catch {
+      setRecentlyViewedIds([])
+    }
+  }, [])
+
+  const markListingViewed = (carId: number | string) => {
+    const normalizedId = String(carId)
+    const now = Date.now()
+
+    setRecentlyViewedIds(currentIds =>
+      currentIds.includes(normalizedId) ? currentIds : [...currentIds, normalizedId]
+    )
+
+    try {
+      const savedViews = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_STORAGE_KEY) || '{}') as Record<string, number>
+      const activeViews = Object.fromEntries(
+        Object.entries(savedViews).filter(([, viewedAt]) =>
+          typeof viewedAt === 'number' && now - viewedAt < RECENTLY_VIEWED_TTL_MS
+        )
+      )
+      activeViews[normalizedId] = now
+      localStorage.setItem(RECENTLY_VIEWED_STORAGE_KEY, JSON.stringify(activeViews))
+    } catch {
+      localStorage.setItem(RECENTLY_VIEWED_STORAGE_KEY, JSON.stringify({ [normalizedId]: now }))
+    }
+  }
 
   const toggleFavorite = (carId: number | string) => {
     const normalizedId = String(carId)
@@ -1050,7 +1092,9 @@ export default function Sakumlapa() {
                     <a 
                       key={car.id || index} 
                       href={`/auto/${car.id}`}
-                      data-preview-listing={previewCard ? 'true' : undefined} 
+                      data-recently-viewed={recentlyViewedIds.includes(String(car.id)) ? 'true' : undefined}
+                      data-preview-listing={previewCard ? 'true' : undefined}
+                      onClick={() => markListingViewed(car.id)}
                       style={{ 
                         backgroundColor: '#ffffff', 
                         border: '1px solid #e5e7eb', 
@@ -1167,7 +1211,9 @@ export default function Sakumlapa() {
                       <a 
                         key={car.id || index} 
                         href={`/auto/${car.id}`}
-                        data-preview-listing={previewCard ? 'true' : undefined} 
+                        data-recently-viewed={recentlyViewedIds.includes(String(car.id)) ? 'true' : undefined}
+                        data-preview-listing={previewCard ? 'true' : undefined}
+                        onClick={() => markListingViewed(car.id)}
                         data-make-table-row="true"
                         style={{ 
                           display: 'grid', 
