@@ -566,23 +566,12 @@
   }
 
   [data-recently-viewed='true'] [data-card-gallery='true'] {
-    position: relative;
+    border-bottom: 4px solid #d97777 !important;
+    box-sizing: border-box !important;
   }
 
-  [data-recently-viewed='true'] [data-card-gallery='true']::after {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 3;
-    height: 3px;
-    background: #d97777;
-    content: '';
-    pointer-events: none;
-  }
-
-  html[data-temauto-theme='night'] [data-recently-viewed='true'] [data-card-gallery='true']::after {
-    background: #fb7185;
+  html[data-temauto-theme='night'] [data-recently-viewed='true'] [data-card-gallery='true'] {
+    border-bottom-color: #fb7185 !important;
   }
 
   [data-card-meta='true'] {
