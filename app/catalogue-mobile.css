@@ -815,6 +815,10 @@
     color: #22c55e !important;
   }
 
+  html[data-temauto-theme='night'] [data-make-table-row='true'] [data-mobile-engine-summary='true'] {
+    color: #f1f5f9 !important;
+  }
+
   html[data-temauto-theme='night'] [data-mobile-sponsor='true'] {
     color: #94a3b8 !important;
     background: #0f172a !important;
