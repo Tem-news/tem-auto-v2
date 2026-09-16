@@ -156,7 +156,7 @@ function formatNumberWithSpace(value: number | string): string {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
 
-function ListingCardGallery({ images, alt }: { images: string[]; alt: string }) {
+function ListingCardGallery({ images, alt, compact = false }: { images: string[]; alt: string; compact?: boolean }) {
   const galleryRef = useRef<HTMLDivElement>(null)
   const touchStartX = useRef<number | null>(null)
   const didSwipe = useRef(false)
@@ -206,6 +206,7 @@ function ListingCardGallery({ images, alt }: { images: string[]; alt: string }) 
     <div
       ref={galleryRef}
       data-card-gallery="true"
+      data-make-row-gallery={compact ? 'true' : undefined}
       onScroll={handleScroll}
       onTouchStart={(event) => {
         touchStartX.current = event.touches[0]?.clientX ?? null
@@ -224,7 +225,7 @@ function ListingCardGallery({ images, alt }: { images: string[]; alt: string }) 
           didSwipe.current = false
         }
       }}
-      style={{ width: '100%', height: '160px', backgroundColor: '#f3f4f6', overflow: 'hidden', display: 'flex' }}
+      style={{ width: compact ? '95px' : '100%', height: compact ? '60px' : '160px', backgroundColor: '#f3f4f6', overflow: 'hidden', display: 'flex', borderRadius: compact ? '4px' : undefined, border: compact ? '1px solid #d1d5db' : undefined, boxSizing: 'border-box' }}
     >
       {loopImages.map((image, index) => (
         <img
@@ -1127,6 +1128,12 @@ export default function Sakumlapa() {
                 <div data-make-table-body="true" style={{ maxHeight: 'calc(100vh - 250px)', overflowY: 'auto' }}>
                   {paginatedCars.map((car, index) => {
                     const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=300&q=80'
+                    const rowGalleryImages = Array.from(new Set([
+                      car.image,
+                      car.image_url,
+                      ...(Array.isArray(car.images) ? car.images : [])
+                    ].filter((image): image is string => Boolean(image))))
+                    if (rowGalleryImages.length === 0) rowGalleryImages.push(imageUrl)
                     const previewCard = isPreviewListing(car)
                     
                     const engineType = car.engine || car.dzinejs || '-'
@@ -1159,11 +1166,7 @@ export default function Sakumlapa() {
                       >
                         {/* 1. Foto */}
                         <div data-cell="photo">
-                          <img 
-                            src={imageUrl} 
-                            alt={car.make} 
-                            style={{ width: '95px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #d1d5db' }} 
-                          />
+                          <ListingCardGallery images={rowGalleryImages} alt={`${car.make} ${car.model || ''}`.trim()} compact />
                         </div>
 
                         {/* 2. Automobilis */}
