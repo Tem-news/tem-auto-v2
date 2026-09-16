@@ -831,6 +831,10 @@
     color: #f1f5f9 !important;
   }
 
+  html[data-temauto-theme='night'] [data-makes-list='true'] button > span:last-child {
+    color: #cbd5e1 !important;
+  }
+
   html[data-temauto-theme='night'] [data-mobile-sponsor='true'] {
     color: #94a3b8 !important;
     background: #0f172a !important;
