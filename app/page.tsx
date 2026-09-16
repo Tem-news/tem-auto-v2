@@ -251,6 +251,16 @@ export default function Sakumlapa() {
   const [showFavorites, setShowFavorites] = useState(false)
   const [mobileMakesOpen, setMobileMakesOpen] = useState(false)
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+  const [isMobileCatalogue, setIsMobileCatalogue] = useState(false)
+
+  useEffect(() => {
+    const mobileQuery = window.matchMedia('(max-width: 767px)')
+    const syncMobileCatalogue = () => setIsMobileCatalogue(mobileQuery.matches)
+
+    syncMobileCatalogue()
+    mobileQuery.addEventListener('change', syncMobileCatalogue)
+    return () => mobileQuery.removeEventListener('change', syncMobileCatalogue)
+  }, [])
 
   useEffect(() => {
     try {
@@ -1020,7 +1030,7 @@ export default function Sakumlapa() {
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
             ) : filteredCars.length === 0 ? (
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>Nav atrasts neviens sludinājums ar šādiem kritērijiem.</div>
-            ) : searchMake === '' ? (
+            ) : searchMake === '' && !(showFavorites && isMobileCatalogue) ? (
               /* GRID SKATS */
               <div data-listings-grid="true" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '16px' }}>
                 {paginatedCars.map((car, index) => {
