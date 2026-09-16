@@ -652,6 +652,16 @@ export default function AutoLapa() {
             background: #111827 !important;
             border-color: #475569 !important;
           }
+
+          html[data-temauto-theme="night"] [data-listing-detail-description="true"] {
+            color: #e5e7eb !important;
+            background: #111827 !important;
+            border-color: #334155 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-listing-detail-description="true"] p {
+            color: #e5e7eb !important;
+          }
         }
       `}</style>
       <div data-listing-mobile-titlebar="true">
