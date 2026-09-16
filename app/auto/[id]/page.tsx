@@ -624,6 +624,34 @@ export default function AutoLapa() {
           [data-listing-detail-sponsors="true"] > aside:nth-child(2) {
             display: none !important;
           }
+
+          html[data-temauto-theme="night"] [data-listing-specifications="true"] {
+            color: #e5e7eb !important;
+            background: #111827 !important;
+            border-color: #334155 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-listing-specifications="true"] > div {
+            border-bottom-color: #334155 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-listing-specifications="true"] span {
+            color: #e5e7eb !important;
+          }
+
+          html[data-temauto-theme="night"] [data-listing-specifications="true"] > [data-listing-compact-location="true"] {
+            background: #052e16 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-listing-specifications="true"] > [data-listing-compact-location="true"] span {
+            color: #bbf7d0 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-listing-detail-sponsors="true"] > aside {
+            color: #94a3b8 !important;
+            background: #111827 !important;
+            border-color: #475569 !important;
+          }
         }
       `}</style>
       <div data-listing-mobile-titlebar="true">
