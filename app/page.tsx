@@ -1022,6 +1022,9 @@ export default function Sakumlapa() {
                     ...(Array.isArray(car.images) ? car.images : [])
                   ].filter((image): image is string => Boolean(image))))
                   if (galleryImages.length === 0) galleryImages.push(fallbackImage)
+                  const cardEngineType = car.engine || car.dzinejs || ''
+                  const cardEngineVolume = car.volume !== null && car.volume !== undefined && car.volume !== '' ? `${car.volume}L` : ''
+                  const cardEngineSummary = [cardEngineType, cardEngineVolume].filter(Boolean).join(' ')
                   const previewCard = isPreviewListing(car)
                   return (
                     <Fragment key={car.id || index}>
@@ -1074,9 +1077,10 @@ export default function Sakumlapa() {
                             Mans favorīts
                           </span>
                         </div>
-                        <div style={{ fontSize: '13px', color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <span>{car.year ? `${car.year} g.` : ''}</span>
-                          <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.price ? `${formatNumberWithSpace(car.price)} €` : ''}</span>
+                        <div data-card-meta="true" style={{ fontSize: '13px', color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <span data-card-year="true">{car.year ? `${car.year} g.` : ''}</span>
+                          <span data-card-price="true" style={{ color: '#111827', fontWeight: 'bold' }}>{car.price ? `${formatNumberWithSpace(car.price)} €` : ''}</span>
+                          {cardEngineSummary && <span data-card-engine-summary="true">{cardEngineSummary}</span>}
                         </div>
                       </div>
                     </a>
