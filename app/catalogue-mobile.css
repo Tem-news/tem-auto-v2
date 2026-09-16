@@ -325,7 +325,16 @@
   }
 
   [data-mobile-catalogue-actions='true'] button:first-child {
+    color: #14532d;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
     white-space: nowrap;
+  }
+
+  [data-mobile-catalogue-actions='true'] button:nth-child(2) {
+    color: #1e3a5f;
+    background: #eff6ff;
+    border-color: #bfdbfe;
   }
 
   [data-mobile-catalogue-actions='true'] button[aria-expanded='true'] {
