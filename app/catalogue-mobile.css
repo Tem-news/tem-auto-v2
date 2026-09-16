@@ -811,6 +811,10 @@
     color: #e5e7eb !important;
   }
 
+  html[data-temauto-theme='night'] [data-listings-grid='true'] [role='button'][aria-pressed='true'] {
+    color: #22c55e !important;
+  }
+
   html[data-temauto-theme='night'] [data-mobile-sponsor='true'] {
     color: #94a3b8 !important;
     background: #0f172a !important;
