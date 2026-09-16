@@ -1094,7 +1094,10 @@ export default function Sakumlapa() {
                       href={`/auto/${car.id}`}
                       data-recently-viewed={recentlyViewedIds.includes(String(car.id)) ? 'true' : undefined}
                       data-preview-listing={previewCard ? 'true' : undefined}
-                      onClick={() => markListingViewed(car.id)}
+                      onClick={(event) => {
+                        event.currentTarget.dataset.recentlyViewed = 'true'
+                        markListingViewed(car.id)
+                      }}
                       style={{ 
                         backgroundColor: '#ffffff', 
                         border: '1px solid #e5e7eb', 
@@ -1213,7 +1216,10 @@ export default function Sakumlapa() {
                         href={`/auto/${car.id}`}
                         data-recently-viewed={recentlyViewedIds.includes(String(car.id)) ? 'true' : undefined}
                         data-preview-listing={previewCard ? 'true' : undefined}
-                        onClick={() => markListingViewed(car.id)}
+                        onClick={(event) => {
+                        event.currentTarget.dataset.recentlyViewed = 'true'
+                        markListingViewed(car.id)
+                      }}
                         data-make-table-row="true"
                         style={{ 
                           display: 'grid', 
