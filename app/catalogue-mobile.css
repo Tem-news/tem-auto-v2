@@ -772,9 +772,9 @@
   }
 
   html[data-temauto-theme='night'] [data-mobile-catalogue-actions='true'] button {
-    color: #e2e8f0 !important;
-    background: #1e293b !important;
-    border-color: #475569 !important;
+    color: #f1f5f9 !important;
+    background: #374151 !important;
+    border-color: #6b7280 !important;
   }
 
   html[data-temauto-theme='night'] [data-mobile-catalogue-actions='true'] button[aria-expanded='true'] {
