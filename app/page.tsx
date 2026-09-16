@@ -1201,7 +1201,7 @@ export default function Sakumlapa() {
                     if (rowGalleryImages.length === 0) rowGalleryImages.push(imageUrl)
                     const previewCard = isPreviewListing(car)
                     
-                    const engineType = car.engine || car.dzinejs || '-'
+                    const engineType = car.engine || car.engine_type || car.fuel_type || car.fuel || car.dzinejs || car.degviela || '-'
                     const engineVolume = car.volume !== null && car.volume !== undefined && car.volume !== '' ? `${car.volume}L` : ''
                     const mobileEngineSummary = [engineType === '-' ? '' : engineType, engineVolume].filter(Boolean).join(' ')
                     const bodyType = car.body_type || car.virsbuve || '-'
