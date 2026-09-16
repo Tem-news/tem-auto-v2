@@ -4,7 +4,8 @@
 [data-mobile-sponsor='true'],
 [data-mobile-menu-toggle='true'],
 [data-mobile-menu='true'],
-[data-mobile-engine-summary='true'] {
+[data-mobile-engine-summary='true'],
+[data-card-engine-summary='true'] {
   display: none;
 }
 
@@ -502,6 +503,28 @@
   [data-listings-grid='true'] [role='button'][aria-pressed] {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-card-meta='true'] {
+    width: 100%;
+    min-width: 0;
+  }
+
+  [data-card-price='true'] {
+    order: 1;
+  }
+
+  [data-card-year='true'] {
+    order: 2;
+  }
+
+  [data-card-engine-summary='true'] {
+    order: 3;
+    display: inline !important;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   [data-listings-grid='true'] > a > div:first-child {
