@@ -124,6 +124,7 @@ export default function Header() {
   const [langOpen, setLangOpen] = useState(false)
   const [regionOpen, setRegionOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileMenuClosing, setMobileMenuClosing] = useState(false)
   const [visitorStatsOpen, setVisitorStatsOpen] = useState(false)
   const [hoveredRegion, setHoveredRegion] = useState<string | null>('Latvija (EUR)')
   
@@ -132,6 +133,7 @@ export default function Header() {
 
   const langRef = useRef<HTMLDivElement>(null)
   const regionRef = useRef<HTMLDivElement>(null)
+  const mobileMenuTouchStart = useRef<{ x: number; y: number } | null>(null)
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('temauto-mobile-theme')
@@ -230,10 +232,35 @@ export default function Header() {
       '',
       window.location.href
     )
+    setMobileMenuClosing(false)
     setMobileMenuOpen(true)
     setVisitorStatsOpen(false)
     setLangOpen(false)
     setRegionOpen(false)
+  }
+
+  const handleMobileMenuTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    const touch = event.touches[0]
+    mobileMenuTouchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null
+  }
+
+  const handleMobileMenuTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const start = mobileMenuTouchStart.current
+    const touch = event.changedTouches[0]
+    mobileMenuTouchStart.current = null
+    if (!start || !touch) return
+
+    const deltaX = touch.clientX - start.x
+    const deltaY = touch.clientY - start.y
+    const isUpwardDismiss = deltaY < -55 && Math.abs(deltaY) > Math.abs(deltaX)
+
+    if (isUpwardDismiss) {
+      setMobileMenuClosing(true)
+      window.setTimeout(() => {
+        toggleMobileMenu()
+        setMobileMenuClosing(false)
+      }, 180)
+    }
   }
 
   const toggleVisitorStats = () => {
@@ -629,7 +656,16 @@ export default function Header() {
           </nav>
 
           {mobileMenuOpen && (
-            <div data-mobile-menu="true">
+            <div
+              data-mobile-menu="true"
+              data-closing={mobileMenuClosing ? 'true' : undefined}
+              onTouchStart={handleMobileMenuTouchStart}
+              onTouchEnd={handleMobileMenuTouchEnd}
+              onTouchCancel={() => {
+                mobileMenuTouchStart.current = null
+                setMobileMenuClosing(false)
+              }}
+            >
               <div data-mobile-menu-selectors="true">
                 <button
                   type="button"
