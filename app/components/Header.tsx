@@ -343,7 +343,12 @@ export default function Header() {
             aria-label="TemAuto — atgriezties sākumlapā"
             onClick={(e) => {
               e.preventDefault()
-              window.location.href = '/'
+              const homeState = { ...(window.history.state || {}) }
+              delete homeState.temAutoHeaderOverlay
+              delete homeState.temAutoCatalogueOverlay
+              window.history.replaceState(homeState, '', '/')
+              window.dispatchEvent(new PopStateEvent('popstate', { state: homeState }))
+              window.scrollTo({ top: 0, behavior: 'auto' })
             }}
             style={{
               display: 'flex',
