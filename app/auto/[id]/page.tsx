@@ -444,29 +444,32 @@ export default function AutoLapa() {
 
           [data-listing-mobile-titlebar="true"] strong {
             position: absolute;
-            left: 20px;
+            left: 50%;
             top: 8px;
             z-index: 1002;
-            width: calc(100% - 158px);
+            width: calc(100% - 180px);
             min-width: 0;
             max-height: 42px;
             display: -webkit-box;
             overflow: hidden;
+            transform: translateX(-50%);
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 2;
             white-space: normal;
             font-size: 17px;
             line-height: 21px;
+            text-align: center;
             text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
           }
 
           [data-listing-home-logo="true"] {
-            position: static;
-            flex: 0 0 54px;
+            position: absolute;
+            top: 8px;
+            left: 26px;
+            z-index: 1003;
             width: 54px;
             height: 32px;
-            margin-left: auto;
-            margin-right: 8px;
+            margin: 0;
             transform: rotate(-3deg);
             display: flex;
             align-items: center;
@@ -481,8 +484,11 @@ export default function AutoLapa() {
           }
 
           [data-listing-mobile-views="true"] {
-            flex: 0 0 50px;
-            min-width: 50px;
+            position: absolute;
+            top: 0;
+            right: 20px;
+            width: 50px;
+            height: 48px;
             display: flex;
             align-items: center;
             justify-content: flex-end;
