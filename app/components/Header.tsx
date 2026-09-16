@@ -119,6 +119,7 @@ export default function Header() {
 
   const [currentLang, setCurrentLang] = useState('LV')
   const [currentRegion, setCurrentRegion] = useState('Latvija (EUR)')
+  const [mobileTheme, setMobileTheme] = useState<'day' | 'night'>('day')
 
   const [langOpen, setLangOpen] = useState(false)
   const [regionOpen, setRegionOpen] = useState(false)
@@ -133,6 +134,11 @@ export default function Header() {
   const regionRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    const savedTheme = localStorage.getItem('temauto-mobile-theme')
+    const initialTheme = savedTheme === 'night' ? 'night' : 'day'
+    setMobileTheme(initialTheme)
+    document.documentElement.dataset.temautoTheme = initialTheme
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
     })
@@ -185,6 +191,12 @@ export default function Header() {
     } else {
       router.push('/pievienot')
     }
+  }
+
+  const applyMobileTheme = (theme: 'day' | 'night') => {
+    setMobileTheme(theme)
+    localStorage.setItem('temauto-mobile-theme', theme)
+    document.documentElement.dataset.temautoTheme = theme
   }
 
   const filteredLanguages = LANGUAGES.filter(l => 
@@ -641,6 +653,28 @@ export default function Header() {
                   <span>Reģions</span>
                   <strong>{currentRegion} ›</strong>
                 </button>
+                <div data-mobile-theme-picker="true" role="group" aria-label="Ekrāna režīms">
+                  <button
+                    type="button"
+                    data-mobile-theme-option="day"
+                    aria-label="Dienas režīms"
+                    aria-pressed={mobileTheme === 'day'}
+                    onClick={() => applyMobileTheme('day')}
+                  >
+                    <span aria-hidden="true">☀️</span>
+                    <span>Diena</span>
+                  </button>
+                  <button
+                    type="button"
+                    data-mobile-theme-option="night"
+                    aria-label="Nakts režīms"
+                    aria-pressed={mobileTheme === 'night'}
+                    onClick={() => applyMobileTheme('night')}
+                  >
+                    <span aria-hidden="true">🌙</span>
+                    <span>Nakts</span>
+                  </button>
+                </div>
               </div>
               <nav aria-label="Informācija">
                 {['Lietošanas noteikumi', 'Privātuma politika', 'Drošība un krāpniecība', 'Kontakti', 'Ieteikumi'].map((label) => (
