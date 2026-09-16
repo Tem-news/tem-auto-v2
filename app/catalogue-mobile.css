@@ -672,6 +672,12 @@
     border-radius: 8px !important;
     box-sizing: border-box !important;
     font-size: 14px !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-make-table-row='true'] [role='button'][aria-pressed] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   [data-make-table-row='true'] > [data-cell='photo'] {
