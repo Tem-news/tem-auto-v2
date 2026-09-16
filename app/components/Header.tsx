@@ -343,12 +343,14 @@ export default function Header() {
             aria-label="TemAuto — atgriezties sākumlapā"
             onClick={(e) => {
               e.preventDefault()
-              const homeState = { ...(window.history.state || {}) }
+              const homeState = {
+                ...(window.history.state || {}),
+                temAutoScrollGuard: true
+              }
               delete homeState.temAutoHeaderOverlay
               delete homeState.temAutoCatalogueOverlay
               window.history.replaceState(homeState, '', '/')
-              window.dispatchEvent(new PopStateEvent('popstate', { state: homeState }))
-              window.scrollTo({ top: 0, behavior: 'auto' })
+              window.location.reload()
             }}
             style={{
               display: 'flex',
