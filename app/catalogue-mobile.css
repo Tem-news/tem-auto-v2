@@ -246,6 +246,31 @@
     white-space: nowrap;
   }
 
+  [data-mobile-theme-picker='true'] {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  [data-mobile-theme-picker='true'] button {
+    min-height: 42px;
+    justify-content: center;
+    gap: 7px;
+    font-weight: 700;
+  }
+
+  [data-mobile-theme-picker='true'] button[aria-pressed='true'][data-mobile-theme-option='day'] {
+    color: #713f12;
+    background: #fef9c3;
+    border-color: #facc15;
+  }
+
+  [data-mobile-theme-picker='true'] button[aria-pressed='true'][data-mobile-theme-option='night'] {
+    color: #e0e7ff;
+    background: #312e81;
+    border-color: #818cf8;
+  }
+
   [data-mobile-menu='true'] > nav {
     display: grid;
     grid-template-columns: 1fr;
@@ -727,6 +752,81 @@
   [data-pagination='true'] {
     gap: 6px !important;
     padding: 16px 0 4px !important;
+  }
+
+  html[data-temauto-theme='night'] {
+    color-scheme: dark;
+    background: #020617;
+  }
+
+  html[data-temauto-theme='night'] body,
+  html[data-temauto-theme='night'] main,
+  html[data-temauto-theme='night'] [data-catalogue-page='true'] {
+    color: #e5e7eb !important;
+    background-color: #020617 !important;
+  }
+
+  html[data-temauto-theme='night'] [data-mobile-catalogue-actions='true'] {
+    background: #0f172a !important;
+    border-bottom-color: #334155 !important;
+  }
+
+  html[data-temauto-theme='night'] [data-mobile-catalogue-actions='true'] button {
+    color: #e2e8f0 !important;
+    background: #1e293b !important;
+    border-color: #475569 !important;
+  }
+
+  html[data-temauto-theme='night'] [data-mobile-catalogue-actions='true'] button[aria-expanded='true'] {
+    color: #7dd3fc !important;
+    background: #0c4a6e !important;
+    border-color: #38bdf8 !important;
+  }
+
+  html[data-temauto-theme='night'] [data-makes-column='true'][data-mobile-open='true'] [data-makes-panel='true'],
+  html[data-temauto-theme='night'] [data-filter-row='true'][data-mobile-open='true'] {
+    color: #e5e7eb !important;
+    background: #0f172a !important;
+    border-color: #334155 !important;
+  }
+
+  html[data-temauto-theme='night'] [data-makes-list='true'] button,
+  html[data-temauto-theme='night'] [data-filter-row='true'] input,
+  html[data-temauto-theme='night'] [data-filter-row='true'] select {
+    color: #e5e7eb !important;
+    background: #1e293b !important;
+    border-color: #475569 !important;
+  }
+
+  html[data-temauto-theme='night'] [data-listings-grid='true'] > a,
+  html[data-temauto-theme='night'] [data-listings-grid='true'] > a > div:nth-child(2),
+  html[data-temauto-theme='night'] [data-make-table-row='true'] {
+    color: #e5e7eb !important;
+    background-color: #111827 !important;
+    border-color: #334155 !important;
+  }
+
+  html[data-temauto-theme='night'] [data-listings-grid='true'] > a > div:nth-child(2) *,
+  html[data-temauto-theme='night'] [data-make-table-row='true'] > [data-cell] {
+    color: #e5e7eb !important;
+  }
+
+  html[data-temauto-theme='night'] [data-mobile-sponsor='true'] {
+    color: #94a3b8 !important;
+    background: #0f172a !important;
+    border-color: #475569 !important;
+  }
+
+  html[data-temauto-theme='night'] [data-pagination='true'] button {
+    color: #e2e8f0 !important;
+    background: #1e293b !important;
+    border-color: #475569 !important;
+  }
+
+  html[data-temauto-theme='night'] [data-pagination='true'] button[aria-current='page'] {
+    color: #ffffff !important;
+    background: #2563eb !important;
+    border-color: #60a5fa !important;
   }
 }
 
