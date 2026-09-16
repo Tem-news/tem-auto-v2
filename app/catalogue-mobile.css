@@ -623,6 +623,36 @@
     max-width: 100% !important;
   }
 
+  [data-make-table-row='true'] [data-make-row-gallery='true'] {
+    display: flex !important;
+    width: 112px !important;
+    height: 68px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  [data-make-table-row='true'] [data-make-row-gallery='true']::-webkit-scrollbar {
+    display: none;
+  }
+
+  [data-make-table-row='true'] [data-make-row-gallery='true'] > img {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
   [data-make-table-row='true'] > [data-cell='car'] {
     grid-column: 2;
     grid-row: 1;
@@ -690,6 +720,11 @@
   }
 
   [data-make-table-row='true'] > [data-cell='photo'] img {
+    width: 96px !important;
+    height: 62px !important;
+  }
+
+  [data-make-table-row='true'] [data-make-row-gallery='true'] {
     width: 96px !important;
     height: 62px !important;
   }
