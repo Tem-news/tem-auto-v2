@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
@@ -276,6 +276,7 @@ export default function PievienotAuto() {
   const [isDragging, setIsDragging] = useState(false)
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const mobileKeyboardReady = useRef<string | null>(null)
   
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -288,8 +289,32 @@ export default function PievienotAuto() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  useEffect(() => {
+    if (activeDropdown === null) {
+      mobileKeyboardReady.current = null
+    }
+  }, [activeDropdown])
+
   const toggleDropdown = (name: string) => {
     setActiveDropdown(prev => prev === name ? null : name)
+  }
+
+  const handleDropdownInputPointerDown = (event: React.PointerEvent<HTMLInputElement>, name: string) => {
+    const isMobileTouch = window.matchMedia('(max-width: 767px)').matches && event.pointerType !== 'mouse'
+    if (!isMobileTouch || mobileKeyboardReady.current === name) return
+
+    event.preventDefault()
+    mobileKeyboardReady.current = name
+    setActiveDropdown(name)
+    event.currentTarget.blur()
+  }
+
+  const handleDropdownInputClick = (name: string) => {
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      setActiveDropdown(name)
+      return
+    }
+    toggleDropdown(name)
   }
 
   const handlePriceChange = (val: string) => {
@@ -611,7 +636,8 @@ export default function PievienotAuto() {
                   placeholder="Sāciet rakstīt vai izvēlieties..."
                   value={make}
                   onChange={(e) => { setMake(e.target.value); setActiveDropdown('make'); }}
-                  onClick={() => toggleDropdown('make')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'make')}
+                  onClick={() => handleDropdownInputClick('make')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'make' && (
@@ -638,7 +664,8 @@ export default function PievienotAuto() {
                   placeholder={make ? `Izvēlieties ${make} modeli...` : 'Vispirms izvēlieties marku'}
                   value={model}
                   onChange={(e) => { setModel(e.target.value); setActiveDropdown('model'); }}
-                  onClick={() => toggleDropdown('model')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'model')}
+                  onClick={() => handleDropdownInputClick('model')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'model' && (
@@ -672,7 +699,8 @@ export default function PievienotAuto() {
                   placeholder="Piem., 2020"
                   value={year}
                   onChange={(e) => { setYear(e.target.value); setActiveDropdown('year'); }}
-                  onClick={() => toggleDropdown('year')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'year')}
+                  onClick={() => handleDropdownInputClick('year')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'year' && (
@@ -713,7 +741,8 @@ export default function PievienotAuto() {
                   placeholder="Izvēlieties dzinēju..."
                   value={engine}
                   onChange={(e) => { setEngine(e.target.value); setActiveDropdown('engine'); }}
-                  onClick={() => toggleDropdown('engine')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'engine')}
+                  onClick={() => handleDropdownInputClick('engine')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'engine' && (
@@ -740,7 +769,8 @@ export default function PievienotAuto() {
                   placeholder="Piem., 2.0"
                   value={volume}
                   onChange={(e) => { setVolume(e.target.value); setActiveDropdown('volume'); }}
-                  onClick={() => toggleDropdown('volume')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'volume')}
+                  onClick={() => handleDropdownInputClick('volume')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'volume' && (
@@ -770,7 +800,8 @@ export default function PievienotAuto() {
                   placeholder="Izvēlieties kārbu..."
                   value={gearbox}
                   onChange={(e) => { setGearbox(e.target.value); setActiveDropdown('gearbox'); }}
-                  onClick={() => toggleDropdown('gearbox')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'gearbox')}
+                  onClick={() => handleDropdownInputClick('gearbox')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'gearbox' && (
@@ -797,7 +828,8 @@ export default function PievienotAuto() {
                   placeholder="Izvēlieties virsbūvi..."
                   value={bodyType}
                   onChange={(e) => { setBodyType(e.target.value); setActiveDropdown('bodyType'); }}
-                  onClick={() => toggleDropdown('bodyType')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'bodyType')}
+                  onClick={() => handleDropdownInputClick('bodyType')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'bodyType' && (
@@ -827,7 +859,8 @@ export default function PievienotAuto() {
                   placeholder="Izvēlieties krāsu..."
                   value={color}
                   onChange={(e) => { setColor(e.target.value); setActiveDropdown('color'); }}
-                  onClick={() => toggleDropdown('color')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'color')}
+                  onClick={() => handleDropdownInputClick('color')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'color' && (
@@ -880,7 +913,8 @@ export default function PievienotAuto() {
                   placeholder="Izvēlieties..."
                   value={sture}
                   onChange={(e) => { setSture(e.target.value); setActiveDropdown('sture'); }}
-                  onClick={() => toggleDropdown('sture')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'sture')}
+                  onClick={() => handleDropdownInputClick('sture')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'sture' && (
@@ -965,7 +999,8 @@ export default function PievienotAuto() {
                   placeholder="Izvēlieties reģionu..."
                   value={region}
                   onChange={(e) => { setRegion(e.target.value); setActiveDropdown('region'); }}
-                  onClick={() => toggleDropdown('region')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'region')}
+                  onClick={() => handleDropdownInputClick('region')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'region' && (
