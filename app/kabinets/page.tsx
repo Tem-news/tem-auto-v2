@@ -49,40 +49,47 @@ export default function KabinetsPage() {
     loadCabinet()
   }, [router])
 
-  const handleLogout = async () => {
-    const shouldLogout = window.confirm('Vai tiešām izlogoties?')
-    if (!shouldLogout) return
-
-    await supabase.auth.signOut()
-    router.push('/')
-    router.refresh()
-  }
-
   if (loading) {
     return <div style={{ padding: '50px', textAlign: 'center', fontFamily: 'sans-serif', color: '#64748b' }}>Ielādē lietotāja kabinetu...</div>
   }
 
-  const accountName = user?.user_metadata?.nickname || user?.email || 'Lietotājs'
-
   return (
-    <main style={{ width: 'calc(100% - 40px)', maxWidth: '1100px', margin: '32px auto', fontFamily: 'sans-serif' }}>
-      <section style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', marginBottom: '24px' }}>
-          <div>
-            <h1 style={{ margin: '0 0 6px', color: '#111827', fontSize: '24px' }}>Mans kabinets</h1>
-            <div style={{ color: '#64748b', fontSize: '14px' }}>{accountName}</div>
-          </div>
-          <button type="button" onClick={handleLogout} style={{ padding: '9px 16px', border: '1px solid #dc2626', borderRadius: '7px', backgroundColor: '#ffffff', color: '#dc2626', fontWeight: '700', cursor: 'pointer' }}>
-            Izlogoties
-          </button>
-        </div>
+    <main data-cabinet-page="true" style={{ width: 'calc(100% - 40px)', maxWidth: '1100px', margin: '32px auto', fontFamily: 'sans-serif' }}>
+      <style>{`
+        @media (max-width: 767px) {
+          [data-cabinet-page="true"] {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+          }
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', marginBottom: '16px' }}>
-          <h2 style={{ margin: 0, color: '#111827', fontSize: '18px' }}>Mani sludinājumi ({cars.length})</h2>
-          <Link href="/pievienot" style={{ padding: '9px 14px', borderRadius: '7px', backgroundColor: '#16a34a', color: '#ffffff', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>
-            + Pievienot auto
-          </Link>
-        </div>
+          [data-cabinet-panel="true"] {
+            width: 100% !important;
+            padding: 10px 0 16px !important;
+            border-left: 0 !important;
+            border-right: 0 !important;
+            border-radius: 0 !important;
+            box-sizing: border-box !important;
+          }
+
+          [data-cabinet-title="true"] {
+            margin: 0 10px 10px !important;
+          }
+
+          [data-cabinet-list="true"] {
+            width: 100% !important;
+            max-width: none !important;
+            margin-left: 0 !important;
+            border-left: 0 !important;
+            border-right: 0 !important;
+            border-radius: 0 !important;
+          }
+        }
+      `}</style>
+      <section data-cabinet-panel="true" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
+        <h2 data-cabinet-title="true" style={{ margin: '0 0 16px', color: '#111827', fontSize: '18px' }}>
+          Mani sludinājumi ({cars.length})
+        </h2>
 
         {errorMessage ? (
           <div style={{ padding: '16px', borderRadius: '8px', backgroundColor: '#fee2e2', color: '#b91c1c' }}>{errorMessage}</div>
@@ -91,7 +98,7 @@ export default function KabinetsPage() {
             Tev pašlaik nav neviena sludinājuma.
           </div>
         ) : (
-          <div data-make-table="true" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
+          <div data-make-table="true" data-cabinet-list="true" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
             <div data-make-table-body="true" style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
               {cars.map((car) => {
                 const galleryImages = Array.from(new Set([
