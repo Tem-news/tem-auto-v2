@@ -1,9 +1,15 @@
 'use client'
-import { useEffect, useState, useMemo, useRef } from 'react'
-import Link from 'next/link'
+import { Fragment, useEffect, useState, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
+import { canUseDevPreviewFallback, isPreviewListing, loadAdaptedPreviewCars } from '../lib/previewFallback'
+import './catalogue-mobile.css'
 	
+const LISTINGS_PER_PAGE = 48
+const FAVORITES_STORAGE_KEY = 'temauto-favorite-car-ids'
+const RECENTLY_VIEWED_STORAGE_KEY = 'temauto-recently-viewed-listings'
+const RECENTLY_VIEWED_TTL_MS = 24 * 60 * 60 * 1000
+
 const OFFICIAL_MAKES: { [key: string]: string } = {
   'bmw': 'BMW',
   'audi': 'Audi',
@@ -152,13 +158,287 @@ function formatNumberWithSpace(value: number | string): string {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
 
+function ListingCardGallery({ images, alt, compact = false }: { images: string[]; alt: string; compact?: boolean }) {
+  const galleryRef = useRef<HTMLDivElement>(null)
+  const touchStartX = useRef<number | null>(null)
+  const didSwipe = useRef(false)
+  const scrollEndTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isLooping = images.length > 1
+  const loopImages = isLooping ? [images[images.length - 1], ...images, images[0]] : images
+
+  const jumpTo = (left: number) => {
+    const gallery = galleryRef.current
+    if (!gallery) return
+    gallery.style.scrollBehavior = 'auto'
+    gallery.scrollLeft = left
+    requestAnimationFrame(() => {
+      gallery.style.scrollBehavior = ''
+    })
+  }
+
+  useEffect(() => {
+    if (!isLooping) return
+
+    const placeOnFirstImage = () => {
+      const gallery = galleryRef.current
+      if (gallery?.clientWidth) jumpTo(gallery.clientWidth)
+    }
+
+    placeOnFirstImage()
+    window.addEventListener('resize', placeOnFirstImage)
+    return () => {
+      window.removeEventListener('resize', placeOnFirstImage)
+      if (scrollEndTimer.current) clearTimeout(scrollEndTimer.current)
+    }
+  }, [isLooping, images.length])
+
+  const handleScroll = () => {
+    if (!isLooping || !galleryRef.current) return
+    if (scrollEndTimer.current) clearTimeout(scrollEndTimer.current)
+    scrollEndTimer.current = setTimeout(() => {
+      const gallery = galleryRef.current
+      if (!gallery?.clientWidth) return
+      const slide = Math.round(gallery.scrollLeft / gallery.clientWidth)
+      if (slide === 0) jumpTo(images.length * gallery.clientWidth)
+      if (slide === images.length + 1) jumpTo(gallery.clientWidth)
+    }, 80)
+  }
+
+  return (
+    <div
+      ref={galleryRef}
+      data-card-gallery="true"
+      data-make-row-gallery={compact ? 'true' : undefined}
+      onScroll={handleScroll}
+      onTouchStart={(event) => {
+        touchStartX.current = event.touches[0]?.clientX ?? null
+        didSwipe.current = false
+      }}
+      onTouchMove={(event) => {
+        const currentX = event.touches[0]?.clientX
+        if (touchStartX.current !== null && currentX !== undefined && Math.abs(currentX - touchStartX.current) > 8) {
+          didSwipe.current = true
+        }
+      }}
+      onClickCapture={(event) => {
+        if (didSwipe.current) {
+          event.preventDefault()
+          event.stopPropagation()
+          didSwipe.current = false
+        }
+      }}
+      style={{ width: compact ? '95px' : '100%', height: compact ? '60px' : '160px', backgroundColor: '#f3f4f6', overflow: 'hidden', display: 'flex', borderRadius: compact ? '4px' : undefined, border: compact ? '1px solid #d1d5db' : undefined, boxSizing: 'border-box' }}
+    >
+      {loopImages.map((image, index) => (
+        <img
+          key={`${image}-${index}`}
+          src={image}
+          alt={(!isLooping && index === 0) || (isLooping && index === 1) ? alt : ''}
+          draggable={false}
+          style={{ width: '100%', minWidth: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      ))}
+    </div>
+  )
+}
+
 export default function Sakumlapa() {
   const router = useRouter()
   const [cars, setCars] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [searchMake, setSearchMake] = useState('')
   const [searchModel, setSearchModel] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([])
+  const [recentlyViewedIds, setRecentlyViewedIds] = useState<string[]>([])
+  const [showFavorites, setShowFavorites] = useState(false)
+  const [mobileMakesOpen, setMobileMakesOpen] = useState(false)
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+  const [isMobileCatalogue, setIsMobileCatalogue] = useState(false)
+
+  useEffect(() => {
+    const mobileQuery = window.matchMedia('(max-width: 767px)')
+    const syncMobileCatalogue = () => setIsMobileCatalogue(mobileQuery.matches)
+
+    syncMobileCatalogue()
+    mobileQuery.addEventListener('change', syncMobileCatalogue)
+    return () => mobileQuery.removeEventListener('change', syncMobileCatalogue)
+  }, [])
+
+  useEffect(() => {
+    try {
+      const savedFavoriteIds = JSON.parse(localStorage.getItem(FAVORITES_STORAGE_KEY) || '[]')
+      if (Array.isArray(savedFavoriteIds)) {
+        setFavoriteIds(savedFavoriteIds.map(String))
+      }
+    } catch {
+      setFavoriteIds([])
+    }
+  }, [])
+
+  useEffect(() => {
+    try {
+      const now = Date.now()
+      const savedViews = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_STORAGE_KEY) || '{}') as Record<string, number>
+      const activeViews = Object.fromEntries(
+        Object.entries(savedViews).filter(([, viewedAt]) =>
+          typeof viewedAt === 'number' && now - viewedAt < RECENTLY_VIEWED_TTL_MS
+        )
+      )
+
+      setRecentlyViewedIds(Object.keys(activeViews))
+      localStorage.setItem(RECENTLY_VIEWED_STORAGE_KEY, JSON.stringify(activeViews))
+    } catch {
+      setRecentlyViewedIds([])
+    }
+  }, [])
+
+  const markListingViewed = (carId: number | string) => {
+    const normalizedId = String(carId)
+    const now = Date.now()
+
+    setRecentlyViewedIds(currentIds =>
+      currentIds.includes(normalizedId) ? currentIds : [...currentIds, normalizedId]
+    )
+
+    try {
+      const savedViews = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_STORAGE_KEY) || '{}') as Record<string, number>
+      const activeViews = Object.fromEntries(
+        Object.entries(savedViews).filter(([, viewedAt]) =>
+          typeof viewedAt === 'number' && now - viewedAt < RECENTLY_VIEWED_TTL_MS
+        )
+      )
+      activeViews[normalizedId] = now
+      localStorage.setItem(RECENTLY_VIEWED_STORAGE_KEY, JSON.stringify(activeViews))
+    } catch {
+      localStorage.setItem(RECENTLY_VIEWED_STORAGE_KEY, JSON.stringify({ [normalizedId]: now }))
+    }
+  }
+
+  const toggleFavorite = (carId: number | string) => {
+    const normalizedId = String(carId)
+    setFavoriteIds(currentIds => {
+      const nextIds = currentIds.includes(normalizedId)
+        ? currentIds.filter(id => id !== normalizedId)
+        : [...currentIds, normalizedId]
+
+      localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(nextIds))
+      if (nextIds.length === 0) {
+        setShowFavorites(false)
+      }
+      return nextIds
+    })
+  }
+
+  const toggleFavoritesView = () => {
+    setShowFavorites(current => !current)
+    setCurrentPage(1)
+
+    if (mobileFiltersOpen) {
+      if (window.history.state?.temAutoCatalogueOverlay === 'filters') {
+        window.history.back()
+      } else {
+        setMobileFiltersOpen(false)
+      }
+    }
+  }
   
+  useEffect(() => {
+    let lastKnownScrollY = window.scrollY
+    let restoringGuard = false
+    let releaseScrollTimer: number | null = null
+    const previousScrollRestoration = window.history.scrollRestoration
+    window.history.scrollRestoration = 'manual'
+
+    const ensureScrollGuard = () => {
+      const currentState = { ...(window.history.state || {}) }
+
+      if (currentState.temAutoScrollGuard === true) return
+
+      delete currentState.temAutoCatalogueOverlay
+      window.history.replaceState(currentState, '', window.location.href)
+      window.history.pushState(
+        { ...currentState, temAutoScrollGuard: true },
+        '',
+        window.location.href
+      )
+    }
+
+    const syncFromAddress = (event?: PopStateEvent) => {
+      const addressParams = new URLSearchParams(window.location.search)
+      const makeFromAddress = addressParams.get('make') || ''
+      const pageFromAddress = Number(addressParams.get('page') || '1')
+      const historyState = event?.state || window.history.state || {}
+      const mobileOverlay = historyState.temAutoCatalogueOverlay
+
+      setSearchMake(makeFromAddress)
+      setCurrentPage(Number.isInteger(pageFromAddress) && pageFromAddress > 0 ? pageFromAddress : 1)
+
+      if (restoringGuard && historyState.temAutoScrollGuard === true) {
+        restoringGuard = false
+        setMobileMakesOpen(false)
+        setMobileFiltersOpen(false)
+        return
+      }
+
+      const shouldReturnToTop =
+        historyState.temAutoScrollGuard !== true &&
+        window.location.pathname === '/' &&
+        makeFromAddress === '' &&
+        Math.max(lastKnownScrollY, window.scrollY) > 80
+
+      if (shouldReturnToTop) {
+        restoringGuard = true
+        setMobileMakesOpen(false)
+        setMobileFiltersOpen(false)
+        window.history.forward()
+        window.scrollTo(0, 0)
+
+        if (releaseScrollTimer !== null) {
+          window.clearTimeout(releaseScrollTimer)
+        }
+        releaseScrollTimer = window.setTimeout(() => {
+          window.scrollTo(0, 0)
+          lastKnownScrollY = 0
+          releaseScrollTimer = null
+        }, 250)
+        return
+      }
+
+      setMobileMakesOpen(mobileOverlay === 'makes')
+      setMobileFiltersOpen(mobileOverlay === 'filters')
+
+      if (
+        historyState.temAutoScrollGuard !== true &&
+        window.location.pathname === '/' &&
+        makeFromAddress === '' &&
+        !mobileOverlay
+      ) {
+        window.history.back()
+      }
+    }
+
+    const rememberScrollPosition = () => {
+      if (!restoringGuard) {
+        lastKnownScrollY = window.scrollY
+      }
+    }
+
+    ensureScrollGuard()
+    syncFromAddress()
+    window.addEventListener('popstate', syncFromAddress)
+    window.addEventListener('scroll', rememberScrollPosition, { passive: true })
+
+    return () => {
+      window.removeEventListener('popstate', syncFromAddress)
+      window.removeEventListener('scroll', rememberScrollPosition)
+      if (releaseScrollTimer !== null) {
+        window.clearTimeout(releaseScrollTimer)
+      }
+      window.history.scrollRestoration = previousScrollRestoration
+    }
+  }, [])
+
   const [valsts, setValsts] = useState('')
   const [regions, setRegions] = useState('')
   
@@ -224,12 +504,20 @@ export default function Sakumlapa() {
 
       if (carsError) {
         console.error('Kļūda ielādējot auto:', carsError)
-      } else {
+      } else if ((carsData || []).length > 0) {
         const normalizedCars = (carsData || []).map(car => ({
           ...car,
           make: normalizeMake(car.make)
         }))
         setCars(normalizedCars)
+      } else if (canUseDevPreviewFallback()) {
+        const previewCars = loadAdaptedPreviewCars().map(car => ({
+          ...car,
+          make: normalizeMake(car.make || '')
+        }))
+        setCars(previewCars)
+      } else {
+        setCars([])
       }
       setLoading(false)
     }
@@ -262,6 +550,7 @@ export default function Sakumlapa() {
   const filteredCars = cars.filter((car) => {
     const matchesMake = searchMake ? (car.make || '').toLowerCase().includes(searchMake.toLowerCase()) : true
     const matchesModel = searchModel ? (car.model || '').toLowerCase().includes(searchModel.toLowerCase()) : true
+    const matchesFavorite = showFavorites ? favoriteIds.includes(String(car.id)) : true
     
     const carPrice = Number(car.price)
     const matchesMinPrice = minPrice ? carPrice >= Number(minPrice) : true
@@ -282,32 +571,107 @@ export default function Sakumlapa() {
     const matchesVirsbuve = virsbuve ? (car.body_type || car.virsbuve || '').toLowerCase().includes(virsbuve.toLowerCase()) : true
     const matchesKrasa = krasa ? (car.color || car.krasa || '').toLowerCase().includes(krasa.toLowerCase()) : true
 
-    return matchesMake && matchesModel && matchesMinPrice && matchesMaxPrice && 
+    return matchesMake && matchesModel && matchesFavorite && matchesMinPrice && matchesMaxPrice && 
            matchesMinYear && matchesMaxYear && matchesMinTilpums && matchesMaxTilpums &&
            matchesValsts && matchesRegions && matchesDzinejs && matchesAtrumkarba && matchesVirsbuve && matchesKrasa
   })
 
-  const handleMakeSelect = (make: string) => {
-    if (searchMake.toLowerCase() === make.toLowerCase()) {
-      setSearchMake('')
+  const totalPages = Math.max(1, Math.ceil(filteredCars.length / LISTINGS_PER_PAGE))
+  const safeCurrentPage = Math.min(currentPage, totalPages)
+  const paginatedCars = filteredCars.slice(
+    (safeCurrentPage - 1) * LISTINGS_PER_PAGE,
+    safeCurrentPage * LISTINGS_PER_PAGE
+  )
+
+  const setPageAndHistory = (page: number) => {
+    const nextPage = Math.min(Math.max(page, 1), totalPages)
+    setCurrentPage(nextPage)
+    const nextAddress = new URL(window.location.href)
+    if (nextPage === 1) {
+      nextAddress.searchParams.delete('page')
     } else {
-      setSearchMake(make)
+      nextAddress.searchParams.set('page', String(nextPage))
     }
+    window.history.pushState({}, '', nextAddress.pathname + nextAddress.search)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const setMakeAndHistory = (make: string) => {
+    setSearchMake(make)
+    setCurrentPage(1)
+    const nextAddress = new URL(window.location.href)
+    nextAddress.searchParams.delete('page')
+    if (make) {
+      nextAddress.searchParams.set('make', make)
+    } else {
+      nextAddress.searchParams.delete('make')
+    }
+    window.history.pushState({}, '', nextAddress.pathname + nextAddress.search)
+  }
+
+  const handleMakeSelect = (make: string) => {
+    const nextMake = searchMake.toLowerCase() === make.toLowerCase() ? '' : make
+    setMakeAndHistory(nextMake)
+    setMobileMakesOpen(false)
+  }
+
+  const toggleMobileCatalogueOverlay = (overlay: 'makes' | 'filters') => {
+    const isOpen = overlay === 'makes' ? mobileMakesOpen : mobileFiltersOpen
+    const currentOverlay = window.history.state?.temAutoCatalogueOverlay
+
+    if (isOpen) {
+      if (currentOverlay === overlay) {
+        window.history.back()
+      } else {
+        setMobileMakesOpen(false)
+        setMobileFiltersOpen(false)
+      }
+      return
+    }
+
+    const nextState = { ...window.history.state, temAutoCatalogueOverlay: overlay }
+    if (currentOverlay) {
+      window.history.replaceState(nextState, '', window.location.href)
+    } else {
+      window.history.pushState(nextState, '', window.location.href)
+    }
+    setMobileMakesOpen(overlay === 'makes')
+    setMobileFiltersOpen(overlay === 'filters')
   }
 
   return (
-    <div ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
+    <div data-catalogue-page="true" ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
+
+      <div data-mobile-catalogue-actions="true" aria-label="Kataloga izvēlne">
+        <button
+          type="button"
+          aria-expanded={mobileMakesOpen}
+          onClick={() => toggleMobileCatalogueOverlay('makes')}
+        >
+          <span>Visas markas</span>
+          <span>({cars.length}) {mobileMakesOpen ? '▴' : '▾'}</span>
+        </button>
+        <button
+          type="button"
+          aria-expanded={mobileFiltersOpen}
+          onClick={() => toggleMobileCatalogueOverlay('filters')}
+        >
+          <span>Filtri</span>
+          <span>{hasActiveFilters ? '● ' : ''}{mobileFiltersOpen ? '▴' : '▾'}</span>
+        </button>
+      </div>
       
-      <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
+      <div data-catalogue-layout="true" style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
         {/* KREISĀ PUSE - Marku saraksts */}
-        <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
+        <div data-makes-column="true" data-mobile-open={mobileMakesOpen ? 'true' : 'false'} style={{ position: 'sticky', top: '72px', alignSelf: 'start', height: 'calc(100dvh - 88px)', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
+          <div data-makes-panel="true" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
           {loading ? (
             <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
           ) : (
             <div>
               <button
-                onClick={() => setSearchMake('')}
+                onClick={() => setMakeAndHistory('')}
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -328,7 +692,7 @@ export default function Sakumlapa() {
                 <span>Visas markas</span>
                 <span style={{ fontSize: '12px', color: '#6b7280' }}>({cars.length})</span>
               </button>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
+              <div data-makes-list="true" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
                 {makeCounts.map(([make, count]) => {
                   const isSelected = searchMake.toLowerCase() === make.toLowerCase()
                   return (
@@ -359,13 +723,56 @@ export default function Sakumlapa() {
               </div>
             </div>
           )}
+          <div data-mobile-sponsor="true" aria-label="Sponsora vieta">
+            <strong>SPONSORS</strong>
+            <span>Vieta sadarbības partnerim</span>
+          </div>
+          </div>
+
+          <nav
+            data-makes-info="true"
+            aria-label="Informācija"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '6px',
+              marginTop: 'auto',
+              paddingTop: '12px',
+              borderTop: '2px solid #cbd5e1'
+            }}
+          >
+            {['Lietošanas noteikumi', 'Privātuma politika', 'Drošība un krāpniecība', 'Kontakti', 'Ieteikumi'].map((label) => (
+              <button
+                key={label}
+                type="button"
+                disabled
+                title="Sadaļas saturs tiks pievienots"
+                style={{
+                  minHeight: '34px',
+                  padding: '6px 8px',
+                  backgroundColor: '#f1f5f9',
+                  color: '#334155',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  fontFamily: 'inherit',
+                  fontSize: '12.5px',
+                  fontWeight: '700',
+                  lineHeight: '1.2',
+                  textAlign: 'left',
+                  opacity: 1
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
         </div>
 
         {/* VIDUS: Filtri un Sludinājumu saraksts */}
-        <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
+        <div data-catalogue-center="true" style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
           {/* FILTRI */}
-          <div style={{ 
+          <div data-filter-row="true" data-mobile-open={mobileFiltersOpen ? 'true' : 'false'} style={{ 
             position: 'sticky', 
             top: '72px', 
             zIndex: 30, 
@@ -379,34 +786,55 @@ export default function Sakumlapa() {
             flexDirection: 'column', 
             gap: '8px', 
             border: '1px solid #e5e7eb',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+            boxShadow: '0 -24px 0 #f8fafc, 0 4px 6px -1px rgba(0, 0, 0, 0.05)'
           }}>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+            <div data-filter-heading="true" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
               <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0, color: '#111827' }}>
-                {searchMake ? `${searchMake} sludinājumi` : 'Visi auto sludinājumi'}
+                {showFavorites ? 'Mani favorīti' : searchMake ? `${searchMake} sludinājumi` : 'Visi auto sludinājumi'}
               </h2>
-              
-              {hasActiveFilters && (
-                <button 
-                  onClick={clearAllFilters} 
-                  style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '4px', 
-                    backgroundColor: '#fee2e2', 
-                    color: '#991b1b', 
-                    border: '1px solid #fecaca', 
-                    borderRadius: '6px', 
-                    padding: '4px 10px', 
-                    cursor: 'pointer', 
-                    fontSize: '12px', 
-                    fontWeight: '600'
-                  }}
-                >
-                  <span>✕ Notīrīt filtrus</span>
-                </button>
-              )}
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {favoriteIds.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={toggleFavoritesView}
+                    style={{
+                      backgroundColor: showFavorites ? '#15803d' : '#dcfce7',
+                      color: showFavorites ? '#ffffff' : '#166534',
+                      border: '1px solid #86efac',
+                      borderRadius: '6px',
+                      padding: '4px 10px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: '700'
+                    }}
+                  >
+                    {showFavorites ? 'Rādīt visus' : `Mani favorīti (${favoriteIds.length})`}
+                  </button>
+                )}
+
+                {hasActiveFilters && (
+                  <button 
+                    onClick={clearAllFilters} 
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '4px', 
+                      backgroundColor: '#fee2e2', 
+                      color: '#991b1b', 
+                      border: '1px solid #fecaca', 
+                      borderRadius: '6px', 
+                      padding: '4px 10px', 
+                      cursor: 'pointer', 
+                      fontSize: '12px', 
+                      fontWeight: '600'
+                    }}
+                  >
+                    <span>✕ Notīrīt filtrus</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* 1. Rinda */}
@@ -632,23 +1060,52 @@ export default function Sakumlapa() {
                 )}
               </div>
             </div>
+          <div data-mobile-sponsor="true" aria-label="Sponsora vieta">
+            <strong>SPONSORS</strong>
+            <span>Vieta sadarbības partnerim</span>
+          </div>
           </div>
 
           {/* SKATS */}
-          <div>
+          <div data-listings="true">
             {loading ? (
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
             ) : filteredCars.length === 0 ? (
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>Nav atrasts neviens sludinājums ar šādiem kritērijiem.</div>
-            ) : searchMake === '' ? (
+            ) : searchMake === '' && !(showFavorites && isMobileCatalogue) ? (
               /* GRID SKATS */
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
-                {filteredCars.map((car, index) => {
-                  const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
+              <div data-listings-grid="true" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '16px' }}>
+                {paginatedCars.map((car, index) => {
+                  const fallbackImage = 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
+                  const galleryImages = Array.from(new Set([
+                    car.image,
+                    car.image_url,
+                    ...(Array.isArray(car.images) ? car.images : [])
+                  ].filter((image): image is string => Boolean(image))))
+                  if (galleryImages.length === 0) galleryImages.push(fallbackImage)
+                  const cardEngineType = car.engine || car.dzinejs || ''
+                  const cardEngineVolume = car.volume !== null && car.volume !== undefined && car.volume !== '' ? `${car.volume}L` : ''
+                  const rawCardGearbox = car.gearbox || car.atrumkarba || car.transmission || ''
+                  const normalizedCardGearbox = rawCardGearbox.toLowerCase().includes('pusautom')
+                    ? 'Pusautomāts'
+                    : rawCardGearbox.toLowerCase().includes('autom')
+                      ? 'Automāts'
+                      : rawCardGearbox.toLowerCase().includes('mehān') || rawCardGearbox.toLowerCase().includes('manual')
+                        ? 'Manuāls'
+                        : rawCardGearbox
+                  const cardEngineSummary = [cardEngineType, cardEngineVolume, normalizedCardGearbox].filter(Boolean).join(' ')
+                  const previewCard = isPreviewListing(car)
                   return (
-                    <Link 
+                    <Fragment key={car.id || index}>
+                    <a 
                       key={car.id || index} 
-                      href={`/auto/${car.id}`} 
+                      href={`/auto/${car.id}`}
+                      data-recently-viewed={recentlyViewedIds.includes(String(car.id)) ? 'true' : undefined}
+                      data-preview-listing={previewCard ? 'true' : undefined}
+                      onClick={(event) => {
+                        event.currentTarget.dataset.recentlyViewed = 'true'
+                        markListingViewed(car.id)
+                      }}
                       style={{ 
                         backgroundColor: '#ffffff', 
                         border: '1px solid #e5e7eb', 
@@ -660,37 +1117,63 @@ export default function Sakumlapa() {
                         flexDirection: 'column'
                       }}
                     >
-                      <div style={{ width: '100%', height: '160px', backgroundColor: '#f3f4f6', overflow: 'hidden' }}>
-                        <img 
-                          src={imageUrl} 
-                          alt={car.make} 
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                        />
-                      </div>
+                      <ListingCardGallery images={galleryImages} alt={`${car.make} ${car.model || ''}`.trim()} />
                       <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
-                        <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#1d4ed8' }}>
-                          {car.make} {car.model}
-                        </div>
-                        <div style={{ fontSize: '13px', color: '#4b5563', display: 'flex', justifyContent: 'space-between' }}>
-                          <span>{car.year ? `${car.year} g.` : ''}</span>
-                          <span>{car.volume ? `${car.volume}L` : ''}</span>
-                        </div>
-                        <div style={{ marginTop: 'auto', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontWeight: 'bold', fontSize: '16px', color: '#111827' }}>
-                            {car.price ? `${formatNumberWithSpace(car.price)} €` : ''}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                          <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#1d4ed8', minWidth: 0 }}>
+                            {car.make} {car.model}
+                          </div>
+                          <span
+                            role="button"
+                            tabIndex={0}
+                            aria-pressed={favoriteIds.includes(String(car.id))}
+                            onClick={(event) => {
+                              event.preventDefault()
+                              event.stopPropagation()
+                              toggleFavorite(car.id)
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault()
+                                event.stopPropagation()
+                                toggleFavorite(car.id)
+                              }
+                            }}
+                            style={{
+                              flexShrink: 0,
+                              color: favoriteIds.includes(String(car.id)) ? '#15803d' : '#9ca3af',
+                              fontSize: '12px',
+                              fontWeight: favoriteIds.includes(String(car.id)) ? '700' : '500',
+                              cursor: 'pointer',
+                              userSelect: 'none'
+                            }}
+                          >
+                            Mans favorīts
                           </span>
                         </div>
+                        <div data-card-meta="true" style={{ fontSize: '13px', color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <span data-card-year="true">{car.year ? `${car.year} g.` : ''}</span>
+                          <span data-card-price="true" style={{ color: '#111827', fontWeight: 'bold' }}>{car.price ? `${formatNumberWithSpace(car.price)} €` : ''}</span>
+                          {cardEngineSummary && <span data-card-engine-summary="true">{cardEngineSummary}</span>}
+                        </div>
                       </div>
-                    </Link>
+                    </a>
+                    {(index + 1) % 5 === 0 && (
+                      <div data-mobile-sponsor="true" aria-label="Sponsora vieta">
+                        <strong>SPONSORS</strong>
+                        <span>Vieta sadarbības partnerim</span>
+                      </div>
+                    )}
+                    </Fragment>
                   )
                 })}
               </div>
             ) : (
               /* TABULAS SKATS - Fiksēta zaļā galvene un skrollējams saturs */
-              <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', position: 'relative' }}>
+              <div data-make-table="true" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', position: 'relative' }}>
                 
                 {/* Nekustīgā zaļā galvenes strīpa */}
-                <div style={{ 
+                <div data-make-table-header="true" style={{ 
                   display: 'grid', 
                   gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
                   backgroundColor: '#15803d', 
@@ -715,20 +1198,37 @@ export default function Sakumlapa() {
                 </div>
 
                 {/* Skrollējams satura konteiners */}
-                <div style={{ maxHeight: 'calc(100vh - 250px)', overflowY: 'auto' }}>
-                  {filteredCars.map((car, index) => {
+                <div data-make-table-body="true" style={{ maxHeight: 'calc(100vh - 250px)', overflowY: 'auto' }}>
+                  {paginatedCars.map((car, index) => {
                     const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=300&q=80'
+                    const rowGalleryImages = Array.from(new Set([
+                      car.image,
+                      car.image_url,
+                      ...(Array.isArray(car.images) ? car.images : [])
+                    ].filter((image): image is string => Boolean(image))))
+                    if (rowGalleryImages.length === 0) rowGalleryImages.push(imageUrl)
+                    const previewCard = isPreviewListing(car)
                     
-                    const engineType = car.engine || car.dzinejs || '-'
+                    const engineType = car.engine || car.engine_type || car.fuel_type || car.fuel || car.dzinejs || car.degviela || '-'
+                    const engineVolume = car.volume !== null && car.volume !== undefined && car.volume !== '' ? `${car.volume}L` : ''
+                    const mobileEngineSummary = [engineType === '-' ? '' : engineType, engineVolume].filter(Boolean).join(' ')
                     const bodyType = car.body_type || car.virsbuve || '-'
                     const carColor = car.color || car.krasa || '-'
                     const rawMileage = car.mileage || car.noobraukums || car.nobraukums
                     const formattedMileage = rawMileage ? `${formatNumberWithSpace(rawMileage)} km` : '-'
 
                     return (
-                      <Link 
+                      <Fragment key={car.id || index}>
+                      <a 
                         key={car.id || index} 
-                        href={`/auto/${car.id}`} 
+                        href={`/auto/${car.id}`}
+                        data-recently-viewed={recentlyViewedIds.includes(String(car.id)) ? 'true' : undefined}
+                        data-preview-listing={previewCard ? 'true' : undefined}
+                        onClick={(event) => {
+                        event.currentTarget.dataset.recentlyViewed = 'true'
+                        markListingViewed(car.id)
+                      }}
+                        data-make-table-row="true"
                         style={{ 
                           display: 'grid', 
                           gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
@@ -743,70 +1243,132 @@ export default function Sakumlapa() {
                         }}
                       >
                         {/* 1. Foto */}
-                        <div>
-                          <img 
-                            src={imageUrl} 
-                            alt={car.make} 
-                            style={{ width: '95px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #d1d5db' }} 
-                          />
+                        <div data-cell="photo">
+                          <ListingCardGallery images={rowGalleryImages} alt={`${car.make} ${car.model || ''}`.trim()} compact />
                         </div>
 
                         {/* 2. Automobilis */}
-                        <div style={{ color: '#1d4ed8', fontSize: '15px', fontWeight: '700', paddingRight: '8px' }}>
-                          {car.make} {car.model}
+                        <div data-cell="car" style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingRight: '8px' }}>
+                          <span style={{ color: '#1d4ed8', fontSize: '15px', fontWeight: '700' }}>
+                            {car.make} {car.model}
+                          </span>
+                          <span
+                            role="button"
+                            tabIndex={0}
+                            aria-pressed={favoriteIds.includes(String(car.id))}
+                            onClick={(event) => {
+                              event.preventDefault()
+                              event.stopPropagation()
+                              toggleFavorite(car.id)
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault()
+                                event.stopPropagation()
+                                toggleFavorite(car.id)
+                              }
+                            }}
+                            style={{
+                              flexShrink: 0,
+                              color: favoriteIds.includes(String(car.id)) ? '#15803d' : '#9ca3af',
+                              fontSize: '11px',
+                              fontWeight: favoriteIds.includes(String(car.id)) ? '700' : '500',
+                              cursor: 'pointer',
+                              userSelect: 'none'
+                            }}
+                          >
+                            Mans favorīts
+                          </span>
                         </div>
 
                         {/* 3. Gads */}
-                        <div style={{ color: '#374151' }}>
-                          {car.year || '-'}
+                        <div data-cell="year" style={{ color: '#374151' }}>
+                          <span>{car.year || '-'}</span>
+                          {mobileEngineSummary && <span data-mobile-engine-summary="true">{mobileEngineSummary}</span>}
                         </div>
 
                         {/* 4. Dzinējs */}
-                        <div style={{ color: '#374151' }}>
+                        <div data-cell="engine" style={{ color: '#374151' }}>
                           {engineType}
                         </div>
 
                         {/* 5. Virsbūve */}
-                        <div style={{ color: '#374151' }}>
+                        <div data-cell="body" style={{ color: '#374151' }}>
                           {bodyType}
                         </div>
 
                         {/* 6. Krāsa */}
-                        <div style={{ color: '#374151' }}>
+                        <div data-cell="color" style={{ color: '#374151' }}>
                           {carColor}
                         </div>
 
                         {/* 7. Nobraukums */}
-                        <div style={{ color: '#374151' }}>
+                        <div data-cell="mileage" style={{ color: '#374151' }}>
                           {formattedMileage}
                         </div>
 
                         {/* Tukšs lauks */}
-                        <div></div>
+                        <div data-cell="spacer"></div>
 
                         {/* 8. Cena */}
-                        <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '15px' }}>
+                        <div data-cell="price" style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '15px' }}>
                           {car.price ? `${formatNumberWithSpace(car.price)} €` : ''}
                         </div>
-                      </Link>
+                      </a>
+                      {(index + 1) % 5 === 0 && (
+                        <div data-mobile-sponsor="true" aria-label="Sponsora vieta">
+                          <strong>SPONSORS</strong>
+                          <span>Vieta sadarbības partnerim</span>
+                        </div>
+                      )}
+                      </Fragment>
                     )
                   })}
                 </div>
               </div>
             )}
+
+            {!loading && filteredCars.length > 0 && totalPages > 1 && (
+              <nav data-pagination="true" aria-label="Sludinājumu lapas" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: '8px', padding: '18px 0 4px' }}>
+                {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                  <button
+                    key={page}
+                    type="button"
+                    onClick={() => setPageAndHistory(page)}
+                    aria-current={safeCurrentPage === page ? 'page' : undefined}
+                    style={{
+                      minWidth: '36px',
+                      height: '36px',
+                      padding: '0 10px',
+                      borderRadius: '6px',
+                      border: safeCurrentPage === page ? '1px solid #1d4ed8' : '1px solid #d1d5db',
+                      backgroundColor: safeCurrentPage === page ? '#2563eb' : '#ffffff',
+                      color: safeCurrentPage === page ? '#ffffff' : '#1f2937',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </nav>
+            )}
           </div>
         </div>
 
-        {/* LABĀ PUSE - Reklāmas vieta */}
-        <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
-            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA</span>
-            <span>Globālais baneris šeit!</span>
-          </div>
-          <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
-            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA</span>
-            <span>Globālais baneris šeit!</span>
-          </div>
+        {/* LABĀ PUSE - divi gari, nekustīgi platformas sponsoru lauki */}
+        <div data-sponsor-rail="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', height: 'calc(100dvh - 88px)', minHeight: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {[1, 2].map((placement) => (
+            <aside
+              key={placement}
+              data-temauto-sponsor-placement="true"
+              aria-label="Sponsora vieta"
+              style={{ width: '100%', minHeight: 0, flex: '1 1 0', boxSizing: 'border-box', border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}
+            >
+              <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>SPONSORS</span>
+              <span>Vieta sadarbības partnerim</span>
+            </aside>
+          ))}
         </div>
 
       </div>
