@@ -754,6 +754,7 @@ export default function PievienotAuto() {
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Izlaiduma gads *</label>
                 <input
                   type="text"
+                  inputMode="numeric"
                   placeholder="Piem., 2020"
                   value={year}
                   onChange={(e) => { setYear(e.target.value); setActiveDropdown('year'); }}
@@ -784,6 +785,7 @@ export default function PievienotAuto() {
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Cena (€)</label>
                 <input
                   type="text"
+                  inputMode="numeric"
                   placeholder="Piem., 12 500"
                   value={displayPrice}
                   onChange={(e) => handlePriceChange(e.target.value)}
@@ -828,6 +830,7 @@ export default function PievienotAuto() {
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Dzinēja tilpums (L)</label>
                 <input
                   type="text"
+                  inputMode="decimal"
                   placeholder="Piem., 2.0"
                   value={volume}
                   onChange={(e) => { setVolume(e.target.value); setActiveDropdown('volume'); }}
@@ -955,6 +958,7 @@ export default function PievienotAuto() {
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Nobraukums (km)</label>
                 <input
                   type="text"
+                  inputMode="numeric"
                   placeholder="Piem., 180 000"
                   value={displayNobraukums}
                   onChange={(e) => handleNobraukumsChange(e.target.value)}
@@ -1013,6 +1017,7 @@ export default function PievienotAuto() {
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Tehniskā apskate līdz</label>
                 <input
                   type="text"
+                  inputMode="numeric"
                   placeholder="MM/GGGG vai Datums"
                   value={tehiskapskate}
                   onChange={(e) => setTehiskapskate(e.target.value)}
