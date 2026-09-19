@@ -320,6 +320,16 @@ export default function PievienotAuto() {
     const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y)
     if (moved > 10) return
 
+    if (
+      mobileKeyboardReady.current === name &&
+      document.activeElement === event.currentTarget
+    ) {
+      event.currentTarget.blur()
+      mobileKeyboardReady.current = null
+      setActiveDropdown(null)
+      return
+    }
+
     setActiveDropdown(name)
     if (mobileKeyboardReady.current === name) {
       event.currentTarget.focus()
