@@ -789,6 +789,9 @@ export default function PievienotAuto() {
                   placeholder="Piem., 12 500"
                   value={displayPrice}
                   onChange={(e) => handlePriceChange(e.target.value)}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'price')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'price')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
               </div>
@@ -962,6 +965,9 @@ export default function PievienotAuto() {
                   placeholder="Piem., 180 000"
                   value={displayNobraukums}
                   onChange={(e) => handleNobraukumsChange(e.target.value)}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'nobraukums')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'nobraukums')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
               </div>
@@ -1021,6 +1027,9 @@ export default function PievienotAuto() {
                   placeholder="MM/GGGG vai Datums"
                   value={tehiskapskate}
                   onChange={(e) => setTehiskapskate(e.target.value)}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'tehiskapskate')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'tehiskapskate')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
               </div>
