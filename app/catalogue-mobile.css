@@ -269,9 +269,30 @@
   [data-mobile-menu-selectors='true'] strong {
     max-width: 68%;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
     color: #15803d;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  [data-mobile-menu-selectors='true'] strong img {
+    width: 18px;
+    height: 13px;
+    flex: 0 0 auto;
+    border-radius: 2px;
+    object-fit: cover;
+  }
+
+  [data-mobile-menu-selectors='true'] strong span:nth-of-type(1) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  [data-mobile-menu-selectors='true'] strong span:last-child {
+    flex: 0 0 auto;
   }
 
   [data-mobile-theme-picker='true'] {
