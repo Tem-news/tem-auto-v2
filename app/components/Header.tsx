@@ -356,8 +356,10 @@ export default function Header() {
             </Link>
 
             {user?.email && (
-              <span
+              <Link
+                href="/kabinets"
                 title={user.email}
+                aria-label="Atvērt lietotāja kabinetu"
                 style={{
                   minWidth: 0,
                   maxWidth: '58%',
@@ -368,11 +370,13 @@ export default function Header() {
                   fontSize: '14px',
                   fontWeight: '600',
                   textAlign: 'right',
-                  marginRight: '12px'
+                  marginRight: '12px',
+                  textDecoration: 'none',
+                  cursor: 'pointer'
                 }}
               >
                 {user.email}
-              </span>
+              </Link>
             )}
           </div>
         </header>
