@@ -376,15 +376,18 @@ export default function Sakumlapa() {
       setSearchMake(makeFromAddress)
       setCurrentPage(Number.isInteger(pageFromAddress) && pageFromAddress > 0 ? pageFromAddress : 1)
 
-      if (restoringGuard && historyState.temAutoScrollGuard === true) {
+      if (restoringGuard) {
         restoringGuard = false
         setMobileMakesOpen(false)
         setMobileFiltersOpen(false)
         return
       }
 
+      const visibleOverlay = document.querySelector(
+        "[data-mobile-menu='true'], [data-header-visitor-stats='true'], [data-makes-column='true'][data-mobile-open='true'], [data-filter-row='true'][data-mobile-open='true']"
+      )
       const shouldReturnToTop =
-        historyState.temAutoScrollGuard !== true &&
+        !visibleOverlay &&
         window.location.pathname === '/' &&
         makeFromAddress === '' &&
         Math.max(lastKnownScrollY, window.scrollY) > 80
