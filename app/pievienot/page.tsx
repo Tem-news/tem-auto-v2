@@ -544,7 +544,25 @@ export default function PievienotAuto() {
           [data-add-car-form="true"] input:not([type="file"]) {
             min-height: 38px !important;
             padding: 8px !important;
+            color: #111827 !important;
+            background-color: #ffffff !important;
+            -webkit-text-fill-color: #111827 !important;
+            caret-color: #111827 !important;
+            opacity: 1 !important;
             font-size: 13px !important;
+          }
+
+          [data-add-car-form="true"] input:not([type="file"])::placeholder,
+          [data-add-car-form="true"] textarea::placeholder {
+            color: #64748b !important;
+            -webkit-text-fill-color: #64748b !important;
+            opacity: 1 !important;
+          }
+
+          [data-add-car-form="true"] .dropdown-container > button {
+            color: #111827 !important;
+            background-color: #ffffff !important;
+            -webkit-text-fill-color: #111827 !important;
           }
 
           [data-add-car-form="true"] .dropdown-container > div {
@@ -570,6 +588,11 @@ export default function PievienotAuto() {
           [data-add-car-form="true"] textarea {
             min-height: 110px !important;
             padding: 8px !important;
+            color: #111827 !important;
+            background-color: #ffffff !important;
+            -webkit-text-fill-color: #111827 !important;
+            caret-color: #111827 !important;
+            opacity: 1 !important;
             font-size: 13px !important;
           }
 
