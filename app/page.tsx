@@ -254,6 +254,8 @@ export default function Sakumlapa() {
   const [showFavorites, setShowFavorites] = useState(false)
   const [mobileMakesOpen, setMobileMakesOpen] = useState(false)
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+  const [mobileFiltersClosing, setMobileFiltersClosing] = useState(false)
+  const mobileFiltersTouchStart = useRef<{ x: number; y: number } | null>(null)
   const [isMobileCatalogue, setIsMobileCatalogue] = useState(false)
 
   useEffect(() => {
@@ -639,6 +641,30 @@ export default function Sakumlapa() {
     setMobileFiltersOpen(overlay === 'filters')
   }
 
+  const handleMobileFiltersTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    const touch = event.touches[0]
+    mobileFiltersTouchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null
+  }
+
+  const handleMobileFiltersTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const start = mobileFiltersTouchStart.current
+    const touch = event.changedTouches[0]
+    mobileFiltersTouchStart.current = null
+    if (!start || !touch) return
+
+    const deltaX = touch.clientX - start.x
+    const deltaY = touch.clientY - start.y
+    const isUpwardDismiss = deltaY < -55 && Math.abs(deltaY) > Math.abs(deltaX)
+
+    if (isUpwardDismiss) {
+      setMobileFiltersClosing(true)
+      window.setTimeout(() => {
+        toggleMobileCatalogueOverlay('filters')
+        setMobileFiltersClosing(false)
+      }, 180)
+    }
+  }
+
   return (
     <div data-catalogue-page="true" ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
 
@@ -772,7 +798,17 @@ export default function Sakumlapa() {
         <div data-catalogue-center="true" style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
           {/* FILTRI */}
-          <div data-filter-row="true" data-mobile-open={mobileFiltersOpen ? 'true' : 'false'} style={{ 
+          <div
+            data-filter-row="true"
+            data-mobile-open={mobileFiltersOpen ? 'true' : 'false'}
+            data-mobile-closing={mobileFiltersClosing ? 'true' : undefined}
+            onTouchStart={handleMobileFiltersTouchStart}
+            onTouchEnd={handleMobileFiltersTouchEnd}
+            onTouchCancel={() => {
+              mobileFiltersTouchStart.current = null
+              setMobileFiltersClosing(false)
+            }}
+            style={{ 
             position: 'sticky', 
             top: '72px', 
             zIndex: 30, 
