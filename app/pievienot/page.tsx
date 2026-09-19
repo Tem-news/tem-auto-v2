@@ -642,6 +642,76 @@ export default function PievienotAuto() {
             grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
             gap: 6px !important;
           }
+
+          html[data-temauto-theme="night"] body:has([data-add-car-page="true"]) {
+            background-color: #020617 !important;
+            color-scheme: dark;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-page="true"] {
+            min-height: calc(100vh - 58px) !important;
+            background-color: #020617 !important;
+            color: #e2e8f0 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-form-card="true"] {
+            background-color: #0f172a !important;
+            border-color: #334155 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-heading="true"] {
+            border-bottom-color: #334155 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-heading="true"] h1,
+          html[data-temauto-theme="night"] [data-add-car-heading="true"] p,
+          html[data-temauto-theme="night"] [data-add-car-form="true"] label {
+            color: #e2e8f0 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-form="true"] input:not([type="file"]),
+          html[data-temauto-theme="night"] [data-add-car-form="true"] textarea,
+          html[data-temauto-theme="night"] [data-add-car-form="true"] .dropdown-container > button,
+          html[data-temauto-theme="night"] [data-add-car-form="true"] .dropdown-container > div {
+            color: #f8fafc !important;
+            background-color: #111827 !important;
+            border-color: #475569 !important;
+            -webkit-text-fill-color: #f8fafc !important;
+            caret-color: #f8fafc !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-form="true"] input:not([type="file"])::placeholder,
+          html[data-temauto-theme="night"] [data-add-car-form="true"] textarea::placeholder {
+            color: #94a3b8 !important;
+            -webkit-text-fill-color: #94a3b8 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-form="true"] .dropdown-container > div > div {
+            color: #f8fafc !important;
+            background-color: #1e293b !important;
+            border-bottom-color: #334155 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-form="true"] .dropdown-container > div span {
+            color: #f8fafc !important;
+            -webkit-text-fill-color: #f8fafc !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-upload="true"] {
+            color: #e2e8f0 !important;
+            background-color: #111827 !important;
+            border-color: #475569 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-upload="true"] span {
+            color: #cbd5e1 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-previews="true"] > div {
+            background-color: #111827 !important;
+            border-color: #475569 !important;
+          }
         }
 
         @media (max-width: 380px) {
