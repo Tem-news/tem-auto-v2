@@ -683,7 +683,16 @@ export default function Header() {
                   }}
                 >
                   <span>Valoda</span>
-                  <strong>{currentLang} ›</strong>
+                  <strong>
+                    {currentLangObj && (
+                      <img
+                        src={`https://flagcdn.com/20x15/${currentLangObj.flagCode}.png`}
+                        alt=""
+                      />
+                    )}
+                    <span>{currentLang}</span>
+                    <span aria-hidden="true">›</span>
+                  </strong>
                 </button>
                 <button
                   type="button"
@@ -694,7 +703,16 @@ export default function Header() {
                   }}
                 >
                   <span>Reģions</span>
-                  <strong>{currentRegion} ›</strong>
+                  <strong>
+                    {currentRegionObj && (
+                      <img
+                        src={`https://flagcdn.com/20x15/${currentRegionObj.flagCode}.png`}
+                        alt=""
+                      />
+                    )}
+                    <span>{currentRegion}</span>
+                    <span aria-hidden="true">›</span>
+                  </strong>
                 </button>
                 <div data-mobile-theme-picker="true" role="group" aria-label="Ekrāna režīms">
                   <button
