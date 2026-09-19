@@ -215,6 +215,13 @@ export default function Header() {
   const currentRegionObj = REGIONS.find(r => r.name === currentRegion || r.subregions?.includes(currentRegion))
   const hoveredRegionObj = REGIONS.find(r => r.name === hoveredRegion)
 
+  const returnToOpenMobileMenu = () => {
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      setMobileMenuClosing(false)
+      setMobileMenuOpen(true)
+    }
+  }
+
   const toggleMobileMenu = () => {
     const currentOverlay = window.history.state?.temAutoHeaderOverlay
 
@@ -472,7 +479,12 @@ export default function Header() {
                   {filteredLanguages.map((l) => (
                     <div
                       key={l.code}
-                      onClick={() => { setCurrentLang(l.code); setLangOpen(false); setLangSearch(''); }}
+                      onClick={() => {
+                        setCurrentLang(l.code)
+                        setLangOpen(false)
+                        setLangSearch('')
+                        returnToOpenMobileMenu()
+                      }}
                       style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: currentLang === l.code ? '#22c55e' : '#e2e8f0', backgroundColor: currentLang === l.code ? '#334155' : 'transparent' }}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentLang === l.code ? '#334155' : 'transparent'}
@@ -544,6 +556,7 @@ export default function Header() {
                             setCurrentRegion(r.name)
                             setRegionOpen(false)
                             setRegionSearch('')
+                            returnToOpenMobileMenu()
                           }}
                           style={{ 
                             padding: '6px 8px', 
@@ -578,6 +591,7 @@ export default function Header() {
                         setCurrentRegion(hoveredRegionObj.name)
                         setRegionOpen(false)
                         setRegionSearch('')
+                        returnToOpenMobileMenu()
                       }}
                       style={{
                         padding: '8px',
@@ -606,6 +620,7 @@ export default function Header() {
                             setCurrentRegion(sub)
                             setRegionOpen(false)
                             setRegionSearch('')
+                            returnToOpenMobileMenu()
                           }}
                           style={{
                             padding: '6px 8px',
