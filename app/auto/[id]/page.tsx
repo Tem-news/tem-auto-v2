@@ -623,7 +623,7 @@ export default function AutoLapa() {
           }
 
           [data-listing-detail-sponsors="true"] > aside:first-child {
-            min-height: 300px !important;
+            min-height: 150px !important;
             flex: none !important;
           }
 
