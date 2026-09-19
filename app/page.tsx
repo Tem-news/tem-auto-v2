@@ -1093,7 +1093,7 @@ export default function Sakumlapa() {
                       : rawCardGearbox.toLowerCase().includes('mehān') || rawCardGearbox.toLowerCase().includes('manual')
                         ? 'Manuāls'
                         : rawCardGearbox
-                  const cardEngineSummary = [cardEngineType, cardEngineVolume, normalizedCardGearbox].filter(Boolean).join(' ')
+                  const cardEngineSummary = [cardEngineType, cardEngineVolume].filter(Boolean).join(' ')
                   const previewCard = isPreviewListing(car)
                   return (
                     <Fragment key={car.id || index}>
@@ -1155,6 +1155,11 @@ export default function Sakumlapa() {
                           <span data-card-year="true">{car.year ? `${car.year} g.` : ''}</span>
                           <span data-card-price="true" style={{ color: '#111827', fontWeight: 'bold' }}>{car.price ? `${formatNumberWithSpace(car.price)} €` : ''}</span>
                           {cardEngineSummary && <span data-card-engine-summary="true">{cardEngineSummary}</span>}
+                          {normalizedCardGearbox && (
+                            <span data-card-gearbox="true" style={{ order: 4, whiteSpace: 'nowrap' }}>
+                              {normalizedCardGearbox}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </a>
