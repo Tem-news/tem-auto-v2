@@ -277,6 +277,7 @@ export default function PievienotAuto() {
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const mobileKeyboardReady = useRef<string | null>(null)
+  const mobileDropdownPointerStart = useRef<{ name: string; x: number; y: number } | null>(null)
   
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -301,19 +302,39 @@ export default function PievienotAuto() {
 
   const handleDropdownInputPointerDown = (event: React.PointerEvent<HTMLInputElement>, name: string) => {
     const isMobileTouch = window.matchMedia('(max-width: 767px)').matches && event.pointerType !== 'mouse'
-    if (!isMobileTouch || mobileKeyboardReady.current === name) return
+    if (!isMobileTouch) return
 
     event.preventDefault()
-    mobileKeyboardReady.current = name
+    mobileDropdownPointerStart.current = {
+      name,
+      x: event.clientX,
+      y: event.clientY
+    }
+  }
+
+  const handleDropdownInputPointerUp = (event: React.PointerEvent<HTMLInputElement>, name: string) => {
+    const start = mobileDropdownPointerStart.current
+    mobileDropdownPointerStart.current = null
+    if (!start || start.name !== name) return
+
+    const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y)
+    if (moved > 10) return
+
     setActiveDropdown(name)
-    event.currentTarget.blur()
+    if (mobileKeyboardReady.current === name) {
+      event.currentTarget.focus()
+    } else {
+      mobileKeyboardReady.current = name
+      event.currentTarget.blur()
+    }
+  }
+
+  const handleDropdownInputPointerCancel = () => {
+    mobileDropdownPointerStart.current = null
   }
 
   const handleDropdownInputClick = (name: string) => {
-    if (window.matchMedia('(max-width: 767px)').matches) {
-      setActiveDropdown(name)
-      return
-    }
+    if (window.matchMedia('(max-width: 767px)').matches) return
     toggleDropdown(name)
   }
 
@@ -660,6 +681,8 @@ export default function PievienotAuto() {
                   value={make}
                   onChange={(e) => { setMake(e.target.value); setActiveDropdown('make'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'make')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'make')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('make')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
@@ -688,6 +711,8 @@ export default function PievienotAuto() {
                   value={model}
                   onChange={(e) => { setModel(e.target.value); setActiveDropdown('model'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'model')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'model')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('model')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
@@ -723,6 +748,8 @@ export default function PievienotAuto() {
                   value={year}
                   onChange={(e) => { setYear(e.target.value); setActiveDropdown('year'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'year')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'year')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('year')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
@@ -765,6 +792,8 @@ export default function PievienotAuto() {
                   value={engine}
                   onChange={(e) => { setEngine(e.target.value); setActiveDropdown('engine'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'engine')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'engine')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('engine')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
@@ -793,6 +822,8 @@ export default function PievienotAuto() {
                   value={volume}
                   onChange={(e) => { setVolume(e.target.value); setActiveDropdown('volume'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'volume')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'volume')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('volume')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
@@ -824,6 +855,8 @@ export default function PievienotAuto() {
                   value={gearbox}
                   onChange={(e) => { setGearbox(e.target.value); setActiveDropdown('gearbox'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'gearbox')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'gearbox')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('gearbox')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
@@ -852,6 +885,8 @@ export default function PievienotAuto() {
                   value={bodyType}
                   onChange={(e) => { setBodyType(e.target.value); setActiveDropdown('bodyType'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'bodyType')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'bodyType')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('bodyType')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
@@ -883,6 +918,8 @@ export default function PievienotAuto() {
                   value={color}
                   onChange={(e) => { setColor(e.target.value); setActiveDropdown('color'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'color')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'color')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('color')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
@@ -937,6 +974,8 @@ export default function PievienotAuto() {
                   value={sture}
                   onChange={(e) => { setSture(e.target.value); setActiveDropdown('sture'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'sture')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'sture')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('sture')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
@@ -1023,6 +1062,8 @@ export default function PievienotAuto() {
                   value={region}
                   onChange={(e) => { setRegion(e.target.value); setActiveDropdown('region'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'region')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'region')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('region')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
