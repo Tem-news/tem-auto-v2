@@ -440,12 +440,122 @@ export default function PievienotAuto() {
   )
 
   return (
-    <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '24px 12px', boxSizing: 'border-box' }}>
+    <div data-add-car-page="true" style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '24px 12px', boxSizing: 'border-box' }}>
+      <style>{`
+        @media (max-width: 767px) {
+          [data-add-car-page="true"] {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            padding: 10px 8px 16px !important;
+            overflow-x: hidden !important;
+          }
+
+          [data-add-car-layout="true"] {
+            display: block !important;
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+
+          [data-add-car-ad-rail="true"] {
+            display: none !important;
+          }
+
+          [data-add-car-form-card="true"] {
+            width: 100% !important;
+            min-width: 0 !important;
+            padding: 14px 10px !important;
+            border-radius: 9px !important;
+          }
+
+          [data-add-car-heading="true"] {
+            margin-bottom: 14px !important;
+            padding-bottom: 10px !important;
+          }
+
+          [data-add-car-heading="true"] h1 {
+            font-size: 18px !important;
+            line-height: 1.2 !important;
+          }
+
+          [data-add-car-heading="true"] p {
+            margin-bottom: 0 !important;
+            font-size: 12.5px !important;
+            line-height: 1.35 !important;
+          }
+
+          [data-add-car-form="true"] {
+            width: 100% !important;
+            min-width: 0 !important;
+            gap: 10px !important;
+          }
+
+          [data-add-car-form="true"] > div[style*="grid-template-columns"] {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 8px !important;
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+
+          [data-add-car-form="true"] .dropdown-container,
+          [data-add-car-form="true"] > div > div {
+            min-width: 0 !important;
+          }
+
+          [data-add-car-form="true"] label {
+            margin-bottom: 4px !important;
+            font-size: 12px !important;
+            line-height: 1.2 !important;
+          }
+
+          [data-add-car-form="true"] input:not([type="file"]),
+          [data-add-car-form="true"] textarea,
+          [data-add-car-form="true"] button {
+            max-width: 100% !important;
+            min-width: 0 !important;
+            box-sizing: border-box !important;
+          }
+
+          [data-add-car-form="true"] input:not([type="file"]) {
+            min-height: 38px !important;
+            padding: 8px !important;
+            font-size: 13px !important;
+          }
+
+          [data-add-car-form="true"] textarea {
+            min-height: 110px !important;
+            padding: 8px !important;
+            font-size: 13px !important;
+          }
+
+          [data-add-car-upload="true"],
+          [data-add-car-previews="true"] {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+          }
+
+          [data-add-car-upload="true"] {
+            padding: 12px 8px !important;
+          }
+
+          [data-add-car-previews="true"] {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            gap: 6px !important;
+          }
+        }
+
+        @media (max-width: 380px) {
+          [data-add-car-form="true"] > div[style*="grid-template-columns"] {
+            grid-template-columns: minmax(0, 1fr) !important;
+          }
+        }
+      `}</style>
       
-      <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
+      <div data-add-car-layout="true" style={{ display: 'grid', gridTemplateColumns: '240px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
         {/* KREISĀ PUSE - 2 Baneri */}
-        <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div data-add-car-ad-rail="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
             <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 1</span>
             <span>Sānu baneris augšējais!</span>
@@ -457,9 +567,9 @@ export default function PievienotAuto() {
         </div>
 
         {/* VIDUS: Forma */}
-        <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', boxSizing: 'border-box' }}>
+        <div data-add-car-form-card="true" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', boxSizing: 'border-box' }}>
           
-          <div style={{ marginBottom: '24px', borderBottom: '1px solid #e5e7eb', paddingBottom: '16px' }}>
+          <div data-add-car-heading="true" style={{ marginBottom: '24px', borderBottom: '1px solid #e5e7eb', paddingBottom: '16px' }}>
             <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Pievienot jaunu auto sludinājumu</h1>
             <p style={{ fontSize: '13.5px', color: '#6b7280', marginTop: '4px' }}>Aizpildiet datus par automašīnu un pievienojiet attēlus.</p>
           </div>
@@ -470,7 +580,7 @@ export default function PievienotAuto() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <form data-add-car-form="true" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
             {/* 1. Rinda: Marka / Modelis */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -898,6 +1008,7 @@ export default function PievienotAuto() {
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Fotoattēli</label>
               <div
+                data-add-car-upload="true"
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
@@ -929,7 +1040,7 @@ export default function PievienotAuto() {
               </div>
 
               {images.length > 0 && (
-                <div style={{ maxWidth: '75%', margin: '12px auto 0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: '10px' }}>
+                <div data-add-car-previews="true" style={{ maxWidth: '75%', margin: '12px auto 0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: '10px' }}>
                   {images.map((img, index) => (
                     <div key={index} style={{ position: 'relative', height: '80px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #d1d5db', backgroundColor: '#f3f4f6' }}>
                       <img src={img.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -976,7 +1087,7 @@ export default function PievienotAuto() {
         </div>
 
         {/* LABĀ PUSE - 2 Baneri */}
-        <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div data-add-car-ad-rail="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
             <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 3</span>
             <span>Sānu baneris labajā pusē (augšā)!</span>
