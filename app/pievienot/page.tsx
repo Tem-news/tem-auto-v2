@@ -522,6 +522,26 @@ export default function PievienotAuto() {
             font-size: 13px !important;
           }
 
+          [data-add-car-form="true"] .dropdown-container > div {
+            color: #111827 !important;
+            background-color: #ffffff !important;
+            border-color: #94a3b8 !important;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18) !important;
+          }
+
+          [data-add-car-form="true"] .dropdown-container > div > div,
+          [data-add-car-form="true"] .dropdown-container > div span {
+            color: #111827 !important;
+            font-size: 13.5px !important;
+            font-weight: 600 !important;
+            opacity: 1 !important;
+          }
+
+          [data-add-car-form="true"] .dropdown-container > div > div {
+            background-color: #ffffff !important;
+            border-bottom-color: #e2e8f0 !important;
+          }
+
           [data-add-car-form="true"] textarea {
             min-height: 110px !important;
             padding: 8px !important;
