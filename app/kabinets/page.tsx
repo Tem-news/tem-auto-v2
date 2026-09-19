@@ -91,25 +91,69 @@ export default function KabinetsPage() {
             Tev pašlaik nav neviena sludinājuma.
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {cars.map((car) => {
-              const imageUrl = car.image || (Array.isArray(car.images) ? car.images[0] : '')
-              return (
-                <div key={car.id} style={{ display: 'grid', gridTemplateColumns: '100px minmax(0, 1fr) auto', gap: '14px', alignItems: 'center', padding: '10px', border: '1px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#f9fafb' }}>
-                  <div style={{ width: '100px', height: '66px', borderRadius: '6px', overflow: 'hidden', backgroundColor: '#e5e7eb' }}>
-                    {imageUrl && <img src={imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+          <div data-make-table="true" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
+            <div data-make-table-body="true" style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+              {cars.map((car) => {
+                const galleryImages = Array.from(new Set([
+                  ...(Array.isArray(car.images) ? car.images : []),
+                  car.image,
+                  car.image_url
+                ].filter((image): image is string => typeof image === 'string' && image.trim() !== '')))
+                const engineType = car.engine || car.engine_type || car.fuel_type || car.fuel || car.dzinejs || car.degviela || ''
+                const engineVolume = car.volume !== null && car.volume !== undefined && car.volume !== '' ? `${car.volume}L` : ''
+                const engineSummary = [engineType, engineVolume].filter(Boolean).join(' ')
+
+                return (
+                  <div
+                    key={car.id}
+                    data-make-table-row="true"
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '112px minmax(0, 1fr) 170px 110px',
+                      gap: '12px',
+                      alignItems: 'center',
+                      padding: '7px 10px',
+                      borderBottom: '1px solid #e5e7eb',
+                      backgroundColor: '#ffffff'
+                    }}
+                  >
+                    <Link href={`/auto/${car.id}`} data-cell="photo" aria-label={`Apskatīt ${car.make || ''} ${car.model || ''}`.trim()}>
+                      {galleryImages.length > 0 ? (
+                        <div data-make-row-gallery="true" style={{ width: '112px', height: '68px', overflow: 'hidden', borderRadius: '6px', backgroundColor: '#e5e7eb' }}>
+                          {galleryImages.map((image, index) => (
+                            <img key={`${image}-${index}`} src={image} alt="" style={{ width: '112px', height: '68px', objectFit: 'cover' }} />
+                          ))}
+                        </div>
+                      ) : (
+                        <div style={{ width: '112px', height: '68px', borderRadius: '6px', backgroundColor: '#e5e7eb' }} />
+                      )}
+                    </Link>
+
+                    <div data-cell="car" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                      <Link href={`/auto/${car.id}`} style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1d4ed8', textDecoration: 'none', fontSize: '15px', fontWeight: '700' }}>
+                        {car.make} {car.model}
+                      </Link>
+                      <Link
+                        href={`/auto/${car.id}/edit`}
+                        role="button"
+                        style={{ flexShrink: 0, marginLeft: 'auto', color: '#2563eb', textDecoration: 'none', fontSize: '12px', fontWeight: '700' }}
+                      >
+                        Rediģēt
+                      </Link>
+                    </div>
+
+                    <div data-cell="year" style={{ color: '#374151' }}>
+                      <span>{car.year || '-'}</span>
+                      {engineSummary && <span data-mobile-engine-summary="true">{engineSummary}</span>}
+                    </div>
+
+                    <div data-cell="price" style={{ textAlign: 'right', color: '#111827', fontSize: '15px', fontWeight: '700' }}>
+                      {formatPrice(car.price)}
+                    </div>
                   </div>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: '700', color: '#111827', marginBottom: '5px' }}>{car.make} {car.model}</div>
-                    <div style={{ fontSize: '14px', color: '#4b5563' }}>{formatPrice(car.price)}</div>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <Link href={`/auto/${car.id}`} style={{ padding: '8px 11px', borderRadius: '6px', border: '1px solid #cbd5e1', color: '#334155', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>Apskatīt</Link>
-                    <Link href={`/auto/${car.id}/edit`} style={{ padding: '8px 11px', borderRadius: '6px', backgroundColor: '#2563eb', color: '#ffffff', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>Rediģēt</Link>
-                  </div>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
           </div>
         )}
       </section>
