@@ -206,8 +206,8 @@
     display: block;
     width: 100%;
     padding: 10px;
-    background: #1e293b;
-    border: 1px solid #334155;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
     border-radius: 8px;
     box-sizing: border-box;
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
@@ -231,7 +231,16 @@
     gap: 6px;
     margin-bottom: 10px;
     padding-bottom: 10px;
-    border-bottom: 1px solid #475569;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  html[data-temauto-theme='night'] [data-mobile-menu='true'] {
+    background: #1e293b;
+    border-color: #334155;
+  }
+
+  html[data-temauto-theme='night'] [data-mobile-menu-selectors='true'] {
+    border-bottom-color: #475569;
   }
 
   [data-mobile-menu-selectors='true'] button,
@@ -242,18 +251,25 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: #f8fafc;
-    background: #0f172a;
-    border: 1px solid #334155;
+    color: #1f2937;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
     border-radius: 6px;
     font: 600 13px/1.2 system-ui, sans-serif;
     text-align: left;
   }
 
+  html[data-temauto-theme='night'] [data-mobile-menu-selectors='true'] button,
+  html[data-temauto-theme='night'] [data-mobile-menu='true'] > nav button {
+    color: #f8fafc;
+    background: #0f172a;
+    border-color: #334155;
+  }
+
   [data-mobile-menu-selectors='true'] strong {
     max-width: 68%;
     overflow: hidden;
-    color: #22c55e;
+    color: #15803d;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -290,8 +306,16 @@
   }
 
   [data-mobile-menu='true'] > nav button:disabled {
-    color: #cbd5e1;
+    color: #475569;
     opacity: 1;
+  }
+
+  html[data-temauto-theme='night'] [data-mobile-menu-selectors='true'] strong {
+    color: #22c55e;
+  }
+
+  html[data-temauto-theme='night'] [data-mobile-menu='true'] > nav button:disabled {
+    color: #cbd5e1;
   }
 
   body:has([data-catalogue-page='true']) [data-header-region-label='true'] {
