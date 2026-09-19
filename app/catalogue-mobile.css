@@ -486,6 +486,16 @@
     border-radius: 8px 8px 0 0 !important;
     box-shadow: none !important;
     box-sizing: border-box !important;
+    transform: translateY(0);
+    opacity: 1;
+    transition: transform 180ms ease, opacity 180ms ease;
+    will-change: transform, opacity;
+  }
+
+  [data-filter-row='true'][data-mobile-open='true'][data-mobile-closing='true'] {
+    transform: translateY(-110%);
+    opacity: 0;
+    pointer-events: none;
   }
 
   [data-filter-heading='true'] {
