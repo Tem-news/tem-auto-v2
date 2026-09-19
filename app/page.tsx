@@ -1090,7 +1090,7 @@ export default function Sakumlapa() {
                     ? 'Pusautomāts'
                     : rawCardGearbox.toLowerCase().includes('autom')
                       ? 'Automāts'
-                      : rawCardGearbox.toLowerCase().includes('mehān') || rawCardGearbox.toLowerCase().includes('manual')
+                      : rawCardGearbox.toLowerCase().includes('mehān') || rawCardGearbox.toLowerCase().includes('manual') || rawCardGearbox.toLowerCase().includes('manuāl')
                         ? 'Manuāls'
                         : rawCardGearbox
                   const cardEngineSummary = [cardEngineType, cardEngineVolume].filter(Boolean).join(' ')
