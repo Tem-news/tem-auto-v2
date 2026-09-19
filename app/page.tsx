@@ -1085,7 +1085,15 @@ export default function Sakumlapa() {
                   if (galleryImages.length === 0) galleryImages.push(fallbackImage)
                   const cardEngineType = car.engine || car.dzinejs || ''
                   const cardEngineVolume = car.volume !== null && car.volume !== undefined && car.volume !== '' ? `${car.volume}L` : ''
-                  const cardEngineSummary = [cardEngineType, cardEngineVolume].filter(Boolean).join(' ')
+                  const rawCardGearbox = car.gearbox || car.atrumkarba || car.transmission || ''
+                  const normalizedCardGearbox = rawCardGearbox.toLowerCase().includes('pusautom')
+                    ? 'Pusautomāts'
+                    : rawCardGearbox.toLowerCase().includes('autom')
+                      ? 'Automāts'
+                      : rawCardGearbox.toLowerCase().includes('mehān') || rawCardGearbox.toLowerCase().includes('manual')
+                        ? 'Manuāls'
+                        : rawCardGearbox
+                  const cardEngineSummary = [cardEngineType, cardEngineVolume, normalizedCardGearbox].filter(Boolean).join(' ')
                   const previewCard = isPreviewListing(car)
                   return (
                     <Fragment key={car.id || index}>
