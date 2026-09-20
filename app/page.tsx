@@ -952,7 +952,8 @@ export default function Sakumlapa() {
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
                   type="text"
-                  data-filter-field="valsts"\n                  placeholder="Valsts"
+                  data-filter-field="valsts"
+                  placeholder="Valsts"
                   value={valsts}
                   onChange={(e) => { setValsts(e.target.value); setActiveDropdown('valsts'); }}
                   onClick={() => toggleDropdown('valsts')}
@@ -986,7 +987,8 @@ export default function Sakumlapa() {
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
                   type="text"
-                  data-filter-field="regions"\n                  placeholder={valsts ? `Reģions (${valsts})` : "Reģions"}
+                  data-filter-field="regions"
+                  placeholder={valsts ? `Reģions (${valsts})` : "Reģions"}
                   value={regions}
                   onChange={(e) => { setRegions(e.target.value); setActiveDropdown('regions'); }}
                   onClick={() => toggleDropdown('regions')}
@@ -1011,7 +1013,9 @@ export default function Sakumlapa() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <input 
                   type="text" 
-                  data-filter-field="minPrice"\n                  inputMode="numeric"\n                  placeholder="Cena no" 
+                  data-filter-field="minPrice"
+                  inputMode="numeric"
+                  placeholder="Cena no" 
                   value={displayMinPrice} 
                   onChange={(e) => {
                     const formatted = formatNumberWithSpace(e.target.value)
@@ -1048,7 +1052,8 @@ export default function Sakumlapa() {
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
                   type="text"
-                  data-filter-field="dzinejs"\n                  placeholder="Dzinējs"
+                  data-filter-field="dzinejs"
+                  placeholder="Dzinējs"
                   value={dzinejs}
                   onChange={(e) => { setDzinejs(e.target.value); setActiveDropdown('dzinejs'); }}
                   onClick={() => toggleDropdown('dzinejs')}
@@ -1074,7 +1079,9 @@ export default function Sakumlapa() {
                 <div style={{ position: 'relative', width: '70px' }}>
                   <input 
                     type="text" 
-                    data-filter-field="minTilpums"\n                    inputMode="decimal"\n                    placeholder="Tilp. no" 
+                    data-filter-field="minTilpums"
+                    inputMode="decimal"
+                    placeholder="Tilp. no" 
                     value={minTilpums} 
                     onChange={(e) => { setMinTilpums(e.target.value); setActiveDropdown('minTilpums'); }} 
                     onClick={() => toggleDropdown('minTilpums')}
@@ -1113,7 +1120,8 @@ export default function Sakumlapa() {
               <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
                 <input
                   type="text"
-                  data-filter-field="atrumkarba"\n                  placeholder="Ātrumkārba"
+                  data-filter-field="atrumkarba"
+                  placeholder="Ātrumkārba"
                   value={atrumkarba}
                   onChange={(e) => { setAtrumkarba(e.target.value); setActiveDropdown('atrumkarba'); }}
                   onClick={() => toggleDropdown('atrumkarba')}
@@ -1132,7 +1140,8 @@ export default function Sakumlapa() {
               <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
                 <input
                   type="text"
-                  data-filter-field="virsbuve"\n                  placeholder="Virsbūve"
+                  data-filter-field="virsbuve"
+                  placeholder="Virsbūve"
                   value={virsbuve}
                   onChange={(e) => { setVirsbuve(e.target.value); setActiveDropdown('virsbuve'); }}
                   onClick={() => toggleDropdown('virsbuve')}
@@ -1151,7 +1160,8 @@ export default function Sakumlapa() {
               <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
                 <input
                   type="text"
-                  data-filter-field="krasa"\n                  placeholder="Krāsa"
+                  data-filter-field="krasa"
+                  placeholder="Krāsa"
                   value={krasa}
                   onChange={(e) => { setKrasa(e.target.value); setActiveDropdown('krasa'); }}
                   onClick={() => toggleDropdown('krasa')}
