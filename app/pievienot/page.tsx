@@ -300,6 +300,39 @@ export default function PievienotAuto() {
     setActiveDropdown(prev => prev === name ? null : name)
   }
 
+  const mobileSuggestionFields = new Set([
+    'make',
+    'model',
+    'year',
+    'engine',
+    'volume',
+    'gearbox',
+    'bodyType',
+    'color',
+    'sture',
+    'region'
+  ])
+
+  const positionMobileFieldForKeyboard = (
+    field: HTMLInputElement | HTMLTextAreaElement,
+    name: string,
+    behavior: ScrollBehavior = 'smooth'
+  ) => {
+    const hasSuggestions = mobileSuggestionFields.has(name)
+    const anchorElement = hasSuggestions
+      ? field.closest('.dropdown-container') as HTMLElement | null
+      : field
+    if (!anchorElement) return
+
+    const visibleHeight = window.visualViewport?.height || window.innerHeight
+    const targetTop = hasSuggestions ? 58 : Math.max(76, visibleHeight * 0.42)
+    const currentTop = anchorElement.getBoundingClientRect().top
+    window.scrollTo({
+      top: Math.max(0, window.scrollY + currentTop - targetTop),
+      behavior
+    })
+  }
+
   const handleDropdownInputPointerDown = (event: React.PointerEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
     const isMobileTouch = window.matchMedia('(max-width: 767px)').matches && event.pointerType !== 'mouse'
     if (!isMobileTouch) return
@@ -332,7 +365,10 @@ export default function PievienotAuto() {
 
     setActiveDropdown(name)
     if (mobileKeyboardReady.current === name) {
-      event.currentTarget.focus()
+      const field = event.currentTarget
+      field.focus({ preventScroll: true })
+      positionMobileFieldForKeyboard(field, name)
+      window.setTimeout(() => positionMobileFieldForKeyboard(field, name, 'auto'), 320)
     } else {
       mobileKeyboardReady.current = name
       event.currentTarget.blur()
