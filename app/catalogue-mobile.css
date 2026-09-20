@@ -923,6 +923,19 @@
     opacity: 1;
   }
 
+  html[data-temauto-theme='night'] [data-filter-dropdown='true'] {
+    color: #f1f5f9 !important;
+    background-color: #1e293b !important;
+    border-color: #475569 !important;
+  }
+
+  html[data-temauto-theme='night'] [data-filter-dropdown='true'] > div,
+  html[data-temauto-theme='night'] [data-filter-dropdown='true'] span {
+    color: #f1f5f9 !important;
+    background-color: #1e293b !important;
+    border-bottom-color: #334155 !important;
+  }
+
   html[data-temauto-theme='night'] [data-listings-grid='true'] > a,
   html[data-temauto-theme='night'] [data-listings-grid='true'] > a > div:nth-child(2),
   html[data-temauto-theme='night'] [data-make-table-row='true'] {
