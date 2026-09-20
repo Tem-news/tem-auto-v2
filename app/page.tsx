@@ -465,6 +465,8 @@ export default function Sakumlapa() {
   const filterTapReady = useRef<string | null>(null)
   const filterActiveField = useRef<HTMLInputElement | null>(null)
   const filterPointerStart = useRef<{ name: string; x: number; y: number } | null>(null)
+  const filterDropdownHistoryArmed = useRef(false)
+  const filterKeyboardHistoryArmed = useRef(false)
   const filterSuggestionFields = new Set([
     'valsts',
     'regions',
@@ -504,20 +506,42 @@ export default function Sakumlapa() {
     const isSuggestionField = filterSuggestionFields.has(name)
 
     if (filterTapReady.current === name && document.activeElement === field) {
+      const historySteps =
+        (filterKeyboardHistoryArmed.current ? 1 : 0) +
+        (filterDropdownHistoryArmed.current ? 1 : 0)
+      filterKeyboardHistoryArmed.current = false
+      filterDropdownHistoryArmed.current = false
       field.blur()
       filterTapReady.current = null
       setActiveDropdown(null)
+      if (historySteps > 0) window.history.go(-historySteps)
       return
     }
 
     if (filterTapReady.current === name) {
       if (isSuggestionField) setActiveDropdown(name)
+      if (!filterKeyboardHistoryArmed.current) {
+        window.history.pushState(
+          { ...window.history.state, temAutoFilterKeyboard: name },
+          '',
+          window.location.href
+        )
+        filterKeyboardHistoryArmed.current = true
+      }
       field.focus({ preventScroll: true })
       return
     }
 
     filterTapReady.current = name
     if (isSuggestionField) {
+      if (!filterDropdownHistoryArmed.current) {
+        window.history.pushState(
+          { ...window.history.state, temAutoFilterDropdown: name },
+          '',
+          window.location.href
+        )
+        filterDropdownHistoryArmed.current = true
+      }
       setActiveDropdown(name)
     } else {
       setActiveDropdown(null)
@@ -531,6 +555,39 @@ export default function Sakumlapa() {
     event.preventDefault()
     event.stopPropagation()
   }
+
+  useEffect(() => {
+    const handleFilterBack = () => {
+      if (filterKeyboardHistoryArmed.current) {
+        filterKeyboardHistoryArmed.current = false
+        const fieldName = filterTapReady.current
+        const field = filterActiveField.current
+        if (field && document.activeElement === field) field.blur()
+        if (fieldName && filterSuggestionFields.has(fieldName)) {
+          setActiveDropdown(fieldName)
+        }
+        return
+      }
+
+      if (filterDropdownHistoryArmed.current) {
+        filterDropdownHistoryArmed.current = false
+        filterTapReady.current = null
+        setActiveDropdown(null)
+      }
+    }
+
+    window.addEventListener('popstate', handleFilterBack)
+    return () => window.removeEventListener('popstate', handleFilterBack)
+  }, [])
+
+  useEffect(() => {
+    if (activeDropdown !== null || filterKeyboardHistoryArmed.current) return
+    if (!filterDropdownHistoryArmed.current) return
+
+    filterDropdownHistoryArmed.current = false
+    filterTapReady.current = null
+    window.history.back()
+  }, [activeDropdown])
 
   const hasActiveFilters = searchMake 
     ? Boolean(searchModel || valsts || regions || minPrice || maxPrice || minYear || maxYear || dzinejs || minTilpums || maxTilpums || atrumkarba || virsbuve || krasa)
