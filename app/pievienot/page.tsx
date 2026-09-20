@@ -493,6 +493,26 @@ export default function PievienotAuto() {
     mobileDropdownPointerStart.current = null
   }
 
+  const handleSuggestionInputBlur = (name: string) => {
+    if (!window.matchMedia('(max-width: 767px)').matches) return
+
+    window.setTimeout(() => {
+      if (
+        mobileKeyboardHistoryArmed.current &&
+        mobileDropdownHistoryArmed.current &&
+        mobileActiveFieldName.current === name
+      ) {
+        const field = mobileActiveField.current
+        setActiveDropdown(null)
+        if (field) {
+          const keepAtTop = () => positionMobileFieldForKeyboard(field, name, 'auto')
+          window.setTimeout(keepAtTop, 0)
+          window.setTimeout(keepAtTop, 200)
+        }
+      }
+    }, 0)
+  }
+
   const handleDropdownInputClick = (name: string) => {
     if (window.matchMedia('(max-width: 767px)').matches) return
     toggleDropdown(name)
@@ -914,6 +934,7 @@ export default function PievienotAuto() {
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'make')}
                   onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('make')}
+                  onBlur={() => handleSuggestionInputBlur('make')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'make' && (
@@ -944,6 +965,7 @@ export default function PievienotAuto() {
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'model')}
                   onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('model')}
+                  onBlur={() => handleSuggestionInputBlur('model')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'model' && (
@@ -982,6 +1004,7 @@ export default function PievienotAuto() {
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'year')}
                   onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('year')}
+                  onBlur={() => handleSuggestionInputBlur('year')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'year' && (
@@ -1030,6 +1053,7 @@ export default function PievienotAuto() {
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'engine')}
                   onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('engine')}
+                  onBlur={() => handleSuggestionInputBlur('engine')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'engine' && (
@@ -1061,6 +1085,7 @@ export default function PievienotAuto() {
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'volume')}
                   onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('volume')}
+                  onBlur={() => handleSuggestionInputBlur('volume')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'volume' && (
@@ -1094,6 +1119,7 @@ export default function PievienotAuto() {
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'gearbox')}
                   onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('gearbox')}
+                  onBlur={() => handleSuggestionInputBlur('gearbox')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'gearbox' && (
@@ -1124,6 +1150,7 @@ export default function PievienotAuto() {
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'bodyType')}
                   onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('bodyType')}
+                  onBlur={() => handleSuggestionInputBlur('bodyType')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'bodyType' && (
@@ -1157,6 +1184,7 @@ export default function PievienotAuto() {
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'color')}
                   onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('color')}
+                  onBlur={() => handleSuggestionInputBlur('color')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'color' && (
@@ -1220,6 +1248,7 @@ export default function PievienotAuto() {
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'sture')}
                   onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('sture')}
+                  onBlur={() => handleSuggestionInputBlur('sture')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'sture' && (
@@ -1315,6 +1344,7 @@ export default function PievienotAuto() {
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'region')}
                   onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('region')}
+                  onBlur={() => handleSuggestionInputBlur('region')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'region' && (
