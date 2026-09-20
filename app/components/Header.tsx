@@ -209,30 +209,26 @@ export default function Header() {
     if (!mobileMenuOpen || !window.matchMedia('(max-width: 767px)').matches) return
 
     const savedScrollY = mobileMenuScrollY.current
-    const body = document.body
-    const previousBodyPosition = body.style.position
-    const previousBodyTop = body.style.top
-    const previousBodyLeft = body.style.left
-    const previousBodyRight = body.style.right
-    const previousBodyWidth = body.style.width
-    const previousBodyOverflow = body.style.overflow
     const previousScrollRestoration = window.history.scrollRestoration
+    let restoreFrame: number | null = null
+
+    const keepBackgroundInPlace = () => {
+      if (Math.abs(window.scrollY - savedScrollY) < 1 || restoreFrame !== null) return
+      restoreFrame = window.requestAnimationFrame(() => {
+        window.scrollTo(0, savedScrollY)
+        restoreFrame = null
+      })
+    }
 
     window.history.scrollRestoration = 'manual'
-    body.style.position = 'fixed'
-    body.style.top = `-${savedScrollY}px`
-    body.style.left = '0'
-    body.style.right = '0'
-    body.style.width = '100%'
-    body.style.overflow = 'hidden'
+    window.scrollTo(0, savedScrollY)
+    window.addEventListener('scroll', keepBackgroundInPlace, { passive: true })
 
     return () => {
-      body.style.position = previousBodyPosition
-      body.style.top = previousBodyTop
-      body.style.left = previousBodyLeft
-      body.style.right = previousBodyRight
-      body.style.width = previousBodyWidth
-      body.style.overflow = previousBodyOverflow
+      window.removeEventListener('scroll', keepBackgroundInPlace)
+      if (restoreFrame !== null) {
+        window.cancelAnimationFrame(restoreFrame)
+      }
 
       const restoreScroll = () => window.scrollTo(0, savedScrollY)
       restoreScroll()
