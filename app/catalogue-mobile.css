@@ -835,6 +835,22 @@
     flex-wrap: wrap !important;
   }
 
+  [data-make-table-row='true'] > [data-cell='car'] > span:first-child {
+    min-width: 0;
+    overflow: hidden;
+    color: #111827 !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    line-height: 1.1;
+    letter-spacing: -0.2px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  html[data-temauto-theme='night'] [data-make-table-row='true'] > [data-cell='car'] > span:first-child {
+    color: #ffffff !important;
+  }
+
   [data-make-table-row='true'] > [data-cell='car'] [role='button'] {
     position: absolute !important;
     right: 10px !important;
