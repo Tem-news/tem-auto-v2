@@ -278,6 +278,7 @@ export default function PievienotAuto() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const mobileKeyboardReady = useRef<string | null>(null)
   const mobileKeyboardHistoryArmed = useRef(false)
+  const mobileDropdownHistoryArmed = useRef(false)
   const mobileDropdownPointerStart = useRef<{ name: string; x: number; y: number } | null>(null)
   
   useEffect(() => {
@@ -292,22 +293,41 @@ export default function PievienotAuto() {
   }, [])
 
   useEffect(() => {
-    if (activeDropdown === null) {
-      mobileKeyboardReady.current = null
+    if (activeDropdown !== null) return
+
+    mobileKeyboardReady.current = null
+    const historySteps =
+      (mobileKeyboardHistoryArmed.current ? 1 : 0) +
+      (mobileDropdownHistoryArmed.current ? 1 : 0)
+
+    if (historySteps > 0) {
+      mobileKeyboardHistoryArmed.current = false
+      mobileDropdownHistoryArmed.current = false
+      window.history.go(-historySteps)
     }
   }, [activeDropdown])
 
   useEffect(() => {
     const handleKeyboardBack = () => {
-      if (!mobileKeyboardHistoryArmed.current) return
-
-      mobileKeyboardHistoryArmed.current = false
-      const activeElement = document.activeElement
-      if (activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement) {
-        activeElement.blur()
+      if (mobileKeyboardHistoryArmed.current) {
+        mobileKeyboardHistoryArmed.current = false
+        const activeFieldName = mobileKeyboardReady.current
+        const activeElement = document.activeElement
+        if (activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement) {
+          activeElement.blur()
+        }
+        mobileKeyboardReady.current = null
+        if (!activeFieldName || !mobileSuggestionFields.has(activeFieldName)) {
+          setActiveDropdown(null)
+        }
+        return
       }
-      mobileKeyboardReady.current = null
-      setActiveDropdown(null)
+
+      if (mobileDropdownHistoryArmed.current) {
+        mobileDropdownHistoryArmed.current = false
+        mobileKeyboardReady.current = null
+        setActiveDropdown(null)
+      }
     }
 
     window.addEventListener('popstate', handleKeyboardBack)
@@ -380,10 +400,6 @@ export default function PievienotAuto() {
       event.currentTarget.blur()
       mobileKeyboardReady.current = null
       setActiveDropdown(null)
-      if (mobileKeyboardHistoryArmed.current) {
-        mobileKeyboardHistoryArmed.current = false
-        window.history.back()
-      }
       return
     }
 
@@ -402,6 +418,14 @@ export default function PievienotAuto() {
       positionMobileFieldForKeyboard(field, name)
       window.setTimeout(() => positionMobileFieldForKeyboard(field, name, 'auto'), 320)
     } else {
+      if (mobileSuggestionFields.has(name) && !mobileDropdownHistoryArmed.current) {
+        window.history.pushState(
+          { ...window.history.state, temautoFormDropdown: true },
+          '',
+          window.location.href
+        )
+        mobileDropdownHistoryArmed.current = true
+      }
       mobileKeyboardReady.current = name
       event.currentTarget.blur()
     }
