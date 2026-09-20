@@ -771,6 +771,15 @@ export default function Sakumlapa() {
     const nextMake = searchMake.toLowerCase() === make.toLowerCase() ? '' : make
     setMakeAndHistory(nextMake)
     setMobileMakesOpen(false)
+
+    const returnMakeListingsToTop = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+      document.documentElement.scrollTop = 0
+      document.body.scrollTop = 0
+    }
+    returnMakeListingsToTop()
+    window.requestAnimationFrame(returnMakeListingsToTop)
+    window.setTimeout(returnMakeListingsToTop, 180)
   }
 
   const toggleMobileCatalogueOverlay = (overlay: 'makes' | 'filters') => {
