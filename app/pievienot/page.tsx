@@ -277,6 +277,7 @@ export default function PievienotAuto() {
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const mobileKeyboardReady = useRef<string | null>(null)
+  const mobileKeyboardHistoryArmed = useRef(false)
   const mobileDropdownPointerStart = useRef<{ name: string; x: number; y: number } | null>(null)
   
   useEffect(() => {
@@ -295,6 +296,23 @@ export default function PievienotAuto() {
       mobileKeyboardReady.current = null
     }
   }, [activeDropdown])
+
+  useEffect(() => {
+    const handleKeyboardBack = () => {
+      if (!mobileKeyboardHistoryArmed.current) return
+
+      mobileKeyboardHistoryArmed.current = false
+      const activeElement = document.activeElement
+      if (activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement) {
+        activeElement.blur()
+      }
+      mobileKeyboardReady.current = null
+      setActiveDropdown(null)
+    }
+
+    window.addEventListener('popstate', handleKeyboardBack)
+    return () => window.removeEventListener('popstate', handleKeyboardBack)
+  }, [])
 
   const toggleDropdown = (name: string) => {
     setActiveDropdown(prev => prev === name ? null : name)
@@ -325,7 +343,9 @@ export default function PievienotAuto() {
     if (!anchorElement) return
 
     const visibleHeight = window.visualViewport?.height || window.innerHeight
-    const targetTop = hasSuggestions ? 58 : Math.max(76, visibleHeight * 0.42)
+    const targetTop = hasSuggestions || name === 'description'
+      ? 58
+      : Math.max(76, visibleHeight * 0.42)
     const currentTop = anchorElement.getBoundingClientRect().top
     window.scrollTo({
       top: Math.max(0, window.scrollY + currentTop - targetTop),
@@ -360,12 +380,24 @@ export default function PievienotAuto() {
       event.currentTarget.blur()
       mobileKeyboardReady.current = null
       setActiveDropdown(null)
+      if (mobileKeyboardHistoryArmed.current) {
+        mobileKeyboardHistoryArmed.current = false
+        window.history.back()
+      }
       return
     }
 
     setActiveDropdown(name)
     if (mobileKeyboardReady.current === name) {
       const field = event.currentTarget
+      if (!mobileKeyboardHistoryArmed.current) {
+        window.history.pushState(
+          { ...window.history.state, temautoFormKeyboard: true },
+          '',
+          window.location.href
+        )
+        mobileKeyboardHistoryArmed.current = true
+      }
       field.focus({ preventScroll: true })
       positionMobileFieldForKeyboard(field, name)
       window.setTimeout(() => positionMobileFieldForKeyboard(field, name, 'auto'), 320)
