@@ -383,6 +383,15 @@ export default function Sakumlapa() {
         return
       }
 
+      if (historyState.temAutoHeaderReturn === true) {
+        const cleanHistoryState = { ...historyState }
+        delete cleanHistoryState.temAutoHeaderReturn
+        window.history.replaceState(cleanHistoryState, '', window.location.href)
+        setMobileMakesOpen(mobileOverlay === 'makes')
+        setMobileFiltersOpen(mobileOverlay === 'filters')
+        return
+      }
+
       const visibleOverlay = document.querySelector(
         "[data-mobile-menu='true'], [data-header-visitor-stats='true'], [data-makes-column='true'][data-mobile-open='true'], [data-filter-row='true'][data-mobile-open='true']"
       )
