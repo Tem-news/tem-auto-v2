@@ -449,15 +449,16 @@ export default function AutoLapa() {
             z-index: 1002;
             width: calc(100% - 180px);
             min-width: 0;
-            max-height: 42px;
-            display: -webkit-box;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             overflow: hidden;
             transform: translateX(-50%);
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 2;
             white-space: normal;
+            overflow-wrap: anywhere;
             font-size: 17px;
-            line-height: 21px;
+            line-height: 19px;
             text-align: center;
             text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
           }
