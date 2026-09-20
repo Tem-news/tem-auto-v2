@@ -114,7 +114,7 @@ export default function Header() {
   const router = useRouter()
   const pathname = usePathname()
   const isListingDetail = /^\/auto\/[^/]+\/?$/.test(pathname)
-  const isAddCar = pathname === '/pievienot'
+  const isAddCar = pathname === '/pievienot' || /^\/auto\/[^/]+\/edit\/?$/.test(pathname)
   const isCabinet = pathname === '/kabinets'
   const [user, setUser] = useState<any>(null)
   const [visitCount, setVisitCount] = useState<number>(0)
