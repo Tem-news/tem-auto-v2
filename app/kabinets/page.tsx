@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
@@ -10,6 +10,89 @@ const formatPrice = (price: unknown) => {
   const number = Number(String(price).replace(/\s/g, ''))
   if (Number.isNaN(number)) return String(price)
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €'
+}
+
+function CabinetListingGallery({ images }: { images: string[] }) {
+  const galleryRef = useRef<HTMLDivElement>(null)
+  const touchStartX = useRef<number | null>(null)
+  const didSwipe = useRef(false)
+  const scrollEndTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isLooping = images.length > 1
+  const loopImages = isLooping ? [images[images.length - 1], ...images, images[0]] : images
+
+  const jumpTo = (left: number) => {
+    const gallery = galleryRef.current
+    if (!gallery) return
+    gallery.style.scrollBehavior = 'auto'
+    gallery.scrollLeft = left
+    requestAnimationFrame(() => {
+      gallery.style.scrollBehavior = ''
+    })
+  }
+
+  useEffect(() => {
+    if (!isLooping) return
+
+    const placeOnFirstImage = () => {
+      const gallery = galleryRef.current
+      if (gallery?.clientWidth) jumpTo(gallery.clientWidth)
+    }
+
+    placeOnFirstImage()
+    window.addEventListener('resize', placeOnFirstImage)
+    return () => {
+      window.removeEventListener('resize', placeOnFirstImage)
+      if (scrollEndTimer.current) clearTimeout(scrollEndTimer.current)
+    }
+  }, [isLooping, images.length])
+
+  const handleScroll = () => {
+    if (!isLooping || !galleryRef.current) return
+    if (scrollEndTimer.current) clearTimeout(scrollEndTimer.current)
+    scrollEndTimer.current = setTimeout(() => {
+      const gallery = galleryRef.current
+      if (!gallery?.clientWidth) return
+      const slide = Math.round(gallery.scrollLeft / gallery.clientWidth)
+      if (slide === 0) jumpTo(images.length * gallery.clientWidth)
+      if (slide === images.length + 1) jumpTo(gallery.clientWidth)
+    }, 80)
+  }
+
+  return (
+    <div
+      ref={galleryRef}
+      data-make-row-gallery="true"
+      onScroll={handleScroll}
+      onTouchStart={(event) => {
+        touchStartX.current = event.touches[0]?.clientX ?? null
+        didSwipe.current = false
+      }}
+      onTouchMove={(event) => {
+        const currentX = event.touches[0]?.clientX
+        if (touchStartX.current !== null && currentX !== undefined && Math.abs(currentX - touchStartX.current) > 8) {
+          didSwipe.current = true
+        }
+      }}
+      onClickCapture={(event) => {
+        if (didSwipe.current) {
+          event.preventDefault()
+          event.stopPropagation()
+          didSwipe.current = false
+        }
+      }}
+      style={{ width: '112px', height: '68px', overflow: 'hidden', borderRadius: '6px', backgroundColor: '#e5e7eb' }}
+    >
+      {loopImages.map((image, index) => (
+        <img
+          key={`${image}-${index}`}
+          src={image}
+          alt=""
+          draggable={false}
+          style={{ width: '112px', minWidth: '112px', height: '68px', objectFit: 'cover' }}
+        />
+      ))}
+    </div>
+  )
 }
 
 export default function KabinetsPage() {
@@ -152,11 +235,7 @@ export default function KabinetsPage() {
                   >
                     <Link href={`/auto/${car.id}`} data-cell="photo" aria-label={`Apskatīt ${car.make || ''} ${car.model || ''}`.trim()}>
                       {galleryImages.length > 0 ? (
-                        <div data-make-row-gallery="true" style={{ width: '112px', height: '68px', overflow: 'hidden', borderRadius: '6px', backgroundColor: '#e5e7eb' }}>
-                          {galleryImages.map((image, index) => (
-                            <img key={`${image}-${index}`} src={image} alt="" style={{ width: '112px', height: '68px', objectFit: 'cover' }} />
-                          ))}
-                        </div>
+                        <CabinetListingGallery images={galleryImages} />
                       ) : (
                         <div style={{ width: '112px', height: '68px', borderRadius: '6px', backgroundColor: '#e5e7eb' }} />
                       )}
