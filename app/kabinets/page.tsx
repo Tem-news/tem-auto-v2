@@ -193,6 +193,14 @@ export default function KabinetsPage() {
             background-color: #111827 !important;
             border-color: #334155 !important;
           }
+
+          [data-cabinet-car-title="true"] {
+            color: #1d4ed8 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-cabinet-car-title="true"] {
+            color: #ffffff !important;
+          }
         }
       `}</style>
       <section data-cabinet-panel="true" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
@@ -242,7 +250,7 @@ export default function KabinetsPage() {
                     </Link>
 
                     <div data-cell="car" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-                      <Link href={`/auto/${car.id}`} style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1d4ed8', textDecoration: 'none', fontSize: '15px', fontWeight: '700' }}>
+                      <Link href={`/auto/${car.id}`} data-cabinet-car-title="true" style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1d4ed8', textDecoration: 'none', fontSize: '15px', fontWeight: '700' }}>
                         {car.make} {car.model}
                       </Link>
                       <Link
