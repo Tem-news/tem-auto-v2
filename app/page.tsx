@@ -467,6 +467,7 @@ export default function Sakumlapa() {
   const filterPointerStart = useRef<{ name: string; x: number; y: number } | null>(null)
   const filterDropdownHistoryArmed = useRef(false)
   const filterKeyboardHistoryArmed = useRef(false)
+  const filterIgnoreNextPopstate = useRef(false)
   const filterSuggestionFields = new Set([
     'valsts',
     'regions',
@@ -558,6 +559,11 @@ export default function Sakumlapa() {
 
   useEffect(() => {
     const handleFilterBack = () => {
+      if (filterIgnoreNextPopstate.current) {
+        filterIgnoreNextPopstate.current = false
+        return
+      }
+
       if (filterKeyboardHistoryArmed.current) {
         filterKeyboardHistoryArmed.current = false
         const fieldName = filterTapReady.current
@@ -578,6 +584,31 @@ export default function Sakumlapa() {
 
     window.addEventListener('popstate', handleFilterBack)
     return () => window.removeEventListener('popstate', handleFilterBack)
+  }, [])
+
+  useEffect(() => {
+    const viewport = window.visualViewport
+    if (!viewport) return
+
+    let previousHeight = viewport.height
+    const handleFilterKeyboardResize = () => {
+      const currentHeight = viewport.height
+      const keyboardWasClosed =
+        filterKeyboardHistoryArmed.current &&
+        currentHeight > previousHeight + 80
+      previousHeight = currentHeight
+      if (!keyboardWasClosed) return
+
+      filterKeyboardHistoryArmed.current = false
+      const field = filterActiveField.current
+      if (field && document.activeElement === field) field.blur()
+
+      filterIgnoreNextPopstate.current = true
+      window.history.back()
+    }
+
+    viewport.addEventListener('resize', handleFilterKeyboardResize)
+    return () => viewport.removeEventListener('resize', handleFilterKeyboardResize)
   }, [])
 
   useEffect(() => {
