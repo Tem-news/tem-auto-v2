@@ -177,6 +177,21 @@ export default function Header() {
     }
     const syncHeaderOverlayFromHistory = () => {
       const headerOverlay = window.history.state?.temAutoHeaderOverlay
+
+      if (mobileMenuGestureDismissed.current) {
+        if (headerOverlay === 'menu') {
+          window.history.back()
+          return
+        }
+
+        mobileMenuGestureDismissed.current = false
+        setMobileMenuClosing(false)
+        setMobileMenuOpen(false)
+        setVisitorStatsOpen(headerOverlay === 'visitors')
+        return
+      }
+
+      setMobileMenuClosing(false)
       setMobileMenuOpen(headerOverlay === 'menu')
       setVisitorStatsOpen(headerOverlay === 'visitors')
     }
@@ -327,9 +342,10 @@ export default function Header() {
       if (window.history.state?.temAutoHeaderOverlay === 'menu') {
         window.history.back()
       } else {
+        mobileMenuGestureDismissed.current = false
         setMobileMenuOpen(false)
+        setMobileMenuClosing(false)
       }
-      setMobileMenuClosing(false)
     }, 180)
   }
 
