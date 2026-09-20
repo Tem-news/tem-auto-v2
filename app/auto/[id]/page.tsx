@@ -561,6 +561,10 @@ export default function AutoLapa() {
             object-position: center !important;
           }
 
+          [data-listing-photo-edit="true"] {
+            display: inline-flex !important;
+          }
+
           [data-listing-detail-data="true"] {
             order: 2;
             width: 100% !important;
@@ -1025,6 +1029,35 @@ export default function AutoLapa() {
               onTouchEnd={handleImageTouchEnd}
               style={{ position: 'relative', width: activeImageFrameWidth, aspectRatio: String(activeImageRatio), maxHeight: '360px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', margin: '0 auto 8px', touchAction: 'pan-y' }}
             >
+              {!isPreviewListing(car) && Boolean(car.user_id) && car.user_id === currentUserId && (
+                <Link
+                  href={`/auto/${id}/edit`}
+                  data-listing-photo-edit="true"
+                  onClick={(event) => event.stopPropagation()}
+                  style={{
+                    display: 'none',
+                    position: 'absolute',
+                    top: '10px',
+                    left: '10px',
+                    zIndex: 25,
+                    minHeight: '32px',
+                    padding: '6px 11px',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#ffffff',
+                    backgroundColor: 'rgba(37, 99, 235, 0.92)',
+                    border: '1px solid rgba(255,255,255,0.78)',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 7px rgba(0,0,0,0.34)',
+                    textDecoration: 'none',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    lineHeight: 1
+                  }}
+                >
+                  ✏️ Rediģēt
+                </Link>
+              )}
               <img
                 src={activeImage}
                 alt={`${car.make} ${car.model}`}
