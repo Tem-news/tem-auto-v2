@@ -1246,7 +1246,7 @@ export default function PievienotAuto() {
                 />
                 <label htmlFor="file-upload" style={{ cursor: 'pointer', display: 'block' }}>
                   <span style={{ display: 'block', fontSize: '13.5px', color: '#374151', fontWeight: '500', marginBottom: '2px' }}>
-                    Ievilkt attēlus šeit vai <span style={{ color: '#2563eb' }}>izvēlēties failus</span>
+                    <span style={{ color: '#2563eb' }}>Izvēlēties failus</span>
                   </span>
                   <span style={{ fontSize: '11.5px', color: '#6b7280' }}>PNG, JPG vai WEBP</span>
                 </label>
