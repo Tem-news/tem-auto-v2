@@ -300,7 +300,7 @@ export default function PievienotAuto() {
     setActiveDropdown(prev => prev === name ? null : name)
   }
 
-  const handleDropdownInputPointerDown = (event: React.PointerEvent<HTMLInputElement>, name: string) => {
+  const handleDropdownInputPointerDown = (event: React.PointerEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
     const isMobileTouch = window.matchMedia('(max-width: 767px)').matches && event.pointerType !== 'mouse'
     if (!isMobileTouch) return
 
@@ -312,7 +312,7 @@ export default function PievienotAuto() {
     }
   }
 
-  const handleDropdownInputPointerUp = (event: React.PointerEvent<HTMLInputElement>, name: string) => {
+  const handleDropdownInputPointerUp = (event: React.PointerEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
     const start = mobileDropdownPointerStart.current
     mobileDropdownPointerStart.current = null
     if (!start || start.name !== name) return
@@ -1052,6 +1052,9 @@ export default function PievienotAuto() {
                   placeholder="Ievadiet VIN kods"
                   value={vin}
                   onChange={(e) => setVin(e.target.value)}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'vin')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'vin')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
               </div>
@@ -1111,6 +1114,9 @@ export default function PievienotAuto() {
                   placeholder="Piem., Melna āda"
                   value={salonaKrasa}
                   onChange={(e) => setSalonaKrasa(e.target.value)}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'salonaKrasa')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'salonaKrasa')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
               </div>
@@ -1189,6 +1195,9 @@ export default function PievienotAuto() {
                   placeholder="tavs@epasts.lv"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'email')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'email')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
               </div>
@@ -1197,9 +1206,13 @@ export default function PievienotAuto() {
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Telefons</label>
                 <input
                   type="text"
+                  inputMode="tel"
                   placeholder="+371 ..."
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'phone')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'phone')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
               </div>
@@ -1213,6 +1226,9 @@ export default function PievienotAuto() {
                 placeholder="Papildus informācija par auto stāvokli, komplektāciju..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                onPointerDown={(event) => handleDropdownInputPointerDown(event, 'description')}
+                onPointerUp={(event) => handleDropdownInputPointerUp(event, 'description')}
+                onPointerCancel={handleDropdownInputPointerCancel}
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', resize: 'vertical' }}
               />
             </div>
