@@ -138,6 +138,7 @@ export default function Header() {
   const mobileMenuTouchStart = useRef<{ x: number; y: number } | null>(null)
   const mobileMenuScrollY = useRef(0)
   const mobileMenuTouchOpenAt = useRef(0)
+  const mobileMenuGestureDismissed = useRef(false)
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('temauto-mobile-theme')
@@ -317,9 +318,40 @@ export default function Header() {
     toggleMobileMenu()
   }
 
+  const dismissMobileMenuByGesture = () => {
+    if (mobileMenuGestureDismissed.current) return
+
+    mobileMenuGestureDismissed.current = true
+    setMobileMenuClosing(true)
+    window.setTimeout(() => {
+      if (window.history.state?.temAutoHeaderOverlay === 'menu') {
+        window.history.back()
+      } else {
+        setMobileMenuOpen(false)
+      }
+      setMobileMenuClosing(false)
+    }, 180)
+  }
+
   const handleMobileMenuTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
     const touch = event.touches[0]
+    mobileMenuGestureDismissed.current = false
     mobileMenuTouchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null
+  }
+
+  const handleMobileMenuTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    const start = mobileMenuTouchStart.current
+    const touch = event.touches[0]
+    if (!start || !touch) return
+
+    const deltaX = touch.clientX - start.x
+    const deltaY = touch.clientY - start.y
+    const isUpwardDismiss = deltaY < -42 && Math.abs(deltaY) > Math.abs(deltaX)
+
+    if (isUpwardDismiss) {
+      mobileMenuTouchStart.current = null
+      dismissMobileMenuByGesture()
+    }
   }
 
   const handleMobileMenuTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
@@ -330,14 +362,10 @@ export default function Header() {
 
     const deltaX = touch.clientX - start.x
     const deltaY = touch.clientY - start.y
-    const isUpwardDismiss = deltaY < -55 && Math.abs(deltaY) > Math.abs(deltaX)
+    const isUpwardDismiss = deltaY < -42 && Math.abs(deltaY) > Math.abs(deltaX)
 
-    if (isUpwardDismiss && !mobileMenuClosing) {
-      setMobileMenuClosing(true)
-      window.setTimeout(() => {
-        toggleMobileMenu()
-        setMobileMenuClosing(false)
-      }, 180)
+    if (isUpwardDismiss) {
+      dismissMobileMenuByGesture()
     }
   }
 
@@ -934,10 +962,13 @@ export default function Header() {
               data-mobile-menu="true"
               data-closing={mobileMenuClosing ? 'true' : undefined}
               onTouchStart={handleMobileMenuTouchStart}
+              onTouchMove={handleMobileMenuTouchMove}
               onTouchEnd={handleMobileMenuTouchEnd}
               onTouchCancel={() => {
                 mobileMenuTouchStart.current = null
-                setMobileMenuClosing(false)
+                if (!mobileMenuGestureDismissed.current) {
+                  setMobileMenuClosing(false)
+                }
               }}
             >
               <div data-mobile-menu-selectors="true">
