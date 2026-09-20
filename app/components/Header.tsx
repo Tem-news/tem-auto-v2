@@ -839,6 +839,7 @@ export default function Header() {
             {user ? (
               <Link
                 href="/kabinets"
+                data-header-account-link="true"
                 style={{ fontSize: '12px', color: '#cbd5e1', backgroundColor: '#1e293b', padding: '5px 10px', borderRadius: '12px', border: '1px solid #334155', textDecoration: 'none', cursor: 'pointer' }}
               >
                 {user.user_metadata?.nickname || user.email}
