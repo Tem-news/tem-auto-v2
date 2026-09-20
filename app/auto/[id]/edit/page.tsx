@@ -178,7 +178,9 @@ export default function RedigetAuto() {
       
       const existing = Array.isArray(data.images)
         ? data.images
-        : [data.image, data.image_url].filter((url): url is string => typeof url === 'string' && url.trim() !== '')
+        : data.images
+          ? [data.images]
+          : [data.image, data.image_url].filter((url): url is string => typeof url === 'string' && url.trim() !== '')
       setImages(existing.map((url: string) => ({ url, isNew: false })))
       
       setLoading(false)
@@ -423,7 +425,7 @@ export default function RedigetAuto() {
                       </span>
                       <input
                         type={field.type}
-                        inputMode={field.inputMode as 'numeric' | 'decimal' | undefined}
+                        inputMode={('inputMode' in field ? field.inputMode : undefined) as 'numeric' | 'decimal' | undefined}
                         disabled={isLocked}
                         value={supplementalValues[field.key] || ''}
                         placeholder={isLocked ? '' : 'Papildināt'}
