@@ -771,6 +771,7 @@
     border: 1px solid #e5e7eb !important;
     border-radius: 8px !important;
     box-sizing: border-box !important;
+    position: relative !important;
     font-size: 14px !important;
     -webkit-tap-highlight-color: transparent;
   }
@@ -835,7 +836,10 @@
   }
 
   [data-make-table-row='true'] > [data-cell='car'] [role='button'] {
-    margin-left: auto !important;
+    position: absolute !important;
+    right: 10px !important;
+    bottom: 4px !important;
+    margin-left: 0 !important;
   }
 
   [data-make-table-row='true'] > [data-cell='year'] {
