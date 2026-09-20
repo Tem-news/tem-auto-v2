@@ -136,6 +136,8 @@ export default function Header() {
   const langRef = useRef<HTMLDivElement>(null)
   const regionRef = useRef<HTMLDivElement>(null)
   const mobileMenuTouchStart = useRef<{ x: number; y: number } | null>(null)
+  const mobileMenuScrollY = useRef(0)
+  const mobileMenuTouchOpenAt = useRef(0)
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('temauto-mobile-theme')
@@ -186,6 +188,45 @@ export default function Header() {
       subscription.unsubscribe()
     }
   }, [])
+
+  useEffect(() => {
+    if (!mobileMenuOpen || !window.matchMedia('(max-width: 767px)').matches) return
+
+    const savedScrollY = mobileMenuScrollY.current
+    const body = document.body
+    const previousBodyPosition = body.style.position
+    const previousBodyTop = body.style.top
+    const previousBodyLeft = body.style.left
+    const previousBodyRight = body.style.right
+    const previousBodyWidth = body.style.width
+    const previousBodyOverflow = body.style.overflow
+    const previousScrollRestoration = window.history.scrollRestoration
+
+    window.history.scrollRestoration = 'manual'
+    body.style.position = 'fixed'
+    body.style.top = `-${savedScrollY}px`
+    body.style.left = '0'
+    body.style.right = '0'
+    body.style.width = '100%'
+    body.style.overflow = 'hidden'
+
+    return () => {
+      body.style.position = previousBodyPosition
+      body.style.top = previousBodyTop
+      body.style.left = previousBodyLeft
+      body.style.right = previousBodyRight
+      body.style.width = previousBodyWidth
+      body.style.overflow = previousBodyOverflow
+
+      const restoreScroll = () => window.scrollTo(0, savedScrollY)
+      restoreScroll()
+      window.requestAnimationFrame(restoreScroll)
+      window.setTimeout(() => {
+        restoreScroll()
+        window.history.scrollRestoration = previousScrollRestoration
+      }, 80)
+    }
+  }, [mobileMenuOpen])
 
   const handleAddCarClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -245,8 +286,15 @@ export default function Header() {
       return
     }
 
+    const savedScrollY = window.scrollY
+    mobileMenuScrollY.current = savedScrollY
+    window.scrollTo(0, savedScrollY)
+
+    const baseHistoryState = { ...window.history.state }
+    delete baseHistoryState.temAutoHeaderOverlay
+    window.history.replaceState(baseHistoryState, '', window.location.href)
     window.history.pushState(
-      { ...window.history.state, temAutoHeaderOverlay: 'menu' },
+      { ...baseHistoryState, temAutoHeaderOverlay: 'menu' },
       '',
       window.location.href
     )
@@ -255,6 +303,18 @@ export default function Header() {
     setVisitorStatsOpen(false)
     setLangOpen(false)
     setRegionOpen(false)
+  }
+
+  const handleMobileMenuButtonTouchStart = (event: React.TouchEvent<HTMLButtonElement>) => {
+    if (mobileMenuOpen) return
+    event.preventDefault()
+    mobileMenuTouchOpenAt.current = Date.now()
+    toggleMobileMenu()
+  }
+
+  const handleMobileMenuButtonClick = () => {
+    if (Date.now() - mobileMenuTouchOpenAt.current < 700) return
+    toggleMobileMenu()
   }
 
   const handleMobileMenuTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
@@ -272,7 +332,7 @@ export default function Header() {
     const deltaY = touch.clientY - start.y
     const isUpwardDismiss = deltaY < -55 && Math.abs(deltaY) > Math.abs(deltaX)
 
-    if (isUpwardDismiss) {
+    if (isUpwardDismiss && !mobileMenuClosing) {
       setMobileMenuClosing(true)
       window.setTimeout(() => {
         toggleMobileMenu()
@@ -854,7 +914,8 @@ export default function Header() {
               data-mobile-menu-toggle="true"
               aria-label="Atvērt izvēlni"
               aria-expanded={mobileMenuOpen}
-              onClick={toggleMobileMenu}
+              onTouchStart={handleMobileMenuButtonTouchStart}
+              onClick={handleMobileMenuButtonClick}
             >
               <span aria-hidden="true">☰</span>
             </button>
