@@ -169,17 +169,33 @@
   body:has([data-catalogue-page='true']) [data-header-add='true'] {
     grid-column: 2;
     grid-row: 1;
+    display: flex !important;
+    width: 44px !important;
+    height: 34px !important;
+    min-height: 34px !important;
     margin-left: 10px;
+    padding: 0 !important;
+    align-items: center;
+    justify-content: center;
+    font-size: 0 !important;
+    line-height: 1;
+    box-sizing: border-box;
+  }
+
+  body:has([data-catalogue-page='true']) [data-header-add='true']::after {
+    content: '+';
+    color: #ffffff;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1;
   }
 
   body:has([data-catalogue-page='true']) [data-mobile-menu-toggle='true'] {
-    position: absolute !important;
-    top: 10px !important;
-    left: 50% !important;
-    z-index: 4 !important;
-    grid-column: auto;
-    grid-row: auto;
-    transform: translateX(-50%);
+    position: static !important;
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: end;
+    transform: none;
   }
 
   [data-mobile-menu-toggle='true'] {
