@@ -366,7 +366,7 @@ export default function Header() {
             </Link>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px', minWidth: 0 }}>
-              <strong style={{ color: '#e2e8f0', fontSize: '14px', whiteSpace: 'nowrap' }}>Mans kabinets</strong>
+              <strong style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', color: '#e2e8f0', fontSize: '16px', whiteSpace: 'nowrap' }}>Mans kabinets</strong>
               <button
                 type="button"
                 onClick={handleHeaderLogout}
