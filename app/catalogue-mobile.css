@@ -179,14 +179,16 @@
   }
 
   body:has([data-catalogue-page='true']) [data-header-add='true'] {
-    grid-column: 2 / 4;
+    position: absolute;
+    left: 58%;
+    right: 52px;
+    top: 0;
     grid-row: 1;
     display: flex !important;
     width: auto !important;
-    justify-self: stretch;
     height: 34px !important;
     min-height: 34px !important;
-    margin-left: 29px;
+    margin: 0;
     padding: 0 !important;
     align-items: center;
     justify-content: center;
