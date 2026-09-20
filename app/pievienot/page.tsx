@@ -279,6 +279,9 @@ export default function PievienotAuto() {
   const mobileKeyboardReady = useRef<string | null>(null)
   const mobileKeyboardHistoryArmed = useRef(false)
   const mobileDropdownHistoryArmed = useRef(false)
+  const mobileIgnoreNextPopstate = useRef(false)
+  const mobileActiveField = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null)
+  const mobileActiveFieldName = useRef<string | null>(null)
   const mobileDropdownPointerStart = useRef<{ name: string; x: number; y: number } | null>(null)
   
   useEffect(() => {
@@ -308,10 +311,22 @@ export default function PievienotAuto() {
   }, [activeDropdown])
 
   useEffect(() => {
+    const keepActiveSuggestionAtTop = () => {
+      const field = mobileActiveField.current
+      const name = mobileActiveFieldName.current
+      if (!field || !name || !mobileSuggestionFields.has(name)) return
+      positionMobileFieldForKeyboard(field, name, 'auto')
+    }
+
     const handleKeyboardBack = () => {
+      if (mobileIgnoreNextPopstate.current) {
+        mobileIgnoreNextPopstate.current = false
+        return
+      }
+
       if (mobileKeyboardHistoryArmed.current) {
         mobileKeyboardHistoryArmed.current = false
-        const activeFieldName = mobileKeyboardReady.current
+        const activeFieldName = mobileActiveFieldName.current || mobileKeyboardReady.current
         const activeElement = document.activeElement
         if (activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement) {
           activeElement.blur()
@@ -319,6 +334,9 @@ export default function PievienotAuto() {
         mobileKeyboardReady.current = null
         if (!activeFieldName || !mobileSuggestionFields.has(activeFieldName)) {
           setActiveDropdown(null)
+        } else {
+          window.setTimeout(keepActiveSuggestionAtTop, 0)
+          window.setTimeout(keepActiveSuggestionAtTop, 180)
         }
         return
       }
@@ -327,11 +345,48 @@ export default function PievienotAuto() {
         mobileDropdownHistoryArmed.current = false
         mobileKeyboardReady.current = null
         setActiveDropdown(null)
+        window.setTimeout(keepActiveSuggestionAtTop, 0)
+        window.setTimeout(keepActiveSuggestionAtTop, 180)
       }
     }
 
     window.addEventListener('popstate', handleKeyboardBack)
     return () => window.removeEventListener('popstate', handleKeyboardBack)
+  }, [])
+
+  useEffect(() => {
+    const viewport = window.visualViewport
+    if (!viewport) return
+
+    let previousHeight = viewport.height
+    const handleViewportResize = () => {
+      const currentHeight = viewport.height
+      const keyboardWasClosed =
+        mobileKeyboardHistoryArmed.current &&
+        currentHeight > previousHeight + 80
+      previousHeight = currentHeight
+      if (!keyboardWasClosed) return
+
+      const field = mobileActiveField.current
+      const name = mobileActiveFieldName.current
+      mobileKeyboardHistoryArmed.current = false
+      mobileKeyboardReady.current = null
+      if (field) field.blur()
+
+      mobileIgnoreNextPopstate.current = true
+      window.history.back()
+
+      if (field && name && mobileSuggestionFields.has(name)) {
+        const keepAtTop = () => positionMobileFieldForKeyboard(field, name, 'auto')
+        window.setTimeout(keepAtTop, 0)
+        window.setTimeout(keepAtTop, 180)
+      } else {
+        setActiveDropdown(null)
+      }
+    }
+
+    viewport.addEventListener('resize', handleViewportResize)
+    return () => viewport.removeEventListener('resize', handleViewportResize)
   }, [])
 
   const toggleDropdown = (name: string) => {
@@ -392,6 +447,9 @@ export default function PievienotAuto() {
 
     const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y)
     if (moved > 10) return
+
+    mobileActiveField.current = event.currentTarget
+    mobileActiveFieldName.current = name
 
     if (
       mobileKeyboardReady.current === name &&
