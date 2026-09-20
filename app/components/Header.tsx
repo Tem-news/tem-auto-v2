@@ -302,7 +302,7 @@ export default function Header() {
     mobileMenuScrollY.current = savedScrollY
     window.scrollTo(0, savedScrollY)
 
-    const baseHistoryState = { ...window.history.state }
+    const baseHistoryState = { ...window.history.state, temAutoHeaderReturn: true }
     delete baseHistoryState.temAutoHeaderOverlay
     window.history.replaceState(baseHistoryState, '', window.location.href)
     window.history.pushState(
