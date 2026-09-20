@@ -462,9 +462,74 @@ export default function Sakumlapa() {
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const filterTapReady = useRef<string | null>(null)
+  const filterActiveField = useRef<HTMLInputElement | null>(null)
+  const filterPointerStart = useRef<{ name: string; x: number; y: number } | null>(null)
+  const filterSuggestionFields = new Set([
+    'valsts',
+    'regions',
+    'dzinejs',
+    'minTilpums',
+    'maxTilpums',
+    'atrumkarba',
+    'virsbuve',
+    'krasa'
+  ])
 
   const toggleDropdown = (name: string) => {
     setActiveDropdown(prev => prev === name ? null : name)
+  }
+
+  const handleFilterPointerDownCapture = (event: React.PointerEvent<HTMLDivElement>) => {
+    const field = (event.target as HTMLElement).closest<HTMLInputElement>('[data-filter-field]')
+    const name = field?.dataset.filterField
+    const isMobileTouch = window.matchMedia('(max-width: 767px)').matches && event.pointerType !== 'mouse'
+    if (!field || !name || !isMobileTouch) return
+
+    event.preventDefault()
+    filterPointerStart.current = { name, x: event.clientX, y: event.clientY }
+  }
+
+  const handleFilterPointerUpCapture = (event: React.PointerEvent<HTMLDivElement>) => {
+    const field = (event.target as HTMLElement).closest<HTMLInputElement>('[data-filter-field]')
+    const name = field?.dataset.filterField
+    const start = filterPointerStart.current
+    filterPointerStart.current = null
+    if (!field || !name || !start || start.name !== name) return
+
+    const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y)
+    if (moved > 10) return
+
+    filterActiveField.current = field
+    const isSuggestionField = filterSuggestionFields.has(name)
+
+    if (filterTapReady.current === name && document.activeElement === field) {
+      field.blur()
+      filterTapReady.current = null
+      setActiveDropdown(null)
+      return
+    }
+
+    if (filterTapReady.current === name) {
+      if (isSuggestionField) setActiveDropdown(name)
+      field.focus({ preventScroll: true })
+      return
+    }
+
+    filterTapReady.current = name
+    if (isSuggestionField) {
+      setActiveDropdown(name)
+    } else {
+      setActiveDropdown(null)
+    }
+    field.blur()
+  }
+
+  const handleFilterClickCapture = (event: React.MouseEvent<HTMLDivElement>) => {
+    const field = (event.target as HTMLElement).closest<HTMLInputElement>('[data-filter-field]')
+    if (!field || !window.matchMedia('(max-width: 767px)').matches) return
+    event.preventDefault()
+    event.stopPropagation()
   }
 
   const hasActiveFilters = searchMake 
@@ -807,6 +872,12 @@ export default function Sakumlapa() {
             data-mobile-closing={mobileFiltersClosing ? 'true' : undefined}
             onTouchStart={handleMobileFiltersTouchStart}
             onTouchEnd={handleMobileFiltersTouchEnd}
+            onPointerDownCapture={handleFilterPointerDownCapture}
+            onPointerUpCapture={handleFilterPointerUpCapture}
+            onClickCapture={handleFilterClickCapture}
+            onPointerCancel={() => {
+              filterPointerStart.current = null
+            }}
             onTouchCancel={() => {
               mobileFiltersTouchStart.current = null
               setMobileFiltersClosing(false)
@@ -881,7 +952,7 @@ export default function Sakumlapa() {
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
                   type="text"
-                  placeholder="Valsts"
+                  data-filter-field="valsts"\n                  placeholder="Valsts"
                   value={valsts}
                   onChange={(e) => { setValsts(e.target.value); setActiveDropdown('valsts'); }}
                   onClick={() => toggleDropdown('valsts')}
@@ -915,7 +986,7 @@ export default function Sakumlapa() {
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
                   type="text"
-                  placeholder={valsts ? `Reģions (${valsts})` : "Reģions"}
+                  data-filter-field="regions"\n                  placeholder={valsts ? `Reģions (${valsts})` : "Reģions"}
                   value={regions}
                   onChange={(e) => { setRegions(e.target.value); setActiveDropdown('regions'); }}
                   onClick={() => toggleDropdown('regions')}
@@ -940,7 +1011,7 @@ export default function Sakumlapa() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <input 
                   type="text" 
-                  placeholder="Cena no" 
+                  data-filter-field="minPrice"\n                  inputMode="numeric"\n                  placeholder="Cena no" 
                   value={displayMinPrice} 
                   onChange={(e) => {
                     const formatted = formatNumberWithSpace(e.target.value)
@@ -953,6 +1024,8 @@ export default function Sakumlapa() {
                 <input 
                   type="text" 
                   placeholder="līdz" 
+                  data-filter-field="maxPrice"
+                  inputMode="numeric"
                   value={displayMaxPrice} 
                   onChange={(e) => {
                     const formatted = formatNumberWithSpace(e.target.value)
@@ -964,9 +1037,9 @@ export default function Sakumlapa() {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <input type="number" placeholder="Gads no" value={minYear} onChange={(e) => setMinYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
+                <input type="number" data-filter-field="minYear" inputMode="numeric" placeholder="Gads no" value={minYear} onChange={(e) => setMinYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
                 <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
-                <input type="number" placeholder="līdz" value={maxYear} onChange={(e) => setMaxYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
+                <input type="number" data-filter-field="maxYear" inputMode="numeric" placeholder="līdz" value={maxYear} onChange={(e) => setMaxYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
               </div>
             </div>
 
@@ -975,7 +1048,7 @@ export default function Sakumlapa() {
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
                   type="text"
-                  placeholder="Dzinējs"
+                  data-filter-field="dzinejs"\n                  placeholder="Dzinējs"
                   value={dzinejs}
                   onChange={(e) => { setDzinejs(e.target.value); setActiveDropdown('dzinejs'); }}
                   onClick={() => toggleDropdown('dzinejs')}
@@ -1001,7 +1074,7 @@ export default function Sakumlapa() {
                 <div style={{ position: 'relative', width: '70px' }}>
                   <input 
                     type="text" 
-                    placeholder="Tilp. no" 
+                    data-filter-field="minTilpums"\n                    inputMode="decimal"\n                    placeholder="Tilp. no" 
                     value={minTilpums} 
                     onChange={(e) => { setMinTilpums(e.target.value); setActiveDropdown('minTilpums'); }} 
                     onClick={() => toggleDropdown('minTilpums')}
@@ -1020,6 +1093,8 @@ export default function Sakumlapa() {
                   <input 
                     type="text" 
                     placeholder="līdz" 
+                    data-filter-field="maxTilpums"
+                    inputMode="decimal"
                     value={maxTilpums} 
                     onChange={(e) => { setMaxTilpums(e.target.value); setActiveDropdown('maxTilpums'); }} 
                     onClick={() => toggleDropdown('maxTilpums')}
@@ -1038,7 +1113,7 @@ export default function Sakumlapa() {
               <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
                 <input
                   type="text"
-                  placeholder="Ātrumkārba"
+                  data-filter-field="atrumkarba"\n                  placeholder="Ātrumkārba"
                   value={atrumkarba}
                   onChange={(e) => { setAtrumkarba(e.target.value); setActiveDropdown('atrumkarba'); }}
                   onClick={() => toggleDropdown('atrumkarba')}
@@ -1057,7 +1132,7 @@ export default function Sakumlapa() {
               <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
                 <input
                   type="text"
-                  placeholder="Virsbūve"
+                  data-filter-field="virsbuve"\n                  placeholder="Virsbūve"
                   value={virsbuve}
                   onChange={(e) => { setVirsbuve(e.target.value); setActiveDropdown('virsbuve'); }}
                   onClick={() => toggleDropdown('virsbuve')}
@@ -1076,7 +1151,7 @@ export default function Sakumlapa() {
               <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
                 <input
                   type="text"
-                  placeholder="Krāsa"
+                  data-filter-field="krasa"\n                  placeholder="Krāsa"
                   value={krasa}
                   onChange={(e) => { setKrasa(e.target.value); setActiveDropdown('krasa'); }}
                   onClick={() => toggleDropdown('krasa')}
