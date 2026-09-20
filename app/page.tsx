@@ -767,6 +767,12 @@ export default function Sakumlapa() {
   }
 
   const handleMobileFiltersTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    const startedInsideSuggestionList = (event.target as HTMLElement).closest('[data-filter-dropdown="true"]')
+    if (startedInsideSuggestionList) {
+      mobileFiltersTouchStart.current = null
+      return
+    }
+
     const touch = event.touches[0]
     mobileFiltersTouchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null
   }
