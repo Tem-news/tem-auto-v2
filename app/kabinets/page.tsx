@@ -84,6 +84,32 @@ export default function KabinetsPage() {
             border-right: 0 !important;
             border-radius: 0 !important;
           }
+
+          html[data-temauto-theme="night"] body:has([data-cabinet-page="true"]),
+          html[data-temauto-theme="night"] [data-cabinet-page="true"] {
+            background-color: #020617 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-cabinet-page="true"] {
+            min-height: calc(100vh - 58px) !important;
+            color: #e5e7eb !important;
+          }
+
+          html[data-temauto-theme="night"] [data-cabinet-panel="true"] {
+            background-color: #020617 !important;
+            border-color: #334155 !important;
+            box-shadow: none !important;
+          }
+
+          html[data-temauto-theme="night"] [data-cabinet-title="true"] {
+            color: #f1f5f9 !important;
+            background-color: #020617 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-cabinet-list="true"] {
+            background-color: #111827 !important;
+            border-color: #334155 !important;
+          }
         }
       `}</style>
       <section data-cabinet-panel="true" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
