@@ -608,6 +608,53 @@
     box-sizing: border-box !important;
   }
 
+  [data-year-sort='true'] {
+    display: grid !important;
+    grid-template-columns: 44px minmax(0, 1fr) 44px !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 2px 0 4px;
+  }
+
+  [data-year-sort='true'] strong {
+    text-align: center;
+    font-size: 17px;
+    line-height: 1;
+  }
+
+  [data-year-sort='true'] button {
+    height: 38px;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1f2937;
+    background: #ffffff;
+    border: 1px solid #94a3b8;
+    border-radius: 8px;
+    font-size: 21px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  [data-year-sort='true'] button[aria-pressed='true'] {
+    color: #1d4ed8;
+    background: #dbeafe;
+    border-color: #2563eb;
+  }
+
+  html[data-temauto-theme='night'] [data-year-sort='true'] button {
+    color: #f1f5f9;
+    background: #1e293b;
+    border-color: #64748b;
+  }
+
+  html[data-temauto-theme='night'] [data-year-sort='true'] button[aria-pressed='true'] {
+    color: #7dd3fc;
+    background: #0c4a6e;
+    border-color: #38bdf8;
+  }
+
   [data-filter-row='true'] input {
     width: 100% !important;
     max-width: 100% !important;
