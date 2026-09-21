@@ -462,6 +462,7 @@ export default function Sakumlapa() {
   const [displayMaxPrice, setDisplayMaxPrice] = useState('')
   const [minYear, setMinYear] = useState('')
   const [maxYear, setMaxYear] = useState('')
+  const [yearSort, setYearSort] = useState<'asc' | 'desc' | null>(null)
   const [dzinejs, setDzinejs] = useState('')
   const [minTilpums, setMinTilpums] = useState('')
   const [maxTilpums, setMaxTilpums] = useState('')
@@ -743,9 +744,19 @@ export default function Sakumlapa() {
            matchesValsts && matchesRegions && matchesDzinejs && matchesAtrumkarba && matchesVirsbuve && matchesKrasa
   })
 
-  const totalPages = Math.max(1, Math.ceil(filteredCars.length / LISTINGS_PER_PAGE))
+  const sortedFilteredCars = yearSort
+    ? [...filteredCars].sort((firstCar, secondCar) => {
+        const firstYear = Number(firstCar.year) || 0
+        const secondYear = Number(secondCar.year) || 0
+        if (firstYear === 0) return 1
+        if (secondYear === 0) return -1
+        return yearSort === 'asc' ? firstYear - secondYear : secondYear - firstYear
+      })
+    : filteredCars
+
+  const totalPages = Math.max(1, Math.ceil(sortedFilteredCars.length / LISTINGS_PER_PAGE))
   const safeCurrentPage = Math.min(currentPage, totalPages)
-  const paginatedCars = filteredCars.slice(
+  const paginatedCars = sortedFilteredCars.slice(
     (safeCurrentPage - 1) * LISTINGS_PER_PAGE,
     safeCurrentPage * LISTINGS_PER_PAGE
   )
@@ -1057,6 +1068,38 @@ export default function Sakumlapa() {
                   </button>
                 )}
               </div>
+            </div>
+
+            <div
+              data-year-sort="true"
+              aria-label="Kārtot sludinājumus pēc izlaiduma gada"
+              style={{ display: 'none' }}
+            >
+              <button
+                type="button"
+                data-year-sort-direction="asc"
+                aria-label="Gads augošā secībā"
+                aria-pressed={yearSort === 'asc'}
+                onClick={() => {
+                  setYearSort('asc')
+                  setCurrentPage(1)
+                }}
+              >
+                <span aria-hidden="true">⬆</span>
+              </button>
+              <strong>Gads</strong>
+              <button
+                type="button"
+                data-year-sort-direction="desc"
+                aria-label="Gads dilstošā secībā"
+                aria-pressed={yearSort === 'desc'}
+                onClick={() => {
+                  setYearSort('desc')
+                  setCurrentPage(1)
+                }}
+              >
+                <span aria-hidden="true">⬇</span>
+              </button>
             </div>
 
             {/* 1. Rinda */}
