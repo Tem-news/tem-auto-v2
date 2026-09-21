@@ -1094,11 +1094,11 @@ export default function Header() {
                   <button
                     key={label}
                     type="button"
-                    disabled={label !== 'Lietošanas noteikumi' && label !== 'Privātuma politika'}
-                    title={label === 'Lietošanas noteikumi' || label === 'Privātuma politika' ? undefined : 'Sadaļas saturs tiks pievienots'}
-                    onClick={label === 'Lietošanas noteikumi' || label === 'Privātuma politika' ? () => {
+                    disabled={label !== 'Lietošanas noteikumi' && label !== 'Privātuma politika' && label !== 'Drošība un krāpniecība'}
+                    title={label === 'Lietošanas noteikumi' || label === 'Privātuma politika' || label === 'Drošība un krāpniecība' ? undefined : 'Sadaļas saturs tiks pievienots'}
+                    onClick={label === 'Lietošanas noteikumi' || label === 'Privātuma politika' || label === 'Drošība un krāpniecība' ? () => {
                       setMobileMenuOpen(false)
-                      router.push(label === 'Lietošanas noteikumi' ? '/lietosanas-noteikumi' : '/privatuma-politika')
+                      router.push(label === 'Lietošanas noteikumi' ? '/lietosanas-noteikumi' : label === 'Privātuma politika' ? '/privatuma-politika' : '/drosiba-un-krapnieciba')
                     } : undefined}
                   >
                     {label}
