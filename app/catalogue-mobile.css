@@ -163,10 +163,15 @@
 
   body:has([data-catalogue-page='true']) [data-header-account-link='true'] {
     position: absolute;
-    left: 29%;
-    transform: translateX(-50%);
-    max-width: 52%;
+    left: -2px;
+    transform: none;
+    display: flex;
+    width: calc((100vw - 26px) * 0.575);
+    max-width: none;
     overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    text-align: center !important;
     text-overflow: ellipsis;
     justify-self: auto !important;
     box-sizing: border-box;
