@@ -761,7 +761,7 @@ export default function Sakumlapa() {
       })
     : filteredCars
 
-  const applyYearSort = (direction: 'asc' | 'desc') => {
+  const applyYearSort = (direction: 'asc' | 'desc' | null) => {
     setYearSort(direction)
     setCurrentPage(1)
 
@@ -1102,9 +1102,17 @@ export default function Sakumlapa() {
                 aria-pressed={yearSort === 'asc'}
                 onClick={() => applyYearSort('asc')}
               >
-                <span aria-hidden="true">⬆</span>
+                <span aria-hidden="true">↑</span>
               </button>
-              <strong>Gads</strong>
+              <button
+                type="button"
+                data-year-sort-reset="true"
+                aria-label="Izslēgt kārtošanu pēc gada"
+                aria-pressed={yearSort === null}
+                onClick={() => applyYearSort(null)}
+              >
+                Gads
+              </button>
               <button
                 type="button"
                 data-year-sort-direction="desc"
@@ -1112,7 +1120,7 @@ export default function Sakumlapa() {
                 aria-pressed={yearSort === 'desc'}
                 onClick={() => applyYearSort('desc')}
               >
-                <span aria-hidden="true">⬇</span>
+                <span aria-hidden="true">↓</span>
               </button>
             </div>
 
