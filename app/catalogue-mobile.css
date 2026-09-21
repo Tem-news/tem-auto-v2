@@ -56,9 +56,14 @@
     white-space: nowrap;
   }
 
+  body:has([data-catalogue-page='true']) [data-header-wordmark='true'] {
+    display: inline-block;
+    transform: translateY(-3px);
+  }
+
   body:has([data-catalogue-page='true']) [data-header-home-logo='true'] {
     position: absolute !important;
-    top: 30px !important;
+    top: 27px !important;
     left: 31px !important;
     z-index: 2;
     display: flex !important;
@@ -73,7 +78,7 @@
   body:has([data-catalogue-page='true']) [data-header-home-link='true']::after {
     content: '';
     position: fixed;
-    top: 30px;
+    top: 27px;
     left: 31px;
     z-index: 3;
     width: 44px;
