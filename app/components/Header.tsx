@@ -1094,11 +1094,11 @@ export default function Header() {
                   <button
                     key={label}
                     type="button"
-                    disabled={label !== 'Lietošanas noteikumi'}
-                    title={label === 'Lietošanas noteikumi' ? undefined : 'Sadaļas saturs tiks pievienots'}
-                    onClick={label === 'Lietošanas noteikumi' ? () => {
+                    disabled={label !== 'Lietošanas noteikumi' && label !== 'Privātuma politika'}
+                    title={label === 'Lietošanas noteikumi' || label === 'Privātuma politika' ? undefined : 'Sadaļas saturs tiks pievienots'}
+                    onClick={label === 'Lietošanas noteikumi' || label === 'Privātuma politika' ? () => {
                       setMobileMenuOpen(false)
-                      router.push('/lietosanas-noteikumi')
+                      router.push(label === 'Lietošanas noteikumi' ? '/lietosanas-noteikumi' : '/privatuma-politika')
                     } : undefined}
                   >
                     {label}
