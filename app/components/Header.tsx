@@ -136,6 +136,7 @@ export default function Header() {
   const langRef = useRef<HTMLDivElement>(null)
   const regionRef = useRef<HTMLDivElement>(null)
   const mobileMenuTouchStart = useRef<{ x: number; y: number } | null>(null)
+  const visitorStatsTouchStart = useRef<{ x: number; y: number } | null>(null)
   const mobileMenuScrollY = useRef(0)
   const mobileMenuTouchOpenAt = useRef(0)
   const mobileMenuGestureDismissed = useRef(false)
@@ -206,7 +207,7 @@ export default function Header() {
   }, [])
 
   useEffect(() => {
-    if (!mobileMenuOpen || !window.matchMedia('(max-width: 767px)').matches) return
+    if ((!mobileMenuOpen && !visitorStatsOpen) || !window.matchMedia('(max-width: 767px)').matches) return
 
     const savedScrollY = mobileMenuScrollY.current
     const previousScrollRestoration = window.history.scrollRestoration
@@ -238,7 +239,7 @@ export default function Header() {
         window.history.scrollRestoration = previousScrollRestoration
       }, 80)
     }
-  }, [mobileMenuOpen])
+  }, [mobileMenuOpen, visitorStatsOpen])
 
   const handleAddCarClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -381,18 +382,50 @@ export default function Header() {
     }
   }
 
+  const closeVisitorStats = () => {
+    if (window.history.state?.temAutoHeaderOverlay === 'visitors') {
+      window.history.back()
+    } else {
+      setVisitorStatsOpen(false)
+    }
+  }
+
+  const handleVisitorStatsTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    event.stopPropagation()
+    const touch = event.touches[0]
+    visitorStatsTouchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null
+  }
+
+  const handleVisitorStatsTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+  }
+
+  const handleVisitorStatsTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    event.stopPropagation()
+    const start = visitorStatsTouchStart.current
+    const touch = event.changedTouches[0]
+    visitorStatsTouchStart.current = null
+    if (!start || !touch) return
+
+    const deltaX = touch.clientX - start.x
+    const deltaY = touch.clientY - start.y
+    const isUpwardDismiss = deltaY < -100 && Math.abs(deltaY) > Math.abs(deltaX)
+
+    if (isUpwardDismiss) {
+      closeVisitorStats()
+    }
+  }
+
   const toggleVisitorStats = () => {
     const currentOverlay = window.history.state?.temAutoHeaderOverlay
 
     if (visitorStatsOpen) {
-      if (currentOverlay === 'visitors') {
-        window.history.back()
-      } else {
-        setVisitorStatsOpen(false)
-      }
+      closeVisitorStats()
       return
     }
 
+    mobileMenuScrollY.current = window.scrollY
     window.history.pushState(
       { ...window.history.state, temAutoHeaderOverlay: 'visitors' },
       '',
@@ -715,7 +748,16 @@ export default function Header() {
               <span>24h: <strong style={{ color: '#22c55e' }}>{visitCount}</strong></span>
             </button>
             {visitorStatsOpen && (
-              <div data-header-visitor-stats="true">
+              <div
+                data-header-visitor-stats="true"
+                onTouchStart={handleVisitorStatsTouchStart}
+                onTouchMove={handleVisitorStatsTouchMove}
+                onTouchEnd={handleVisitorStatsTouchEnd}
+                onTouchCancel={() => {
+                  visitorStatsTouchStart.current = null
+                }}
+                style={{ touchAction: 'none', overscrollBehavior: 'contain' }}
+              >
                 <strong>Apmeklējumi pa reģioniem</strong>
                 <div><span>Kopā 24h</span><b>{visitCount}</b></div>
                 <small>Detalizēts sadalījums būs redzams pēc reģionu uzskaites pieslēgšanas.</small>
