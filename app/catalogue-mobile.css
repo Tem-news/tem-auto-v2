@@ -608,7 +608,7 @@
     box-sizing: border-box !important;
   }
 
-  [data-filter-row='true'] > [data-year-sort='true'] {
+  [data-filter-row='true'] > div[data-year-sort='true'] {
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1fr) !important;
     align-items: center !important;
