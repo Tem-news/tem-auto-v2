@@ -295,6 +295,22 @@ export default function Sakumlapa() {
     }
   }, [])
 
+  const rememberListingReturnPosition = () => {
+    try {
+      window.history.replaceState(
+        {
+          ...(window.history.state || {}),
+          temAutoListingReturnPath: window.location.pathname + window.location.search,
+          temAutoListingReturnScrollY: window.scrollY
+        },
+        '',
+        window.location.href
+      )
+    } catch {
+      // The listing can still open if browser history state is unavailable.
+    }
+  }
+
   const markListingViewed = (carId: number | string) => {
     const normalizedId = String(carId)
     const now = Date.now()
@@ -452,6 +468,41 @@ export default function Sakumlapa() {
       window.history.scrollRestoration = previousScrollRestoration
     }
   }, [])
+
+  useEffect(() => {
+    if (loading) return
+
+    const historyState = window.history.state || {}
+    const returnPath = historyState.temAutoListingReturnPath
+    const returnScrollY = historyState.temAutoListingReturnScrollY
+    const currentPath = window.location.pathname + window.location.search
+
+    if (returnPath !== currentPath || typeof returnScrollY !== 'number') return
+
+    const cleanHistoryState = { ...historyState }
+    delete cleanHistoryState.temAutoListingReturnPath
+    delete cleanHistoryState.temAutoListingReturnScrollY
+    window.history.replaceState(cleanHistoryState, '', window.location.href)
+
+    const restorePosition = () => {
+      window.scrollTo({ top: returnScrollY, left: 0, behavior: 'auto' })
+    }
+
+    let secondFrame = 0
+    const firstFrame = window.requestAnimationFrame(() => {
+      restorePosition()
+      secondFrame = window.requestAnimationFrame(restorePosition)
+    })
+    const shortTimer = window.setTimeout(restorePosition, 120)
+    const layoutTimer = window.setTimeout(restorePosition, 350)
+
+    return () => {
+      window.cancelAnimationFrame(firstFrame)
+      if (secondFrame) window.cancelAnimationFrame(secondFrame)
+      window.clearTimeout(shortTimer)
+      window.clearTimeout(layoutTimer)
+    }
+  }, [loading])
 
   const [valsts, setValsts] = useState('')
   const [regions, setRegions] = useState('')
@@ -1405,6 +1456,7 @@ export default function Sakumlapa() {
                       data-preview-listing={previewCard ? 'true' : undefined}
                       onClick={(event) => {
                         event.currentTarget.dataset.recentlyViewed = 'true'
+                        rememberListingReturnPosition()
                         markListingViewed(car.id)
                       }}
                       style={{ 
@@ -1532,6 +1584,7 @@ export default function Sakumlapa() {
                         data-preview-listing={previewCard ? 'true' : undefined}
                         onClick={(event) => {
                         event.currentTarget.dataset.recentlyViewed = 'true'
+                        rememberListingReturnPosition()
                         markListingViewed(car.id)
                       }}
                         data-make-table-row="true"
