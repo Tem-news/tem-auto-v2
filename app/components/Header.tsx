@@ -358,7 +358,7 @@ export default function Header() {
 
     const deltaX = touch.clientX - start.x
     const deltaY = touch.clientY - start.y
-    const isUpwardDismiss = deltaY < -42 && Math.abs(deltaY) > Math.abs(deltaX)
+    const isUpwardDismiss = deltaY < -100 && Math.abs(deltaY) > Math.abs(deltaX)
 
     if (isUpwardDismiss) {
       mobileMenuTouchStart.current = null
@@ -374,7 +374,7 @@ export default function Header() {
 
     const deltaX = touch.clientX - start.x
     const deltaY = touch.clientY - start.y
-    const isUpwardDismiss = deltaY < -42 && Math.abs(deltaY) > Math.abs(deltaX)
+    const isUpwardDismiss = deltaY < -100 && Math.abs(deltaY) > Math.abs(deltaX)
 
     if (isUpwardDismiss) {
       dismissMobileMenuByGesture()
