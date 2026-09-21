@@ -608,22 +608,26 @@
     box-sizing: border-box !important;
   }
 
-  [data-year-sort='true'] {
+  [data-filter-row='true'] > [data-year-sort='true'] {
     display: grid !important;
-    grid-template-columns: 44px minmax(0, 1fr) 44px !important;
+    grid-template-columns: 34px auto 34px !important;
     align-items: center !important;
-    gap: 10px !important;
-    padding: 2px 0 4px;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 0 !important;
   }
 
   [data-year-sort='true'] strong {
+    width: auto !important;
+    padding: 0 3px;
     text-align: center;
-    font-size: 17px;
+    font-size: 16px;
     line-height: 1;
   }
 
   [data-year-sort='true'] button {
-    height: 38px;
+    width: 34px !important;
+    height: 30px;
     padding: 0 !important;
     display: flex;
     align-items: center;
@@ -631,8 +635,8 @@
     color: #1f2937;
     background: #ffffff;
     border: 1px solid #94a3b8;
-    border-radius: 8px;
-    font-size: 21px;
+    border-radius: 7px;
+    font-size: 17px;
     line-height: 1;
     cursor: pointer;
   }
