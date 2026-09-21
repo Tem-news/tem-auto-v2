@@ -610,33 +610,44 @@
 
   [data-filter-row='true'] > [data-year-sort='true'] {
     display: grid !important;
-    grid-template-columns: 34px auto 34px !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1fr) !important;
     align-items: center !important;
-    justify-content: center !important;
+    justify-content: stretch !important;
     gap: 8px !important;
+    width: 100% !important;
     padding: 0 !important;
   }
 
   [data-year-sort='true'] strong {
-    width: auto !important;
-    padding: 0 3px;
+    width: 100% !important;
+    height: 40px;
+    padding: 0 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    color: #1f2937;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
     text-align: center;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1;
   }
 
   [data-year-sort='true'] button {
-    width: 34px !important;
-    height: 30px;
+    width: 100% !important;
+    height: 40px;
     padding: 0 !important;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-sizing: border-box;
     color: #1f2937;
     background: #ffffff;
-    border: 1px solid #94a3b8;
-    border-radius: 7px;
-    font-size: 17px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 18px;
     line-height: 1;
     cursor: pointer;
   }
@@ -647,10 +658,11 @@
     border-color: #2563eb;
   }
 
+  html[data-temauto-theme='night'] [data-year-sort='true'] strong,
   html[data-temauto-theme='night'] [data-year-sort='true'] button {
     color: #f1f5f9;
     background: #1e293b;
-    border-color: #64748b;
+    border-color: #475569;
   }
 
   html[data-temauto-theme='night'] [data-year-sort='true'] button[aria-pressed='true'] {
