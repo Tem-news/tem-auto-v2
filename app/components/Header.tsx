@@ -1094,8 +1094,12 @@ export default function Header() {
                   <button
                     key={label}
                     type="button"
-                    disabled
-                    title="Sadaļas saturs tiks pievienots"
+                    disabled={label !== 'Lietošanas noteikumi'}
+                    title={label === 'Lietošanas noteikumi' ? undefined : 'Sadaļas saturs tiks pievienots'}
+                    onClick={label === 'Lietošanas noteikumi' ? () => {
+                      setMobileMenuOpen(false)
+                      router.push('/lietosanas-noteikumi')
+                    } : undefined}
                   >
                     {label}
                   </button>
