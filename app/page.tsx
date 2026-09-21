@@ -865,7 +865,7 @@ export default function Sakumlapa() {
 
     const deltaX = touch.clientX - start.x
     const deltaY = touch.clientY - start.y
-    const isUpwardDismiss = deltaY < -55 && Math.abs(deltaY) > Math.abs(deltaX)
+    const isUpwardDismiss = deltaY < -100 && Math.abs(deltaY) > Math.abs(deltaX)
 
     if (isUpwardDismiss) {
       setMobileFiltersClosing(true)
