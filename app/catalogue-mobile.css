@@ -618,23 +618,6 @@
     padding: 0 !important;
   }
 
-  [data-year-sort='true'] strong {
-    width: 100% !important;
-    height: 40px;
-    padding: 0 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    color: #1f2937;
-    background: #ffffff;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    text-align: center;
-    font-size: 14px;
-    line-height: 1;
-  }
-
   [data-year-sort='true'] button {
     width: 100% !important;
     height: 40px;
@@ -647,25 +630,49 @@
     background: #ffffff;
     border: 1px solid #d1d5db;
     border-radius: 6px;
-    font-size: 18px;
     line-height: 1;
     cursor: pointer;
   }
 
-  [data-year-sort='true'] button[aria-pressed='true'] {
+  [data-year-sort='true'] [data-year-sort-direction] {
+    font-family: Arial, sans-serif;
+    font-size: 30px;
+    font-weight: 900;
+  }
+
+  [data-year-sort='true'] [data-year-sort-direction] span {
+    display: block;
+    transform: scaleX(1.12);
+  }
+
+  [data-year-sort='true'] [data-year-sort-reset='true'] {
+    color: #1f2937;
+    background: transparent;
+    border-color: transparent;
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  [data-year-sort='true'] [data-year-sort-direction][aria-pressed='true'] {
     color: #1d4ed8;
     background: #dbeafe;
     border-color: #2563eb;
   }
 
-  html[data-temauto-theme='night'] [data-year-sort='true'] strong,
   html[data-temauto-theme='night'] [data-year-sort='true'] button {
     color: #f1f5f9;
     background: #1e293b;
     border-color: #475569;
   }
 
-  html[data-temauto-theme='night'] [data-year-sort='true'] button[aria-pressed='true'] {
+  html[data-temauto-theme='night'] [data-year-sort='true'] [data-year-sort-reset='true'] {
+    color: #f1f5f9;
+    background: transparent;
+    border-color: transparent;
+  }
+
+  html[data-temauto-theme='night'] [data-year-sort='true'] [data-year-sort-direction][aria-pressed='true'] {
     color: #7dd3fc;
     background: #0c4a6e;
     border-color: #38bdf8;
