@@ -744,15 +744,35 @@ export default function Sakumlapa() {
            matchesValsts && matchesRegions && matchesDzinejs && matchesAtrumkarba && matchesVirsbuve && matchesKrasa
   })
 
+  const getListingYear = (car: any) => {
+    const rawYear = car.year ?? car.gads ?? car.production_year ?? car.izlaiduma_gads ?? ''
+    const yearMatch = String(rawYear).match(/\d{4}/)
+    return yearMatch ? Number(yearMatch[0]) : 0
+  }
+
   const sortedFilteredCars = yearSort
     ? [...filteredCars].sort((firstCar, secondCar) => {
-        const firstYear = Number(firstCar.year) || 0
-        const secondYear = Number(secondCar.year) || 0
+        const firstYear = getListingYear(firstCar)
+        const secondYear = getListingYear(secondCar)
+        if (firstYear === 0 && secondYear === 0) return 0
         if (firstYear === 0) return 1
         if (secondYear === 0) return -1
         return yearSort === 'asc' ? firstYear - secondYear : secondYear - firstYear
       })
     : filteredCars
+
+  const applyYearSort = (direction: 'asc' | 'desc') => {
+    setYearSort(direction)
+    setCurrentPage(1)
+
+    const nextAddress = new URL(window.location.href)
+    nextAddress.searchParams.delete('page')
+    window.history.replaceState(
+      window.history.state,
+      '',
+      nextAddress.pathname + nextAddress.search
+    )
+  }
 
   const totalPages = Math.max(1, Math.ceil(sortedFilteredCars.length / LISTINGS_PER_PAGE))
   const safeCurrentPage = Math.min(currentPage, totalPages)
@@ -1080,10 +1100,7 @@ export default function Sakumlapa() {
                 data-year-sort-direction="asc"
                 aria-label="Gads augošā secībā"
                 aria-pressed={yearSort === 'asc'}
-                onClick={() => {
-                  setYearSort('asc')
-                  setCurrentPage(1)
-                }}
+                onClick={() => applyYearSort('asc')}
               >
                 <span aria-hidden="true">⬆</span>
               </button>
@@ -1093,10 +1110,7 @@ export default function Sakumlapa() {
                 data-year-sort-direction="desc"
                 aria-label="Gads dilstošā secībā"
                 aria-pressed={yearSort === 'desc'}
-                onClick={() => {
-                  setYearSort('desc')
-                  setCurrentPage(1)
-                }}
+                onClick={() => applyYearSort('desc')}
               >
                 <span aria-hidden="true">⬇</span>
               </button>
