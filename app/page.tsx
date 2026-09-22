@@ -1151,7 +1151,7 @@ export default function Sakumlapa() {
                 data-year-sort-direction="asc"
                 aria-label="Gads augošā secībā"
                 aria-pressed={yearSort === 'asc'}
-                onClick={() => applyYearSort('asc')}
+                onClick={() => applyYearSort(yearSort === 'asc' ? null : 'asc')}
               >
                 <span aria-hidden="true">↑</span>
               </button>
@@ -1169,7 +1169,7 @@ export default function Sakumlapa() {
                 data-year-sort-direction="desc"
                 aria-label="Gads dilstošā secībā"
                 aria-pressed={yearSort === 'desc'}
-                onClick={() => applyYearSort('desc')}
+                onClick={() => applyYearSort(yearSort === 'desc' ? null : 'desc')}
               >
                 <span aria-hidden="true">↓</span>
               </button>
