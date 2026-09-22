@@ -38,6 +38,14 @@ const LANGUAGES = [
   { code: 'HE', name: 'עברית (Hebrew)', flagCode: 'il' }
 ]
 
+const INFO_PAGE_TITLES: Record<string, string> = {
+  '/lietosanas-noteikumi': 'Lietošanas noteikumi',
+  '/privatuma-politika': 'Privātuma politika',
+  '/drosiba-un-krapnieciba': 'Drošība un krāpniecība',
+  '/kontakti': 'Kontakti',
+  '/tavi-ieteikumi': 'Tavi ieteikumi'
+}
+
 const REGIONS = [
   { 
     name: 'Latvija (EUR)', 
@@ -116,6 +124,7 @@ export default function Header() {
   const isListingDetail = /^\/auto\/[^/]+\/?$/.test(pathname)
   const isAddCar = pathname === '/pievienot' || /^\/auto\/[^/]+\/edit\/?$/.test(pathname)
   const isCabinet = pathname === '/kabinets'
+  const infoPageTitle = INFO_PAGE_TITLES[pathname]
   const [user, setUser] = useState<any>(null)
   const [visitCount, setVisitCount] = useState<number>(0)
 
@@ -435,6 +444,66 @@ export default function Header() {
     setMobileMenuOpen(false)
     setLangOpen(false)
     setRegionOpen(false)
+  }
+
+  if (infoPageTitle) {
+    return (
+      <>
+        <header
+          data-temauto-header="true"
+          data-info-page-header="true"
+          style={{
+            backgroundColor: '#0f172a',
+            color: '#ffffff',
+            padding: '3px 14px',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 1000,
+            width: '100%',
+            height: '58px',
+            boxSizing: 'border-box',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.18)'
+          }}
+        >
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100%', height: '100%', minWidth: 0 }}>
+            <Link
+              href="/"
+              aria-label="TemAuto — atgriezties sākumlapā"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 0,
+                flex: '0 0 auto',
+                color: '#22c55e',
+                textDecoration: 'none'
+              }}
+            >
+              <span style={{ fontSize: '20px', lineHeight: 1, fontWeight: 'bold', whiteSpace: 'nowrap' }}>TemAuto</span>
+              <span aria-hidden="true" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '44px', height: '23px', marginTop: '-6px', transform: 'rotate(-3deg)' }}>
+                <svg viewBox="0 0 64 32" width="44" height="22" role="img" aria-hidden="true">
+                  <path d="M5 21.5 C8 20.8 8.8 16.4 11.7 14.3 C14 12.7 18.1 13 21 12.4 C24.4 8.1 27.4 6.7 33.3 6.8 C40.8 6.9 43.3 7.8 47.6 13.2 C52.4 14.2 56.5 15.8 59 18.1 C60.2 19.2 59.8 21 58.7 22" fill="none" stroke="#16a34a" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M5.8 22.2 C13.5 23.1 20.4 22.7 27.6 22.8 C37.8 23 48.8 22.4 58.2 22.2" fill="none" stroke="#22c55e" strokeWidth="3.2" strokeLinecap="round" />
+                  <path d="M6.7 20.5 C10.4 18.9 9.8 15.5 13.1 13.7 M22 11.5 C26.1 7.4 29 7.2 34 7.4 C42 7.5 43.7 9.1 47 13.7" fill="none" stroke="#4ade80" strokeWidth="1.2" strokeLinecap="round" opacity="0.9" />
+                  <circle cx="16" cy="23" r="3.6" fill="#0f172a" stroke="#f8fafc" strokeWidth="2.1" />
+                  <circle cx="49" cy="23" r="3.6" fill="#0f172a" stroke="#f8fafc" strokeWidth="2.1" />
+                  <path d="M25.5 11.8 C29.8 11.1 35.2 11.2 39.7 12 M32.9 11.8 C32.5 15 32.3 18.3 31.8 21.2" fill="none" stroke="#ffffff" strokeWidth="3.6" strokeLinecap="round" />
+                  <path d="M26.2 12.5 C30.3 11.8 35.5 11.9 39 12.5" fill="none" stroke="#e2e8f0" strokeWidth="1" strokeLinecap="round" opacity="0.9" />
+                </svg>
+              </span>
+            </Link>
+
+            <strong style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', maxWidth: 'calc(100% - 190px)', color: '#e2e8f0', fontSize: 'clamp(14px, 4vw, 18px)', lineHeight: 1.15, textAlign: 'center' }}>
+              {infoPageTitle}
+            </strong>
+          </div>
+        </header>
+        <div aria-hidden="true" style={{ height: '58px', flex: '0 0 58px' }} />
+      </>
+    )
   }
 
   if (isCabinet) {
