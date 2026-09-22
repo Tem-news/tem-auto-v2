@@ -465,17 +465,13 @@ export default function AutoLapa() {
 
           [data-listing-home-logo="true"] {
             position: absolute;
-            top: 6px;
+            top: 7px;
             left: 12px;
             z-index: 1003;
             width: 77px;
-            height: 52px;
+            height: 42px;
             margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 0;
+            display: block;
             color: #22c55e;
             text-decoration: none;
             -webkit-tap-highlight-color: transparent;
@@ -487,16 +483,19 @@ export default function AutoLapa() {
 
           [data-listing-home-logo="true"] > span:first-child {
             font-size: 19px;
-            line-height: 1;
+            line-height: 19px;
             font-weight: 700;
             white-space: nowrap;
           }
 
           [data-listing-home-logo="true"] > span:last-child {
+            position: absolute;
+            top: 20px;
+            left: 20px;
             display: flex;
             width: 42px;
             height: 22px;
-            margin-top: -6px;
+            margin: 0;
             align-items: center;
             justify-content: center;
             transform: rotate(-3deg);
