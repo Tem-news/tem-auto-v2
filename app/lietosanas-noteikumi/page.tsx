@@ -1,7 +1,5 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-
 const sections = [
   {
     title: '1. Vispārīgie noteikumi',
@@ -108,18 +106,8 @@ const sections = [
 ]
 
 export default function TermsPage() {
-  const router = useRouter()
-
   return (
     <div style={{ maxWidth: '860px', margin: '0 auto', padding: '18px 16px 56px', color: '#1e293b' }}>
-      <button
-        type="button"
-        onClick={() => router.back()}
-        style={{ minHeight: '40px', marginBottom: '16px', padding: '8px 14px', color: '#166534', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px', fontSize: '14px', fontWeight: 700, cursor: 'pointer' }}
-      >
-        ← Atpakaļ
-      </button>
-
       <article style={{ padding: 'clamp(20px, 5vw, 40px)', background: '#ffffff', border: '1px solid #dbe3ec', borderRadius: '14px', boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)' }}>
         <p style={{ margin: '0 0 28px', color: '#64748b', fontSize: '14px' }}>Spēkā no 2026. gada 21. septembra</p>
 
