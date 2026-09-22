@@ -107,7 +107,7 @@ const sections = [
 
 export default function TermsPage() {
   return (
-    <div style={{ maxWidth: '860px', margin: '0 auto', padding: '18px 16px 56px', color: '#1e293b' }}>
+    <div data-info-page="true" style={{ maxWidth: '860px', margin: '0 auto', padding: '18px 16px 56px', color: '#1e293b' }}>
       <article style={{ padding: 'clamp(20px, 5vw, 40px)', background: '#ffffff', border: '1px solid #dbe3ec', borderRadius: '14px', boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)' }}>
         <p style={{ margin: '0 0 28px', color: '#64748b', fontSize: '14px' }}>Spēkā no 2026. gada 21. septembra</p>
 
