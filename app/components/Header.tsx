@@ -1090,16 +1090,14 @@ export default function Header() {
                 </div>
               </div>
               <nav aria-label="Informācija">
-                {['Lietošanas noteikumi', 'Privātuma politika', 'Drošība un krāpniecība', 'Kontakti', 'Ieteikumi'].map((label) => (
+                {['Lietošanas noteikumi', 'Privātuma politika', 'Drošība un krāpniecība', 'Kontakti', 'Tavi ieteikumi'].map((label) => (
                   <button
                     key={label}
                     type="button"
-                    disabled={label !== 'Lietošanas noteikumi' && label !== 'Privātuma politika' && label !== 'Drošība un krāpniecība' && label !== 'Kontakti'}
-                    title={label === 'Lietošanas noteikumi' || label === 'Privātuma politika' || label === 'Drošība un krāpniecība' || label === 'Kontakti' ? undefined : 'Sadaļas saturs tiks pievienots'}
-                    onClick={label === 'Lietošanas noteikumi' || label === 'Privātuma politika' || label === 'Drošība un krāpniecība' || label === 'Kontakti' ? () => {
+                    onClick={() => {
                       setMobileMenuOpen(false)
-                      router.push(label === 'Lietošanas noteikumi' ? '/lietosanas-noteikumi' : label === 'Privātuma politika' ? '/privatuma-politika' : label === 'Drošība un krāpniecība' ? '/drosiba-un-krapnieciba' : '/kontakti')
-                    } : undefined}
+                      router.push(label === 'Lietošanas noteikumi' ? '/lietosanas-noteikumi' : label === 'Privātuma politika' ? '/privatuma-politika' : label === 'Drošība un krāpniecība' ? '/drosiba-un-krapnieciba' : label === 'Kontakti' ? '/kontakti' : '/tavi-ieteikumi')
+                    }}
                   >
                     {label}
                   </button>
