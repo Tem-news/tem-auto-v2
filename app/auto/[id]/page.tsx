@@ -465,8 +465,8 @@ export default function AutoLapa() {
 
           [data-listing-home-logo="true"] {
             position: absolute;
-            top: 3px;
-            left: 14px;
+            top: 6px;
+            left: 12px;
             z-index: 1003;
             width: 77px;
             height: 52px;
@@ -486,7 +486,7 @@ export default function AutoLapa() {
           }
 
           [data-listing-home-logo="true"] > span:first-child {
-            font-size: 20px;
+            font-size: 19px;
             line-height: 1;
             font-weight: 700;
             white-space: nowrap;
@@ -494,8 +494,8 @@ export default function AutoLapa() {
 
           [data-listing-home-logo="true"] > span:last-child {
             display: flex;
-            width: 44px;
-            height: 23px;
+            width: 42px;
+            height: 22px;
             margin-top: -6px;
             align-items: center;
             justify-content: center;
@@ -705,8 +705,8 @@ export default function AutoLapa() {
           <span aria-hidden="true">
           <svg
             viewBox="0 0 64 32"
-            width="44"
-            height="22"
+            width="42"
+            height="21"
             role="img"
             aria-hidden="true"
           >
