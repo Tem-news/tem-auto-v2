@@ -1231,6 +1231,10 @@ export default function Header() {
                   </button>
                 ))}
               </nav>
+              <div data-mobile-sponsor="true" data-mobile-menu-sponsor="true" aria-label="Sponsora vieta">
+                <strong>SPONSORS</strong>
+                <span>Vieta sadarbības partnerim</span>
+              </div>
             </div>
           )}
 
