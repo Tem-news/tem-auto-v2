@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import InfoPageHeader from '../components/InfoPageHeader'
 
 const sections = [
   {
@@ -135,6 +136,7 @@ export default function SafetyAndFraudPage() {
 
   return (
     <div style={{ maxWidth: '860px', margin: '0 auto', padding: '18px 16px 56px', color: '#1e293b' }}>
+      <InfoPageHeader title="Drošība un krāpniecība" />
       <button
         type="button"
         onClick={() => router.back()}
@@ -144,7 +146,6 @@ export default function SafetyAndFraudPage() {
       </button>
 
       <article style={{ padding: 'clamp(20px, 5vw, 40px)', background: '#ffffff', border: '1px solid #dbe3ec', borderRadius: '14px', boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)' }}>
-        <h1 style={{ margin: '0 0 8px', color: '#0f172a', fontSize: 'clamp(26px, 6vw, 38px)', lineHeight: 1.15 }}>Drošība un krāpniecība</h1>
         <p style={{ margin: '0 0 28px', color: '#64748b', fontSize: '14px' }}>Praktiski padomi drošam transportlīdzekļa darījumam</p>
 
         {sections.map((section) => (
