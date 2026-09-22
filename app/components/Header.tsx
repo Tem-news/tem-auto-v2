@@ -144,11 +144,21 @@ export default function Header() {
 
   const langRef = useRef<HTMLDivElement>(null)
   const regionRef = useRef<HTMLDivElement>(null)
+  const langSearchRef = useRef<HTMLInputElement>(null)
+  const regionSearchRef = useRef<HTMLInputElement>(null)
+  const mobileSelectorKeyboardReady = useRef<'lang' | 'region' | null>(null)
   const mobileMenuTouchStart = useRef<{ x: number; y: number } | null>(null)
   const visitorStatsTouchStart = useRef<{ x: number; y: number } | null>(null)
   const mobileMenuScrollY = useRef(0)
   const mobileMenuTouchOpenAt = useRef(0)
   const mobileMenuGestureDismissed = useRef(false)
+
+  useEffect(() => {
+    if (window.matchMedia('(max-width: 767px)').matches) return
+
+    if (langOpen) langSearchRef.current?.focus()
+    if (regionOpen) regionSearchRef.current?.focus()
+  }, [langOpen, regionOpen])
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('temauto-mobile-theme')
@@ -291,12 +301,44 @@ export default function Header() {
 
   const closeMobileMenuAfterSelectorChoice = () => {
     if (window.matchMedia('(max-width: 767px)').matches) {
+      langSearchRef.current?.blur()
+      regionSearchRef.current?.blur()
+      mobileSelectorKeyboardReady.current = null
       setMobileMenuClosing(false)
       setMobileMenuOpen(false)
       if (window.history.state?.temAutoHeaderOverlay === 'menu') {
         window.history.back()
       }
     }
+  }
+
+  const handleMobileSelectorPointerDown = (
+    event: React.PointerEvent<HTMLInputElement>
+  ) => {
+    if (window.matchMedia('(max-width: 767px)').matches && event.pointerType !== 'mouse') {
+      event.preventDefault()
+    }
+  }
+
+  const handleMobileSelectorPointerUp = (
+    event: React.PointerEvent<HTMLInputElement>,
+    selector: 'lang' | 'region'
+  ) => {
+    if (!window.matchMedia('(max-width: 767px)').matches || event.pointerType === 'mouse') return
+
+    const input = event.currentTarget
+    if (mobileSelectorKeyboardReady.current === selector && document.activeElement === input) {
+      input.blur()
+      setLangOpen(false)
+      setRegionOpen(false)
+      setLangSearch('')
+      setRegionSearch('')
+      closeMobileMenuAfterSelectorChoice()
+      return
+    }
+
+    mobileSelectorKeyboardReady.current = selector
+    input.focus({ preventScroll: true })
   }
 
   const toggleMobileMenu = () => {
@@ -877,11 +919,13 @@ export default function Header() {
             {langOpen && (
               <div data-header-lang-panel="true" style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '230px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
                 <input
+                  ref={langSearchRef}
                   type="text"
                   placeholder="Meklēt valodu..."
                   value={langSearch}
                   onChange={(e) => setLangSearch(e.target.value)}
-                  autoFocus
+                  onPointerDown={handleMobileSelectorPointerDown}
+                  onPointerUp={(event) => handleMobileSelectorPointerUp(event, 'lang')}
                   style={{ width: '100%', padding: '6px', backgroundColor: '#0f172a', border: '1px solid #475569', borderRadius: '4px', color: '#fff', fontSize: '12px', boxSizing: 'border-box', marginBottom: '6px' }}
                 />
                 <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
@@ -944,11 +988,13 @@ export default function Header() {
                 {/* Galvenais valstu saraksts (atrodas pa labi, tieši zem izvēlnes pogas) */}
                 <div data-header-region-panel="true" style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '0 8px 8px 0', width: '260px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px' }}>
                   <input
+                    ref={regionSearchRef}
                     type="text"
                     placeholder="Meklēt valsti..."
                     value={regionSearch}
                     onChange={(e) => setRegionSearch(e.target.value)}
-                    autoFocus
+                    onPointerDown={handleMobileSelectorPointerDown}
+                    onPointerUp={(event) => handleMobileSelectorPointerUp(event, 'region')}
                     style={{ width: '100%', padding: '6px', backgroundColor: '#0f172a', border: '1px solid #475569', borderRadius: '4px', color: '#fff', fontSize: '12px', boxSizing: 'border-box', marginBottom: '6px' }}
                   />
                   <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
@@ -1106,6 +1152,8 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => {
+                    mobileSelectorKeyboardReady.current = 'lang'
+                    regionSearchRef.current?.blur()
                     setMobileMenuOpen(false)
                     setLangOpen(true)
                     setRegionOpen(false)
@@ -1126,6 +1174,8 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => {
+                    mobileSelectorKeyboardReady.current = 'region'
+                    langSearchRef.current?.blur()
                     setMobileMenuOpen(false)
                     setRegionOpen(true)
                     setLangOpen(false)
