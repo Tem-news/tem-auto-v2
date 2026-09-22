@@ -981,6 +981,18 @@
     padding: 16px 0 4px !important;
   }
 
+  [data-info-page='true'] {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 10px 7px 44px !important;
+    box-sizing: border-box !important;
+  }
+
+  [data-info-page='true'] > article {
+    padding: 18px 14px 30px !important;
+    border-radius: 10px !important;
+  }
+
   html[data-temauto-theme='night'] {
     color-scheme: dark;
     background: #020617;
@@ -1136,5 +1148,15 @@
   [data-make-table-row='true'] [data-make-row-gallery='true'] {
     width: 96px !important;
     height: 62px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  [data-info-page='true'] > article {
+    padding: 18px 14px 30px !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
   }
 }
