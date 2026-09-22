@@ -490,7 +490,7 @@ export default function AutoLapa() {
 
           [data-listing-home-logo="true"] > span:last-child {
             position: absolute;
-            top: 20px;
+            top: 17px;
             left: 20px;
             display: flex;
             width: 42px;
