@@ -1,7 +1,6 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import InfoPageHeader from '../components/InfoPageHeader'
 
 const sections = [
   {
@@ -136,7 +135,6 @@ export default function SafetyAndFraudPage() {
 
   return (
     <div style={{ maxWidth: '860px', margin: '0 auto', padding: '18px 16px 56px', color: '#1e293b' }}>
-      <InfoPageHeader title="Drošība un krāpniecība" />
       <button
         type="button"
         onClick={() => router.back()}
