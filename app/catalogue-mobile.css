@@ -49,24 +49,32 @@
   }
 
   body:has([data-catalogue-page='true']) [data-header-brand='true'] a {
+    position: relative !important;
+    top: -3px !important;
     grid-column: 1;
     grid-row: 1;
     justify-self: start;
+    width: 77px !important;
+    height: 42px !important;
+    display: block !important;
     font-size: 19px !important;
     white-space: nowrap;
   }
 
   body:has([data-catalogue-page='true']) [data-header-wordmark='true'] {
-    display: inline-block;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    display: block;
     font-size: 19px !important;
     line-height: 19px !important;
-    transform: translateY(-3px);
+    transform: none !important;
   }
 
   body:has([data-catalogue-page='true']) [data-header-home-logo='true'] {
     position: absolute !important;
-    top: 27px !important;
-    left: 32px !important;
+    top: 20px !important;
+    left: 20px !important;
     z-index: 2;
     display: flex !important;
     width: 42px !important;
@@ -87,11 +95,21 @@
   header[data-info-page-header='true'] > div > a,
   header[data-cabinet-header='true'] > div > a,
   header[data-add-car-header='true'] > div > a {
-    position: absolute !important;
-    top: 7px !important;
-    left: 12px !important;
+    position: relative !important;
+    top: -1px !important;
+    left: -2px !important;
     width: 77px !important;
     height: 42px !important;
+    display: block !important;
+    flex: 0 0 77px !important;
+  }
+
+  header[data-info-page-header='true'] > div > a > span:first-child,
+  header[data-cabinet-header='true'] > div > a > span:first-child,
+  header[data-add-car-header='true'] > div > a > span:first-child {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
     display: block !important;
   }
 
