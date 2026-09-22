@@ -289,10 +289,13 @@ export default function Header() {
   const currentRegionObj = REGIONS.find(r => r.name === currentRegion || r.subregions?.includes(currentRegion))
   const hoveredRegionObj = REGIONS.find(r => r.name === hoveredRegion)
 
-  const returnToOpenMobileMenu = () => {
+  const closeMobileMenuAfterSelectorChoice = () => {
     if (window.matchMedia('(max-width: 767px)').matches) {
       setMobileMenuClosing(false)
-      setMobileMenuOpen(true)
+      setMobileMenuOpen(false)
+      if (window.history.state?.temAutoHeaderOverlay === 'menu') {
+        window.history.back()
+      }
     }
   }
 
@@ -889,7 +892,7 @@ export default function Header() {
                         setCurrentLang(l.code)
                         setLangOpen(false)
                         setLangSearch('')
-                        returnToOpenMobileMenu()
+                        closeMobileMenuAfterSelectorChoice()
                       }}
                       style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: currentLang === l.code ? '#22c55e' : '#e2e8f0', backgroundColor: currentLang === l.code ? '#334155' : 'transparent' }}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
@@ -962,7 +965,7 @@ export default function Header() {
                             setCurrentRegion(r.name)
                             setRegionOpen(false)
                             setRegionSearch('')
-                            returnToOpenMobileMenu()
+                            closeMobileMenuAfterSelectorChoice()
                           }}
                           style={{ 
                             padding: '6px 8px', 
@@ -997,7 +1000,7 @@ export default function Header() {
                         setCurrentRegion(hoveredRegionObj.name)
                         setRegionOpen(false)
                         setRegionSearch('')
-                        returnToOpenMobileMenu()
+                        closeMobileMenuAfterSelectorChoice()
                       }}
                       style={{
                         padding: '8px',
@@ -1026,7 +1029,7 @@ export default function Header() {
                             setCurrentRegion(sub)
                             setRegionOpen(false)
                             setRegionSearch('')
-                            returnToOpenMobileMenu()
+                            closeMobileMenuAfterSelectorChoice()
                           }}
                           style={{
                             padding: '6px 8px',
