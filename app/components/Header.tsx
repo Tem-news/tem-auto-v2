@@ -333,7 +333,8 @@ export default function Header() {
       setRegionOpen(false)
       setLangSearch('')
       setRegionSearch('')
-      closeMobileMenuAfterSelectorChoice()
+      mobileSelectorKeyboardReady.current = null
+      setMobileMenuOpen(true)
       return
     }
 
