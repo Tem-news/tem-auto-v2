@@ -1182,7 +1182,7 @@ export default function Header() {
                     setLangOpen(false)
                   }}
                 >
-                  <span>Reģions</span>
+                  <span>Valsts</span>
                   <strong>
                     {currentRegionObj && (
                       <img
