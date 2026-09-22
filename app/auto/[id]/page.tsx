@@ -431,8 +431,8 @@ export default function AutoLapa() {
             right: 0;
             z-index: 1001;
             width: 100%;
-            height: 48px;
-            padding: 0 20px;
+            height: 58px;
+            padding: 3px 14px;
             box-sizing: border-box;
             display: flex;
             align-items: center;
@@ -445,11 +445,11 @@ export default function AutoLapa() {
           [data-listing-mobile-titlebar="true"] strong {
             position: absolute;
             left: 50%;
-            top: 8px;
+            top: 0;
             z-index: 1002;
             width: calc(100% - 180px);
             min-width: 0;
-            height: 40px;
+            height: 58px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -465,31 +465,49 @@ export default function AutoLapa() {
 
           [data-listing-home-logo="true"] {
             position: absolute;
-            top: 8px;
-            left: 26px;
+            top: 3px;
+            left: 14px;
             z-index: 1003;
-            width: 54px;
-            height: 32px;
+            width: 77px;
+            height: 52px;
             margin: 0;
-            transform: rotate(-3deg);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: 8px;
+            gap: 0;
+            color: #22c55e;
             text-decoration: none;
             -webkit-tap-highlight-color: transparent;
           }
 
           [data-listing-home-logo="true"]:active {
-            transform: rotate(-3deg) scale(0.94);
+            transform: scale(0.94);
+          }
+
+          [data-listing-home-logo="true"] > span:first-child {
+            font-size: 20px;
+            line-height: 1;
+            font-weight: 700;
+            white-space: nowrap;
+          }
+
+          [data-listing-home-logo="true"] > span:last-child {
+            display: flex;
+            width: 44px;
+            height: 23px;
+            margin-top: -6px;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(-3deg);
           }
 
           [data-listing-mobile-views="true"] {
             position: absolute;
             top: 0;
-            right: 20px;
+            right: 14px;
             width: 50px;
-            height: 48px;
+            height: 58px;
             display: flex;
             align-items: center;
             justify-content: flex-end;
@@ -517,8 +535,8 @@ export default function AutoLapa() {
             right: 0 !important;
             z-index: 1000 !important;
             width: 100% !important;
-            height: 48px !important;
-            min-height: 48px !important;
+            height: 58px !important;
+            min-height: 58px !important;
             padding-top: 0 !important;
             padding-bottom: 0 !important;
             display: flex !important;
@@ -529,7 +547,7 @@ export default function AutoLapa() {
           [data-listing-detail-gallery="true"] {
             order: 1;
             position: fixed;
-            top: 48px;
+            top: 58px;
             left: 0;
             z-index: 900;
             width: 100vw !important;
@@ -569,7 +587,7 @@ export default function AutoLapa() {
             order: 2;
             width: 100% !important;
             min-width: 0 !important;
-            margin-top: calc(56.25vw + 48px) !important;
+            margin-top: calc(56.25vw + 58px) !important;
             gap: 0 !important;
           }
 
@@ -683,10 +701,12 @@ export default function AutoLapa() {
           aria-label="Atgriezties TemAuto sākumlapā"
           title="Uz sākumlapu"
         >
+          <span>TemAuto</span>
+          <span aria-hidden="true">
           <svg
             viewBox="0 0 64 32"
-            width="58"
-            height="30"
+            width="44"
+            height="22"
             role="img"
             aria-hidden="true"
           >
@@ -731,6 +751,7 @@ export default function AutoLapa() {
               opacity="0.9"
             />
           </svg>
+          </span>
         </Link>
         <span data-listing-mobile-views="true" aria-label={`Skatījumi: ${car.views ?? 0}`}>
           <span aria-hidden="true">👁️</span>
