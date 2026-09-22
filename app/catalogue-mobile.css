@@ -58,6 +58,8 @@
 
   body:has([data-catalogue-page='true']) [data-header-wordmark='true'] {
     display: inline-block;
+    font-size: 19px !important;
+    line-height: 19px !important;
     transform: translateY(-3px);
   }
 
@@ -79,13 +81,29 @@
   header[data-cabinet-header='true'] > div > a > span:first-child,
   header[data-add-car-header='true'] > div > a > span:first-child {
     font-size: 19px !important;
+    line-height: 19px !important;
+  }
+
+  header[data-info-page-header='true'] > div > a,
+  header[data-cabinet-header='true'] > div > a,
+  header[data-add-car-header='true'] > div > a {
+    position: absolute !important;
+    top: 7px !important;
+    left: 12px !important;
+    width: 77px !important;
+    height: 42px !important;
+    display: block !important;
   }
 
   header[data-info-page-header='true'] > div > a > span:last-child,
   header[data-cabinet-header='true'] > div > a > span:last-child,
   header[data-add-car-header='true'] > div > a > span:last-child {
+    position: absolute !important;
+    top: 20px !important;
+    left: 20px !important;
     width: 42px !important;
     height: 22px !important;
+    margin: 0 !important;
   }
 
   header[data-info-page-header='true'] > div > a > span:last-child svg,
