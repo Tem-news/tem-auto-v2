@@ -328,7 +328,12 @@ export default function Header() {
   }
 
   const handleMobileMenuButtonTouchStart = (event: React.TouchEvent<HTMLButtonElement>) => {
-    if (mobileMenuOpen) return
+    if (mobileMenuOpen) {
+      event.preventDefault()
+      mobileMenuTouchOpenAt.current = Date.now()
+      toggleMobileMenu()
+      return
+    }
     event.preventDefault()
     mobileMenuTouchOpenAt.current = Date.now()
     toggleMobileMenu()
@@ -368,7 +373,7 @@ export default function Header() {
 
     const deltaX = touch.clientX - start.x
     const deltaY = touch.clientY - start.y
-    const isUpwardDismiss = deltaY < -140 && Math.abs(deltaY) > Math.abs(deltaX)
+    const isUpwardDismiss = deltaY < -200 && Math.abs(deltaY) > Math.abs(deltaX)
 
     if (isUpwardDismiss) {
       mobileMenuTouchStart.current = null
@@ -384,7 +389,7 @@ export default function Header() {
 
     const deltaX = touch.clientX - start.x
     const deltaY = touch.clientY - start.y
-    const isUpwardDismiss = deltaY < -140 && Math.abs(deltaY) > Math.abs(deltaX)
+    const isUpwardDismiss = deltaY < -200 && Math.abs(deltaY) > Math.abs(deltaX)
 
     if (isUpwardDismiss) {
       dismissMobileMenuByGesture()
