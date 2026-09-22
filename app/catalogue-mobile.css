@@ -49,18 +49,25 @@
   }
 
   body:has([data-catalogue-page='true']) [data-header-brand='true'] a {
+    position: static !important;
     grid-column: 1;
     grid-row: 1;
     justify-self: start;
+    width: 77px !important;
+    height: 32px !important;
+    display: block !important;
     font-size: 19px !important;
     white-space: nowrap;
   }
 
   body:has([data-catalogue-page='true']) [data-header-wordmark='true'] {
-    display: inline-block;
+    position: absolute !important;
+    top: 10px !important;
+    left: 12px !important;
+    display: block;
     font-size: 19px !important;
     line-height: 19px !important;
-    transform: translateY(-3px) !important;
+    transform: none !important;
   }
 
   body:has([data-catalogue-page='true']) [data-header-home-logo='true'] {
@@ -87,21 +94,25 @@
   header[data-info-page-header='true'] > div > a,
   header[data-cabinet-header='true'] > div > a,
   header[data-add-car-header='true'] > div > a {
-    position: relative !important;
-    top: -1px !important;
-    left: -2px !important;
+    position: static !important;
     width: 77px !important;
-    height: 42px !important;
+    height: 37px !important;
     display: block !important;
     flex: 0 0 77px !important;
+  }
+
+  header[data-info-page-header='true'] > div,
+  header[data-cabinet-header='true'] > div,
+  header[data-add-car-header='true'] > div {
+    position: static !important;
   }
 
   header[data-info-page-header='true'] > div > a > span:first-child,
   header[data-cabinet-header='true'] > div > a > span:first-child,
   header[data-add-car-header='true'] > div > a > span:first-child {
     position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
+    top: 10px !important;
+    left: 12px !important;
     display: block !important;
   }
 
@@ -109,8 +120,8 @@
   header[data-cabinet-header='true'] > div > a > span:last-child,
   header[data-add-car-header='true'] > div > a > span:last-child {
     position: absolute !important;
-    top: 17px !important;
-    left: 20px !important;
+    top: 24px !important;
+    left: 32px !important;
     width: 42px !important;
     height: 22px !important;
     margin: 0 !important;
@@ -127,11 +138,11 @@
   body:has([data-catalogue-page='true']) [data-header-home-link='true']::after {
     content: '';
     position: fixed;
-    top: 27px;
-    left: 31px;
+    top: 24px;
+    left: 32px;
     z-index: 3;
-    width: 44px;
-    height: 24px;
+    width: 42px;
+    height: 23px;
     cursor: pointer;
   }
 
