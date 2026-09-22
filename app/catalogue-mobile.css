@@ -626,7 +626,7 @@
     width: auto !important;
     height: auto !important;
     margin: 0 !important;
-    padding: 12px !important;
+    padding: 6px 12px 12px !important;
     gap: 10px !important;
     overflow-y: auto !important;
     overscroll-behavior: contain;
@@ -653,6 +653,15 @@
     align-items: flex-start !important;
     flex-wrap: wrap !important;
     gap: 8px !important;
+    margin-bottom: 0 !important;
+  }
+
+  [data-filter-heading='true'] > h2 {
+    display: none !important;
+  }
+
+  [data-filter-heading='true']:not(:has(button)) {
+    display: none !important;
   }
 
   [data-filter-heading='true'] > div {
