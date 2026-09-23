@@ -484,6 +484,13 @@
     max-width: none !important;
     margin: 0 !important;
     box-sizing: border-box !important;
+    overscroll-behavior: contain;
+  }
+
+  body:has([data-catalogue-page='true']) [data-header-lang-panel='true'] > div,
+  body:has([data-catalogue-page='true']) [data-header-region-panel='true'] > div {
+    overscroll-behavior: contain;
+    touch-action: pan-y;
   }
 
   body:has([data-catalogue-page='true']) [data-header-region-flyout='true'] {
