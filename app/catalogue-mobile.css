@@ -223,17 +223,22 @@
 
   body:has([data-catalogue-page='true']) [data-header-account-link='true'] {
     position: absolute;
+    top: 0;
     left: -2px;
     transform: none;
     display: flex;
     width: calc((100vw - 26px) * 0.575);
+    height: 34px;
+    min-height: 34px;
     max-width: none;
+    padding: 0 10px !important;
     overflow: hidden;
     align-items: center;
     justify-content: center;
     text-align: center !important;
     text-overflow: ellipsis;
     justify-self: auto !important;
+    border-radius: 6px !important;
     box-sizing: border-box;
   }
 
