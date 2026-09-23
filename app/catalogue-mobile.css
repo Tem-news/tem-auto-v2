@@ -91,9 +91,9 @@
     line-height: 19px !important;
   }
 
-  header[data-info-page-header='true'] > div > a,
-  header[data-cabinet-header='true'] > div > a,
-  header[data-add-car-header='true'] > div > a {
+  header[data-info-page-header='true'] > div > a:first-child,
+  header[data-cabinet-header='true'] > div > a:first-child,
+  header[data-add-car-header='true'] > div > a:first-child {
     position: static !important;
     width: 77px !important;
     height: 37px !important;
