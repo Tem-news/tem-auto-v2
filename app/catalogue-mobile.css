@@ -101,6 +101,20 @@
     flex: 0 0 77px !important;
   }
 
+  header[data-info-page-header='true'],
+  header[data-cabinet-header='true'],
+  header[data-add-car-header='true'] {
+    height: 48px !important;
+    min-height: 48px !important;
+  }
+
+  header[data-info-page-header='true'] + div[aria-hidden='true'],
+  header[data-cabinet-header='true'] + div[aria-hidden='true'],
+  header[data-add-car-header='true'] + div[aria-hidden='true'] {
+    height: 48px !important;
+    flex: 0 0 48px !important;
+  }
+
   header[data-info-page-header='true'] > div,
   header[data-cabinet-header='true'] > div,
   header[data-add-car-header='true'] > div {
@@ -111,7 +125,7 @@
   header[data-cabinet-header='true'] > div > a > span:first-child,
   header[data-add-car-header='true'] > div > a > span:first-child {
     position: absolute !important;
-    top: 10px !important;
+    top: 5px !important;
     left: 12px !important;
     display: block !important;
   }
@@ -120,7 +134,7 @@
   header[data-cabinet-header='true'] > div > a > span:last-child,
   header[data-add-car-header='true'] > div > a > span:last-child {
     position: absolute !important;
-    top: 24px !important;
+    top: 17px !important;
     left: 32px !important;
     width: 42px !important;
     height: 22px !important;
