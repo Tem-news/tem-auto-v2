@@ -238,7 +238,7 @@ export default function Header() {
   }, [])
 
   useEffect(() => {
-    if ((!mobileMenuOpen && !visitorStatsOpen) || !window.matchMedia('(max-width: 767px)').matches) return
+    if ((!mobileMenuOpen && !visitorStatsOpen && !langOpen && !regionOpen) || !window.matchMedia('(max-width: 767px)').matches) return
 
     const savedScrollY = mobileMenuScrollY.current
     const previousScrollRestoration = window.history.scrollRestoration
@@ -270,7 +270,7 @@ export default function Header() {
         window.history.scrollRestoration = previousScrollRestoration
       }, 80)
     }
-  }, [mobileMenuOpen, visitorStatsOpen])
+  }, [mobileMenuOpen, visitorStatsOpen, langOpen, regionOpen])
 
   const handleAddCarClick = (e: React.MouseEvent) => {
     e.preventDefault()
