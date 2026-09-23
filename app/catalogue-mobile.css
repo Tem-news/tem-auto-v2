@@ -220,9 +220,22 @@
     display: contents !important;
   }
 
-  body:has([data-catalogue-page='true']) [data-header-controls='true'] > div:nth-child(1) > button,
   body:has([data-catalogue-page='true']) [data-header-controls='true'] > div:nth-child(2) > button {
     display: none !important;
+  }
+
+  body:has([data-catalogue-page='true']) [data-header-language='true'] {
+    position: fixed !important;
+    top: 6px !important;
+    right: 101px !important;
+    z-index: 1002 !important;
+    display: flex !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 3px 8px !important;
+    gap: 5px !important;
+    border-radius: 14px !important;
+    box-sizing: border-box !important;
   }
 
   body:has([data-catalogue-page='true']) [data-header-controls='true'] > nav {
