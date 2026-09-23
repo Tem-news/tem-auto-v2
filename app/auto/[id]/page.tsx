@@ -431,7 +431,7 @@ export default function AutoLapa() {
             right: 0;
             z-index: 1001;
             width: 100%;
-            height: 58px;
+            height: 48px;
             padding: 3px 14px;
             box-sizing: border-box;
             display: flex;
@@ -449,7 +449,7 @@ export default function AutoLapa() {
             z-index: 1002;
             width: calc(100% - 180px);
             min-width: 0;
-            height: 58px;
+            height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -469,7 +469,7 @@ export default function AutoLapa() {
             left: 0;
             z-index: 1003;
             width: 90px;
-            height: 58px;
+            height: 48px;
             margin: 0;
             display: block;
             color: #22c55e;
@@ -483,7 +483,7 @@ export default function AutoLapa() {
 
           [data-listing-home-logo="true"] > span:first-child {
             position: absolute;
-            top: 10px;
+            top: 5px;
             left: 12px;
             font-size: 19px;
             line-height: 19px;
@@ -493,7 +493,7 @@ export default function AutoLapa() {
 
           [data-listing-home-logo="true"] > span:last-child {
             position: absolute;
-            top: 24px;
+            top: 17px;
             left: 32px;
             display: flex;
             width: 42px;
@@ -509,7 +509,7 @@ export default function AutoLapa() {
             top: 0;
             right: 14px;
             width: 50px;
-            height: 58px;
+            height: 48px;
             display: flex;
             align-items: center;
             justify-content: flex-end;
@@ -537,8 +537,8 @@ export default function AutoLapa() {
             right: 0 !important;
             z-index: 1000 !important;
             width: 100% !important;
-            height: 58px !important;
-            min-height: 58px !important;
+            height: 48px !important;
+            min-height: 48px !important;
             padding-top: 0 !important;
             padding-bottom: 0 !important;
             display: flex !important;
@@ -549,7 +549,7 @@ export default function AutoLapa() {
           [data-listing-detail-gallery="true"] {
             order: 1;
             position: fixed;
-            top: 58px;
+            top: 48px;
             left: 0;
             z-index: 900;
             width: 100vw !important;
@@ -589,7 +589,7 @@ export default function AutoLapa() {
             order: 2;
             width: 100% !important;
             min-width: 0 !important;
-            margin-top: calc(56.25vw + 58px) !important;
+            margin-top: calc(56.25vw + 48px) !important;
             gap: 0 !important;
           }
 
