@@ -147,6 +147,7 @@ export default function Header() {
   const langSearchRef = useRef<HTMLInputElement>(null)
   const regionSearchRef = useRef<HTMLInputElement>(null)
   const mobileSelectorKeyboardReady = useRef<'lang' | 'region' | null>(null)
+  const mobileSelectorPointerStart = useRef<{ selector: 'lang' | 'region'; x: number; y: number } | null>(null)
   const mobileMenuTouchStart = useRef<{ x: number; y: number } | null>(null)
   const visitorStatsTouchStart = useRef<{ x: number; y: number } | null>(null)
   const mobileMenuScrollY = useRef(0)
@@ -313,10 +314,12 @@ export default function Header() {
   }
 
   const handleMobileSelectorPointerDown = (
-    event: React.PointerEvent<HTMLInputElement>
+    event: React.PointerEvent<HTMLInputElement>,
+    selector: 'lang' | 'region'
   ) => {
     if (window.matchMedia('(max-width: 767px)').matches && event.pointerType !== 'mouse') {
       event.preventDefault()
+      mobileSelectorPointerStart.current = { selector, x: event.clientX, y: event.clientY }
     }
   }
 
@@ -327,6 +330,13 @@ export default function Header() {
     if (!window.matchMedia('(max-width: 767px)').matches || event.pointerType === 'mouse') return
 
     const input = event.currentTarget
+    const start = mobileSelectorPointerStart.current
+    mobileSelectorPointerStart.current = null
+    if (!start || start.selector !== selector) return
+
+    const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y)
+    if (moved > 10) return
+
     if (mobileSelectorKeyboardReady.current === selector && document.activeElement === input) {
       input.blur()
       setLangOpen(false)
@@ -340,6 +350,12 @@ export default function Header() {
 
     mobileSelectorKeyboardReady.current = selector
     input.focus({ preventScroll: true })
+  }
+
+  const handleMobileSelectorClick = (event: React.MouseEvent<HTMLInputElement>) => {
+    if (!window.matchMedia('(max-width: 767px)').matches) return
+    event.preventDefault()
+    event.stopPropagation()
   }
 
   const toggleMobileMenu = () => {
@@ -925,8 +941,9 @@ export default function Header() {
                   placeholder="Meklēt valodu..."
                   value={langSearch}
                   onChange={(e) => setLangSearch(e.target.value)}
-                  onPointerDown={handleMobileSelectorPointerDown}
+                  onPointerDown={(event) => handleMobileSelectorPointerDown(event, 'lang')}
                   onPointerUp={(event) => handleMobileSelectorPointerUp(event, 'lang')}
+                  onClick={handleMobileSelectorClick}
                   style={{ width: '100%', padding: '6px', backgroundColor: '#0f172a', border: '1px solid #475569', borderRadius: '4px', color: '#fff', fontSize: '12px', boxSizing: 'border-box', marginBottom: '6px' }}
                 />
                 <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
@@ -994,8 +1011,9 @@ export default function Header() {
                     placeholder="Meklēt valsti..."
                     value={regionSearch}
                     onChange={(e) => setRegionSearch(e.target.value)}
-                    onPointerDown={handleMobileSelectorPointerDown}
+                    onPointerDown={(event) => handleMobileSelectorPointerDown(event, 'region')}
                     onPointerUp={(event) => handleMobileSelectorPointerUp(event, 'region')}
+                    onClick={handleMobileSelectorClick}
                     style={{ width: '100%', padding: '6px', backgroundColor: '#0f172a', border: '1px solid #475569', borderRadius: '4px', color: '#fff', fontSize: '12px', boxSizing: 'border-box', marginBottom: '6px' }}
                   />
                   <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
