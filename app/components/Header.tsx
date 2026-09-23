@@ -148,6 +148,7 @@ export default function Header() {
   const regionSearchRef = useRef<HTMLInputElement>(null)
   const mobileSelectorKeyboardReady = useRef<'lang' | 'region' | null>(null)
   const mobileSelectorPointerStart = useRef<{ selector: 'lang' | 'region'; x: number; y: number } | null>(null)
+  const mobileSelectorDismissUntil = useRef(0)
   const mobileMenuTouchStart = useRef<{ x: number; y: number } | null>(null)
   const visitorStatsTouchStart = useRef<{ x: number; y: number } | null>(null)
   const mobileMenuScrollY = useRef(0)
@@ -198,6 +199,16 @@ export default function Header() {
     }
     const syncHeaderOverlayFromHistory = () => {
       const headerOverlay = window.history.state?.temAutoHeaderOverlay
+
+      if (headerOverlay !== 'menu') {
+        langSearchRef.current?.blur()
+        regionSearchRef.current?.blur()
+        mobileSelectorKeyboardReady.current = null
+        setLangOpen(false)
+        setRegionOpen(false)
+        setLangSearch('')
+        setRegionSearch('')
+      }
 
       if (mobileMenuGestureDismissed.current) {
         if (headerOverlay === 'menu') {
@@ -344,6 +355,7 @@ export default function Header() {
       setLangSearch('')
       setRegionSearch('')
       mobileSelectorKeyboardReady.current = null
+      mobileSelectorDismissUntil.current = Date.now() + 500
       setMobileMenuOpen(true)
       return
     }
@@ -1171,6 +1183,7 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => {
+                    if (Date.now() < mobileSelectorDismissUntil.current) return
                     mobileSelectorKeyboardReady.current = 'lang'
                     regionSearchRef.current?.blur()
                     setMobileMenuOpen(false)
@@ -1193,6 +1206,7 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => {
+                    if (Date.now() < mobileSelectorDismissUntil.current) return
                     mobileSelectorKeyboardReady.current = 'region'
                     langSearchRef.current?.blur()
                     setMobileMenuOpen(false)
