@@ -147,6 +147,7 @@ export default function Header() {
   const langSearchRef = useRef<HTMLInputElement>(null)
   const regionSearchRef = useRef<HTMLInputElement>(null)
   const mobileSelectorKeyboardReady = useRef<'lang' | 'region' | null>(null)
+  const mobileSelectorReturnToMenu = useRef(false)
   const mobileSelectorPointerStart = useRef<{ selector: 'lang' | 'region'; x: number; y: number } | null>(null)
   const mobileSelectorDismissUntil = useRef(0)
   const mobileMenuTouchStart = useRef<{ x: number; y: number } | null>(null)
@@ -318,10 +319,43 @@ export default function Header() {
       mobileSelectorKeyboardReady.current = null
       setMobileMenuClosing(false)
       setMobileMenuOpen(false)
-      if (window.history.state?.temAutoHeaderOverlay === 'menu') {
+      if (['menu', 'language'].includes(window.history.state?.temAutoHeaderOverlay)) {
         window.history.back()
       }
     }
+  }
+
+  const toggleLanguageSelector = () => {
+    if (!window.matchMedia('(max-width: 767px)').matches) {
+      setLangOpen(!langOpen)
+      setRegionOpen(false)
+      return
+    }
+
+    if (langOpen) {
+      if (window.history.state?.temAutoHeaderOverlay === 'language') {
+        window.history.back()
+      } else {
+        setLangOpen(false)
+      }
+      return
+    }
+
+    mobileMenuScrollY.current = window.scrollY
+    mobileSelectorReturnToMenu.current = false
+    mobileSelectorKeyboardReady.current = 'lang'
+    const baseHistoryState = { ...window.history.state, temAutoHeaderReturn: true }
+    delete baseHistoryState.temAutoHeaderOverlay
+    window.history.replaceState(baseHistoryState, '', window.location.href)
+    window.history.pushState(
+      { ...baseHistoryState, temAutoHeaderOverlay: 'language' },
+      '',
+      window.location.href
+    )
+    setMobileMenuOpen(false)
+    setVisitorStatsOpen(false)
+    setRegionOpen(false)
+    setLangOpen(true)
   }
 
   const handleMobileSelectorPointerDown = (
@@ -356,7 +390,11 @@ export default function Header() {
       setRegionSearch('')
       mobileSelectorKeyboardReady.current = null
       mobileSelectorDismissUntil.current = Date.now() + 500
-      setMobileMenuOpen(true)
+      if (mobileSelectorReturnToMenu.current) {
+        setMobileMenuOpen(true)
+      } else if (window.history.state?.temAutoHeaderOverlay === 'language') {
+        window.history.back()
+      }
       return
     }
 
@@ -920,7 +958,8 @@ export default function Header() {
           {/* Valodas izvēlne */}
           <div style={{ position: 'relative' }} ref={langRef}>
             <button
-              onClick={() => { setLangOpen(!langOpen); setRegionOpen(false); }}
+              onClick={toggleLanguageSelector}
+              data-header-language="true"
               style={{
                 padding: '6px 12px',
                 backgroundColor: '#1e293b',
@@ -1184,6 +1223,7 @@ export default function Header() {
                   type="button"
                   onClick={() => {
                     if (Date.now() < mobileSelectorDismissUntil.current) return
+                    mobileSelectorReturnToMenu.current = true
                     mobileSelectorKeyboardReady.current = 'lang'
                     regionSearchRef.current?.blur()
                     setMobileMenuOpen(false)
@@ -1207,6 +1247,7 @@ export default function Header() {
                   type="button"
                   onClick={() => {
                     if (Date.now() < mobileSelectorDismissUntil.current) return
+                    mobileSelectorReturnToMenu.current = true
                     mobileSelectorKeyboardReady.current = 'region'
                     langSearchRef.current?.blur()
                     setMobileMenuOpen(false)
