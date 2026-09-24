@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
@@ -276,6 +276,13 @@ export default function PievienotAuto() {
   const [isDragging, setIsDragging] = useState(false)
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const mobileKeyboardReady = useRef<string | null>(null)
+  const mobileKeyboardHistoryArmed = useRef(false)
+  const mobileDropdownHistoryArmed = useRef(false)
+  const mobileIgnoreNextPopstate = useRef(false)
+  const mobileActiveField = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null)
+  const mobileActiveFieldName = useRef<string | null>(null)
+  const mobileDropdownPointerStart = useRef<{ name: string; x: number; y: number } | null>(null)
   
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -288,8 +295,227 @@ export default function PievienotAuto() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  useEffect(() => {
+    if (activeDropdown !== null) return
+
+    mobileKeyboardReady.current = null
+    const historySteps =
+      (mobileKeyboardHistoryArmed.current ? 1 : 0) +
+      (mobileDropdownHistoryArmed.current ? 1 : 0)
+
+    if (historySteps > 0) {
+      mobileKeyboardHistoryArmed.current = false
+      mobileDropdownHistoryArmed.current = false
+      window.history.go(-historySteps)
+    }
+  }, [activeDropdown])
+
+  useEffect(() => {
+    const keepActiveSuggestionAtTop = () => {
+      const field = mobileActiveField.current
+      const name = mobileActiveFieldName.current
+      if (!field || !name || !mobileSuggestionFields.has(name)) return
+      positionMobileFieldForKeyboard(field, name, 'auto')
+    }
+
+    const handleKeyboardBack = () => {
+      if (mobileIgnoreNextPopstate.current) {
+        mobileIgnoreNextPopstate.current = false
+        return
+      }
+
+      if (mobileKeyboardHistoryArmed.current) {
+        mobileKeyboardHistoryArmed.current = false
+        const activeFieldName = mobileActiveFieldName.current || mobileKeyboardReady.current
+        const activeElement = document.activeElement
+        if (activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement) {
+          activeElement.blur()
+        }
+        mobileKeyboardReady.current = null
+        if (!activeFieldName || !mobileSuggestionFields.has(activeFieldName)) {
+          setActiveDropdown(null)
+        } else {
+          window.setTimeout(keepActiveSuggestionAtTop, 0)
+          window.setTimeout(keepActiveSuggestionAtTop, 180)
+        }
+        return
+      }
+
+      if (mobileDropdownHistoryArmed.current) {
+        mobileDropdownHistoryArmed.current = false
+        mobileKeyboardReady.current = null
+        setActiveDropdown(null)
+        window.setTimeout(keepActiveSuggestionAtTop, 0)
+        window.setTimeout(keepActiveSuggestionAtTop, 180)
+      }
+    }
+
+    window.addEventListener('popstate', handleKeyboardBack)
+    return () => window.removeEventListener('popstate', handleKeyboardBack)
+  }, [])
+
+  useEffect(() => {
+    const viewport = window.visualViewport
+    if (!viewport) return
+
+    let previousHeight = viewport.height
+    const handleViewportResize = () => {
+      const currentHeight = viewport.height
+      const keyboardWasClosed =
+        mobileKeyboardHistoryArmed.current &&
+        currentHeight > previousHeight + 80
+      previousHeight = currentHeight
+      if (!keyboardWasClosed) return
+
+      const field = mobileActiveField.current
+      const name = mobileActiveFieldName.current
+      mobileKeyboardHistoryArmed.current = false
+      mobileKeyboardReady.current = null
+      if (field) field.blur()
+
+      mobileIgnoreNextPopstate.current = true
+      window.history.back()
+
+      if (field && name && mobileSuggestionFields.has(name)) {
+        const keepAtTop = () => positionMobileFieldForKeyboard(field, name, 'auto')
+        window.setTimeout(keepAtTop, 0)
+        window.setTimeout(keepAtTop, 180)
+      } else {
+        setActiveDropdown(null)
+      }
+    }
+
+    viewport.addEventListener('resize', handleViewportResize)
+    return () => viewport.removeEventListener('resize', handleViewportResize)
+  }, [])
+
   const toggleDropdown = (name: string) => {
     setActiveDropdown(prev => prev === name ? null : name)
+  }
+
+  const mobileSuggestionFields = new Set([
+    'make',
+    'model',
+    'year',
+    'engine',
+    'volume',
+    'gearbox',
+    'bodyType',
+    'color',
+    'sture',
+    'region'
+  ])
+
+  const positionMobileFieldForKeyboard = (
+    field: HTMLInputElement | HTMLTextAreaElement,
+    name: string,
+    behavior: ScrollBehavior = 'smooth'
+  ) => {
+    const hasSuggestions = mobileSuggestionFields.has(name)
+    const anchorElement = hasSuggestions
+      ? field.closest('.dropdown-container') as HTMLElement | null
+      : field
+    if (!anchorElement) return
+
+    const visibleHeight = window.visualViewport?.height || window.innerHeight
+    const targetTop = hasSuggestions || name === 'description'
+      ? 58
+      : Math.max(76, visibleHeight * 0.42)
+    const currentTop = anchorElement.getBoundingClientRect().top
+    window.scrollTo({
+      top: Math.max(0, window.scrollY + currentTop - targetTop),
+      behavior
+    })
+  }
+
+  const handleDropdownInputPointerDown = (event: React.PointerEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
+    const isMobileTouch = window.matchMedia('(max-width: 767px)').matches && event.pointerType !== 'mouse'
+    if (!isMobileTouch) return
+
+    event.preventDefault()
+    mobileDropdownPointerStart.current = {
+      name,
+      x: event.clientX,
+      y: event.clientY
+    }
+  }
+
+  const handleDropdownInputPointerUp = (event: React.PointerEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
+    const start = mobileDropdownPointerStart.current
+    mobileDropdownPointerStart.current = null
+    if (!start || start.name !== name) return
+
+    const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y)
+    if (moved > 10) return
+
+    mobileActiveField.current = event.currentTarget
+    mobileActiveFieldName.current = name
+
+    if (
+      mobileKeyboardReady.current === name &&
+      document.activeElement === event.currentTarget
+    ) {
+      event.currentTarget.blur()
+      mobileKeyboardReady.current = null
+      setActiveDropdown(null)
+      return
+    }
+
+    setActiveDropdown(name)
+    if (mobileKeyboardReady.current === name) {
+      const field = event.currentTarget
+      if (!mobileKeyboardHistoryArmed.current) {
+        window.history.pushState(
+          { ...window.history.state, temautoFormKeyboard: true },
+          '',
+          window.location.href
+        )
+        mobileKeyboardHistoryArmed.current = true
+      }
+      field.focus({ preventScroll: true })
+      positionMobileFieldForKeyboard(field, name)
+      window.setTimeout(() => positionMobileFieldForKeyboard(field, name, 'auto'), 320)
+    } else {
+      if (mobileSuggestionFields.has(name) && !mobileDropdownHistoryArmed.current) {
+        window.history.pushState(
+          { ...window.history.state, temautoFormDropdown: true },
+          '',
+          window.location.href
+        )
+        mobileDropdownHistoryArmed.current = true
+      }
+      mobileKeyboardReady.current = name
+      event.currentTarget.blur()
+    }
+  }
+
+  const handleDropdownInputPointerCancel = () => {
+    mobileDropdownPointerStart.current = null
+  }
+
+  const handleSuggestionInputBlur = (name: string) => {
+    if (!window.matchMedia('(max-width: 767px)').matches) return
+
+    window.setTimeout(() => {
+      if (
+        mobileKeyboardHistoryArmed.current &&
+        mobileDropdownHistoryArmed.current &&
+        mobileActiveFieldName.current === name
+      ) {
+        const field = mobileActiveField.current
+        setActiveDropdown(null)
+        if (field) {
+          const keepAtTop = () => positionMobileFieldForKeyboard(field, name, 'auto')
+          window.setTimeout(keepAtTop, 0)
+          window.setTimeout(keepAtTop, 200)
+        }
+      }
+    }, 0)
+  }
+
+  const handleDropdownInputClick = (name: string) => {
+    if (window.matchMedia('(max-width: 767px)').matches) return
+    toggleDropdown(name)
   }
 
   const handlePriceChange = (val: string) => {
@@ -440,12 +666,235 @@ export default function PievienotAuto() {
   )
 
   return (
-    <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '24px 12px', boxSizing: 'border-box' }}>
+    <div data-add-car-page="true" style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '24px 12px', boxSizing: 'border-box' }}>
+      <style>{`
+        @media (max-width: 767px) {
+          [data-add-car-page="true"] {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            padding: 10px 8px 16px !important;
+            overflow-x: hidden !important;
+          }
+
+          [data-add-car-layout="true"] {
+            display: block !important;
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+
+          [data-add-car-ad-rail="true"] {
+            display: none !important;
+          }
+
+          [data-add-car-form-card="true"] {
+            width: 100% !important;
+            min-width: 0 !important;
+            padding: 14px 10px !important;
+            border-radius: 9px !important;
+          }
+
+          [data-add-car-heading="true"] {
+            margin-bottom: 14px !important;
+            padding-bottom: 10px !important;
+          }
+
+          [data-add-car-heading="true"] h1 {
+            font-size: 18px !important;
+            line-height: 1.2 !important;
+          }
+
+          [data-add-car-heading="true"] p {
+            margin-bottom: 0 !important;
+            font-size: 12.5px !important;
+            line-height: 1.35 !important;
+          }
+
+          [data-add-car-form="true"] {
+            width: 100% !important;
+            min-width: 0 !important;
+            gap: 10px !important;
+          }
+
+          [data-add-car-form="true"] > div[style*="grid-template-columns"] {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 8px !important;
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+
+          [data-add-car-form="true"] .dropdown-container,
+          [data-add-car-form="true"] > div > div {
+            min-width: 0 !important;
+          }
+
+          [data-add-car-form="true"] label {
+            margin-bottom: 4px !important;
+            font-size: 12px !important;
+            line-height: 1.2 !important;
+          }
+
+          [data-add-car-form="true"] input:not([type="file"]),
+          [data-add-car-form="true"] textarea,
+          [data-add-car-form="true"] button {
+            max-width: 100% !important;
+            min-width: 0 !important;
+            box-sizing: border-box !important;
+          }
+
+          [data-add-car-form="true"] input:not([type="file"]) {
+            min-height: 38px !important;
+            padding: 8px !important;
+            color: #111827 !important;
+            background-color: #ffffff !important;
+            -webkit-text-fill-color: #111827 !important;
+            caret-color: #111827 !important;
+            opacity: 1 !important;
+            font-size: 13px !important;
+          }
+
+          [data-add-car-form="true"] input:not([type="file"])::placeholder,
+          [data-add-car-form="true"] textarea::placeholder {
+            color: #64748b !important;
+            -webkit-text-fill-color: #64748b !important;
+            opacity: 1 !important;
+          }
+
+          [data-add-car-form="true"] .dropdown-container > button {
+            color: #111827 !important;
+            background-color: #ffffff !important;
+            -webkit-text-fill-color: #111827 !important;
+          }
+
+          [data-add-car-form="true"] .dropdown-container > div {
+            color: #111827 !important;
+            background-color: #ffffff !important;
+            border-color: #94a3b8 !important;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18) !important;
+          }
+
+          [data-add-car-form="true"] .dropdown-container > div > div,
+          [data-add-car-form="true"] .dropdown-container > div span {
+            color: #111827 !important;
+            font-size: 13.5px !important;
+            font-weight: 600 !important;
+            opacity: 1 !important;
+          }
+
+          [data-add-car-form="true"] .dropdown-container > div > div {
+            background-color: #ffffff !important;
+            border-bottom-color: #e2e8f0 !important;
+          }
+
+          [data-add-car-form="true"] textarea {
+            min-height: 110px !important;
+            padding: 8px !important;
+            color: #111827 !important;
+            background-color: #ffffff !important;
+            -webkit-text-fill-color: #111827 !important;
+            caret-color: #111827 !important;
+            opacity: 1 !important;
+            font-size: 13px !important;
+          }
+
+          [data-add-car-upload="true"],
+          [data-add-car-previews="true"] {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+          }
+
+          [data-add-car-upload="true"] {
+            padding: 12px 8px !important;
+          }
+
+          [data-add-car-previews="true"] {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            gap: 6px !important;
+          }
+
+          html[data-temauto-theme="night"] body:has([data-add-car-page="true"]) {
+            background-color: #020617 !important;
+            color-scheme: dark;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-page="true"] {
+            min-height: calc(100vh - 58px) !important;
+            background-color: #020617 !important;
+            color: #e2e8f0 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-form-card="true"] {
+            background-color: #0f172a !important;
+            border-color: #334155 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-heading="true"] {
+            border-bottom-color: #334155 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-heading="true"] h1,
+          html[data-temauto-theme="night"] [data-add-car-heading="true"] p,
+          html[data-temauto-theme="night"] [data-add-car-form="true"] label {
+            color: #e2e8f0 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-form="true"] input:not([type="file"]),
+          html[data-temauto-theme="night"] [data-add-car-form="true"] textarea,
+          html[data-temauto-theme="night"] [data-add-car-form="true"] .dropdown-container > button,
+          html[data-temauto-theme="night"] [data-add-car-form="true"] .dropdown-container > div {
+            color: #f8fafc !important;
+            background-color: #111827 !important;
+            border-color: #475569 !important;
+            -webkit-text-fill-color: #f8fafc !important;
+            caret-color: #f8fafc !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-form="true"] input:not([type="file"])::placeholder,
+          html[data-temauto-theme="night"] [data-add-car-form="true"] textarea::placeholder {
+            color: #94a3b8 !important;
+            -webkit-text-fill-color: #94a3b8 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-form="true"] .dropdown-container > div > div {
+            color: #f8fafc !important;
+            background-color: #1e293b !important;
+            border-bottom-color: #334155 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-form="true"] .dropdown-container > div span {
+            color: #f8fafc !important;
+            -webkit-text-fill-color: #f8fafc !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-upload="true"] {
+            color: #e2e8f0 !important;
+            background-color: #111827 !important;
+            border-color: #475569 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-upload="true"] span {
+            color: #cbd5e1 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-add-car-previews="true"] > div {
+            background-color: #111827 !important;
+            border-color: #475569 !important;
+          }
+        }
+
+        @media (max-width: 380px) {
+          [data-add-car-form="true"] > div[style*="grid-template-columns"] {
+            grid-template-columns: minmax(0, 1fr) !important;
+          }
+        }
+      `}</style>
       
-      <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
+      <div data-add-car-layout="true" style={{ display: 'grid', gridTemplateColumns: '240px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
         {/* KREISĀ PUSE - 2 Baneri */}
-        <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div data-add-car-ad-rail="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
             <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 1</span>
             <span>Sānu baneris augšējais!</span>
@@ -457,9 +906,9 @@ export default function PievienotAuto() {
         </div>
 
         {/* VIDUS: Forma */}
-        <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', boxSizing: 'border-box' }}>
+        <div data-add-car-form-card="true" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', boxSizing: 'border-box' }}>
           
-          <div style={{ marginBottom: '24px', borderBottom: '1px solid #e5e7eb', paddingBottom: '16px' }}>
+          <div data-add-car-heading="true" style={{ marginBottom: '24px', borderBottom: '1px solid #e5e7eb', paddingBottom: '16px' }}>
             <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Pievienot jaunu auto sludinājumu</h1>
             <p style={{ fontSize: '13.5px', color: '#6b7280', marginTop: '4px' }}>Aizpildiet datus par automašīnu un pievienojiet attēlus.</p>
           </div>
@@ -470,7 +919,7 @@ export default function PievienotAuto() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <form data-add-car-form="true" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
             {/* 1. Rinda: Marka / Modelis */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -481,7 +930,11 @@ export default function PievienotAuto() {
                   placeholder="Sāciet rakstīt vai izvēlieties..."
                   value={make}
                   onChange={(e) => { setMake(e.target.value); setActiveDropdown('make'); }}
-                  onClick={() => toggleDropdown('make')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'make')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'make')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
+                  onClick={() => handleDropdownInputClick('make')}
+                  onBlur={() => handleSuggestionInputBlur('make')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'make' && (
@@ -508,7 +961,11 @@ export default function PievienotAuto() {
                   placeholder={make ? `Izvēlieties ${make} modeli...` : 'Vispirms izvēlieties marku'}
                   value={model}
                   onChange={(e) => { setModel(e.target.value); setActiveDropdown('model'); }}
-                  onClick={() => toggleDropdown('model')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'model')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'model')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
+                  onClick={() => handleDropdownInputClick('model')}
+                  onBlur={() => handleSuggestionInputBlur('model')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'model' && (
@@ -539,10 +996,15 @@ export default function PievienotAuto() {
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Izlaiduma gads *</label>
                 <input
                   type="text"
+                  inputMode="numeric"
                   placeholder="Piem., 2020"
                   value={year}
                   onChange={(e) => { setYear(e.target.value); setActiveDropdown('year'); }}
-                  onClick={() => toggleDropdown('year')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'year')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'year')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
+                  onClick={() => handleDropdownInputClick('year')}
+                  onBlur={() => handleSuggestionInputBlur('year')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'year' && (
@@ -566,9 +1028,13 @@ export default function PievienotAuto() {
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Cena (€)</label>
                 <input
                   type="text"
+                  inputMode="numeric"
                   placeholder="Piem., 12 500"
                   value={displayPrice}
                   onChange={(e) => handlePriceChange(e.target.value)}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'price')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'price')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
               </div>
@@ -583,7 +1049,11 @@ export default function PievienotAuto() {
                   placeholder="Izvēlieties dzinēju..."
                   value={engine}
                   onChange={(e) => { setEngine(e.target.value); setActiveDropdown('engine'); }}
-                  onClick={() => toggleDropdown('engine')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'engine')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'engine')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
+                  onClick={() => handleDropdownInputClick('engine')}
+                  onBlur={() => handleSuggestionInputBlur('engine')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'engine' && (
@@ -607,10 +1077,15 @@ export default function PievienotAuto() {
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Dzinēja tilpums (L)</label>
                 <input
                   type="text"
+                  inputMode="decimal"
                   placeholder="Piem., 2.0"
                   value={volume}
                   onChange={(e) => { setVolume(e.target.value); setActiveDropdown('volume'); }}
-                  onClick={() => toggleDropdown('volume')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'volume')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'volume')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
+                  onClick={() => handleDropdownInputClick('volume')}
+                  onBlur={() => handleSuggestionInputBlur('volume')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'volume' && (
@@ -640,7 +1115,11 @@ export default function PievienotAuto() {
                   placeholder="Izvēlieties kārbu..."
                   value={gearbox}
                   onChange={(e) => { setGearbox(e.target.value); setActiveDropdown('gearbox'); }}
-                  onClick={() => toggleDropdown('gearbox')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'gearbox')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'gearbox')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
+                  onClick={() => handleDropdownInputClick('gearbox')}
+                  onBlur={() => handleSuggestionInputBlur('gearbox')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'gearbox' && (
@@ -667,7 +1146,11 @@ export default function PievienotAuto() {
                   placeholder="Izvēlieties virsbūvi..."
                   value={bodyType}
                   onChange={(e) => { setBodyType(e.target.value); setActiveDropdown('bodyType'); }}
-                  onClick={() => toggleDropdown('bodyType')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'bodyType')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'bodyType')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
+                  onClick={() => handleDropdownInputClick('bodyType')}
+                  onBlur={() => handleSuggestionInputBlur('bodyType')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'bodyType' && (
@@ -697,7 +1180,11 @@ export default function PievienotAuto() {
                   placeholder="Izvēlieties krāsu..."
                   value={color}
                   onChange={(e) => { setColor(e.target.value); setActiveDropdown('color'); }}
-                  onClick={() => toggleDropdown('color')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'color')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'color')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
+                  onClick={() => handleDropdownInputClick('color')}
+                  onBlur={() => handleSuggestionInputBlur('color')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'color' && (
@@ -722,9 +1209,13 @@ export default function PievienotAuto() {
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Nobraukums (km)</label>
                 <input
                   type="text"
+                  inputMode="numeric"
                   placeholder="Piem., 180 000"
                   value={displayNobraukums}
                   onChange={(e) => handleNobraukumsChange(e.target.value)}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'nobraukums')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'nobraukums')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
               </div>
@@ -739,6 +1230,9 @@ export default function PievienotAuto() {
                   placeholder="Ievadiet VIN kods"
                   value={vin}
                   onChange={(e) => setVin(e.target.value)}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'vin')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'vin')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
               </div>
@@ -750,7 +1244,11 @@ export default function PievienotAuto() {
                   placeholder="Izvēlieties..."
                   value={sture}
                   onChange={(e) => { setSture(e.target.value); setActiveDropdown('sture'); }}
-                  onClick={() => toggleDropdown('sture')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'sture')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'sture')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
+                  onClick={() => handleDropdownInputClick('sture')}
+                  onBlur={() => handleSuggestionInputBlur('sture')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'sture' && (
@@ -777,9 +1275,13 @@ export default function PievienotAuto() {
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Tehniskā apskate līdz</label>
                 <input
                   type="text"
+                  inputMode="numeric"
                   placeholder="MM/GGGG vai Datums"
                   value={tehiskapskate}
                   onChange={(e) => setTehiskapskate(e.target.value)}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'tehiskapskate')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'tehiskapskate')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
               </div>
@@ -791,6 +1293,9 @@ export default function PievienotAuto() {
                   placeholder="Piem., Melna āda"
                   value={salonaKrasa}
                   onChange={(e) => setSalonaKrasa(e.target.value)}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'salonaKrasa')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'salonaKrasa')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
               </div>
@@ -835,7 +1340,11 @@ export default function PievienotAuto() {
                   placeholder="Izvēlieties reģionu..."
                   value={region}
                   onChange={(e) => { setRegion(e.target.value); setActiveDropdown('region'); }}
-                  onClick={() => toggleDropdown('region')}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'region')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'region')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
+                  onClick={() => handleDropdownInputClick('region')}
+                  onBlur={() => handleSuggestionInputBlur('region')}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
                 {activeDropdown === 'region' && (
@@ -866,6 +1375,9 @@ export default function PievienotAuto() {
                   placeholder="tavs@epasts.lv"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'email')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'email')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
               </div>
@@ -874,9 +1386,13 @@ export default function PievienotAuto() {
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Telefons</label>
                 <input
                   type="text"
+                  inputMode="tel"
                   placeholder="+371 ..."
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'phone')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'phone')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
               </div>
@@ -890,6 +1406,9 @@ export default function PievienotAuto() {
                 placeholder="Papildus informācija par auto stāvokli, komplektāciju..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                onPointerDown={(event) => handleDropdownInputPointerDown(event, 'description')}
+                onPointerUp={(event) => handleDropdownInputPointerUp(event, 'description')}
+                onPointerCancel={handleDropdownInputPointerCancel}
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', resize: 'vertical' }}
               />
             </div>
@@ -898,6 +1417,7 @@ export default function PievienotAuto() {
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Fotoattēli</label>
               <div
+                data-add-car-upload="true"
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
@@ -922,14 +1442,14 @@ export default function PievienotAuto() {
                 />
                 <label htmlFor="file-upload" style={{ cursor: 'pointer', display: 'block' }}>
                   <span style={{ display: 'block', fontSize: '13.5px', color: '#374151', fontWeight: '500', marginBottom: '2px' }}>
-                    Ievilkt attēlus šeit vai <span style={{ color: '#2563eb' }}>izvēlēties failus</span>
+                    <span style={{ color: '#2563eb' }}>Izvēlēties failus</span>
                   </span>
                   <span style={{ fontSize: '11.5px', color: '#6b7280' }}>PNG, JPG vai WEBP</span>
                 </label>
               </div>
 
               {images.length > 0 && (
-                <div style={{ maxWidth: '75%', margin: '12px auto 0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: '10px' }}>
+                <div data-add-car-previews="true" style={{ maxWidth: '75%', margin: '12px auto 0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: '10px' }}>
                   {images.map((img, index) => (
                     <div key={index} style={{ position: 'relative', height: '80px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #d1d5db', backgroundColor: '#f3f4f6' }}>
                       <img src={img.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -976,7 +1496,7 @@ export default function PievienotAuto() {
         </div>
 
         {/* LABĀ PUSE - 2 Baneri */}
-        <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div data-add-car-ad-rail="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
             <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 3</span>
             <span>Sānu baneris labajā pusē (augšā)!</span>
