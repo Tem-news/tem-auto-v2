@@ -374,6 +374,9 @@ export default function Header() {
   ) => {
     if (!window.matchMedia('(max-width: 767px)').matches || event.pointerType === 'mouse') return
 
+    event.preventDefault()
+    event.stopPropagation()
+
     const input = event.currentTarget
     const start = mobileSelectorPointerStart.current
     mobileSelectorPointerStart.current = null
@@ -384,17 +387,19 @@ export default function Header() {
 
     if (mobileSelectorKeyboardReady.current === selector && document.activeElement === input) {
       input.blur()
-      setLangOpen(false)
-      setRegionOpen(false)
-      setLangSearch('')
-      setRegionSearch('')
       mobileSelectorKeyboardReady.current = null
       mobileSelectorDismissUntil.current = Date.now() + 500
-      if (mobileSelectorReturnToMenu.current) {
-        setMobileMenuOpen(true)
-      } else if (window.history.state?.temAutoHeaderOverlay === 'language') {
-        window.history.back()
-      }
+      window.setTimeout(() => {
+        setLangOpen(false)
+        setRegionOpen(false)
+        setLangSearch('')
+        setRegionSearch('')
+        if (mobileSelectorReturnToMenu.current) {
+          setMobileMenuOpen(true)
+        } else if (window.history.state?.temAutoHeaderOverlay === 'language') {
+          window.history.back()
+        }
+      }, 0)
       return
     }
 
