@@ -168,6 +168,16 @@ export default function Header() {
     const initialTheme = savedTheme === 'night' ? 'night' : 'day'
     setMobileTheme(initialTheme)
     document.documentElement.dataset.temautoTheme = initialTheme
+    
+    const savedLanguage = localStorage.getItem('temauto-language')
+    if (savedLanguage && LANGUAGES.some(language => language.code === savedLanguage)) {
+      setCurrentLang(savedLanguage)
+    }
+
+    const savedRegion = localStorage.getItem('temauto-region')
+    if (savedRegion && REGIONS.some(region => region.name === savedRegion || region.subregions?.includes(savedRegion))) {
+      setCurrentRegion(savedRegion)
+    }
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
@@ -1299,6 +1309,7 @@ export default function Header() {
                             data-selected={currentLang === language.code ? 'true' : undefined}
                             onClick={() => {
                               setCurrentLang(language.code)
+                                                            localStorage.setItem('temauto-language', language.code)
                               setLangOpen(false)
                               setLangSearch('')
                               closeMobileMenuAfterSelectorChoice()
@@ -1356,6 +1367,7 @@ export default function Header() {
                             data-selected={currentRegion === region.name ? 'true' : undefined}
                             onClick={() => {
                               setCurrentRegion(region.name)
+                                                            localStorage.setItem('temauto-region', region.name)
                               setRegionOpen(false)
                               setRegionSearch('')
                               closeMobileMenuAfterSelectorChoice()
