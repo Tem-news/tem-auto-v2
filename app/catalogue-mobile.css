@@ -507,12 +507,12 @@
   }
 
   body:has([data-catalogue-page='true']) [data-header-lang-panel='true'][data-mobile-menu-origin='true'] {
-    top: 84px !important;
+        top: 122px !important;
   }
 
   body:has([data-catalogue-page='true']) [data-header-region-panel='true'][data-mobile-menu-origin='true'],
   body:has([data-catalogue-page='true']) [data-header-region-flyout='true'][data-mobile-menu-origin='true'] {
-    top: 122px !important;
+        top: 160px !important;
   }
 
   html[data-temauto-theme='day'] [data-header-lang-panel='true'],
