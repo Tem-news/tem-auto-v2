@@ -1240,53 +1240,118 @@ export default function Header() {
               }}
             >
               <div data-mobile-menu-selectors="true">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (Date.now() < mobileSelectorDismissUntil.current) return
-                    mobileSelectorReturnToMenu.current = true
-                    mobileSelectorKeyboardReady.current = 'lang'
-                    regionSearchRef.current?.blur()
-                    setLangOpen(true)
-                    setRegionOpen(false)
-                  }}
-                >
-                  <span>Valoda</span>
-                  <strong>
-                    {currentLangObj && (
-                      <img
-                        src={`https://flagcdn.com/20x15/${currentLangObj.flagCode}.png`}
-                        alt=""
+                                <div data-mobile-menu-selector-row="true">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (Date.now() < mobileSelectorDismissUntil.current) return
+                      mobileSelectorReturnToMenu.current = true
+                      mobileSelectorKeyboardReady.current = 'lang'
+                      regionSearchRef.current?.blur()
+                      setLangOpen(true)
+                      setRegionOpen(false)
+                    }}
+                  >
+                    <span>Valoda</span>
+                    <strong>
+                      {currentLangObj && (
+                        <img src={`https://flagcdn.com/20x15/${currentLangObj.flagCode}.png`} alt="" />
+                      )}
+                      <span>{currentLang}</span>
+                      <span aria-hidden="true">›</span>
+                    </strong>
+                  </button>
+                  {langOpen && (
+                    <div data-header-lang-panel="true" data-mobile-menu-inline="true">
+                      <input
+                        ref={langSearchRef}
+                        type="text"
+                        placeholder="Meklēt valodu..."
+                        value={langSearch}
+                        onChange={(event) => setLangSearch(event.target.value)}
+                        onPointerDown={(event) => handleMobileSelectorPointerDown(event, 'lang')}
+                        onPointerUp={(event) => handleMobileSelectorPointerUp(event, 'lang')}
+                        onClick={handleMobileSelectorClick}
                       />
-                    )}
-                    <span>{currentLang}</span>
-                    <span aria-hidden="true">›</span>
-                  </strong>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (Date.now() < mobileSelectorDismissUntil.current) return
-                    mobileSelectorReturnToMenu.current = true
-                    mobileSelectorKeyboardReady.current = 'region'
-                    langSearchRef.current?.blur()
-                    setRegionOpen(true)
-                    setLangOpen(false)
-                  }}
-                >
-                  <span>Valsts</span>
-                  <strong>
-                    {currentRegionObj && (
-                      <img
-                        src={`https://flagcdn.com/20x15/${currentRegionObj.flagCode}.png`}
-                        alt=""
+                      <div>
+                        {filteredLanguages.map((language) => (
+                          <div
+                            key={language.code}
+                            data-header-selector-option="true"
+                            data-selected={currentLang === language.code ? 'true' : undefined}
+                            onClick={() => {
+                              setCurrentLang(language.code)
+                              setLangOpen(false)
+                              setLangSearch('')
+                              closeMobileMenuAfterSelectorChoice()
+                            }}
+                          >
+                            <div>
+                              <img src={`https://flagcdn.com/20x15/${language.flagCode}.png`} alt="" />
+                              <span>{language.name}</span>
+                            </div>
+                            <span>{language.code}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div data-mobile-menu-selector-row="true">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (Date.now() < mobileSelectorDismissUntil.current) return
+                      mobileSelectorReturnToMenu.current = true
+                      mobileSelectorKeyboardReady.current = 'region'
+                      langSearchRef.current?.blur()
+                      setRegionOpen(true)
+                      setLangOpen(false)
+                    }}
+                  >
+                    <span>Valsts</span>
+                    <strong>
+                      {currentRegionObj && (
+                        <img src={`https://flagcdn.com/20x15/${currentRegionObj.flagCode}.png`} alt="" />
+                      )}
+                      <span>{currentRegion}</span>
+                      <span aria-hidden="true">›</span>
+                    </strong>
+                  </button>
+                  {regionOpen && (
+                    <div data-header-region-panel="true" data-mobile-menu-inline="true">
+                      <input
+                        ref={regionSearchRef}
+                        type="text"
+                        placeholder="Meklēt valsti..."
+                        value={regionSearch}
+                        onChange={(event) => setRegionSearch(event.target.value)}
+                        onPointerDown={(event) => handleMobileSelectorPointerDown(event, 'region')}
+                        onPointerUp={(event) => handleMobileSelectorPointerUp(event, 'region')}
+                        onClick={handleMobileSelectorClick}
                       />
-                    )}
-                    <span>{currentRegion}</span>
-                    <span aria-hidden="true">›</span>
-                  </strong>
-                </button>
-                <div data-mobile-theme-picker="true" role="group" aria-label="Ekrāna režīms">
+                      <div>
+                        {filteredRegions.map((region) => (
+                          <div
+                            key={region.name}
+                            data-header-selector-option="true"
+                            data-selected={currentRegion === region.name ? 'true' : undefined}
+                            onClick={() => {
+                              setCurrentRegion(region.name)
+                              setRegionOpen(false)
+                              setRegionSearch('')
+                              closeMobileMenuAfterSelectorChoice()
+                            }}
+                          >
+                            <span>{region.name}</span>
+                            <img src={`https://flagcdn.com/20x15/${region.flagCode}.png`} alt="" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+<div data-mobile-theme-picker="true" role="group" aria-label="Ekrāna režīms">
                   <button
                     type="button"
                     data-mobile-theme-option="day"
