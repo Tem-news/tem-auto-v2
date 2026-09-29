@@ -1247,7 +1247,6 @@ export default function Header() {
                     mobileSelectorReturnToMenu.current = true
                     mobileSelectorKeyboardReady.current = 'lang'
                     regionSearchRef.current?.blur()
-                    setMobileMenuOpen(false)
                     setLangOpen(true)
                     setRegionOpen(false)
                   }}
@@ -1271,7 +1270,6 @@ export default function Header() {
                     mobileSelectorReturnToMenu.current = true
                     mobileSelectorKeyboardReady.current = 'region'
                     langSearchRef.current?.blur()
-                    setMobileMenuOpen(false)
                     setRegionOpen(true)
                     setLangOpen(false)
                   }}
