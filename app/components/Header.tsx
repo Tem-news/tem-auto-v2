@@ -273,8 +273,25 @@ export default function Header() {
     }
   }, [mobileMenuOpen, visitorStatsOpen, langOpen, regionOpen])
 
+      const closeMobileMenuBeforeNavigation = () => {
+    langSearchRef.current?.blur()
+    regionSearchRef.current?.blur()
+    mobileSelectorKeyboardReady.current = null
+    setLangOpen(false)
+    setRegionOpen(false)
+    setMobileMenuClosing(false)
+    setMobileMenuOpen(false)
+
+    if (window.matchMedia('(max-width: 767px)').matches && window.history.state?.temAutoHeaderOverlay) {
+      const nextHistoryState = { ...window.history.state }
+      delete nextHistoryState.temAutoHeaderOverlay
+      window.history.replaceState(nextHistoryState, '', window.location.href)
+    }
+  }
+
   const handleAddCarClick = (e: React.MouseEvent) => {
     e.preventDefault()
+    closeMobileMenuBeforeNavigation()
     if (!user) {
       sessionStorage.setItem('redirectAfterLogin', '/pievienot')
       router.push('/login')
@@ -291,9 +308,9 @@ export default function Header() {
     router.push('/')
     router.refresh()
   }
-
   const applyMobileTheme = (theme: 'day' | 'night') => {
-    setMobileTheme(theme)
+        setMobileTheme(theme)
+    
     localStorage.setItem('temauto-mobile-theme', theme)
     document.documentElement.dataset.temautoTheme = theme
   }
@@ -1196,6 +1213,7 @@ export default function Header() {
               <Link
                 href="/kabinets"
                 data-header-account-link="true"
+                                onClick={closeMobileMenuBeforeNavigation}
                 style={{ fontSize: '12px', color: '#cbd5e1', backgroundColor: '#1e293b', padding: '5px 10px', borderRadius: '12px', border: '1px solid #334155', textDecoration: 'none', cursor: 'pointer' }}
               >
                 {user.user_metadata?.nickname || user.email}
