@@ -990,7 +990,11 @@ export default function Header() {
             </button>
 
             {langOpen && (
-              <div data-header-lang-panel="true" style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '230px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
+              <div
+                data-header-lang-panel="true"
+                data-mobile-menu-origin={mobileSelectorReturnToMenu.current ? 'true' : undefined}
+                style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '230px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}
+              >
                 <input
                   ref={langSearchRef}
                   type="text"
@@ -1059,10 +1063,18 @@ export default function Header() {
             </button>
 
             {regionOpen && (
-              <div data-header-region-flyout="true" style={{ display: 'flex', flexDirection: 'row-reverse', position: 'absolute', top: '100%', right: 0, marginTop: '6px', zIndex: 100 }}>
+              <div
+                data-header-region-flyout="true"
+                data-mobile-menu-origin={mobileSelectorReturnToMenu.current ? 'true' : undefined}
+                style={{ display: 'flex', flexDirection: 'row-reverse', position: 'absolute', top: '100%', right: 0, marginTop: '6px', zIndex: 100 }}
+              >
                 
                 {/* Galvenais valstu saraksts (atrodas pa labi, tieši zem izvēlnes pogas) */}
-                <div data-header-region-panel="true" style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '0 8px 8px 0', width: '260px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px' }}>
+                <div
+                  data-header-region-panel="true"
+                  data-mobile-menu-origin={mobileSelectorReturnToMenu.current ? 'true' : undefined}
+                  style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '0 8px 8px 0', width: '260px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px' }}
+                >
                   <input
                     ref={regionSearchRef}
                     type="text"
