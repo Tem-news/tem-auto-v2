@@ -1324,7 +1324,7 @@ export default function PievienotAuto() {
                   style={{ width: '100%', padding: '10px', paddingLeft: selectedCountry.name === countryQuery ? '44px' : '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
 {activeDropdown === 'country' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>                    {COUNTRIES.filter((c) => c.name.toLowerCase().includes(countryQuery.toLowerCase())).map((c) => (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>                    {COUNTRIES.filter((c) => countryQuery === selectedCountry.name || c.name.toLowerCase().includes(countryQuery.toLowerCase())).map((c) => (
                       <div
                         key={c.code}                        onClick={() => { setSelectedCountry(c); setCountryQuery(c.name); setRegion(''); setActiveDropdown(null); }}
                         style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
