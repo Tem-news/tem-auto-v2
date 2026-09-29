@@ -1321,7 +1321,7 @@ export default function PievienotAuto() {
                   onPointerCancel={handleDropdownInputPointerCancel}
                   onClick={() => handleDropdownInputClick('country')}
                   onBlur={() => handleSuggestionInputBlur('country')}
-                  style={{ width: '100%', padding: '10px', paddingLeft: selectedCountry.name === countryQuery ? '44px' : '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
+                  style={{ width: '100%', padding: '10px', paddingLeft: selectedCountry.name === countryQuery ? '52px' : '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
 {activeDropdown === 'country' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>                    {COUNTRIES.filter((c) => countryQuery === selectedCountry.name || c.name.toLowerCase().includes(countryQuery.toLowerCase())).map((c) => (
