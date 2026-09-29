@@ -266,6 +266,7 @@ export default function PievienotAuto() {
   const [salonaKrasa, setSalonaKrasa] = useState('')
   
   const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0])
+    const [countryQuery, setCountryQuery] = useState(COUNTRIES[0].name)
   const [region, setRegion] = useState('')
   const [description, setDescription] = useState('')
   
@@ -403,6 +404,7 @@ export default function PievienotAuto() {
     'bodyType',
     'color',
     'sture',
+        'country',
     'region'
   ])
 
@@ -1307,19 +1309,24 @@ export default function PievienotAuto() {
               {/* Valsts */}
               <div className="dropdown-container" style={{ position: 'relative' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Valsts</label>
-                <div 
-                  onClick={() => toggleDropdown('country')}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
-                >
-                  <img src={selectedCountry.flagUrl} alt="" style={{ width: '24px', height: '16px', objectFit: 'cover', borderRadius: '2px' }} />
-                  <span>{selectedCountry.name}</span>
-                </div>
-                {activeDropdown === 'country' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {COUNTRIES.map((c) => (
+                                {selectedCountry.name === countryQuery && (
+                  <img src={selectedCountry.flagUrl} alt="" style={{ position: 'absolute', left: '10px', top: '28px', width: '24px', height: '16px', objectFit: 'cover', borderRadius: '2px', zIndex: 1, pointerEvents: 'none' }} />
+                )}
+                <input
+                  type="text"
+                  value={countryQuery}
+                  onChange={(e) => { setCountryQuery(e.target.value); setActiveDropdown('country'); }}
+                  onPointerDown={(event) => handleDropdownInputPointerDown(event, 'country')}
+                  onPointerUp={(event) => handleDropdownInputPointerUp(event, 'country')}
+                  onPointerCancel={handleDropdownInputPointerCancel}
+                  onClick={() => handleDropdownInputClick('country')}
+                  onBlur={() => handleSuggestionInputBlur('country')}
+                  style={{ width: '100%', padding: '10px', paddingLeft: selectedCountry.name === countryQuery ? '44px' : '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
+                />
+{activeDropdown === 'country' && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>                    {COUNTRIES.filter((c) => c.name.toLowerCase().includes(countryQuery.toLowerCase())).map((c) => (
                       <div
-                        key={c.code}
-                        onClick={() => { setSelectedCountry(c); setRegion(''); setActiveDropdown(null); }}
+                        key={c.code}                        onClick={() => { setSelectedCountry(c); setCountryQuery(c.name); setRegion(''); setActiveDropdown(null); }}
                         style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
