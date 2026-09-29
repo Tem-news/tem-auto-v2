@@ -524,7 +524,7 @@
     position: relative;
   }
 
-  [data-mobile-menu-selector-row='true'] [data-mobile-menu-inline='true'] {
+    body:has([data-catalogue-page='true']) [data-mobile-menu='true'] [data-mobile-menu-selector-row='true'] > [data-mobile-menu-inline='true'] {
     position: absolute !important;
     top: 100% !important;
     right: 0 !important;
