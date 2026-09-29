@@ -1006,6 +1006,8 @@ export default function Header() {
                   {filteredLanguages.map((l) => (
                     <div
                       key={l.code}
+                      data-header-selector-option="true"
+                      data-selected={currentLang === l.code ? 'true' : undefined}
                       onClick={() => {
                         setCurrentLang(l.code)
                         setLangOpen(false)
@@ -1080,6 +1082,8 @@ export default function Header() {
                       return (
                         <div
                           key={r.name}
+                          data-header-selector-option="true"
+                          data-selected={isSelected ? 'true' : undefined}
                           onMouseEnter={() => setHoveredRegion(r.name)}
                           onClick={() => {
                             // TAGAD VAR NOFIKSĒT ARĪ PAŠU VALSTI NEATKARĪGI NO TĀ, VAI TAI IR APAKŠREĢIONI!
