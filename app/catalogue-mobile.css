@@ -609,6 +609,13 @@
     border-color: #cbd5e1 !important;
     box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2) !important;
   }
+   
+  html[data-temauto-theme='night'] body:has([data-catalogue-page='true']) [data-mobile-menu='true'] [data-mobile-menu-selector-row='true'] > [data-mobile-menu-inline='true'] {
+    color: #e2e8f0;
+    background: #0f172a;
+    border-color: #334155;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35);
+  }
 
   html[data-temauto-theme='day'] [data-header-lang-panel='true'] input,
   html[data-temauto-theme='day'] [data-header-region-panel='true'] input {
