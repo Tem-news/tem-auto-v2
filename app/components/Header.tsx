@@ -1257,6 +1257,17 @@ export default function Header() {
             <div
               data-mobile-menu="true"
               data-closing={mobileMenuClosing ? 'true' : undefined}
+              onPointerUpCapture={(event) => {
+                if ((event.target as HTMLElement).closest('[data-header-selector-option="true"]')) {
+                  mobileSelectorDismissUntil.current = Date.now() + 500
+                }
+              }}
+              onClickCapture={(event) => {
+                if (Date.now() < mobileSelectorDismissUntil.current) {
+                  event.preventDefault()
+                  event.stopPropagation()
+                }
+              }}
               onTouchStart={handleMobileMenuTouchStart}
               onTouchMove={handleMobileMenuTouchMove}
               onTouchEnd={handleMobileMenuTouchEnd}
