@@ -266,7 +266,7 @@ export default function PievienotAuto() {
   const [salonaKrasa, setSalonaKrasa] = useState('')
   
   const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0])
-    const [countryQuery, setCountryQuery] = useState(COUNTRIES[0].name)
+    const [countryQuery, setCountryQuery] = useState('')
   const [region, setRegion] = useState('')
   const [description, setDescription] = useState('')
   
