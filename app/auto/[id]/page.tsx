@@ -508,14 +508,29 @@ export default function AutoLapa() {
             position: absolute;
             top: 0;
             right: 14px;
-            width: 50px;
+            width: 78px;
             height: 48px;
             display: flex;
             align-items: center;
-            justify-content: flex-end;
-            gap: 5px;
-            font-size: 14px;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 1px;
+            font-size: 12px;
             font-weight: 700;
+          }
+
+          [data-listing-mobile-date="true"] {
+            font-size: 10px;
+            line-height: 12px;
+            white-space: nowrap;
+          }
+
+          [data-listing-mobile-view-count="true"] {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            line-height: 14px;
           }
 
           [data-listing-detail-layout="true"] {
@@ -755,9 +770,16 @@ export default function AutoLapa() {
           </svg>
           </span>
         </Link>
-        <span data-listing-mobile-views="true" aria-label={`Skatījumi: ${car.views ?? 0}`}>
-          <span aria-hidden="true">👁️</span>
+        <span data-listing-mobile-views="true">
+          {car.created_at && (
+            <span data-listing-mobile-date="true">
+              {new Date(car.created_at).toLocaleDateString('lv-LV')}
+            </span>
+          )}
+          <span data-listing-mobile-view-count="true" aria-label={`Skatījumi: ${car.views ?? 0}`}>
+            <span aria-hidden="true">👁️</span>
           <span>{car.views ?? 0}</span>
+          </span>
         </span>
       </div>
       <div data-listing-detail-layout="true" style={{ width: 'calc(100% - 40px)', maxWidth: '1320px', height: 'calc(100dvh - 100px)', margin: '20px auto 0', padding: 0, fontFamily: 'sans-serif', display: 'grid', gridTemplateColumns: '320px minmax(0, 1fr) 240px', gridTemplateRows: 'auto minmax(0, 1fr)', columnGap: '24px', rowGap: '0', overflow: 'hidden', boxSizing: 'border-box' }}>
