@@ -1307,6 +1307,14 @@ export default function Header() {
                             key={language.code}
                             data-header-selector-option="true"
                             data-selected={currentLang === language.code ? 'true' : undefined}
+                            onPointerUp={(event) => {
+                              event.preventDefault()
+                              event.stopPropagation()
+                              setCurrentLang(language.code)
+                              localStorage.setItem('temauto-language', language.code)
+                              setLangOpen(false)
+                              setLangSearch('')
+                            }}
                             onClick={() => {
                               setCurrentLang(language.code)
                                                             localStorage.setItem('temauto-language', language.code)
@@ -1365,6 +1373,14 @@ export default function Header() {
                             key={region.name}
                             data-header-selector-option="true"
                             data-selected={currentRegion === region.name ? 'true' : undefined}
+                            onPointerUp={(event) => {
+                              event.preventDefault()
+                              event.stopPropagation()
+                              setCurrentRegion(region.name)
+                              localStorage.setItem('temauto-region', region.name)
+                              setRegionOpen(false)
+                              setRegionSearch('')
+                            }}
                             onClick={() => {
                               setCurrentRegion(region.name)
                                                             localStorage.setItem('temauto-region', region.name)
