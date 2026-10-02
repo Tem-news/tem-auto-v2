@@ -529,6 +529,7 @@ export default function Sakumlapa() {
   const filterDropdownHistoryArmed = useRef(false)
   const filterKeyboardHistoryArmed = useRef(false)
   const filterIgnoreNextPopstate = useRef(false)
+  const filterRaisedFieldClickPending = useRef(false)
   const filterSuggestionFields = new Set([
     'valsts',
     'regions',
@@ -545,6 +546,7 @@ export default function Sakumlapa() {
   }
 
   const handleFilterPointerDownCapture = (event: React.PointerEvent<HTMLDivElement>) => {
+    filterRaisedFieldClickPending.current = false
     const field = (event.target as HTMLElement).closest<HTMLInputElement>('[data-filter-field]')
     const name = field?.dataset.filterField
     const isMobileTouch = window.matchMedia('(max-width: 767px)').matches && event.pointerType !== 'mouse'
@@ -590,6 +592,8 @@ export default function Sakumlapa() {
         )
         filterKeyboardHistoryArmed.current = true
       }
+      // Moving these fields can retarget this tap's subsequent click to a suggestion.
+      filterRaisedFieldClickPending.current = name === 'dzinejs' || name === 'virsbuve'
       field.focus({ preventScroll: true })
       return
     }
@@ -612,6 +616,12 @@ export default function Sakumlapa() {
   }
 
   const handleFilterClickCapture = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (filterRaisedFieldClickPending.current) {
+      filterRaisedFieldClickPending.current = false
+      event.preventDefault()
+      event.stopPropagation()
+      return
+    }
     const field = (event.target as HTMLElement).closest<HTMLInputElement>('[data-filter-field]')
     if (!field || !window.matchMedia('(max-width: 767px)').matches) return
     event.preventDefault()
