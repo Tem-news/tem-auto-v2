@@ -570,6 +570,8 @@ export default function Sakumlapa() {
     const isSuggestionField = filterSuggestionFields.has(name)
 
     if (filterTapReady.current === name && document.activeElement === field) {
+      // Closing a raised field must consume the click even if it lands on a sort button.
+      filterRaisedFieldClickPending.current = ['dzinejs', 'minTilpums', 'maxTilpums', 'atrumkarba', 'virsbuve', 'krasa'].includes(name)
       const historySteps =
         (filterKeyboardHistoryArmed.current ? 1 : 0) +
         (filterDropdownHistoryArmed.current ? 1 : 0)
