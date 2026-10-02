@@ -681,6 +681,71 @@ export default function Sakumlapa() {
     window.history.back()
   }, [activeDropdown])
 
+  useEffect(() => {
+    if (!mobileFiltersOpen || !window.matchMedia('(max-width: 767px)').matches) return
+
+    const panel = dropdownRef.current
+    if (!panel) return
+    const viewport = window.visualViewport
+    const raisedFields = new Set(['dzinejs', 'minTilpums', 'maxTilpums', 'atrumkarba', 'virsbuve', 'krasa'])
+    const previousPadding = panel.style.getPropertyValue('padding-bottom')
+    const previousPriority = panel.style.getPropertyPriority('padding-bottom')
+    let adjustedDropdown: HTMLElement | null = null
+    let previousMaxHeight = ''
+    let frame = 0
+
+    const restoreLayout = () => {
+      if (previousPadding) panel.style.setProperty('padding-bottom', previousPadding, previousPriority)
+      else panel.style.removeProperty('padding-bottom')
+      if (adjustedDropdown) adjustedDropdown.style.maxHeight = previousMaxHeight
+      adjustedDropdown = null
+    }
+
+    const positionField = () => {
+      restoreLayout()
+      const field = filterActiveField.current
+      if (!field || document.activeElement !== field || !raisedFields.has(field.dataset.filterField || '')) return
+
+      // Extra scroll space lets even the last field reach the top of the panel.
+      panel.style.setProperty('padding-bottom', panel.clientHeight + 'px', 'important')
+      const panelTop = panel.getBoundingClientRect().top + panel.clientTop + 8
+      panel.scrollTop += field.getBoundingClientRect().top - panelTop
+
+      const dropdown = field.parentElement?.querySelector<HTMLElement>('[data-filter-dropdown]')
+      if (dropdown) {
+        adjustedDropdown = dropdown
+        previousMaxHeight = dropdown.style.maxHeight
+        const visibleBottom = Math.min(
+          panel.getBoundingClientRect().bottom,
+          viewport ? viewport.offsetTop + viewport.height : window.innerHeight
+        )
+        dropdown.style.maxHeight = Math.max(0, Math.min(220, visibleBottom - dropdown.getBoundingClientRect().top - 8)) + 'px'
+      }
+    }
+
+    const schedulePosition = () => {
+      window.cancelAnimationFrame(frame)
+      frame = window.requestAnimationFrame(positionField)
+    }
+
+    panel.addEventListener('focusin', schedulePosition)
+    panel.addEventListener('focusout', schedulePosition)
+    viewport?.addEventListener('resize', schedulePosition)
+    viewport?.addEventListener('scroll', schedulePosition)
+    window.addEventListener('resize', schedulePosition)
+    schedulePosition()
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+      panel.removeEventListener('focusin', schedulePosition)
+      panel.removeEventListener('focusout', schedulePosition)
+      viewport?.removeEventListener('resize', schedulePosition)
+      viewport?.removeEventListener('scroll', schedulePosition)
+      window.removeEventListener('resize', schedulePosition)
+      restoreLayout()
+    }
+  }, [mobileFiltersOpen, activeDropdown])
+
   const hasActiveFilters = searchMake 
     ? Boolean(searchModel || valsts || regions || minPrice || maxPrice || minYear || maxYear || dzinejs || minTilpums || maxTilpums || atrumkarba || virsbuve || krasa)
     : Boolean(searchMake || searchModel || valsts || regions || minPrice || maxPrice || minYear || maxYear || dzinejs || minTilpums || maxTilpums || atrumkarba || virsbuve || krasa)
