@@ -684,7 +684,7 @@ export default function Sakumlapa() {
   useEffect(() => {
     if (!mobileFiltersOpen || !window.matchMedia('(max-width: 767px)').matches) return
 
-    const panel = dropdownRef.current
+    const panel = dropdownRef.current?.querySelector<HTMLDivElement>("[data-filter-row='true'][data-mobile-open='true']")
     if (!panel) return
     const viewport = window.visualViewport
     const raisedFields = new Set(['dzinejs', 'minTilpums', 'maxTilpums', 'atrumkarba', 'virsbuve', 'krasa'])
