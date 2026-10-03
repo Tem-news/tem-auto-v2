@@ -584,7 +584,8 @@ export default function Sakumlapa() {
       return
     }
 
-    if (filterTapReady.current === name) {
+    if (filterTapReady.current === name || ['minPrice', 'maxPrice', 'minYear', 'maxYear'].includes(name)) {
+      filterTapReady.current = name
       if (isSuggestionField) setActiveDropdown(name)
       if (!filterKeyboardHistoryArmed.current) {
         window.history.pushState(
