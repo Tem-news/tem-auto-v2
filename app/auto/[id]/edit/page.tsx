@@ -485,7 +485,8 @@ export default function RedigetAuto() {
     }
 
     setActiveDropdown(name)
-    if (mobileKeyboardReady.current === name) {
+    if (mobileKeyboardReady.current === name || ['price', 'mileage', 'interiorColor', 'techInspection', 'vin', 'description', 'phone', 'email'].includes(name)) {
+      mobileKeyboardReady.current = name
       const field = event.currentTarget
       if (!mobileKeyboardHistoryArmed.current) {
         window.history.pushState(
