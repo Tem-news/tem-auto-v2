@@ -254,7 +254,7 @@ const SUPPLEMENTAL_FIELDS = [
   { key: 'mileage', db: 'mileage', label: 'Nobraukums', type: 'number', inputMode: 'numeric' },
   { key: 'steeringWheel', db: 'steering_wheel', label: 'Stūre', type: 'text' },
   { key: 'interiorColor', db: 'interior_color', label: 'Salona krāsa', type: 'text' },
-  { key: 'techInspection', db: 'tech_inspection', label: 'Tehniskā apskate', type: 'text' },
+  { key: 'techInspection', db: 'tech_inspection', label: 'Tehniskā apskate', type: 'text', inputMode: 'numeric' },
   { key: 'vin', db: 'vin', label: 'VIN kods', type: 'text' }
 ] as const
 
