@@ -464,7 +464,8 @@ export default function PievienotAuto() {
     }
 
     setActiveDropdown(name)
-    if (mobileKeyboardReady.current === name) {
+    if (mobileKeyboardReady.current === name || ['price', 'nobraukums', 'vin', 'tehiskapskate', 'salonaKrasa', 'email', 'phone', 'description'].includes(name)) {
+      mobileKeyboardReady.current = name
       const field = event.currentTarget
       if (!mobileKeyboardHistoryArmed.current) {
         window.history.pushState(
