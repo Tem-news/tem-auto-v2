@@ -620,6 +620,14 @@ export default function Header() {
           z-index: 1001;
         }
         [data-header-brand='true'] { padding-left: 107px; }
+        header[data-info-page-header='true'] > div::before,
+        header[data-cabinet-header='true'] > div::before,
+        header[data-add-car-header='true'] > div::before {
+          content: '';
+          width: 87px;
+          height: 43px;
+          flex: 0 0 87px;
+        }
         [data-header-home-link='true'] > span:first-child,
         [data-header-desktop-logo='true'] > span:first-child,
         header[data-info-page-header='true'] > div > a:first-child > span:first-child,
