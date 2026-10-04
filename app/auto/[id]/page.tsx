@@ -330,7 +330,14 @@ export default function AutoLapa() {
       const distance = Math.hypot(second.clientX - first.clientX, second.clientY - first.clientY)
       const nextZoom = Math.min(4, Math.max(1, gesture.zoom * (distance / Math.max(1, gesture.distance))))
       setImageZoom(nextZoom)
-      if (nextZoom === 1) setImagePan({ x: 0, y: 0 })
+      if (nextZoom < gesture.zoom) {
+        const remainingPan = (nextZoom - 1) / Math.max(0.001, gesture.zoom - 1)
+        setImagePan({ x: gesture.panX * remainingPan, y: gesture.panY * remainingPan })
+      }
+      if (nextZoom === 1) {
+        setImagePan({ x: 0, y: 0 })
+        setZoomOrigin({ x: 50, y: 50 })
+      }
       return
     }
 
