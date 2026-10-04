@@ -51,6 +51,13 @@ export default function AutoLapa() {
   const [imageZoom, setImageZoom] = useState(1)
   const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 })
   const [imagePan, setImagePan] = useState({ x: 0, y: 0 })
+  const [photoSlideOffset, setPhotoSlideOffset] = useState(0)
+  const [photoSlideAnimating, setPhotoSlideAnimating] = useState(false)
+  const photoSlideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => () => {
+    if (photoSlideTimer.current) clearTimeout(photoSlideTimer.current)
+  }, [])
 
   const [showPhone, setShowPhone] = useState(false)
   const [showEmail, setShowEmail] = useState(false)
@@ -211,7 +218,40 @@ export default function AutoLapa() {
     setActiveImage(allImages[newIndex])
   }
 
+  const photoSlides = [
+    allImages[(activeImageIndex - 1 + imageCount) % imageCount] || activeImage,
+    activeImage,
+    allImages[(activeImageIndex + 1) % imageCount] || activeImage
+  ]
+
+  const finishPhotoSlide = (distanceX: number, distanceY: number, width: number) => {
+    if (photoSlideTimer.current) return
+    const changePhoto = allImages.length > 1 && Math.abs(distanceX) >= 45 && Math.abs(distanceX) > Math.abs(distanceY)
+    const direction = distanceX < 0 ? 1 : -1
+    setPhotoSlideAnimating(true)
+    setPhotoSlideOffset(changePhoto ? -direction * width : 0)
+    photoSlideTimer.current = setTimeout(() => {
+      if (changePhoto) setActiveImage(allImages[(activeImageIndex + direction + imageCount) % imageCount])
+      setPhotoSlideAnimating(false)
+      setPhotoSlideOffset(0)
+      photoSlideTimer.current = null
+    }, 240)
+  }
+
+  const handleImageTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    const start = imageTouchStart.current
+    const touch = event.touches[0]
+    if (!start || !touch || allImages.length <= 1 || photoSlideTimer.current) return
+    const dx = touch.clientX - start.x
+    if (Math.abs(dx) > Math.abs(touch.clientY - start.y)) {
+      imageSwipeHandled.current = true
+      setPhotoSlideOffset(dx)
+    }
+  }
+
   const handleImageTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (photoSlideTimer.current) return
+    setPhotoSlideAnimating(false)
     const touch = event.touches[0]
     imageTouchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null
     imageSwipeHandled.current = false
@@ -227,22 +267,18 @@ export default function AutoLapa() {
     const distanceX = touch.clientX - start.x
     const distanceY = touch.clientY - start.y
 
-    if (Math.abs(distanceX) < 45 || Math.abs(distanceX) <= Math.abs(distanceY)) return
-
-    imageSwipeHandled.current = true
-    if (distanceX < 0) {
-      handleNextImage()
-    } else {
-      handlePrevImage()
+    if (imageSwipeHandled.current || Math.abs(distanceX) >= 45) {
+      imageSwipeHandled.current = true
+      finishPhotoSlide(distanceX, distanceY, event.currentTarget.clientWidth)
+      window.setTimeout(() => { imageSwipeHandled.current = false }, 300)
     }
-
-    window.setTimeout(() => {
-      imageSwipeHandled.current = false
-    }, 0)
   }
 
   const handleViewerTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (photoSlideTimer.current) return
+    setPhotoSlideAnimating(false)
     if (event.touches.length >= 2) {
+      setPhotoSlideOffset(0)
       const first = event.touches[0]
       const second = event.touches[1]
       const distance = Math.hypot(second.clientX - first.clientX, second.clientY - first.clientY)
@@ -296,6 +332,12 @@ export default function AutoLapa() {
       return
     }
 
+    if (gesture.mode === 'swipe' && event.touches.length === 1 && allImages.length > 1) {
+      const touch = event.touches[0]
+      const dx = touch.clientX - gesture.x
+      if (Math.abs(dx) > Math.abs(touch.clientY - gesture.y)) setPhotoSlideOffset(dx)
+    }
+
     if (gesture.mode === 'pan' && event.touches.length === 1 && imageZoom > 1) {
       const touch = event.touches[0]
       setImagePan({
@@ -313,12 +355,9 @@ export default function AutoLapa() {
       if (gesture?.mode === 'swipe' && imageZoom === 1 && touch) {
         const distanceX = touch.clientX - gesture.x
         const distanceY = touch.clientY - gesture.y
-        if (Math.abs(distanceX) >= 45 && Math.abs(distanceX) > Math.abs(distanceY)) {
-          if (distanceX < 0) handleNextImage()
-          else handlePrevImage()
-          setImagePan({ x: 0, y: 0 })
-          setZoomOrigin({ x: 50, y: 50 })
-        }
+        finishPhotoSlide(distanceX, distanceY, event.currentTarget.clientWidth)
+        setImagePan({ x: 0, y: 0 })
+        setZoomOrigin({ x: 50, y: 50 })
       }
 
       viewerGesture.current = null
@@ -1071,6 +1110,8 @@ export default function AutoLapa() {
             <div
               data-listing-main-photo="true"
               onTouchStart={handleImageTouchStart}
+              onTouchMove={handleImageTouchMove}
+              onTouchCancel={() => { imageTouchStart.current = null; setPhotoSlideOffset(0) }}
               onTouchEnd={handleImageTouchEnd}
               style={{ position: 'relative', width: activeImageFrameWidth, aspectRatio: String(activeImageRatio), maxHeight: '360px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', margin: '0 auto 8px', touchAction: 'pan-y' }}
             >
@@ -1103,12 +1144,18 @@ export default function AutoLapa() {
                   ✏️ Rediģēt
                 </Link>
               )}
+              <div style={{ display: 'flex', width: '100%', height: '100%', transform: `translateX(calc(-100% + ${photoSlideOffset}px))`, transition: photoSlideAnimating ? 'transform 240ms ease-out' : 'none' }}>
+              {photoSlides.map((photo, slideIndex) => (
               <img
-                src={activeImage}
+                key={slideIndex}
+                src={photo}
+                draggable={false}
+                aria-hidden={slideIndex !== 1}
+
                 alt={`${car.make} ${car.model}`}
                 onLoad={(event) => {
                   const image = event.currentTarget
-                  if (!imageFrameRatioLocked.current && image.naturalWidth > 0 && image.naturalHeight > 0) {
+                  if (slideIndex === 1 && !imageFrameRatioLocked.current && image.naturalWidth > 0 && image.naturalHeight > 0) {
                     setActiveImageRatio(image.naturalWidth / image.naturalHeight)
                     imageFrameRatioLocked.current = true
                   }
@@ -1121,8 +1168,10 @@ export default function AutoLapa() {
                   setIsImageViewerOpen(true)
                 }}
                 title="Atvērt foto pilnekrānā"
-                style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'zoom-in' }}
+                style={{ width: '100%', minWidth: '100%', flex: '0 0 100%', height: '100%', objectFit: 'contain', cursor: 'zoom-in' }}
               />
+              ))}
+              </div>
               
               <div
                 data-image-position="true"
@@ -1231,7 +1280,7 @@ export default function AutoLapa() {
             onTouchStart={handleViewerTouchStart}
             onTouchMove={handleViewerTouchMove}
             onTouchEnd={handleViewerTouchEnd}
-            onTouchCancel={() => { viewerGesture.current = null }}
+            onTouchCancel={() => { viewerGesture.current = null; setPhotoSlideOffset(0) }}
             onWheel={(event) => {
               event.preventDefault()
               const rect = event.currentTarget.getBoundingClientRect()
@@ -1243,8 +1292,12 @@ export default function AutoLapa() {
             }}
             style={{ position: 'relative', width: '100vw', height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', touchAction: 'none' }}
           >
+            <div style={{ display: 'flex', width: '100%', height: '100%', transform: `translateX(calc(-100% + ${photoSlideOffset}px))`, transition: photoSlideAnimating ? 'transform 240ms ease-out' : 'none' }}>
+            {photoSlides.map((photo, slideIndex) => (
+            <div key={slideIndex} style={{ flex: '0 0 100%', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <img
-              src={activeImage}
+              src={photo}
+              aria-hidden={slideIndex !== 1}
               alt={`${car.make} ${car.model}`}
               draggable={false}
               onDoubleClick={(event) => {
@@ -1257,6 +1310,9 @@ export default function AutoLapa() {
               }}
               style={{ maxWidth: '92vw', maxHeight: '88dvh', objectFit: 'contain', transform: `translate3d(${imagePan.x}px, ${imagePan.y}px, 0) scale(${imageZoom})`, transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`, transition: 'transform 120ms ease-out', cursor: imageZoom > 1 ? 'zoom-out' : 'zoom-in', userSelect: 'none' }}
             />
+            </div>
+            ))}
+            </div>
 
             <button
               type="button"
