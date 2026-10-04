@@ -1377,6 +1377,25 @@ export default function AutoLapa() {
             ))}
             </div>
 
+            {allImages.length > 1 && ([-1, 1] as const).map((direction) => (
+              <button
+                key={direction}
+                type="button"
+                data-desktop-photo-arrow="true"
+                aria-label={direction === -1 ? 'Iepriekšējais foto' : 'Nākamais foto'}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  if (photoSlideTimer.current) return
+                  setImageZoom(1)
+                  setImagePan({ x: 0, y: 0 })
+                  setZoomOrigin({ x: 50, y: 50 })
+                  const viewer = event.currentTarget.parentElement
+                  if (viewer) finishPhotoSlide(direction === 1 ? -60 : 60, 0, viewer.clientWidth)
+                }}
+                style={{ position: 'absolute', top: '50%', left: direction === -1 ? '18px' : undefined, right: direction === 1 ? '18px' : undefined, transform: 'translateY(-50%)', zIndex: 2, width: '44px', height: '52px', border: '1px solid rgba(255,255,255,0.5)', borderRadius: '8px', background: 'rgba(0,0,0,0.55)', color: '#fff', fontSize: '36px', cursor: 'pointer', display: 'none', alignItems: 'center', justifyContent: 'center' }}
+              >{direction === -1 ? '‹' : '›'}</button>
+            ))}
+
             <button
               type="button"
               aria-label="Aizvērt foto"
