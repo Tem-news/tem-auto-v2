@@ -71,6 +71,7 @@ export default function AutoLapa() {
   const imageFrameRatioLocked = useRef(false)
   const imageTouchStart = useRef<{ x: number; y: number } | null>(null)
   const imageSwipeHandled = useRef(false)
+  const photoMouseDrag = useRef<{ pointerId: number; x: number; y: number } | null>(null)
   const viewerGesture = useRef<{
     mode: 'pinch' | 'pan' | 'swipe'
     distance: number
@@ -454,6 +455,12 @@ export default function AutoLapa() {
   return (
     <>
       <style>{`
+        @media (min-width: 768px) {
+          [data-desktop-photo-arrow='true'] { display: flex !important; }
+          [data-listing-main-photo='true'] > div > img { cursor: grab !important; }
+          [data-listing-main-photo='true'] > div > img:active { cursor: grabbing !important; }
+        }
+
         [data-listing-mobile-titlebar="true"],
         [data-listing-year-favorite="true"] {
           display: none;
@@ -1109,6 +1116,40 @@ export default function AutoLapa() {
           {activeImage && (
             <div
               data-listing-main-photo="true"
+              onPointerDown={(event) => {
+                if (event.pointerType !== 'mouse' || event.button !== 0 || !window.matchMedia('(min-width: 768px)').matches || photoSlideTimer.current) return
+                const image = event.target as HTMLElement
+                if (image.tagName !== 'IMG') return
+                imageSwipeHandled.current = false
+                if (allImages.length <= 1) return
+                event.preventDefault()
+                setPhotoSlideAnimating(false)
+                photoMouseDrag.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY }
+                image.setPointerCapture(event.pointerId)
+              }}
+              onPointerMove={(event) => {
+                const drag = photoMouseDrag.current
+                if (!drag || drag.pointerId !== event.pointerId) return
+                const dx = event.clientX - drag.x
+                if (Math.abs(dx) > 8) imageSwipeHandled.current = true
+                if (imageSwipeHandled.current) {
+                  event.preventDefault()
+                  setPhotoSlideOffset(dx)
+                }
+              }}
+              onPointerUp={(event) => {
+                const drag = photoMouseDrag.current
+                if (!drag || drag.pointerId !== event.pointerId) return
+                photoMouseDrag.current = null
+                if (imageSwipeHandled.current) finishPhotoSlide(event.clientX - drag.x, event.clientY - drag.y, event.currentTarget.clientWidth)
+                const image = event.target as HTMLElement
+                if (image.hasPointerCapture(event.pointerId)) image.releasePointerCapture(event.pointerId)
+              }}
+              onPointerCancel={(event) => {
+                if (!photoMouseDrag.current || photoMouseDrag.current.pointerId !== event.pointerId) return
+                photoMouseDrag.current = null
+                finishPhotoSlide(0, 0, event.currentTarget.clientWidth)
+              }}
               onTouchStart={handleImageTouchStart}
               onTouchMove={handleImageTouchMove}
               onTouchCancel={() => { imageTouchStart.current = null; setPhotoSlideOffset(0) }}
@@ -1172,6 +1213,20 @@ export default function AutoLapa() {
               />
               ))}
               </div>
+              {allImages.length > 1 && ([-1, 1] as const).map((direction) => (
+                <button
+                  key={direction}
+                  type="button"
+                  data-desktop-photo-arrow="true"
+                  aria-label={direction === -1 ? 'Iepriekšējais foto' : 'Nākamais foto'}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    const frame = event.currentTarget.parentElement
+                    if (frame) finishPhotoSlide(direction === 1 ? -60 : 60, 0, frame.clientWidth)
+                  }}
+                  style={{ position: 'absolute', top: '50%', left: direction === -1 ? '10px' : undefined, right: direction === 1 ? '10px' : undefined, transform: 'translateY(-50%)', zIndex: 24, width: '36px', height: '44px', border: '1px solid rgba(255,255,255,0.5)', borderRadius: '8px', background: 'rgba(0,0,0,0.45)', color: '#fff', fontSize: '30px', cursor: 'pointer', display: 'none', alignItems: 'center', justifyContent: 'center' }}
+                >{direction === -1 ? '‹' : '›'}</button>
+              ))}
               
               <div
                 data-image-position="true"
