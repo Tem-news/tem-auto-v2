@@ -1131,8 +1131,12 @@ export default function Sakumlapa() {
               <button
                 key={label}
                 type="button"
-                disabled
-                title="Sadaļas saturs tiks pievienots"
+                onClick={() => router.push(
+                  label === 'Lietošanas noteikumi' ? '/lietosanas-noteikumi' :
+                  label === 'Privātuma politika' ? '/privatuma-politika' :
+                  label === 'Drošība un krāpniecība' ? '/drosiba-un-krapnieciba' :
+                  label === 'Kontakti' ? '/kontakti' : '/tavi-ieteikumi'
+                )}
                 style={{
                   minHeight: '34px',
                   padding: '6px 8px',
@@ -1145,7 +1149,8 @@ export default function Sakumlapa() {
                   fontWeight: '700',
                   lineHeight: '1.2',
                   textAlign: 'left',
-                  opacity: 1
+                  opacity: 1,
+                  cursor: 'pointer'
                 }}
               >
                 {label}
