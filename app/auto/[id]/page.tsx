@@ -72,6 +72,7 @@ export default function AutoLapa() {
   const imageTouchStart = useRef<{ x: number; y: number } | null>(null)
   const imageSwipeHandled = useRef(false)
   const photoMouseDrag = useRef<{ pointerId: number; x: number; y: number } | null>(null)
+  const viewerMousePan = useRef<{ pointerId: number; x: number; y: number; panX: number; panY: number } | null>(null)
   const viewerGesture = useRef<{
     mode: 'pinch' | 'pan' | 'swipe'
     distance: number
@@ -1340,6 +1341,27 @@ export default function AutoLapa() {
         >
           <div
             onClick={(event) => event.stopPropagation()}
+            onPointerDown={(event) => {
+              if (event.pointerType !== 'mouse' || event.button !== 0 || imageZoom <= 1 || !window.matchMedia('(min-width: 768px)').matches) return
+              const image = event.target as HTMLElement
+              if (image.tagName !== 'IMG') return
+              event.preventDefault()
+              viewerMousePan.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, panX: imagePan.x, panY: imagePan.y }
+              image.setPointerCapture(event.pointerId)
+            }}
+            onPointerMove={(event) => {
+              const drag = viewerMousePan.current
+              if (!drag || drag.pointerId !== event.pointerId) return
+              event.preventDefault()
+              setImagePan({ x: drag.panX + event.clientX - drag.x, y: drag.panY + event.clientY - drag.y })
+            }}
+            onPointerUp={(event) => {
+              if (!viewerMousePan.current || viewerMousePan.current.pointerId !== event.pointerId) return
+              viewerMousePan.current = null
+              const image = event.target as HTMLElement
+              if (image.hasPointerCapture(event.pointerId)) image.releasePointerCapture(event.pointerId)
+            }}
+            onPointerCancel={() => { viewerMousePan.current = null }}
             onTouchStart={handleViewerTouchStart}
             onTouchMove={handleViewerTouchMove}
             onTouchEnd={handleViewerTouchEnd}
@@ -1371,7 +1393,7 @@ export default function AutoLapa() {
                 })
                 setImageZoom((current) => current === 1 ? 2 : 1)
               }}
-              style={{ maxWidth: '92vw', maxHeight: '88dvh', objectFit: 'contain', transform: `translate3d(${imagePan.x}px, ${imagePan.y}px, 0) scale(${imageZoom})`, transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`, transition: 'transform 120ms ease-out', cursor: imageZoom > 1 ? 'zoom-out' : 'zoom-in', userSelect: 'none' }}
+              style={{ maxWidth: '92vw', maxHeight: '88dvh', objectFit: 'contain', transform: `translate3d(${imagePan.x}px, ${imagePan.y}px, 0) scale(${imageZoom})`, transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`, transition: 'transform 120ms ease-out', cursor: imageZoom > 1 ? 'grab' : 'zoom-in', userSelect: 'none' }}
             />
             </div>
             ))}
