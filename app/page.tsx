@@ -211,10 +211,17 @@ function ListingCardGallery({ images, alt, compact = false }: { images: string[]
       data-card-gallery="true"
       data-make-row-gallery={compact ? 'true' : undefined}
       onPointerDown={(event) => {
-        if (compact || !isLooping || event.pointerType !== 'mouse' || event.button !== 0 || !window.matchMedia('(min-width: 768px)').matches) return
+        if (!isLooping || event.pointerType !== 'mouse' || event.button !== 0 || !window.matchMedia('(min-width: 768px)').matches) return
         event.preventDefault()
         didSwipe.current = false
         if (scrollEndTimer.current) clearTimeout(scrollEndTimer.current)
+        const gallery = event.currentTarget
+        const width = gallery.clientWidth
+        if (width) {
+          const slide = Math.round(gallery.scrollLeft / width)
+          if (slide === 0) jumpTo(images.length * width)
+          else if (slide === images.length + 1) jumpTo(width)
+        }
         mouseDrag.current = { pointerId: event.pointerId, x: event.clientX, left: event.currentTarget.scrollLeft }
         event.currentTarget.setPointerCapture(event.pointerId)
       }}
@@ -238,6 +245,7 @@ function ListingCardGallery({ images, alt, compact = false }: { images: string[]
           const startSlide = Math.round(drag.left / width)
           const direction = Math.abs(distance) > 30 ? (distance < 0 ? 1 : -1) : 0
           gallery.scrollTo({ left: Math.max(0, Math.min(images.length + 1, startSlide + direction)) * width, behavior: 'smooth' })
+          handleScroll()
         }
         if (gallery.hasPointerCapture(event.pointerId)) gallery.releasePointerCapture(event.pointerId)
       }}
