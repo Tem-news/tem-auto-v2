@@ -456,6 +456,14 @@ export default function AutoLapa() {
     <>
       <style>{`
         @media (min-width: 768px) {
+          [data-listing-main-photo='true'] {
+            width: min(100%, 640px) !important;
+            aspect-ratio: 16 / 9 !important;
+          }
+          [data-listing-main-photo='true'] > div > img {
+            object-fit: cover !important;
+            object-position: center !important;
+          }
           [data-desktop-photo-arrow='true'] { display: flex !important; }
           [data-listing-main-photo='true'] > div > img { cursor: grab !important; }
           [data-listing-main-photo='true'] > div > img:active { cursor: grabbing !important; }
