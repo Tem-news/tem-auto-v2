@@ -1415,3 +1415,14 @@
     box-shadow: none !important;
   }
 }
+
+@media (min-width: 768px) {
+  [data-recently-viewed='true'] [data-card-gallery='true'] {
+    border-bottom: 4px solid #d97777 !important;
+    box-sizing: border-box !important;
+  }
+
+  html[data-temauto-theme='night'] [data-recently-viewed='true'] [data-card-gallery='true'] {
+    border-bottom-color: #fb7185 !important;
+  }
+}
