@@ -628,7 +628,7 @@ export default function AutoLapa() {
             border-radius: 0 !important;
           }
 
-          [data-listing-main-photo="true"] > img {
+          [data-listing-main-photo="true"] > div > img {
             width: 100% !important;
             height: 100% !important;
             object-fit: cover !important;
