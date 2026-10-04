@@ -1373,7 +1373,17 @@ export default function AutoLapa() {
                 x: ((event.clientX - rect.left) / rect.width) * 100,
                 y: ((event.clientY - rect.top) / rect.height) * 100
               })
-              setImageZoom((current) => Math.min(4, Math.max(1, current + (event.deltaY < 0 ? 0.25 : -0.25))))
+              const nextZoom = Math.min(4, Math.max(1, imageZoom + (event.deltaY < 0 ? 0.25 : -0.25)))
+              if (nextZoom < imageZoom) {
+                const remainingPan = (nextZoom - 1) / Math.max(0.001, imageZoom - 1)
+                setImagePan((current) => ({ x: current.x * remainingPan, y: current.y * remainingPan }))
+              }
+              if (nextZoom === 1) {
+                setImagePan({ x: 0, y: 0 })
+                setZoomOrigin({ x: 50, y: 50 })
+                viewerMousePan.current = null
+              }
+              setImageZoom(nextZoom)
             }}
             style={{ position: 'relative', width: '100vw', height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', touchAction: 'none' }}
           >
@@ -1391,6 +1401,11 @@ export default function AutoLapa() {
                   x: ((event.clientX - rect.left) / rect.width) * 100,
                   y: ((event.clientY - rect.top) / rect.height) * 100
                 })
+                if (imageZoom > 1) {
+                  setImagePan({ x: 0, y: 0 })
+                  setZoomOrigin({ x: 50, y: 50 })
+                  viewerMousePan.current = null
+                }
                 setImageZoom((current) => current === 1 ? 2 : 1)
               }}
               style={{ maxWidth: '92vw', maxHeight: '88dvh', objectFit: 'contain', transform: `translate3d(${imagePan.x}px, ${imagePan.y}px, 0) scale(${imageZoom})`, transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`, transition: 'transform 120ms ease-out', cursor: imageZoom > 1 ? 'grab' : 'zoom-in', userSelect: 'none' }}
