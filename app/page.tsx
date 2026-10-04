@@ -841,7 +841,7 @@ export default function Sakumlapa() {
         }
       }
     })
-    const extraSections = ['Moto/velo', 'Avio', 'Cits']
+    const extraSections = ['Avio', 'Moto/velo', 'Cits']
     const makes = Object.entries(counts)
       .filter(([make]) => make.toLowerCase() !== 'zaz' && !extraSections.includes(make))
       .sort((a, b) => a[0].localeCompare(b[0]))
@@ -1070,7 +1070,7 @@ export default function Sakumlapa() {
                       key={make}
                       onClick={() => handleMakeSelect(make)}
                       style={{
-                        gridColumn: make === 'Moto/velo' ? '1' : undefined,
+                        gridColumn: make === 'Moto/velo' ? '1' : make === 'Avio' || make === 'Cits' ? '2' : undefined,
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
