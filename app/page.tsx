@@ -163,6 +163,7 @@ function ListingCardGallery({ images, alt, compact = false }: { images: string[]
   const touchStartX = useRef<number | null>(null)
   const didSwipe = useRef(false)
   const scrollEndTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const mouseDrag = useRef<{ pointerId: number; x: number; left: number } | null>(null)
   const isLooping = images.length > 1
   const loopImages = isLooping ? [images[images.length - 1], ...images, images[0]] : images
 
@@ -193,7 +194,7 @@ function ListingCardGallery({ images, alt, compact = false }: { images: string[]
   }, [isLooping, images.length])
 
   const handleScroll = () => {
-    if (!isLooping || !galleryRef.current) return
+    if (!isLooping || !galleryRef.current || mouseDrag.current) return
     if (scrollEndTimer.current) clearTimeout(scrollEndTimer.current)
     scrollEndTimer.current = setTimeout(() => {
       const gallery = galleryRef.current
@@ -209,6 +210,44 @@ function ListingCardGallery({ images, alt, compact = false }: { images: string[]
       ref={galleryRef}
       data-card-gallery="true"
       data-make-row-gallery={compact ? 'true' : undefined}
+      onPointerDown={(event) => {
+        if (compact || !isLooping || event.pointerType !== 'mouse' || event.button !== 0 || !window.matchMedia('(min-width: 768px)').matches) return
+        event.preventDefault()
+        didSwipe.current = false
+        if (scrollEndTimer.current) clearTimeout(scrollEndTimer.current)
+        mouseDrag.current = { pointerId: event.pointerId, x: event.clientX, left: event.currentTarget.scrollLeft }
+        event.currentTarget.setPointerCapture(event.pointerId)
+      }}
+      onPointerMove={(event) => {
+        const drag = mouseDrag.current
+        if (!drag || drag.pointerId !== event.pointerId) return
+        const distance = event.clientX - drag.x
+        if (Math.abs(distance) > 8) didSwipe.current = true
+        if (!didSwipe.current) return
+        event.preventDefault()
+        event.currentTarget.scrollLeft = drag.left - distance
+      }}
+      onPointerUp={(event) => {
+        const drag = mouseDrag.current
+        if (!drag || drag.pointerId !== event.pointerId) return
+        mouseDrag.current = null
+        const gallery = event.currentTarget
+        const width = gallery.clientWidth
+        const distance = event.clientX - drag.x
+        if (width && didSwipe.current) {
+          const startSlide = Math.round(drag.left / width)
+          const direction = Math.abs(distance) > 30 ? (distance < 0 ? 1 : -1) : 0
+          gallery.scrollTo({ left: Math.max(0, Math.min(images.length + 1, startSlide + direction)) * width, behavior: 'smooth' })
+        }
+        if (gallery.hasPointerCapture(event.pointerId)) gallery.releasePointerCapture(event.pointerId)
+      }}
+      onPointerCancel={(event) => {
+        const drag = mouseDrag.current
+        if (!drag || drag.pointerId !== event.pointerId) return
+        mouseDrag.current = null
+        event.currentTarget.scrollTo({ left: drag.left, behavior: 'smooth' })
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
+      }}
       onScroll={handleScroll}
       onTouchStart={(event) => {
         touchStartX.current = event.touches[0]?.clientX ?? null
