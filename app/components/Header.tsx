@@ -1091,7 +1091,7 @@ export default function Header() {
 
         {/* LABĀ PUSE: Valodas, Reģioni un Navigācija */}
         {isDesktopHeader && desktopPageTitle && (
-          <div data-desktop-page-title="true" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', flex: '1 1 auto', minWidth: 0, padding: '0 12px' }}>
+          <div data-desktop-page-title="true" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: isCabinet ? '40px' : '16px', flex: '1 1 auto', minWidth: 0, padding: '0 12px' }}>
             <strong style={{ color: '#e2e8f0', fontSize: '16px', textAlign: 'center' }}>{desktopPageTitle}</strong>
             {isCabinet && (
               <button type="button" onClick={handleHeaderLogout} style={{ padding: '6px 10px', border: '1px solid #ef4444', borderRadius: '6px', backgroundColor: 'transparent', color: '#fca5a5', cursor: 'pointer', whiteSpace: 'nowrap' }}>Izlogoties</button>
