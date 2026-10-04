@@ -1012,6 +1012,21 @@ export default function Sakumlapa() {
   return (
     <div data-catalogue-page="true" ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
 
+      <style>{`
+        @media (min-width: 768px) {
+          [data-filter-row='true'][data-default-catalogue='true'] {
+            margin-top: -16px !important;
+            padding-top: 6px !important;
+          }
+          [data-filter-row='true'][data-default-catalogue='true'] [data-filter-heading='true'] > h2 {
+            display: none !important;
+          }
+          [data-filter-row='true'][data-default-catalogue='true'] [data-filter-heading='true']:not(:has(button)) {
+            display: none !important;
+          }
+        }
+      `}</style>
+
       <div data-mobile-catalogue-actions="true" aria-label="Kataloga izvēlne">
         <button
           type="button"
@@ -1145,6 +1160,7 @@ export default function Sakumlapa() {
           {/* FILTRI */}
           <div
             data-filter-row="true"
+            data-default-catalogue={!searchMake && !showFavorites ? 'true' : undefined}
             data-mobile-open={mobileFiltersOpen ? 'true' : 'false'}
             data-mobile-closing={mobileFiltersClosing ? 'true' : undefined}
             onTouchStart={handleMobileFiltersTouchStart}
