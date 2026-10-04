@@ -841,7 +841,11 @@ export default function Sakumlapa() {
         }
       }
     })
-    return Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0]))
+    const extraSections = ['Moto/velo', 'Avio', 'Cits']
+    const makes = Object.entries(counts)
+      .filter(([make]) => make.toLowerCase() !== 'zaz' && !extraSections.includes(make))
+      .sort((a, b) => a[0].localeCompare(b[0]))
+    return [...makes, ...extraSections.map((name): [string, number] => [name, counts[name] || 0])]
   }, [cars])
 
   const filteredCars = cars.filter((car) => {
@@ -1066,6 +1070,7 @@ export default function Sakumlapa() {
                       key={make}
                       onClick={() => handleMakeSelect(make)}
                       style={{
+                        gridColumn: make === 'Moto/velo' ? '1' : undefined,
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
