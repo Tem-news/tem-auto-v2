@@ -125,6 +125,16 @@ export default function Header() {
   const isAddCar = pathname === '/pievienot' || /^\/auto\/[^/]+\/edit\/?$/.test(pathname)
   const isCabinet = pathname === '/kabinets'
   const infoPageTitle = INFO_PAGE_TITLES[pathname]
+  const [isDesktopHeader, setIsDesktopHeader] = useState(false)
+  useEffect(() => {
+    const query = window.matchMedia('(min-width: 768px)')
+    const sync = () => setIsDesktopHeader(query.matches)
+    sync()
+    query.addEventListener('change', sync)
+    return () => query.removeEventListener('change', sync)
+  }, [])
+  const desktopPageTitle = infoPageTitle || (isCabinet ? 'Mans kabinets' : isAddCar ? (pathname.includes('/edit') ? 'Rediģēt sludinājumu' : 'Pievienot sludinājumu') : isListingDetail ? 'Sludinājums' : pathname === '/login' ? 'Reģistrācija / Ienākt' : '')
+
   const [user, setUser] = useState<any>(null)
   const [visitCount, setVisitCount] = useState<number>(0)
 
@@ -620,6 +630,10 @@ export default function Header() {
           z-index: 1001;
         }
         [data-header-brand='true'] { padding-left: 107px; }
+        header[data-temauto-header='true'] [aria-current='page'] {
+          border: 1px solid #7dd3fc !important;
+          box-shadow: 0 0 0 2px rgba(125,211,252,0.25);
+        }
         header[data-info-page-header='true'] > div::before,
         header[data-cabinet-header='true'] > div::before,
         header[data-add-car-header='true'] > div::before {
@@ -653,7 +667,7 @@ export default function Header() {
     `}</style>
   )
 
-  if (infoPageTitle) {
+  if (infoPageTitle && !isDesktopHeader) {
     return (
       <>
         <header
@@ -714,7 +728,7 @@ export default function Header() {
     )
   }
 
-  if (isCabinet) {
+  if (isCabinet && !isDesktopHeader) {
     return (
       <>
         <header
@@ -803,7 +817,7 @@ export default function Header() {
     )
   }
 
-  if (isAddCar) {
+  if (isAddCar && !isDesktopHeader) {
     return (
       <>
         <header
@@ -895,7 +909,7 @@ export default function Header() {
     )
   }
 
-  if (isListingDetail) {
+  if (isListingDetail && !isDesktopHeader) {
     return (
       <header
         data-temauto-header="true"
@@ -1076,6 +1090,15 @@ export default function Header() {
         </div>
 
         {/* LABĀ PUSE: Valodas, Reģioni un Navigācija */}
+        {isDesktopHeader && desktopPageTitle && (
+          <div data-desktop-page-title="true" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', flex: '1 1 auto', minWidth: 0, padding: '0 12px' }}>
+            <strong style={{ color: '#e2e8f0', fontSize: '16px', textAlign: 'center' }}>{desktopPageTitle}</strong>
+            {isCabinet && (
+              <button type="button" onClick={handleHeaderLogout} style={{ padding: '6px 10px', border: '1px solid #ef4444', borderRadius: '6px', backgroundColor: 'transparent', color: '#fca5a5', cursor: 'pointer', whiteSpace: 'nowrap' }}>Izlogoties</button>
+            )}
+          </div>
+        )}
+
         <div data-header-controls="true" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
           
           {/* Valodas izvēlne */}
@@ -1314,6 +1337,7 @@ export default function Header() {
               <Link
                 href="/kabinets"
                 data-header-account-link="true"
+                aria-current={isDesktopHeader && isCabinet ? 'page' : undefined}
                                 onClick={closeMobileMenuBeforeNavigation}
                 style={{ fontSize: '12px', color: '#cbd5e1', backgroundColor: '#1e293b', padding: '5px 10px', borderRadius: '12px', border: '1px solid #334155', textDecoration: 'none', cursor: 'pointer' }}
               >
@@ -1337,6 +1361,7 @@ export default function Header() {
             <a
               href="/pievienot"
               data-header-add="true"
+              aria-current={isDesktopHeader && pathname === '/pievienot' ? 'page' : undefined}
               onClick={handleAddCarClick}
               style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
             >
