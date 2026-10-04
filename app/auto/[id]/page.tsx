@@ -1357,7 +1357,7 @@ export default function AutoLapa() {
           >
             <div style={{ display: 'flex', width: '100%', height: '100%', transform: `translateX(calc(-100% + ${photoSlideOffset}px))`, transition: photoSlideAnimating ? 'transform 240ms ease-out' : 'none' }}>
             {photoSlides.map((photo, slideIndex) => (
-            <div key={slideIndex} style={{ flex: '0 0 100%', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div key={slideIndex} style={{ flex: '0 0 100%', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
             <img
               src={photo}
               aria-hidden={slideIndex !== 1}
