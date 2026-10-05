@@ -1061,6 +1061,24 @@ export default function Sakumlapa() {
 
       <style>{`
         @media (min-width: 768px) {
+          [data-mobile-favorites='true'] { display: none !important; }
+          [data-desktop-filter-favorites='true'] {
+            display: block !important;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: calc(50% - 4px);
+            height: 100%;
+            box-sizing: border-box;
+          }
+          [data-desktop-engine-group='true'] > input {
+            width: calc(50% - 4px) !important;
+            margin-left: calc(50% + 4px);
+          }
+          [data-desktop-engine-group='true'] > [data-filter-dropdown='true'] {
+            left: calc(50% + 4px) !important;
+          }
+
           [data-filter-row='true'][data-default-catalogue='true'] {
             margin-top: -16px !important;
             padding-top: 6px !important;
@@ -1068,7 +1086,7 @@ export default function Sakumlapa() {
           [data-filter-row='true'][data-default-catalogue='true'] [data-filter-heading='true'] > h2 {
             display: none !important;
           }
-          [data-filter-row='true'][data-default-catalogue='true'] [data-filter-heading='true']:not(:has(button)) {
+          [data-filter-row='true'][data-default-catalogue='true'] [data-filter-heading='true']:not(:has(button:not([data-mobile-favorites='true']))) {
             display: none !important;
           }
         }
@@ -1253,6 +1271,7 @@ export default function Sakumlapa() {
                 {favoriteIds.length > 0 && (
                   <button
                     type="button"
+                    data-mobile-favorites="true"
                     onClick={toggleFavoritesView}
                     style={{
                       backgroundColor: showFavorites ? '#15803d' : '#dcfce7',
@@ -1428,7 +1447,28 @@ export default function Sakumlapa() {
 
             {/* 2. Rinda */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-              <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
+              <div data-desktop-engine-group="true" style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
+                <button
+                  type="button"
+                  data-desktop-filter-favorites="true"
+                  aria-pressed={showFavorites}
+                  disabled={favoriteIds.length === 0}
+                  onClick={toggleFavoritesView}
+                  style={{
+                    display: 'none',
+                    backgroundColor: favoriteIds.length === 0 ? '#f3f4f6' : showFavorites ? '#15803d' : '#dcfce7',
+                    color: favoriteIds.length === 0 ? '#9ca3af' : showFavorites ? '#ffffff' : '#166534',
+                    border: favoriteIds.length === 0 ? '1px solid #d1d5db' : '1px solid #86efac',
+                    borderRadius: '6px',
+                    padding: '6px',
+                    fontFamily: 'inherit',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    cursor: favoriteIds.length === 0 ? 'default' : 'pointer'
+                  }}
+                >
+                  {showFavorites ? 'Rādīt visus' : favoriteIds.length > 0 ? `Mani favorīti (${favoriteIds.length})` : 'Mani favorīti'}
+                </button>
                 <input
                   type="text"
                   data-filter-field="dzinejs"
