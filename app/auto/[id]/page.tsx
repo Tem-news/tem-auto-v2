@@ -55,6 +55,38 @@ export default function AutoLapa() {
   const [photoSlideAnimating, setPhotoSlideAnimating] = useState(false)
   const photoSlideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  const viewerHistoryEntry = useRef(false)
+
+  const openImageViewer = () => {
+    if (window.matchMedia('(max-width: 767px)').matches && !viewerHistoryEntry.current) {
+      window.history.pushState({ ...window.history.state, temAutoImageViewer: true }, '', window.location.href)
+      viewerHistoryEntry.current = true
+    }
+    setIsImageViewerOpen(true)
+  }
+
+  const closeImageViewer = () => {
+    if (viewerHistoryEntry.current) {
+      viewerHistoryEntry.current = false
+      window.history.back()
+    }
+    setIsImageViewerOpen(false)
+    setImageZoom(1)
+    setImagePan({ x: 0, y: 0 })
+  }
+
+  useEffect(() => {
+    const handleViewerBack = () => {
+      if (!viewerHistoryEntry.current) return
+      viewerHistoryEntry.current = false
+      setIsImageViewerOpen(false)
+      setImageZoom(1)
+      setImagePan({ x: 0, y: 0 })
+    }
+    window.addEventListener('popstate', handleViewerBack)
+    return () => window.removeEventListener('popstate', handleViewerBack)
+  }, [])
+
   useEffect(() => () => {
     if (photoSlideTimer.current) clearTimeout(photoSlideTimer.current)
   }, [])
@@ -152,9 +184,7 @@ export default function AutoLapa() {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setIsImageViewerOpen(false)
-        setImageZoom(1)
-        setImagePan({ x: 0, y: 0 })
+        closeImageViewer()
       }
     }
 
@@ -1222,7 +1252,7 @@ export default function AutoLapa() {
                   setImageZoom(1)
         setImagePan({ x: 0, y: 0 })
                   setZoomOrigin({ x: 50, y: 50 })
-                  setIsImageViewerOpen(true)
+                  openImageViewer()
                 }}
                 title="Atvērt foto pilnekrānā"
                 style={{ width: '100%', minWidth: '100%', flex: '0 0 100%', height: '100%', objectFit: 'contain', cursor: 'zoom-in' }}
@@ -1340,9 +1370,7 @@ export default function AutoLapa() {
           aria-modal="true"
           aria-label="Foto pilnekrāna skatītājs"
           onClick={() => {
-            setIsImageViewerOpen(false)
-            setImageZoom(1)
-        setImagePan({ x: 0, y: 0 })
+            closeImageViewer()
           }}
           style={{ position: 'fixed', inset: 0, zIndex: 10000, backgroundColor: 'rgba(0, 0, 0, 0.94)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}
         >
@@ -1444,9 +1472,7 @@ export default function AutoLapa() {
               type="button"
               aria-label="Aizvērt foto"
               onClick={() => {
-                setIsImageViewerOpen(false)
-                setImageZoom(1)
-        setImagePan({ x: 0, y: 0 })
+                closeImageViewer()
               }}
               style={{ position: 'absolute', top: '18px', right: '22px', width: '44px', height: '44px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.45)', backgroundColor: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: '28px', lineHeight: 1, cursor: 'pointer' }}
             >
