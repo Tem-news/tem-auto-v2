@@ -139,6 +139,21 @@ export default function KabinetsPage() {
   return (
     <main data-cabinet-page="true" style={{ width: 'calc(100% - 40px)', maxWidth: '1100px', margin: '32px auto', fontFamily: 'sans-serif' }}>
       <style>{`
+        [data-cabinet-desktop-photo="true"],
+        [data-cabinet-desktop-edit="true"] { display: none; }
+
+        @media (min-width: 768px) {
+          [data-cabinet-page="true"] { max-width: 800px !important; }
+          [data-cabinet-list="true"] [data-make-table-row="true"] {
+            grid-template-columns: 112px minmax(0, 1fr) 60px 110px 65px !important;
+            gap: 12px !important;
+          }
+          [data-cabinet-list="true"] [data-make-row-gallery="true"],
+          [data-cabinet-mobile-edit="true"] { display: none !important; }
+          [data-cabinet-desktop-photo="true"] { display: block; }
+          [data-cabinet-desktop-edit="true"] { display: block; text-align: right; }
+        }
+
         @media (max-width: 767px) {
           [data-cabinet-page="true"] {
             width: 100% !important;
@@ -223,6 +238,7 @@ export default function KabinetsPage() {
                   car.image,
                   car.image_url
                 ].filter((image): image is string => typeof image === 'string' && image.trim() !== '')))
+                const coverImage = car.image || car.image_url || galleryImages[0]
                 const engineType = car.engine || car.engine_type || car.fuel_type || car.fuel || car.dzinejs || car.degviela || ''
                 const engineVolume = car.volume !== null && car.volume !== undefined && car.volume !== '' ? `${car.volume}L` : ''
                 const engineSummary = [engineType, engineVolume].filter(Boolean).join(' ')
@@ -243,7 +259,10 @@ export default function KabinetsPage() {
                   >
                     <Link href={`/auto/${car.id}`} data-cell="photo" aria-label={`Apskatīt ${car.make || ''} ${car.model || ''}`.trim()}>
                       {galleryImages.length > 0 ? (
-                        <CabinetListingGallery images={galleryImages} />
+                        <>
+                          <img data-cabinet-desktop-photo="true" src={coverImage} alt="" draggable={false} style={{ width: '112px', height: '68px', objectFit: 'cover', borderRadius: '6px' }} />
+                          <CabinetListingGallery images={galleryImages} />
+                        </>
                       ) : (
                         <div style={{ width: '112px', height: '68px', borderRadius: '6px', backgroundColor: '#e5e7eb' }} />
                       )}
@@ -256,6 +275,7 @@ export default function KabinetsPage() {
                       <Link
                         href={`/auto/${car.id}/edit`}
                         role="button"
+                        data-cabinet-mobile-edit="true"
                         style={{ flexShrink: 0, marginLeft: 'auto', color: '#2563eb', textDecoration: 'none', fontSize: '12px', fontWeight: '700' }}
                       >
                         Rediģēt
@@ -270,6 +290,15 @@ export default function KabinetsPage() {
                     <div data-cell="price" style={{ textAlign: 'right', color: '#111827', fontSize: '15px', fontWeight: '700' }}>
                       {formatPrice(car.price)}
                     </div>
+
+                    <Link
+                      href={`/auto/${car.id}/edit`}
+                      data-cabinet-desktop-edit="true"
+                      role="button"
+                      style={{ color: '#2563eb', textDecoration: 'none', fontSize: '12px', fontWeight: '700' }}
+                    >
+                      Rediģēt
+                    </Link>
                   </div>
                 )
               })}
