@@ -600,12 +600,12 @@ export default function AutoLapa() {
             position: absolute;
             top: 0;
             right: 14px;
-            width: 78px;
+            width: max-content;
             height: 48px;
             display: flex;
             align-items: center;
             flex-direction: column;
-            align-items: flex-end;
+            align-items: flex-start;
             justify-content: center;
             gap: 1px;
             font-size: 12px;
