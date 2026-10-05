@@ -901,33 +901,7 @@ export default function AutoLapa() {
             {car.year && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
                 <span style={{ color: '#111827', fontSize: '17px', fontWeight: '800' }}>{car.year}</span>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                  <button
-                    type="button"
-                    data-listing-year-favorite="true"
-                    aria-pressed={isFavorite}
-                    onClick={toggleFavorite}
-                    style={{
-                      display: 'none',
-                      alignItems: 'center',
-                      padding: '5px 8px',
-                      borderRadius: '14px',
-                      border: isFavorite ? '1px solid rgba(255,255,255,0.75)' : '1px solid rgba(17,24,39,0.18)',
-                      backgroundColor: isFavorite ? 'rgba(21,128,61,0.92)' : 'rgba(255,255,255,0.86)',
-                      color: isFavorite ? '#ffffff' : '#374151',
-                      fontFamily: 'inherit',
-                      fontSize: '11px',
-                      fontWeight: isFavorite ? '700' : '600',
-                      lineHeight: 1,
-                      boxShadow: '0 1px 5px rgba(0,0,0,0.20)',
-                      transform: 'rotate(-2deg)',
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    Mans favorīts
-                  </button>
-                </div>
+
               </div>
             )}
             {car.engine && (
@@ -1202,6 +1176,37 @@ export default function AutoLapa() {
               onTouchEnd={handleImageTouchEnd}
               style={{ position: 'relative', width: activeImageFrameWidth, aspectRatio: String(activeImageRatio), maxHeight: '360px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', margin: '0 auto 8px', touchAction: 'pan-y' }}
             >
+              <button
+                    type="button"
+                    data-listing-year-favorite="true"
+                    aria-pressed={isFavorite}
+                    onClick={(event) => { event.stopPropagation(); toggleFavorite() }}
+                    onTouchStart={(event) => event.stopPropagation()}
+                    onTouchMove={(event) => event.stopPropagation()}
+                    onTouchEnd={(event) => event.stopPropagation()}
+                    style={{
+                      display: 'none',
+                      alignItems: 'center',
+                      padding: '5px 8px',
+                      borderRadius: '14px',
+                      border: isFavorite ? '1px solid rgba(255,255,255,0.75)' : '1px solid rgba(17,24,39,0.18)',
+                      backgroundColor: isFavorite ? 'rgba(21,128,61,0.92)' : 'rgba(255,255,255,0.86)',
+                      color: isFavorite ? '#ffffff' : '#374151',
+                      fontFamily: 'inherit',
+                      fontSize: '11px',
+                      fontWeight: isFavorite ? '700' : '600',
+                      lineHeight: 1,
+                      boxShadow: '0 1px 5px rgba(0,0,0,0.20)',
+                      position: 'absolute',
+                      top: '10px',
+                      right: '10px',
+                      zIndex: 25,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    Mans favorīts
+                  </button>
               {!isPreviewListing(car) && Boolean(car.user_id) && car.user_id === currentUserId && (
                 <Link
                   href={`/auto/${id}/edit`}
