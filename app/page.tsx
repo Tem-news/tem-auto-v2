@@ -571,6 +571,7 @@ export default function Sakumlapa() {
   const [minYear, setMinYear] = useState('')
   const [maxYear, setMaxYear] = useState('')
   const [yearSort, setYearSort] = useState<'asc' | 'desc' | null>(null)
+  const [priceSort, setPriceSort] = useState<'asc' | 'desc' | null>(null)
   const [dzinejs, setDzinejs] = useState('')
   const [minTilpums, setMinTilpums] = useState('')
   const [maxTilpums, setMaxTilpums] = useState('')
@@ -943,19 +944,28 @@ export default function Sakumlapa() {
     return yearMatch ? Number(yearMatch[0]) : 0
   }
 
-  const sortedFilteredCars = yearSort
+  const getListingPrice = (car: any): number | null => {
+    const rawPrice = String(car.price ?? '').replace(/\s/g, '').replace(',', '.')
+    if (!rawPrice) return null
+    const price = Number(rawPrice)
+    return Number.isFinite(price) && price >= 0 ? price : null
+  }
+
+  const sortDirection = priceSort ?? yearSort
+  const sortedFilteredCars = sortDirection
     ? [...filteredCars].sort((firstCar, secondCar) => {
-        const firstYear = getListingYear(firstCar)
-        const secondYear = getListingYear(secondCar)
-        if (firstYear === 0 && secondYear === 0) return 0
-        if (firstYear === 0) return 1
-        if (secondYear === 0) return -1
-        return yearSort === 'asc' ? firstYear - secondYear : secondYear - firstYear
+        const firstValue = priceSort ? getListingPrice(firstCar) : getListingYear(firstCar) || null
+        const secondValue = priceSort ? getListingPrice(secondCar) : getListingYear(secondCar) || null
+        if (firstValue === null && secondValue === null) return 0
+        if (firstValue === null) return 1
+        if (secondValue === null) return -1
+        return sortDirection === 'asc' ? firstValue - secondValue : secondValue - firstValue
       })
     : filteredCars
 
-  const applyYearSort = (direction: 'asc' | 'desc' | null) => {
-    setYearSort(direction)
+  const applyListingSort = (direction: 'asc' | 'desc' | null, field: 'year' | 'price' = 'year') => {
+    setYearSort(field === 'year' ? direction : null)
+    setPriceSort(field === 'price' ? direction : null)
     setCurrentPage(1)
 
     const nextAddress = new URL(window.location.href)
@@ -1371,7 +1381,7 @@ export default function Sakumlapa() {
                 data-year-sort-direction="asc"
                 aria-label="Gads augošā secībā"
                 aria-pressed={yearSort === 'asc'}
-                onClick={() => applyYearSort(yearSort === 'asc' ? null : 'asc')}
+                onClick={() => applyListingSort(yearSort === 'asc' ? null : 'asc')}
               >
                 <span aria-hidden="true">↑</span>
               </button>
@@ -1380,7 +1390,7 @@ export default function Sakumlapa() {
                 data-year-sort-reset="true"
                 aria-label="Izslēgt kārtošanu pēc gada"
                 aria-pressed={yearSort === null}
-                onClick={() => applyYearSort(null)}
+                onClick={() => applyListingSort(null)}
               >
                 Gads
               </button>
@@ -1389,7 +1399,42 @@ export default function Sakumlapa() {
                 data-year-sort-direction="desc"
                 aria-label="Gads dilstošā secībā"
                 aria-pressed={yearSort === 'desc'}
-                onClick={() => applyYearSort(yearSort === 'desc' ? null : 'desc')}
+                onClick={() => applyListingSort(yearSort === 'desc' ? null : 'desc')}
+              >
+                <span aria-hidden="true">↓</span>
+              </button>
+            </div>
+
+            <div
+              data-year-sort="true"
+              data-price-sort="true"
+              aria-label="Kārtot sludinājumus pēc cenas"
+              style={{ display: 'none' }}
+            >
+              <button
+                type="button"
+                data-year-sort-direction="asc"
+                aria-label="Cena augošā secībā"
+                aria-pressed={priceSort === 'asc'}
+                onClick={() => applyListingSort(priceSort === 'asc' ? null : 'asc', 'price')}
+              >
+                <span aria-hidden="true">↑</span>
+              </button>
+              <button
+                type="button"
+                data-year-sort-reset="true"
+                aria-label="Izslēgt kārtošanu pēc cenas"
+                aria-pressed={priceSort === null}
+                onClick={() => applyListingSort(null, 'price')}
+              >
+                Cena
+              </button>
+              <button
+                type="button"
+                data-year-sort-direction="desc"
+                aria-label="Cena dilstošā secībā"
+                aria-pressed={priceSort === 'desc'}
+                onClick={() => applyListingSort(priceSort === 'desc' ? null : 'desc', 'price')}
               >
                 <span aria-hidden="true">↓</span>
               </button>
@@ -1653,10 +1698,6 @@ export default function Sakumlapa() {
                 )}
               </div>
             </div>
-          <div data-mobile-sponsor="true" aria-label="Sponsora vieta">
-            <strong>SPONSORS</strong>
-            <span>Vieta sadarbības partnerim</span>
-          </div>
           </div>
 
           {/* SKATS */}
