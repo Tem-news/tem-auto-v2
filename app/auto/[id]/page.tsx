@@ -513,6 +513,12 @@ export default function AutoLapa() {
         }
 
         @media (max-width: 767px) {
+          [data-listing-photo-price="true"] {
+            color: #ffffff !important;
+            -webkit-text-stroke: 1px #000000 !important;
+            text-shadow: -1px -1px 0 #000000, 1px -1px 0 #000000, -1px 1px 0 #000000, 1px 1px 0 #000000 !important;
+          }
+
           [data-listing-year-favorite="true"] {
             display: inline-flex !important;
           }
