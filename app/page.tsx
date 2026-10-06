@@ -1,4 +1,6 @@
 'use client'
+
+import DemoPhoto from './components/DemoPhoto'
 import { Fragment, useEffect, useState, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
@@ -277,7 +279,7 @@ function ListingCardGallery({ images, alt, compact = false }: { images: string[]
       style={{ width: compact ? '95px' : '100%', height: compact ? '60px' : '160px', backgroundColor: '#f3f4f6', overflow: 'hidden', display: 'flex', borderRadius: compact ? '4px' : undefined, border: compact ? '1px solid #d1d5db' : undefined, boxSizing: 'border-box' }}
     >
       {loopImages.map((image, index) => (
-        <img
+        <DemoPhoto
           key={`${image}-${index}`}
           src={image}
           alt={(!isLooping && index === 0) || (isLooping && index === 1) ? alt : ''}

@@ -1,5 +1,7 @@
 'use client'
 
+import DemoPhoto from '../../components/DemoPhoto'
+
 import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -1245,7 +1247,7 @@ export default function AutoLapa() {
               )}
               <div style={{ display: 'flex', width: '100%', height: '100%', transform: `translateX(calc(-100% + ${photoSlideOffset}px))`, transition: photoSlideAnimating ? 'transform 240ms ease-out' : 'none' }}>
               {photoSlides.map((photo, slideIndex) => (
-              <img
+              <DemoPhoto
                 key={slideIndex}
                 src={photo}
                 draggable={false}
@@ -1338,7 +1340,7 @@ export default function AutoLapa() {
           {allImages.length > 1 && (
             <div data-listing-thumbnails="true" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', paddingBottom: '2px' }}>
               {allImages.map((img, idx) => (
-                <img
+                <DemoPhoto
                   key={idx}
                   src={img}
                   alt=""
@@ -1437,7 +1439,7 @@ export default function AutoLapa() {
             <div style={{ display: 'flex', width: '100%', height: '100%', transform: `translateX(calc(-100% + ${photoSlideOffset}px))`, transition: photoSlideAnimating ? 'transform 240ms ease-out' : 'none' }}>
             {photoSlides.map((photo, slideIndex) => (
             <div key={slideIndex} style={{ flex: '0 0 100%', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-            <img
+            <DemoPhoto
               src={photo}
               aria-hidden={slideIndex !== 1}
               alt={`${car.make} ${car.model}`}

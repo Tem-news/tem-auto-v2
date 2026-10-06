@@ -1,5 +1,7 @@
 'use client'
 
+import DemoPhoto from '../components/DemoPhoto'
+
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -83,7 +85,7 @@ function CabinetListingGallery({ images }: { images: string[] }) {
       style={{ width: '112px', height: '68px', overflow: 'hidden', borderRadius: '6px', backgroundColor: '#e5e7eb' }}
     >
       {loopImages.map((image, index) => (
-        <img
+        <DemoPhoto
           key={`${image}-${index}`}
           src={image}
           alt=""
@@ -264,7 +266,7 @@ export default function KabinetsPage() {
                     <Link href={`/auto/${car.id}`} data-cell="photo" aria-label={`Apskatīt ${car.make || ''} ${car.model || ''}`.trim()}>
                       {galleryImages.length > 0 ? (
                         <>
-                          <img data-cabinet-desktop-photo="true" src={coverImage} alt="" draggable={false} style={{ width: '112px', height: '68px', objectFit: 'cover', borderRadius: '6px' }} />
+                          <DemoPhoto data-cabinet-desktop-photo="true" src={coverImage} alt="" draggable={false} style={{ width: '112px', height: '68px', objectFit: 'cover', borderRadius: '6px' }} />
                           <CabinetListingGallery images={galleryImages} />
                         </>
                       ) : (
