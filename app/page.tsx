@@ -1727,14 +1727,18 @@ export default function Sakumlapa() {
                       aria-controls={`desktop-sort-${field}`}
                       onClick={() => {
                         setActiveDropdown(null)
-                        setDesktopSortOpen(open => open === field ? null : field)
+                        if (current !== null) {
+                          applyListingSort(null, field)
+                          setDesktopSortOpen(null)
+                        } else {
+                          setDesktopSortOpen(open => open === field ? null : field)
+                        }
                       }}
                     >{label}</button>
                     {desktopSortOpen === field && (
                       <div id={`desktop-sort-${field}`} data-desktop-sort-options="true" aria-label={`Kārtošana: ${label}`}>
                         {([
                           { direction: 'asc', symbol: '↑', title: 'Augošā secībā' },
-                          { direction: null, symbol: '↕', title: 'Jaukta secība' },
                           { direction: 'desc', symbol: '↓', title: 'Dilstošā secībā' }
                         ] as const).map(({ direction, symbol, title }) => (
                           <button
@@ -1744,7 +1748,7 @@ export default function Sakumlapa() {
                             aria-label={`${label}: ${title.toLowerCase()}`}
                             aria-pressed={current === direction}
                             onClick={() => {
-                              applyListingSort(current === direction ? null : direction, field)
+                              applyListingSort(direction, field)
                               setDesktopSortOpen(null)
                             }}
                           >{symbol}</button>
