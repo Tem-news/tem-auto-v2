@@ -952,6 +952,36 @@ export default function Sakumlapa() {
       '',
       nextAddress.pathname + nextAddress.search
     )
+
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      const returnListingsToTop = () => {
+        setCurrentPage(1)
+        setMobileFiltersOpen(false)
+        setMobileFiltersClosing(false)
+        const address = new URL(window.location.href)
+        address.searchParams.delete('page')
+        window.history.replaceState(window.history.state, '', address.pathname + address.search)
+        const scrollToStart = () => {
+          window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+          document.querySelector<HTMLElement>('[data-make-table-body="true"]')?.scrollTo({ top: 0, behavior: 'auto' })
+        }
+        window.requestAnimationFrame(scrollToStart)
+        window.setTimeout(scrollToStart, 180)
+      }
+
+      if (mobileFiltersOpen && window.history.state?.temAutoCatalogueOverlay === 'filters') {
+        const steps = 1 + Number(filterDropdownHistoryArmed.current) + Number(filterKeyboardHistoryArmed.current)
+        filterDropdownHistoryArmed.current = false
+        filterKeyboardHistoryArmed.current = false
+        filterTapReady.current = null
+        filterActiveField.current?.blur()
+        setActiveDropdown(null)
+        window.addEventListener('popstate', returnListingsToTop, { once: true })
+        window.history.go(-steps)
+      } else {
+        returnListingsToTop()
+      }
+    }
   }
 
   const totalPages = Math.max(1, Math.ceil(sortedFilteredCars.length / LISTINGS_PER_PAGE))
