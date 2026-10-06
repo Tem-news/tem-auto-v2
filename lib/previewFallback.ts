@@ -4,7 +4,7 @@ export const DEVELOPMENT_SUPABASE_REF = 'pwmwckjavolrjyfiobgp'
 export const PREVIEW_LISTING_FLAG = 'isPreviewListing' as const
 
 const PUBLIC_IMAGE_PATH_PREFIX = '/storage/v1/object/public/car-images'
-const LEGACY_PUBLIC_IMAGE_REF = 'ukzuybqfuvhmygyivcnp'
+const LEGACY_PUBLIC_IMAGE_REF = DEVELOPMENT_SUPABASE_REF
 
 type FixtureCar = {
   id: number
@@ -29,6 +29,8 @@ type FixtureCar = {
   image_url: string | null
   created_at: string | null
   views: number
+  phone?: string
+  vin?: string
 }
 
 export type PreviewListing = FixtureCar & {
@@ -51,6 +53,7 @@ export function canUseDevPreviewFallback(
 function expandPublicImagePath(path: string | null | undefined): string | null {
   if (!path || typeof path !== 'string') return null
   const value = path.trim()
+  if (/^\/demo-photos\/[a-f0-9]{20}(?:-v2)?\.jpg$/.test(value)) return value
   if (!value.startsWith(PUBLIC_IMAGE_PATH_PREFIX + '/') && value !== PUBLIC_IMAGE_PATH_PREFIX) {
     return null
   }
@@ -93,6 +96,8 @@ function adaptPreviewCar(row: FixtureCar): PreviewListing {
     image_url: cover,
     created_at: row.created_at,
     views: row.views ?? 0,
+    phone: row.phone,
+    vin: row.vin,
     [PREVIEW_LISTING_FLAG]: true,
     user_id: null,
   }
