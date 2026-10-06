@@ -1426,3 +1426,87 @@
     border-bottom-color: #fb7185 !important;
   }
 }
+
+/* Desktop catalogue sort dropdowns; mobile keeps its existing arrow rows. */
+[data-desktop-sort-control] {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  [data-desktop-compact-filter='true'] {
+    flex: 0 0 var(--desktop-filter-width) !important;
+    width: var(--desktop-filter-width);
+    min-width: var(--desktop-filter-width) !important;
+  }
+
+  [data-desktop-sort-control] {
+    position: relative;
+    display: block !important;
+    flex: 0 0 56px;
+    width: 56px;
+  }
+
+  [data-desktop-sort-toggle='true'] {
+    width: 100%;
+    height: 28px;
+    padding: 4px 6px;
+    box-sizing: border-box;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: #fff;
+    color: #1f2937;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  [data-desktop-sort-options='true'] {
+    position: absolute;
+    top: calc(100% + 3px);
+    left: 0;
+    right: 0;
+    z-index: 60;
+    display: grid;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: #fff;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+
+  [data-desktop-sort-options='true'] button {
+    height: 32px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    color: #1f2937;
+    font: 700 24px Arial, sans-serif;
+    cursor: pointer;
+  }
+
+  [data-desktop-sort-toggle='true'][data-sort-active='true'],
+  [data-desktop-sort-options='true'] button[aria-pressed='true'] {
+    color: #1d4ed8;
+    background: #dbeafe;
+    border-color: #2563eb;
+  }
+
+  html[data-temauto-theme='night'] [data-desktop-sort-toggle='true'],
+  html[data-temauto-theme='night'] [data-desktop-sort-options='true'] {
+    color: #f1f5f9;
+    background: #1e293b;
+    border-color: #475569;
+  }
+
+  html[data-temauto-theme='night'] [data-desktop-sort-options='true'] button {
+    color: #f1f5f9;
+  }
+
+  html[data-temauto-theme='night'] [data-desktop-sort-toggle='true'][data-sort-active='true'],
+  html[data-temauto-theme='night'] [data-desktop-sort-options='true'] button[aria-pressed='true'] {
+    color: #7dd3fc;
+    background: #0c4a6e;
+    border-color: #38bdf8;
+  }
+}

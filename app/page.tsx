@@ -572,6 +572,23 @@ export default function Sakumlapa() {
   const [maxYear, setMaxYear] = useState('')
   const [yearSort, setYearSort] = useState<'asc' | 'desc' | null>(null)
   const [priceSort, setPriceSort] = useState<'asc' | 'desc' | null>(null)
+  const [desktopSortOpen, setDesktopSortOpen] = useState<'year' | 'price' | null>(null)
+
+  useEffect(() => {
+    if (!desktopSortOpen) return
+    const closeOutside = (event: PointerEvent) => {
+      if (!(event.target instanceof Element) || !event.target.closest('[data-desktop-sort-control]')) setDesktopSortOpen(null)
+    }
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setDesktopSortOpen(null)
+    }
+    document.addEventListener('pointerdown', closeOutside)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', closeOutside)
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [desktopSortOpen])
   const [dzinejs, setDzinejs] = useState('')
   const [minTilpums, setMinTilpums] = useState('')
   const [maxTilpums, setMaxTilpums] = useState('')
@@ -1631,7 +1648,7 @@ export default function Sakumlapa() {
                 </div>
               </div>
 
-              <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
+              <div data-desktop-compact-filter="true" style={{ position: 'relative', flex: '1', minWidth: '90px', '--desktop-filter-width': `${Math.max(100, (atrumkarba.length + 2) * 7)}px` } as React.CSSProperties}>
                 <input
                   type="text"
                   data-filter-field="atrumkarba"
@@ -1651,7 +1668,7 @@ export default function Sakumlapa() {
                 )}
               </div>
 
-              <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
+              <div data-desktop-compact-filter="true" style={{ position: 'relative', flex: '1', minWidth: '90px', '--desktop-filter-width': `${Math.max(92, (virsbuve.length + 2) * 7)}px` } as React.CSSProperties}>
                 <input
                   type="text"
                   data-filter-field="virsbuve"
@@ -1671,7 +1688,7 @@ export default function Sakumlapa() {
                 )}
               </div>
 
-              <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
+              <div data-desktop-compact-filter="true" style={{ position: 'relative', flex: '1', minWidth: '90px', '--desktop-filter-width': `${Math.max(80, (krasa.length + 2) * 7)}px` } as React.CSSProperties}>
                 <input
                   type="text"
                   data-filter-field="krasa"
@@ -1697,6 +1714,46 @@ export default function Sakumlapa() {
                   </div>
                 )}
               </div>
+              {(['year', 'price'] as const).map((field) => {
+                const label = field === 'year' ? 'Gads' : 'Cena'
+                const current = field === 'year' ? yearSort : priceSort
+                return (
+                  <div key={field} data-desktop-sort-control={field}>
+                    <button
+                      type="button"
+                      data-desktop-sort-toggle="true"
+                      data-sort-active={current !== null ? 'true' : undefined}
+                      aria-expanded={desktopSortOpen === field}
+                      aria-controls={`desktop-sort-${field}`}
+                      onClick={() => {
+                        setActiveDropdown(null)
+                        setDesktopSortOpen(open => open === field ? null : field)
+                      }}
+                    >{label}</button>
+                    {desktopSortOpen === field && (
+                      <div id={`desktop-sort-${field}`} data-desktop-sort-options="true" aria-label={`Kārtošana: ${label}`}>
+                        {([
+                          { direction: 'asc', symbol: '↑', title: 'Augošā secībā' },
+                          { direction: null, symbol: '↕', title: 'Jaukta secība' },
+                          { direction: 'desc', symbol: '↓', title: 'Dilstošā secībā' }
+                        ] as const).map(({ direction, symbol, title }) => (
+                          <button
+                            key={title}
+                            type="button"
+                            title={title}
+                            aria-label={`${label}: ${title.toLowerCase()}`}
+                            aria-pressed={current === direction}
+                            onClick={() => {
+                              applyListingSort(current === direction ? null : direction, field)
+                              setDesktopSortOpen(null)
+                            }}
+                          >{symbol}</button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </div>
 
