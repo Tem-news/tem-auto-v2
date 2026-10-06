@@ -2,6 +2,7 @@ import sharp from 'sharp'
 import photoManifest from '../../../../../data/demo-photo-render-manifest.json'
 
 export const runtime = 'nodejs'
+export const maxDuration = 30
 export const revalidate = 31536000
 
 type DemoPhoto = { source: string; width: number; height: number; plates: number[][] }
@@ -12,11 +13,23 @@ export async function GET(_request: Request, { params }: { params: { name: strin
   if (!photo) return new Response('Photo not found', { status: 404 })
 
   try {
-    const original = await fetch(`https://ukzuybqfuvhmygyivcnp.supabase.co${photo.source}`, {
-      cache: 'force-cache',
-      signal: AbortSignal.timeout(15000)
-    })
-    if (!original.ok) return new Response('Photo unavailable', { status: 502 })
+    let original: Response | null = null
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const response = await fetch(`https://ukzuybqfuvhmygyivcnp.supabase.co${photo.source}`, {
+          cache: 'force-cache',
+          signal: AbortSignal.timeout(10000)
+        })
+        if (response.ok) {
+          original = response
+          break
+        }
+        if (response.status === 404) break
+      } catch {
+        // Retry one temporary source failure; the displayed image URL stays stable.
+      }
+    }
+    if (!original) return new Response('Photo unavailable', { status: 502, headers: { 'Cache-Control': 'no-store' } })
 
     const { width, height } = photo
     const masks = photo.plates.map(([x1, y1, x2, y2]) =>
@@ -45,6 +58,6 @@ export async function GET(_request: Request, { params }: { params: { name: strin
       }
     })
   } catch {
-    return new Response('Photo unavailable', { status: 502 })
+    return new Response('Photo unavailable', { status: 502, headers: { 'Cache-Control': 'no-store' } })
   }
 }
