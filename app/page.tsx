@@ -1094,6 +1094,7 @@ export default function Sakumlapa() {
 
       <style>{`
         @media (min-width: 768px) {
+          [data-makes-info='true'] { margin-bottom: 12px; }
           [data-catalogue-layout="true"] [data-make-table-row="true"] > [data-cell="car"] {
             flex-direction: column;
             align-items: flex-start !important;
@@ -1231,11 +1232,11 @@ export default function Sakumlapa() {
               borderTop: '2px solid #cbd5e1'
             }}
           >
-            {['Lietošanas noteikumi', 'Privātuma politika', 'Drošība un krāpniecība', 'Kontakti', 'Ieteikumi'].map((label) => (
+            {['Lietošanas noteikumi', 'Privātuma politika', 'Drošība un krāpniecība', 'Kontakti', 'Ieteikumi', 'Biežāk uzdotie jautājumi'].map((label) => (
               <button
                 key={label}
                 type="button"
-                onClick={() => router.push(
+                onClick={() => label !== 'Biežāk uzdotie jautājumi' && router.push(
                   label === 'Lietošanas noteikumi' ? '/lietosanas-noteikumi' :
                   label === 'Privātuma politika' ? '/privatuma-politika' :
                   label === 'Drošība un krāpniecība' ? '/drosiba-un-krapnieciba' :
