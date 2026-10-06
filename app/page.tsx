@@ -189,16 +189,32 @@ function ListingCardGallery({ images, alt, compact = false }: { images: string[]
       if (gallery?.clientWidth) jumpTo(gallery.clientWidth)
     }
 
+    const restoreCover = () => {
+      galleryTouched.current = false
+      placeOnFirstImage()
+    }
+    const resizeObserver = new ResizeObserver(() => {
+      if (!galleryTouched.current) placeOnFirstImage()
+    })
+    if (galleryRef.current) resizeObserver.observe(galleryRef.current)
     placeOnFirstImage()
+    window.addEventListener('pageshow', restoreCover)
     window.addEventListener('resize', placeOnFirstImage)
     return () => {
       window.removeEventListener('resize', placeOnFirstImage)
+      window.removeEventListener('pageshow', restoreCover)
+      resizeObserver.disconnect()
       if (scrollEndTimer.current) clearTimeout(scrollEndTimer.current)
     }
   }, [isLooping, images.join('|')])
 
   const handleScroll = () => {
     if (!isLooping || !galleryRef.current || mouseDrag.current) return
+    if (!galleryTouched.current) {
+      const width = galleryRef.current.clientWidth
+      if (width && Math.abs(galleryRef.current.scrollLeft - width) > 1) jumpTo(width)
+      return
+    }
     if (scrollEndTimer.current) clearTimeout(scrollEndTimer.current)
     scrollEndTimer.current = setTimeout(() => {
       const gallery = galleryRef.current
@@ -1734,7 +1750,7 @@ export default function Sakumlapa() {
                           setDesktopSortOpen(open => open === field ? null : field)
                         }
                       }}
-                    >{label}</button>
+                    ><span aria-hidden="true">↑</span> {label} <span aria-hidden="true">↓</span></button>
                     {desktopSortOpen === field && (
                       <div id={`desktop-sort-${field}`} data-desktop-sort-options="true" aria-label={`Kārtošana: ${label}`}>
                         {([
@@ -1813,7 +1829,7 @@ export default function Sakumlapa() {
                         flexDirection: 'column'
                       }}
                     >
-                      <ListingCardGallery images={galleryImages} alt={`${car.make} ${car.model || ''}`.trim()} />
+                      <ListingCardGallery key={`${safeCurrentPage}-${yearSort ?? ''}-${priceSort ?? ''}-${car.id}`} images={galleryImages} alt={`${car.make} ${car.model || ''}`.trim()} />
                       <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
                           <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#1d4ed8', minWidth: 0 }}>
@@ -1946,7 +1962,7 @@ export default function Sakumlapa() {
                       >
                         {/* 1. Foto */}
                         <div data-cell="photo">
-                          <ListingCardGallery images={rowGalleryImages} alt={`${car.make} ${car.model || ''}`.trim()} compact />
+                          <ListingCardGallery key={`${safeCurrentPage}-${yearSort ?? ''}-${priceSort ?? ''}-${car.id}`} images={rowGalleryImages} alt={`${car.make} ${car.model || ''}`.trim()} compact />
                         </div>
 
                         {/* 2. Automobilis */}
