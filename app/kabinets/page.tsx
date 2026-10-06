@@ -155,6 +155,10 @@ export default function KabinetsPage() {
         }
 
         @media (max-width: 767px) {
+          [data-cabinet-list="true"] [data-make-table-row="true"] [data-cell="photo"] img[data-cabinet-desktop-photo="true"] {
+            display: none !important;
+          }
+
           [data-cabinet-page="true"] {
             width: 100% !important;
             max-width: none !important;
