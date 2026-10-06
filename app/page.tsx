@@ -1094,6 +1094,12 @@ export default function Sakumlapa() {
 
       <style>{`
         @media (min-width: 768px) {
+          [data-catalogue-layout="true"] [data-make-table-row="true"] > [data-cell="car"] {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 4px !important;
+          }
+
           [data-mobile-favorites='true'] { display: none !important; }
           [data-desktop-filter-favorites='true'] {
             display: block !important;
