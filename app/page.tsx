@@ -1,7 +1,7 @@
 'use client'
 
 import DemoPhoto from './components/DemoPhoto'
-import { Fragment, useEffect, useState, useMemo, useRef } from 'react'
+import { Fragment, useEffect, useState, useMemo, useRef, useLayoutEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 import { canUseDevPreviewFallback, isPreviewListing, loadAdaptedPreviewCars } from '../lib/previewFallback'
@@ -162,6 +162,7 @@ function formatNumberWithSpace(value: number | string): string {
 
 function ListingCardGallery({ images, alt, compact = false }: { images: string[]; alt: string; compact?: boolean }) {
   const galleryRef = useRef<HTMLDivElement>(null)
+  const galleryTouched = useRef(false)
   const touchStartX = useRef<number | null>(null)
   const didSwipe = useRef(false)
   const scrollEndTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -179,7 +180,8 @@ function ListingCardGallery({ images, alt, compact = false }: { images: string[]
     })
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    galleryTouched.current = false
     if (!isLooping) return
 
     const placeOnFirstImage = () => {
@@ -193,7 +195,7 @@ function ListingCardGallery({ images, alt, compact = false }: { images: string[]
       window.removeEventListener('resize', placeOnFirstImage)
       if (scrollEndTimer.current) clearTimeout(scrollEndTimer.current)
     }
-  }, [isLooping, images.length])
+  }, [isLooping, images.join('|')])
 
   const handleScroll = () => {
     if (!isLooping || !galleryRef.current || mouseDrag.current) return
@@ -213,6 +215,7 @@ function ListingCardGallery({ images, alt, compact = false }: { images: string[]
       data-card-gallery="true"
       data-make-row-gallery={compact ? 'true' : undefined}
       onPointerDown={(event) => {
+        galleryTouched.current = true
         if (!isLooping || event.pointerType !== 'mouse' || event.button !== 0 || !window.matchMedia('(min-width: 768px)').matches) return
         event.preventDefault()
         didSwipe.current = false
@@ -260,6 +263,7 @@ function ListingCardGallery({ images, alt, compact = false }: { images: string[]
       }}
       onScroll={handleScroll}
       onTouchStart={(event) => {
+        galleryTouched.current = true
         touchStartX.current = event.touches[0]?.clientX ?? null
         didSwipe.current = false
       }}
@@ -284,6 +288,10 @@ function ListingCardGallery({ images, alt, compact = false }: { images: string[]
           src={image}
           alt={(!isLooping && index === 0) || (isLooping && index === 1) ? alt : ''}
           draggable={false}
+          onLoad={() => {
+            const gallery = galleryRef.current
+            if (isLooping && !galleryTouched.current && gallery?.clientWidth) jumpTo(gallery.clientWidth)
+          }}
           style={{ width: '100%', minWidth: '100%', height: '100%', objectFit: 'cover' }}
         />
       ))}
