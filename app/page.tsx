@@ -896,6 +896,9 @@ export default function Sakumlapa() {
   }, [cars])
 
   const filteredCars = cars.filter((car) => {
+    if (showFavorites && !isMobileCatalogue) {
+      return favoriteIds.includes(String(car.id))
+    }
     const matchesMake = searchMake ? (car.make || '').toLowerCase().includes(searchMake.toLowerCase()) : true
     const matchesModel = searchModel ? (car.model || '').toLowerCase().includes(searchModel.toLowerCase()) : true
     const matchesFavorite = showFavorites ? favoriteIds.includes(String(car.id)) : true
@@ -1645,7 +1648,7 @@ export default function Sakumlapa() {
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
             ) : filteredCars.length === 0 ? (
               <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>Nav atrasts neviens sludinājums ar šādiem kritērijiem.</div>
-            ) : searchMake === '' && !(showFavorites && isMobileCatalogue) ? (
+            ) : searchMake === '' && !showFavorites ? (
               /* GRID SKATS */
               <div data-listings-grid="true" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '16px' }}>
                 {paginatedCars.map((car, index) => {
