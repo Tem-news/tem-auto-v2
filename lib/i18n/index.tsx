@@ -2,15 +2,17 @@
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import english from './en.json'
+import russian from './ru.json'
 
-export type Language = 'LV' | 'EN'
-const messages: Record<string, string> = english
+export type Language = 'LV' | 'EN' | 'RU'
+const dictionaries: Record<Exclude<Language, 'LV'>, Record<string, string>> = { EN: english, RU: russian }
 const STORAGE_KEY = 'temauto-language'
 const LanguageContext = createContext<{ language: Language; setLanguage: (value: Language) => void }>({ language: 'LV', setLanguage: () => {} })
 
 // Only platform-owned labels are translated. Listing content is never passed here.
 export function translateText(text: string, language: Language): string {
   if (language === 'LV') return text
+  const messages = dictionaries[language]
   if (messages[text] !== undefined) return messages[text]
   const trimmed = text.trim()
   if (messages[trimmed] !== undefined) return text.replace(trimmed, messages[trimmed])
@@ -23,9 +25,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, updateLanguage] = useState<Language>('LV')
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
-    updateLanguage(saved === 'EN' ? 'EN' : saved === 'LV' ? 'LV' : !saved && navigator.language.toLowerCase().startsWith('en') ? 'EN' : 'LV')
+    const preferred = navigator.language.toLowerCase()
+    updateLanguage(saved === 'EN' || saved === 'RU' || saved === 'LV' ? saved : !saved && preferred.startsWith('ru') ? 'RU' : !saved && preferred.startsWith('en') ? 'EN' : 'LV')
     const sync = (event: StorageEvent) => {
-      if (event.key === STORAGE_KEY) updateLanguage(event.newValue === 'EN' ? 'EN' : 'LV')
+      if (event.key === STORAGE_KEY) updateLanguage(event.newValue === 'EN' || event.newValue === 'RU' ? event.newValue : 'LV')
     }
     window.addEventListener('storage', sync)
     return () => window.removeEventListener('storage', sync)
