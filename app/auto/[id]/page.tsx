@@ -1,5 +1,7 @@
 'use client'
 
+import { useI18n } from '../../../lib/i18n'
+
 import DemoPhoto from '../../components/DemoPhoto'
 
 import { useEffect, useState, useRef } from 'react'
@@ -42,6 +44,7 @@ const getCountryFlagCode = (country: string, storedCode?: string) => {
 }
 
 export default function AutoLapa() {
+  const { t, matches, canonical } = useI18n()
   const params = useParams()
   const id = params?.id
 
@@ -460,8 +463,7 @@ export default function AutoLapa() {
 
   if (loading) {
     return (
-      <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', minHeight: '600px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', fontFamily: 'sans-serif' }}>
-        Ielādē datus...
+      <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', minHeight: '600px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', fontFamily: 'sans-serif' }}>{t("Ielādē datus...")}
       </div>
     )
   }
@@ -469,8 +471,8 @@ export default function AutoLapa() {
   if (!car) {
     return (
       <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', minHeight: '600px', textAlign: 'center', fontFamily: 'sans-serif' }}>
-        <h2>Sludinājums netika atrasts!</h2>
-        <Link href="/" style={{ color: '#2563eb', textDecoration: 'underline' }}>Atpakaļ uz sarakstu</Link>
+        <h2>{t("Sludinājums netika atrasts!")}</h2>
+        <Link href="/" style={{ color: '#2563eb', textDecoration: 'underline' }}>{t("Atpakaļ uz sarakstu")}</Link>
       </div>
     )
   }
@@ -816,8 +818,8 @@ export default function AutoLapa() {
         <Link
           href="/"
           data-listing-home-logo="true"
-          aria-label="Atgriezties TemAuto sākumlapā"
-          title="Uz sākumlapu"
+          aria-label={t("Atgriezties TemAuto sākumlapā")}
+          title={t("Uz sākumlapu")}
         >
           <span>TemAuto</span>
           <span aria-hidden="true">
@@ -877,7 +879,7 @@ export default function AutoLapa() {
               {new Date(car.created_at).toLocaleDateString('lv-LV')}
             </span>
           )}
-          <span data-listing-mobile-view-count="true" aria-label={`Skatījumi: ${car.views ?? 0}`}>
+          <span data-listing-mobile-view-count="true" aria-label={`${t('Skatījumi')}: ${car.views ?? 0}`}>
             <span aria-hidden="true">👁️</span>
           <span>{car.views ?? 0}</span>
           </span>
@@ -893,7 +895,7 @@ export default function AutoLapa() {
           {/* Valsts un Pilsēta */}
           {(car.country || car.city) && (
             <div data-listing-location-card="true" style={{ backgroundColor: '#f0fdf4', padding: '12px 16px', borderRadius: '10px', border: '1px solid #bbf7d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-              <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.country || 'Latvija'}</span>
+              <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.country || t('Latvija')}</span>
               <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.city || car.region || ''}</span>
             </div>
           )}
@@ -915,57 +917,57 @@ export default function AutoLapa() {
             )}
             {car.engine && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-                <span style={{ color: '#6b7280', fontWeight: '500' }}>Motors:</span>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("Motors:")}</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.engine}</span>
               </div>
             )}
 
             {/* Nobraukums */}
             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-              <span style={{ color: '#6b7280', fontWeight: '500' }}>Nobraukums:</span>
+              <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("Nobraukums:")}</span>
               <span style={{ color: '#111827', fontWeight: 'bold' }}>
-                {finalMileage ? `${Number(finalMileage).toLocaleString('lv-LV')} km` : 'Nav norādīts'}
+                {finalMileage ? `${Number(finalMileage).toLocaleString('lv-LV')} km` : t('Nav norādīts')}
               </span>
             </div>
 
             {car.gearbox && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-                <span style={{ color: '#6b7280', fontWeight: '500' }}>Ātrumkārba:</span>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("Ātrumkārba:")}</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.gearbox}</span>
               </div>
             )}
             {car.color && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-                <span style={{ color: '#6b7280', fontWeight: '500' }}>Krāsa:</span>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("Krāsa:")}</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.color}</span>
               </div>
             )}
             {car.body_type && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-                <span style={{ color: '#6b7280', fontWeight: '500' }}>Virsbūves tips:</span>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("Virsbūves tips:")}</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.body_type}</span>
               </div>
             )}
             {car.steering_wheel && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-                <span style={{ color: '#6b7280', fontWeight: '500' }}>Stūre:</span>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("Stūre:")}</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.steering_wheel}</span>
               </div>
             )}
             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-              <span style={{ color: '#6b7280', fontWeight: '500' }}>Salons:</span>
+              <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("Salons:")}</span>
               <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.interior_color || '–'}</span>
             </div>
             {car.tech_inspection && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-                <span style={{ color: '#6b7280', fontWeight: '500' }}>Tehniskā apskate:</span>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("Tehniskā apskate:")}</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.tech_inspection}</span>
               </div>
             )}
             
             {car.vin && (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: '#6b7280', fontWeight: '500' }}>VIN kods:</span>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("VIN kods:")}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ color: '#111827', fontWeight: 'bold', fontSize: '13px' }}>
                     {showVin ? car.vin : maskVin(car.vin)}
@@ -974,8 +976,7 @@ export default function AutoLapa() {
                     <button
                       onClick={() => setShowVin(true)}
                       style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontSize: '12px', padding: 0, textDecoration: 'underline' }}
-                    >
-                      Skatīt
+                    >{t("Skatīt")}
                     </button>
                   )}
                 </div>
@@ -990,7 +991,7 @@ export default function AutoLapa() {
                 {getCountryFlagCode(car.country || '', car.country_code) && (
                   <img
                     src={`https://flagcdn.com/w40/${getCountryFlagCode(car.country || '', car.country_code)}.png`}
-                    alt={`${car.country || 'Valsts'} karogs`}
+                    alt={`${car.country || t('Valsts')} ${t('karogs')}`}
                     style={{ width: '22px', height: '15px', objectFit: 'cover', borderRadius: '2px', flexShrink: 0 }}
                   />
                 )}
@@ -1016,34 +1017,28 @@ export default function AutoLapa() {
                     onClick={() => setShowPhone(true)}
                     style={{ width: '100%', padding: '12px 16px', backgroundColor: '#16a34a', color: '#fff', borderRadius: '10px', border: 'none', fontWeight: 'bold', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '14px', cursor: 'pointer' }}
                   >
-                    📞 {maskPhone(car.phone)} (Parādīt)
+                    📞 {maskPhone(car.phone)}{t("(Parādīt)")}
                   </button>
                 )}
 
                 {/* Saziņas izlecošais logs */}
                 {showSocialDropdown && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, width: '100%', marginTop: '6px', backgroundColor: '#fff', padding: '16px', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', zIndex: 1000, border: '1px solid #e5e7eb', boxSizing: 'border-box' }}>
-                    <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', color: '#111827', textAlign: 'center' }}>Sazināties ar pārdevēju</h4>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', color: '#111827', textAlign: 'center' }}>{t("Sazināties ar pārdevēju")}</h4>
                     <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#6b7280', fontWeight: 'bold', textAlign: 'center' }}>{car.phone}</p>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
-                      <a href={`tel:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#f3f4f6', color: '#111827', borderRadius: '8px', textDecoration: 'none', fontWeight: '500', fontSize: '13px' }}>
-                        📞 Zvanīt parasto zvanu
+                      <a href={`tel:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#f3f4f6', color: '#111827', borderRadius: '8px', textDecoration: 'none', fontWeight: '500', fontSize: '13px' }}>{t("📞 Zvanīt parasto zvanu")}
                       </a>
-                      <a href={`https://wa.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#25D366', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
-                        🟢 WhatsApp čats
+                      <a href={`https://wa.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#25D366', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>{t("🟢 WhatsApp čats")}
                       </a>
-                      <a href={`https://m.me/`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#0084FF', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
-                        💙 Meta Messenger
+                      <a href={`https://m.me/`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#0084FF', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>{t("💙 Meta Messenger")}
                       </a>
-                      <a href={`viber://chat?number=${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#7360F2', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
-                        🟣 Viber ziņa
+                      <a href={`viber://chat?number=${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#7360F2', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>{t("🟣 Viber ziņa")}
                       </a>
-                      <a href={`https://t.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#229ED9', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
-                        ✈️ Telegram ziņa
+                      <a href={`https://t.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#229ED9', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>{t("✈️ Telegram ziņa")}
                       </a>
-                      <a href={`sms:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#4b5563', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
-                        💬 Sūtīt SMS
+                      <a href={`sms:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#4b5563', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>{t("💬 Sūtīt SMS")}
                       </a>
                     </div>
 
@@ -1051,14 +1046,13 @@ export default function AutoLapa() {
                       onClick={handleCopyPhone}
                       style={{ width: '100%', padding: '8px', backgroundColor: '#f0fdf4', border: '1px solid #16a34a', borderRadius: '8px', fontWeight: 'bold', color: '#16a34a', cursor: 'pointer', fontSize: '13px', marginBottom: '6px' }}
                     >
-                      {copied ? '✅ Numurs nokopēts!' : '📋 Kopēt telefona numuru'}
+                      {copied ? t('✅ Numurs nokopēts!') : t('📋 Kopēt telefona numuru')}
                     </button>
 
                     <button
                       onClick={() => setShowSocialDropdown(false)}
                       style={{ width: '100%', padding: '8px', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '8px', fontWeight: 'bold', color: '#374151', cursor: 'pointer', fontSize: '13px' }}
-                    >
-                      Aizvērt
+                    >{t("Aizvērt")}
                     </button>
                   </div>
                 )}
@@ -1075,7 +1069,7 @@ export default function AutoLapa() {
                   onClick={() => setShowEmail(true)}
                   style={{ padding: '12px 16px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '10px', border: 'none', fontWeight: 'bold', textAlign: 'center', wordBreak: 'break-all', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '14px', cursor: 'pointer' }}
                 >
-                  ✉️ {maskEmail(car.email)} (Parādīt)
+                  ✉️ {maskEmail(car.email)}{t("(Parādīt)")}
                 </button>
               )
             )}
@@ -1097,13 +1091,11 @@ export default function AutoLapa() {
                 }
               }}
               style={{ color: '#2563eb', background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'inherit', fontSize: '14px' }}
-            >
-              ← Atpakaļ uz sarakstu
+            >{t("← Atpakaļ uz sarakstu")}
             </button>
             {!isPreviewListing(car) && Boolean(car.user_id) && car.user_id === currentUserId && (
               <div>
-                <Link href={`/auto/${id}/edit`} style={{ padding: '6px 14px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold', display: 'inline-block' }}>
-                  ✏️ Rediģēt
+                <Link href={`/auto/${id}/edit`} style={{ padding: '6px 14px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold', display: 'inline-block' }}>{t("✏️ Rediģēt")}
                 </Link>
               </div>
             )}
@@ -1117,9 +1109,9 @@ export default function AutoLapa() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', color: '#6b7280', fontSize: '13px', marginBottom: '10px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 {car.created_at && (
-                  <span>📅 Publicēts: {new Date(car.created_at).toLocaleDateString('lv-LV')}</span>
+                  <span>{t("📅 Publicēts:")} {new Date(car.created_at).toLocaleDateString('lv-LV')}</span>
                 )}
-                <span>👁️ Skatījumi: <strong>{car.views ?? 0}</strong></span>
+                <span>{t("👁️ Skatījumi:")} <strong>{car.views ?? 0}</strong></span>
               </div>
               <button
                 type="button"
@@ -1136,8 +1128,7 @@ export default function AutoLapa() {
                   fontWeight: isFavorite ? '700' : '500',
                   cursor: 'pointer'
                 }}
-              >
-                Mans favorīts
+              >{t("Mans favorīts")}
               </button>
             </div>
           </div>
@@ -1213,8 +1204,7 @@ export default function AutoLapa() {
                       cursor: 'pointer',
                       whiteSpace: 'nowrap'
                     }}
-                  >
-                    Mans favorīts
+                  >{t("Mans favorīts")}
                   </button>
               {!isPreviewListing(car) && Boolean(car.user_id) && car.user_id === currentUserId && (
                 <Link
@@ -1241,8 +1231,7 @@ export default function AutoLapa() {
                     fontWeight: '700',
                     lineHeight: 1
                   }}
-                >
-                  ✏️ Rediģēt
+                >{t("✏️ Rediģēt")}
                 </Link>
               )}
               <div style={{ display: 'flex', width: '100%', height: '100%', transform: `translateX(calc(-100% + ${photoSlideOffset}px))`, transition: photoSlideAnimating ? 'transform 240ms ease-out' : 'none' }}>
@@ -1268,7 +1257,7 @@ export default function AutoLapa() {
                   setZoomOrigin({ x: 50, y: 50 })
                   openImageViewer()
                 }}
-                title="Atvērt foto pilnekrānā"
+                title={t("Atvērt foto pilnekrānā")}
                 style={{ width: '100%', minWidth: '100%', flex: '0 0 100%', height: '100%', objectFit: 'contain', cursor: 'zoom-in' }}
               />
               ))}
@@ -1278,7 +1267,7 @@ export default function AutoLapa() {
                   key={direction}
                   type="button"
                   data-desktop-photo-arrow="true"
-                  aria-label={direction === -1 ? 'Iepriekšējais foto' : 'Nākamais foto'}
+                  aria-label={direction === -1 ? t('Iepriekšējais foto') : t('Nākamais foto')}
                   onClick={(event) => {
                     event.stopPropagation()
                     const frame = event.currentTarget.parentElement
@@ -1290,7 +1279,7 @@ export default function AutoLapa() {
               
               <div
                 data-image-position="true"
-                aria-label={`Foto ${activeImageIndex + 1} no ${imageCount}`}
+                aria-label={`${t('Foto')} ${activeImageIndex + 1} ${t('no')} ${imageCount}`}
                 style={{
                   position: 'absolute',
                   left: '10px',
@@ -1313,7 +1302,7 @@ export default function AutoLapa() {
               {car.price !== null && car.price !== undefined && car.price !== '' && (
                 <div
                   data-listing-photo-price="true"
-                  aria-label={`Cena: ${formatPrice(car.price)}`}
+                  aria-label={`${t('Cena')}: ${formatPrice(car.price)}`}
                   style={{
                     position: 'absolute',
                     right: '10px',
@@ -1358,11 +1347,11 @@ export default function AutoLapa() {
           {[1, 2].map((placement) => (
             <aside
               key={placement}
-              aria-label="Sponsora vieta"
+              aria-label={t("Sponsora vieta")}
               style={{ width: '100%', minHeight: 0, flex: '1 1 0', boxSizing: 'border-box', border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}
             >
-              <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>SPONSORS</span>
-              <span>Vieta sadarbības partnerim</span>
+              <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("SPONSORS")}</span>
+              <span>{t("Vieta sadarbības partnerim")}</span>
             </aside>
           ))}
         </div>
@@ -1382,7 +1371,7 @@ export default function AutoLapa() {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Foto pilnekrāna skatītājs"
+          aria-label={t("Foto pilnekrāna skatītājs")}
           onClick={() => {
             closeImageViewer()
           }}
@@ -1468,7 +1457,7 @@ export default function AutoLapa() {
                 key={direction}
                 type="button"
                 data-desktop-photo-arrow="true"
-                aria-label={direction === -1 ? 'Iepriekšējais foto' : 'Nākamais foto'}
+                aria-label={direction === -1 ? t('Iepriekšējais foto') : t('Nākamais foto')}
                 onClick={(event) => {
                   event.stopPropagation()
                   if (photoSlideTimer.current) return
@@ -1484,7 +1473,7 @@ export default function AutoLapa() {
 
             <button
               type="button"
-              aria-label="Aizvērt foto"
+              aria-label={t("Aizvērt foto")}
               onClick={() => {
                 closeImageViewer()
               }}
@@ -1504,3 +1493,4 @@ export default function AutoLapa() {
     </>
   )
 }
+

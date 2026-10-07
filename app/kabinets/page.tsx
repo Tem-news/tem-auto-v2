@@ -1,5 +1,7 @@
 'use client'
 
+import { useI18n } from '../../lib/i18n'
+
 import DemoPhoto from '../components/DemoPhoto'
 
 import { useEffect, useRef, useState } from 'react'
@@ -98,6 +100,7 @@ function CabinetListingGallery({ images }: { images: string[] }) {
 }
 
 export default function KabinetsPage() {
+  const { t, matches, canonical } = useI18n()
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const [cars, setCars] = useState<any[]>([])
@@ -123,7 +126,7 @@ export default function KabinetsPage() {
         .order('created_at', { ascending: false })
 
       if (error) {
-        setErrorMessage('Neizdevās ielādēt tavus sludinājumus.')
+        setErrorMessage(t('Neizdevās ielādēt tavus sludinājumus.'))
       } else {
         setCars(data || [])
       }
@@ -135,7 +138,7 @@ export default function KabinetsPage() {
   }, [router])
 
   if (loading) {
-    return <div style={{ padding: '50px', textAlign: 'center', fontFamily: 'sans-serif', color: '#64748b' }}>Ielādē lietotāja kabinetu...</div>
+    return <div style={{ padding: '50px', textAlign: 'center', fontFamily: 'sans-serif', color: '#64748b' }}>{t("Ielādē lietotāja kabinetu...")}</div>
   }
 
   return (
@@ -225,15 +228,13 @@ export default function KabinetsPage() {
         }
       `}</style>
       <section data-cabinet-panel="true" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
-        <h2 data-cabinet-title="true" style={{ margin: '0 0 16px', color: '#111827', fontSize: '18px' }}>
-          Mani sludinājumi ({cars.length})
+        <h2 data-cabinet-title="true" style={{ margin: '0 0 16px', color: '#111827', fontSize: '18px' }}>{t("Mani sludinājumi (")}{cars.length})
         </h2>
 
         {errorMessage ? (
-          <div style={{ padding: '16px', borderRadius: '8px', backgroundColor: '#fee2e2', color: '#b91c1c' }}>{errorMessage}</div>
+          <div style={{ padding: '16px', borderRadius: '8px', backgroundColor: '#fee2e2', color: '#b91c1c' }}>{t(errorMessage)}</div>
         ) : cars.length === 0 ? (
-          <div style={{ padding: '28px', textAlign: 'center', border: '1px dashed #cbd5e1', borderRadius: '8px', color: '#64748b' }}>
-            Tev pašlaik nav neviena sludinājuma.
+          <div style={{ padding: '28px', textAlign: 'center', border: '1px dashed #cbd5e1', borderRadius: '8px', color: '#64748b' }}>{t("Tev pašlaik nav neviena sludinājuma.")}
           </div>
         ) : (
           <div data-make-table="true" data-cabinet-list="true" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
@@ -263,7 +264,7 @@ export default function KabinetsPage() {
                       backgroundColor: '#ffffff'
                     }}
                   >
-                    <Link href={`/auto/${car.id}`} data-cell="photo" aria-label={`Apskatīt ${car.make || ''} ${car.model || ''}`.trim()}>
+                    <Link href={`/auto/${car.id}`} data-cell="photo" aria-label={`${t('Apskatīt')} ${car.make || ''} ${car.model || ''}`.trim()}>
                       {galleryImages.length > 0 ? (
                         <>
                           <DemoPhoto data-cabinet-desktop-photo="true" src={coverImage} alt="" draggable={false} style={{ width: '112px', height: '68px', objectFit: 'cover', borderRadius: '6px' }} />
@@ -283,8 +284,7 @@ export default function KabinetsPage() {
                         role="button"
                         data-cabinet-mobile-edit="true"
                         style={{ flexShrink: 0, marginLeft: 'auto', color: '#2563eb', textDecoration: 'none', fontSize: '12px', fontWeight: '700' }}
-                      >
-                        Rediģēt
+                      >{t("Rediģēt")}
                       </Link>
                     </div>
 
@@ -302,8 +302,7 @@ export default function KabinetsPage() {
                       data-cabinet-desktop-edit="true"
                       role="button"
                       style={{ color: '#2563eb', textDecoration: 'none', fontSize: '12px', fontWeight: '700' }}
-                    >
-                      Rediģēt
+                    >{t("Rediģēt")}
                     </Link>
                   </div>
                 )
@@ -315,3 +314,4 @@ export default function KabinetsPage() {
     </main>
   )
 }
+

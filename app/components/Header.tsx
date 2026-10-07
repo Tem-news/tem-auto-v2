@@ -1,5 +1,7 @@
 'use client'
 
+import { useI18n } from '../../lib/i18n'
+
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -119,6 +121,7 @@ const REGIONS = [
 ]
 
 export default function Header() {
+  const { t, matches, canonical, language, setLanguage } = useI18n()
   const router = useRouter()
   const pathname = usePathname()
   const isListingDetail = /^\/auto\/[^/]+\/?$/.test(pathname)
@@ -138,7 +141,8 @@ export default function Header() {
   const [user, setUser] = useState<any>(null)
   const [visitCount, setVisitCount] = useState<number>(0)
 
-  const [currentLang, setCurrentLang] = useState('LV')
+  const currentLang = language
+  const setCurrentLang = (code: string) => { if (code === 'LV' || code === 'EN') setLanguage(code) }
   const [currentRegion, setCurrentRegion] = useState('Latvija (EUR)')
   const [mobileTheme, setMobileTheme] = useState<'day' | 'night'>('day')
 
@@ -179,11 +183,6 @@ export default function Header() {
     setMobileTheme(initialTheme)
     document.documentElement.dataset.temautoTheme = initialTheme
     
-    const savedLanguage = localStorage.getItem('temauto-language')
-    if (savedLanguage && LANGUAGES.some(language => language.code === savedLanguage)) {
-      setCurrentLang(savedLanguage)
-    }
-
     const savedRegion = localStorage.getItem('temauto-region')
     if (savedRegion && REGIONS.some(region => region.name === savedRegion || region.subregions?.includes(savedRegion))) {
       setCurrentRegion(savedRegion)
@@ -321,7 +320,7 @@ export default function Header() {
   }
 
   const handleHeaderLogout = async () => {
-    const shouldLogout = window.confirm('Vai tiešām izlogoties?')
+    const shouldLogout = window.confirm(t('Vai tiešām izlogoties?'))
     if (!shouldLogout) return
 
     await supabase.auth.signOut()
@@ -335,14 +334,14 @@ export default function Header() {
     document.documentElement.dataset.temautoTheme = theme
   }
 
-  const filteredLanguages = LANGUAGES.filter(l => 
+  const filteredLanguages = LANGUAGES.filter(l => ['LV', 'EN'].includes(l.code)).filter(l => 
     l.name.toLowerCase().includes(langSearch.toLowerCase()) || 
     l.code.toLowerCase().includes(langSearch.toLowerCase())
   )
 
   const filteredRegions = REGIONS.filter(r => 
-    r.name.toLowerCase().includes(regionSearch.toLowerCase()) ||
-    r.subregions?.some(sub => sub.toLowerCase().includes(regionSearch.toLowerCase()))
+    matches(r.name, regionSearch) ||
+    r.subregions?.some(sub => matches(sub, regionSearch))
   )
 
   const currentLangObj = LANGUAGES.find(l => l.code === currentLang)
@@ -692,7 +691,7 @@ export default function Header() {
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100%', height: '100%', minWidth: 0 }}>
             <Link
               href="/"
-              aria-label="TemAuto — atgriezties sākumlapā"
+              aria-label={t("TemAuto — atgriezties sākumlapā")}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -719,7 +718,7 @@ export default function Header() {
             </Link>
 
             <strong style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', maxWidth: 'calc(100% - 190px)', color: '#e2e8f0', fontSize: 'clamp(14px, 4vw, 18px)', lineHeight: 1.15, textAlign: 'center' }}>
-              {infoPageTitle}
+              {t(infoPageTitle)}
             </strong>
           </div>
         </header>
@@ -753,7 +752,7 @@ export default function Header() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', width: '100%', height: '100%', minWidth: 0 }}>
             <Link
               href="/"
-              aria-label="TemAuto — atgriezties sākumlapā"
+              aria-label={t("TemAuto — atgriezties sākumlapā")}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -791,7 +790,7 @@ export default function Header() {
             </Link>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px', minWidth: 0 }}>
-              <strong style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', color: '#e2e8f0', fontSize: '16px', whiteSpace: 'nowrap' }}>Mans kabinets</strong>
+              <strong style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', color: '#e2e8f0', fontSize: '16px', whiteSpace: 'nowrap' }}>{t("Mans kabinets")}</strong>
               <button
                 type="button"
                 onClick={handleHeaderLogout}
@@ -806,8 +805,7 @@ export default function Header() {
                   cursor: 'pointer',
                   whiteSpace: 'nowrap'
                 }}
-              >
-                Izlogoties
+              >{t("Izlogoties")}
               </button>
             </div>
           </div>
@@ -842,7 +840,7 @@ export default function Header() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', width: '100%', height: '100%', minWidth: 0 }}>
             <Link
               href="/"
-              aria-label="TemAuto — atgriezties sākumlapā"
+              aria-label={t("TemAuto — atgriezties sākumlapā")}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -883,7 +881,7 @@ export default function Header() {
               <Link
                 href="/kabinets"
                 title={user.email}
-                aria-label="Atvērt lietotāja kabinetu"
+                aria-label={t("Atvērt lietotāja kabinetu")}
                 style={{
                   minWidth: 0,
                   maxWidth: '58%',
@@ -930,7 +928,7 @@ export default function Header() {
             <Link
               href="/"
               data-header-desktop-logo="true"
-              aria-label="TemAuto — atgriezties sākumlapā"
+              aria-label={t("TemAuto — atgriezties sākumlapā")}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -993,7 +991,7 @@ export default function Header() {
           <Link
             href="/"
             data-header-home-link="true"
-            aria-label="TemAuto — atgriezties sākumlapā"
+            aria-label={t("TemAuto — atgriezties sākumlapā")}
             onClick={(e) => {
               e.preventDefault()
               const homeState = {
@@ -1050,7 +1048,7 @@ export default function Header() {
             <button
               type="button"
               data-header-visitors="true"
-              aria-label="Apmeklējumi pēdējās 24 stundās"
+              aria-label={t("Apmeklējumi pēdējās 24 stundās")}
               aria-expanded={visitorStatsOpen}
               onClick={toggleVisitorStats}
               style={{
@@ -1081,9 +1079,9 @@ export default function Header() {
                 }}
                 style={{ touchAction: 'none', overscrollBehavior: 'contain' }}
               >
-                <strong>Apmeklējumi pa reģioniem</strong>
-                <div><span>Kopā 24h</span><b>{visitCount}</b></div>
-                <small>Detalizēts sadalījums būs redzams pēc reģionu uzskaites pieslēgšanas.</small>
+                <strong>{t("Apmeklējumi pa reģioniem")}</strong>
+                <div><span>{t("Kopā 24h")}</span><b>{visitCount}</b></div>
+                <small>{t("Detalizēts sadalījums būs redzams pēc reģionu uzskaites pieslēgšanas.")}</small>
               </div>
             )}
           </div>
@@ -1092,9 +1090,9 @@ export default function Header() {
         {/* LABĀ PUSE: Valodas, Reģioni un Navigācija */}
         {isDesktopHeader && desktopPageTitle && (
           <div data-desktop-page-title="true" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: isCabinet ? '40px' : '16px', flex: '1 1 auto', minWidth: 0, padding: '0 12px' }}>
-            <strong style={{ color: '#e2e8f0', fontSize: '16px', textAlign: 'center' }}>{desktopPageTitle}</strong>
+            <strong style={{ color: '#e2e8f0', fontSize: '16px', textAlign: 'center' }}>{t(desktopPageTitle)}</strong>
             {isCabinet && (
-              <button type="button" onClick={handleHeaderLogout} style={{ padding: '6px 10px', border: '1px solid #ef4444', borderRadius: '6px', backgroundColor: 'transparent', color: '#fca5a5', cursor: 'pointer', whiteSpace: 'nowrap' }}>Izlogoties</button>
+              <button type="button" onClick={handleHeaderLogout} style={{ padding: '6px 10px', border: '1px solid #ef4444', borderRadius: '6px', backgroundColor: 'transparent', color: '#fca5a5', cursor: 'pointer', whiteSpace: 'nowrap' }}>{t("Izlogoties")}</button>
             )}
           </div>
         )}
@@ -1139,7 +1137,7 @@ export default function Header() {
                 <input
                   ref={langSearchRef}
                   type="text"
-                  placeholder="Meklēt valodu..."
+                  placeholder={t("Meklēt valodu...")}
                   value={langSearch}
                   onChange={(e) => setLangSearch(e.target.value)}
                   onPointerDown={(event) => handleMobileSelectorPointerDown(event, 'lang')}
@@ -1200,7 +1198,7 @@ export default function Header() {
                   style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} 
                 />
               )}
-              <span data-header-region-label="true">{currentRegion}</span> ▾
+              <span data-header-region-label="true">{t(currentRegion)}</span> ▾
             </button>
 
             {regionOpen && (
@@ -1219,7 +1217,7 @@ export default function Header() {
                   <input
                     ref={regionSearchRef}
                     type="text"
-                    placeholder="Meklēt valsti..."
+                    placeholder={t("Meklēt valsti...")}
                     value={regionSearch}
                     onChange={(e) => setRegionSearch(e.target.value)}
                     onPointerDown={(event) => handleMobileSelectorPointerDown(event, 'region')}
@@ -1259,7 +1257,7 @@ export default function Header() {
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '11px', color: '#94a3b8' }}>◀</span>
-                            <span>{r.name}</span>
+                            <span>{t(r.name)}</span>
                           </div>
                           <img src={`https://flagcdn.com/20x15/${r.flagCode}.png`} alt="" style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} />
                         </div>
@@ -1292,12 +1290,10 @@ export default function Header() {
                         marginBottom: '10px',
                         textAlign: 'center'
                       }}
-                    >
-                      🌐 Visa valsts: {hoveredRegionObj.name.split(' ')[0]}
+                    >{t("🌐 Visa valsts:")} {hoveredRegionObj.name.split(' ')[0]}
                     </div>
 
-                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '8px', borderBottom: '1px solid #334155', paddingBottom: '4px' }}>
-                      Reģioni / Štati ({hoveredRegionObj.subregions.length})
+                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '8px', borderBottom: '1px solid #334155', paddingBottom: '4px' }}>{t("Reģioni / Štati (")}{hoveredRegionObj.subregions.length})
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       {hoveredRegionObj.subregions.map((sub) => (
@@ -1320,7 +1316,7 @@ export default function Header() {
                           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
                           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentRegion === sub ? '#334155' : 'transparent'}
                         >
-                          • {sub}
+                          • {t(sub)}
                         </div>
                       ))}
                     </div>
@@ -1344,14 +1340,13 @@ export default function Header() {
                 {user.user_metadata?.nickname || user.email}
               </Link>
             ) : (
-              <Link href="/login?mode=register" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>
-                Reģistrēties
+              <Link href="/login?mode=register" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>{t("Reģistrēties")}
               </Link>
             )}
             <button
               type="button"
               data-mobile-menu-toggle="true"
-              aria-label="Atvērt izvēlni"
+              aria-label={t("Atvērt izvēlni")}
               aria-expanded={mobileMenuOpen}
               onTouchStart={handleMobileMenuButtonTouchStart}
               onClick={handleMobileMenuButtonClick}
@@ -1364,8 +1359,7 @@ export default function Header() {
               aria-current={isDesktopHeader && pathname === '/pievienot' ? 'page' : undefined}
               onClick={handleAddCarClick}
               style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
-            >
-              + Pievienot auto
+            >{t("+ Pievienot auto")}
             </a>
           </nav>
 
@@ -1407,7 +1401,7 @@ export default function Header() {
                       setRegionOpen(false)
                     }}
                   >
-                    <span>Valoda</span>
+                    <span>{t("Valoda")}</span>
                     <strong>
                       {currentLangObj && (
                         <img src={`https://flagcdn.com/20x15/${currentLangObj.flagCode}.png`} alt="" />
@@ -1421,7 +1415,7 @@ export default function Header() {
                       <input
                         ref={langSearchRef}
                         type="text"
-                        placeholder="Meklēt valodu..."
+                        placeholder={t("Meklēt valodu...")}
                         value={langSearch}
                         onChange={(event) => setLangSearch(event.target.value)}
                         onPointerDown={(event) => handleMobileSelectorPointerDown(event, 'lang')}
@@ -1473,12 +1467,12 @@ export default function Header() {
                       setLangOpen(false)
                     }}
                   >
-                    <span>Valsts</span>
+                    <span>{t("Valsts")}</span>
                     <strong>
                       {currentRegionObj && (
                         <img src={`https://flagcdn.com/20x15/${currentRegionObj.flagCode}.png`} alt="" />
                       )}
-                      <span>{currentRegion}</span>
+                      <span>{t(currentRegion)}</span>
                       <span aria-hidden="true">›</span>
                     </strong>
                   </button>
@@ -1487,7 +1481,7 @@ export default function Header() {
                       <input
                         ref={regionSearchRef}
                         type="text"
-                        placeholder="Meklēt valsti..."
+                        placeholder={t("Meklēt valsti...")}
                         value={regionSearch}
                         onChange={(event) => setRegionSearch(event.target.value)}
                         onPointerDown={(event) => handleMobileSelectorPointerDown(event, 'region')}
@@ -1516,7 +1510,7 @@ export default function Header() {
                               closeMobileMenuAfterSelectorChoice()
                             }}
                           >
-                            <span>{region.name}</span>
+                            <span>{t(region.name)}</span>
                             <img src={`https://flagcdn.com/20x15/${region.flagCode}.png`} alt="" />
                           </div>
                         ))}
@@ -1524,31 +1518,31 @@ export default function Header() {
                     </div>
                   )}
                 </div>
-<div data-mobile-theme-picker="true" role="group" aria-label="Ekrāna režīms">
+<div data-mobile-theme-picker="true" role="group" aria-label={t("Ekrāna režīms")}>
                   <button
                     type="button"
                     data-mobile-theme-option="day"
-                    aria-label="Dienas režīms"
+                    aria-label={t("Dienas režīms")}
                     aria-pressed={mobileTheme === 'day'}
                     onClick={() => applyMobileTheme('day')}
                   >
                     <span aria-hidden="true">☀️</span>
-                    <span>Diena</span>
+                    <span>{t("Diena")}</span>
                   </button>
                   <button
                     type="button"
                     data-mobile-theme-option="night"
-                    aria-label="Nakts režīms"
+                    aria-label={t("Nakts režīms")}
                     aria-pressed={mobileTheme === 'night'}
                     onClick={() => applyMobileTheme('night')}
                   >
                     <span aria-hidden="true">🌙</span>
-                    <span>Nakts</span>
+                    <span>{t("Nakts")}</span>
                   </button>
                 </div>
               </div>
-              <nav aria-label="Informācija">
-                {['Lietošanas noteikumi', 'Privātuma politika', 'Drošība un krāpniecība', 'Kontakti', 'Tavi ieteikumi'].map((label) => (
+              <nav aria-label={t("Informācija")}>
+                {[t('Lietošanas noteikumi'), t('Privātuma politika'), t('Drošība un krāpniecība'), t('Kontakti'), t('Tavi ieteikumi')].map((label) => (
                   <button
                     key={label}
                     type="button"
@@ -1557,13 +1551,13 @@ export default function Header() {
                       router.push(label === 'Lietošanas noteikumi' ? '/lietosanas-noteikumi' : label === 'Privātuma politika' ? '/privatuma-politika' : label === 'Drošība un krāpniecība' ? '/drosiba-un-krapnieciba' : label === 'Kontakti' ? '/kontakti' : '/tavi-ieteikumi')
                     }}
                   >
-                    {label}
+                    {t(label)}
                   </button>
                 ))}
               </nav>
-              <div data-mobile-sponsor="true" data-mobile-menu-sponsor="true" aria-label="Sponsora vieta">
-                <strong>SPONSORS</strong>
-                <span>Vieta sadarbības partnerim</span>
+              <div data-mobile-sponsor="true" data-mobile-menu-sponsor="true" aria-label={t("Sponsora vieta")}>
+                <strong>{t("SPONSORS")}</strong>
+                <span>{t("Vieta sadarbības partnerim")}</span>
               </div>
             </div>
           )}
@@ -1574,3 +1568,4 @@ export default function Header() {
     </header>
   )
 }
+

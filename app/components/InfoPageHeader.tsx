@@ -1,8 +1,13 @@
+'use client'
+
+import { useI18n } from '../../lib/i18n'
+
 type InfoPageHeaderProps = {
   title: string
 }
 
 export default function InfoPageHeader({ title }: InfoPageHeaderProps) {
+  const { t, matches, canonical } = useI18n()
   return (
     <header
       style={{
@@ -34,10 +39,11 @@ export default function InfoPageHeader({ title }: InfoPageHeaderProps) {
       </div>
 
       <h1 style={{ margin: 0, textAlign: 'center', fontSize: 'clamp(17px, 4.6vw, 25px)', lineHeight: 1.2, fontWeight: 700 }}>
-        {title}
+        {t(title)}
       </h1>
 
       <span aria-hidden="true" />
     </header>
   )
 }
+

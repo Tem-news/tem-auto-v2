@@ -1,5 +1,7 @@
 'use client'
 
+import { useI18n } from '../../../../lib/i18n'
+
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '../../../../lib/supabase'
@@ -262,6 +264,7 @@ const hasStoredValue = (value: unknown) =>
   value !== null && value !== undefined && String(value).trim() !== ''
 
 export default function RedigetAuto() {
+  const { t, matches, canonical } = useI18n()
   const params = useParams()
   const router = useRouter()
   const id = params?.id as string
@@ -543,7 +546,7 @@ export default function RedigetAuto() {
   }
 
   useEffect(() => {
-    const confirmExit = () => window.confirm('Ir nesaglabātas izmaiņas. Vai tiešām iziet, tās nesaglabājot?')
+    const confirmExit = () => window.confirm(t('Ir nesaglabātas izmaiņas. Vai tiešām iziet, tās nesaglabājot?'))
 
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (!hasUnsavedChangesRef.current || allowNavigationRef.current) return
@@ -606,14 +609,14 @@ export default function RedigetAuto() {
       const { data, error } = await supabase.from('cars').select('*').eq('id', id).single()
 
       if (error || !data) {
-        setErrorMsg('Sludinājums nav atrasts.')
+        setErrorMsg(t('Sludinājums nav atrasts.'))
         setLoading(false)
         return
       }
 
       // 3. Pārbaudām, vai ielogotais lietotājs ir šī sludinājuma īpašnieks
       if (!data.user_id || data.user_id !== session.user.id) {
-        setErrorMsg('Tev nav tiesību rediģēt šo sludinājumu!')
+        setErrorMsg(t('Tev nav tiesību rediģēt šo sludinājumu!'))
         setLoading(false)
         return
       }
@@ -683,10 +686,10 @@ export default function RedigetAuto() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!ownerUserId) {
-      alert('Tev nav tiesību rediģēt šo sludinājumu!')
+      alert(t('Tev nav tiesību rediģēt šo sludinājumu!'))
       return
     }
-    if (!window.confirm('Vai saglabāt izmaiņas?')) return
+    if (!window.confirm(t('Vai saglabāt izmaiņas?'))) return
     setSaving(true)
     
     let finalUrls = []
@@ -730,7 +733,7 @@ export default function RedigetAuto() {
 
     setSaving(false)
     if (error) {
-      alert('Kļūda saglabājot sludinājumu: ' + error.message)
+      alert(t('Kļūda saglabājot sludinājumu: ') + error.message)
       return
     }
 
@@ -742,10 +745,10 @@ export default function RedigetAuto() {
   // Dzēst visu sludinājumu no rediģēšanas lapas
   const handleDeleteCar = async () => {
     if (!ownerUserId) {
-      alert('Tev nav tiesību dzēst šo sludinājumu!')
+      alert(t('Tev nav tiesību dzēst šo sludinājumu!'))
       return
     }
-    const confirmDelete = window.confirm('Vai tiešām vēlaties neatgriezeniski dzēst šo sludinājumu?')
+    const confirmDelete = window.confirm(t('Vai tiešām vēlaties neatgriezeniski dzēst šo sludinājumu?'))
     if (!confirmDelete) return
 
     setDeleting(true)
@@ -753,11 +756,11 @@ export default function RedigetAuto() {
     setDeleting(false)
 
     if (error) {
-      alert('Kļūda dzēšot sludinājumu: ' + error.message)
+      alert(t('Kļūda dzēšot sludinājumu: ') + error.message)
     } else {
       hasUnsavedChangesRef.current = false
       allowNavigationRef.current = true
-      alert('Sludinājums veiksmīgi izdzēsts!')
+      alert(t('Sludinājums veiksmīgi izdzēsts!'))
       router.push('/')
       router.refresh()
     }
@@ -808,22 +811,21 @@ export default function RedigetAuto() {
             style={{ width: '100%', minHeight: '40px', padding: '8px 10px', display: 'flex', alignItems: 'center', gap: '10px', color: '#111827', background: '#ffffff', border: 0, borderBottom: '1px solid #f1f5f9', textAlign: 'left', fontSize: '14px' }}
           >
             {option.flagUrl && <img src={option.flagUrl} alt="" style={{ width: '24px', height: '16px', objectFit: 'cover', borderRadius: '2px', flex: '0 0 auto' }} />}
-            <span>{option.label}</span>
+            <span>{t(option.label)}</span>
           </button>
         ))}
       </div>
     )
   }
 
-  if (loading) return <div style={{textAlign: 'center', padding: '50px', fontSize: '18px'}}>Pārbauda piekļuves tiesības...</div>
+  if (loading) return <div style={{textAlign: 'center', padding: '50px', fontSize: '18px'}}>{t("Pārbauda piekļuves tiesības...")}</div>
 
   if (errorMsg) {
     return (
       <div style={{ maxWidth: '600px', margin: '60px auto', padding: '30px', background: '#fff', borderRadius: '15px', textAlign: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
-        <h2 style={{ color: '#ef4444', marginBottom: '15px' }}>Piekļuve liegta</h2>
-        <p style={{ color: '#334155', marginBottom: '20px' }}>{errorMsg}</p>
-        <button onClick={() => router.push('/')} style={{ padding: '10px 20px', background: '#0f172a', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-          Atgriezties sākumā
+        <h2 style={{ color: '#ef4444', marginBottom: '15px' }}>{t("Piekļuve liegta")}</h2>
+        <p style={{ color: '#334155', marginBottom: '20px' }}>{t(errorMsg)}</p>
+        <button onClick={() => router.push('/')} style={{ padding: '10px 20px', background: '#0f172a', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>{t("Atgriezties sākumā")}
         </button>
       </div>
     )
@@ -923,15 +925,15 @@ export default function RedigetAuto() {
         
         {/* Kreisā puse: Rediģēšanas forma */}
         <div data-edit-card="true" style={{ flex: 1, maxWidth: '800px', backgroundColor: '#fff', padding: '30px', borderRadius: '15px', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb' }}>
-          <h1 data-edit-title="true" style={{ marginBottom: '20px', color: '#111', fontSize: '24px' }}>Rediģēt sludinājumu: {listingTitle}</h1>
+          <h1 data-edit-title="true" style={{ marginBottom: '20px', color: '#111', fontSize: '24px' }}>{t("Rediģēt sludinājumu:")} {listingTitle}</h1>
           
           <form data-edit-form="true" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <div className="dropdown-container" style={{ position: 'relative' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Cena (€)</label>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>{t("Cena (€)")}</label>
               <input
                 type="text"
                 inputMode="numeric"
-                placeholder="Piem. 12 500"
+                placeholder={t("Piem. 12 500")}
                 value={price}
                 onChange={(event) => { setPrice(formatPriceInput(event.target.value)); markUnsaved() }}
                 onPointerDown={(event) => handleDropdownInputPointerDown(event, 'price')}
@@ -943,7 +945,7 @@ export default function RedigetAuto() {
             </div>
 
             <div className="dropdown-container" style={{ position: 'relative' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Valsts</label>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>{t("Valsts")}</label>
               {COUNTRIES.find((item) => item.name === country) && (
                 <img
                   src={COUNTRIES.find((item) => item.name === country)?.flagUrl}
@@ -954,9 +956,9 @@ export default function RedigetAuto() {
               )}
               <input
                 type="text"
-                placeholder="Izvēlieties valsti"
-                value={country}
-                onChange={(event) => { setCountry(event.target.value); markUnsaved() }}
+                placeholder={t("Izvēlieties valsti")}
+                value={t(country)}
+                onChange={(event) => { setCountry(canonical(event.target.value, COUNTRIES.map(c => c.name))); markUnsaved() }}
                 onPointerDown={(event) => handleDropdownInputPointerDown(event, 'country')}
                 onPointerUp={(event) => handleDropdownInputPointerUp(event, 'country')}
                 onPointerCancel={handleDropdownInputPointerCancel}
@@ -971,12 +973,12 @@ export default function RedigetAuto() {
             </div>
 
             <div className="dropdown-container" style={{ position: 'relative' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Reģions / pilsēta</label>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>{t("Reģions / pilsēta")}</label>
               <input
                 type="text"
-                placeholder="Reģions vai pilsēta"
-                value={region}
-                onChange={(event) => { setRegion(event.target.value); markUnsaved() }}
+                placeholder={t("Reģions vai pilsēta")}
+                value={t(region)}
+                onChange={(event) => { setRegion(canonical(event.target.value, getSuggestionOptions('region').map(option => option.value))); markUnsaved() }}
                 onPointerDown={(event) => handleDropdownInputPointerDown(event, 'region')}
                 onPointerUp={(event) => handleDropdownInputPointerUp(event, 'region')}
                 onPointerCancel={handleDropdownInputPointerCancel}
@@ -988,9 +990,8 @@ export default function RedigetAuto() {
             </div>
 
             <section data-edit-supplemental="true" style={{ padding: '14px', border: '1px solid #dbeafe', borderRadius: '10px', background: '#f8fafc' }}>
-              <strong style={{ display: 'block', marginBottom: '4px', color: '#0f172a' }}>Papildināt trūkstošo informāciju</strong>
-              <span style={{ display: 'block', marginBottom: '12px', color: '#64748b', fontSize: '12px', lineHeight: 1.35 }}>
-                Tukšos laukus drīkst aizpildīt vienu reizi. Jau aizpildītā informācija nav maināma.
+              <strong style={{ display: 'block', marginBottom: '4px', color: '#0f172a' }}>{t("Papildināt trūkstošo informāciju")}</strong>
+              <span style={{ display: 'block', marginBottom: '12px', color: '#64748b', fontSize: '12px', lineHeight: 1.35 }}>{t("Tukšos laukus drīkst aizpildīt vienu reizi. Jau aizpildītā informācija nav maināma.")}
               </span>
               <div data-edit-supplemental-grid="true" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 12px' }}>
                 {SUPPLEMENTAL_FIELDS.map((field) => {
@@ -998,16 +999,16 @@ export default function RedigetAuto() {
                   return (
                     <label key={field.key} className="dropdown-container" style={{ display: 'block', minWidth: 0, position: 'relative' }}>
                       <span style={{ display: 'block', marginBottom: '4px', fontSize: '13px', fontWeight: '600' }}>
-                        {field.label}{isLocked ? ' — aizpildīts' : ''}
+                        {t(field.label)}{isLocked ? t(' — aizpildīts') : ''}
                       </span>
                       <input
                         type="text"
                         inputMode={('inputMode' in field ? field.inputMode : undefined) as 'numeric' | 'decimal' | undefined}
                         disabled={isLocked}
-                        value={supplementalValues[field.key] || ''}
-                        placeholder={isLocked ? '' : 'Papildināt'}
+                        value={getSuggestionOptions(field.key).length ? t(supplementalValues[field.key] || '') : supplementalValues[field.key] || ''}
+                        placeholder={isLocked ? '' : t('Papildināt')}
                         onChange={(event) => {
-                          setSupplementalValues((current) => ({ ...current, [field.key]: event.target.value }))
+                          setSupplementalValues((current) => ({ ...current, [field.key]: canonical(event.target.value, getSuggestionOptions(field.key).map(option => option.value)) }))
                           markUnsaved()
                         }}
                         onPointerDown={isLocked ? undefined : (event) => handleDropdownInputPointerDown(event, field.key)}
@@ -1027,9 +1028,9 @@ export default function RedigetAuto() {
             </section>
 
             <div className="dropdown-container" style={{ position: 'relative' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Apraksts</label>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>{t("Apraksts")}</label>
               <textarea
-                placeholder="Papildus informācija par auto..."
+                placeholder={t("Papildus informācija par auto...")}
                 value={description}
                 onChange={(event) => { setDescription(event.target.value); markUnsaved() }}
                 onPointerDown={(event) => handleDropdownInputPointerDown(event, 'description')}
@@ -1041,11 +1042,11 @@ export default function RedigetAuto() {
             </div>
 
             <div className="dropdown-container" style={{ position: 'relative' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Telefona numurs</label>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>{t("Telefona numurs")}</label>
               <input
                 type="text"
                 inputMode="tel"
-                placeholder="Piem. +371 29000000"
+                placeholder={t("Piem. +371 29000000")}
                 value={phone}
                 onChange={(event) => { setPhone(event.target.value); markUnsaved() }}
                 onPointerDown={(event) => handleDropdownInputPointerDown(event, 'phone')}
@@ -1057,11 +1058,11 @@ export default function RedigetAuto() {
             </div>
 
             <div className="dropdown-container" style={{ position: 'relative' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>E-pasts</label>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>{t("E-pasts")}</label>
               <input
                 type="email"
                 inputMode="email"
-                placeholder="Piem. epasts@inbox.lv"
+                placeholder={t("Piem. epasts@inbox.lv")}
                 value={email}
                 onChange={(event) => { setEmail(event.target.value); markUnsaved() }}
                 onPointerDown={(event) => handleDropdownInputPointerDown(event, 'email')}
@@ -1074,9 +1075,8 @@ export default function RedigetAuto() {
 
             {/* BILŽU SADAĻA */}
             <div data-edit-images="true" style={{ marginTop: '10px', borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Bildes (pirmā ir galvenā titulbilde):</label>
-              <span style={{ fontSize: '13px', color: '#64748b', display: 'block', marginBottom: '10px' }}>
-                Izmanto bultiņas <b>← →</b>, lai mainītu bilžu secību.
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>{t("Bildes (pirmā ir galvenā titulbilde):")}</label>
+              <span style={{ fontSize: '13px', color: '#64748b', display: 'block', marginBottom: '10px' }}>{t("Izmanto bultiņas")} <b>← →</b>{t(", lai mainītu bilžu secību.")}
               </span>
               
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '15px' }}>
@@ -1116,7 +1116,7 @@ export default function RedigetAuto() {
                         </button>
                         
                         <span style={{ color: '#fff', fontSize: '10px', fontWeight: '600' }}>
-                          {isMain ? 'Tituls' : `${i + 1}.`}
+                          {isMain ? t('Tituls') : `${i + 1}.`}
                         </span>
 
                         <button 
@@ -1150,11 +1150,11 @@ export default function RedigetAuto() {
             {/* Saglabāšanas un Dzēšanas pogas */}
             <div data-edit-actions="true" style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
               <button type="submit" disabled={saving} style={{ flex: 1, padding: '15px', background: '#2563eb', color: 'white', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '16px', fontWeight: '600' }}>
-                {saving ? 'Saglabā izmaiņas...' : 'Saglabāt izmaiņas'}
+                {saving ? t('Saglabā izmaiņas...') : t('Saglabāt izmaiņas')}
               </button>
 
               <button type="button" onClick={handleDeleteCar} disabled={deleting} style={{ padding: '15px 20px', background: deleting ? '#9ca3af' : '#dc2626', color: 'white', borderRadius: '8px', border: 'none', cursor: deleting ? 'not-allowed' : 'pointer', fontSize: '16px', fontWeight: '600' }}>
-                {deleting ? 'Dzēš...' : '🗑️ Dzēst sludinājumu'}
+                {deleting ? t('Dzēš...') : t('🗑️ Dzēst sludinājumu')}
               </button>
             </div>
 
@@ -1166,8 +1166,8 @@ export default function RedigetAuto() {
           <div style={{ position: 'fixed', top: '100px', width: '260px', height: 'calc(100dvh - 120px)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {[1, 2].map((placement) => (
               <div key={placement} style={{ flex: '1 1 0', minHeight: 0, boxSizing: 'border-box', backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
-                <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Ekskluzīvs baneris šeit!<br/><span style={{ fontSize: '12px' }}>(Maksimāla uzmanība)</span></p>
+                <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>{t("Reklāma")}</span>
+                <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>{t("Ekskluzīvs baneris šeit!")}<br/><span style={{ fontSize: '12px' }}>{t("(Maksimāla uzmanība)")}</span></p>
               </div>
             ))}
           </div>
@@ -1177,3 +1177,4 @@ export default function RedigetAuto() {
     </div>
   )
 }
+

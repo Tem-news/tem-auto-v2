@@ -1,5 +1,7 @@
 'use client'
 
+import { useI18n } from '../../lib/i18n'
+
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
@@ -243,6 +245,7 @@ type ImageItem = {
 }
 
 export default function PievienotAuto() {
+  const { t, matches, canonical } = useI18n()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
@@ -586,7 +589,7 @@ export default function PievienotAuto() {
     setErrorMessage('')
 
     if (!make || !model || !year) {
-      setErrorMessage('Lūdzu, aizpildiet obligātos laukus: Marka, Modelis un Gads!')
+      setErrorMessage(t('Lūdzu, aizpildiet obligātos laukus: Marka, Modelis un Gads!'))
       setLoading(false)
       return
     }
@@ -652,14 +655,14 @@ export default function PievienotAuto() {
 
       if (error) {
         console.error('Kļūda saglabājot auto:', error)
-        setErrorMessage('Neizdevās pievienot sludinājumu: ' + error.message)
+        setErrorMessage(t('Neizdevās pievienot sludinājumu: ') + error.message)
         setLoading(false)
       } else {
         router.push('/')
       }
     } catch (err: any) {
       console.error('Negaidīta kļūda:', err)
-      setErrorMessage('Sistēmas kļūda: ' + err.message)
+      setErrorMessage(t('Sistēmas kļūda: ') + err.message)
       setLoading(false)
     }
   }
@@ -899,12 +902,12 @@ export default function PievienotAuto() {
         {/* KREISĀ PUSE - 2 Baneri */}
         <div data-add-car-ad-rail="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
-            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 1</span>
-            <span>Sānu baneris augšējais!</span>
+            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("REKLĀMA 1")}</span>
+            <span>{t("Sānu baneris augšējais!")}</span>
           </div>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
-            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 2</span>
-            <span>Sānu baneris apakšējais!</span>
+            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("REKLĀMA 2")}</span>
+            <span>{t("Sānu baneris apakšējais!")}</span>
           </div>
         </div>
 
@@ -912,13 +915,13 @@ export default function PievienotAuto() {
         <div data-add-car-form-card="true" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', boxSizing: 'border-box' }}>
           
           <div data-add-car-heading="true" style={{ marginBottom: '24px', borderBottom: '1px solid #e5e7eb', paddingBottom: '16px' }}>
-            <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#111827', margin: 0 }}>Pievienot jaunu auto sludinājumu</h1>
-            <p style={{ fontSize: '13.5px', color: '#6b7280', marginTop: '4px' }}>Aizpildiet datus par automašīnu un pievienojiet attēlus.</p>
+            <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#111827', margin: 0 }}>{t("Pievienot jaunu auto sludinājumu")}</h1>
+            <p style={{ fontSize: '13.5px', color: '#6b7280', marginTop: '4px' }}>{t("Aizpildiet datus par automašīnu un pievienojiet attēlus.")}</p>
           </div>
 
           {errorMessage && (
             <div style={{ backgroundColor: '#fee2e2', border: '1px solid #fecaca', color: '#991b1b', padding: '10px 14px', borderRadius: '6px', fontSize: '13.5px', marginBottom: '20px' }}>
-              {errorMessage}
+              {t(errorMessage)}
             </div>
           )}
 
@@ -927,10 +930,10 @@ export default function PievienotAuto() {
             {/* 1. Rinda: Marka / Modelis */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="dropdown-container" style={{ position: 'relative' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Automašīnas marka *</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Automašīnas marka *")}</label>
                 <input
                   type="text"
-                  placeholder="Sāciet rakstīt vai izvēlieties..."
+                  placeholder={t("Sāciet rakstīt vai izvēlieties...")}
                   value={make}
                   onChange={(e) => { setMake(e.target.value); setActiveDropdown('make'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'make')}
@@ -958,10 +961,10 @@ export default function PievienotAuto() {
               </div>
 
               <div className="dropdown-container" style={{ position: 'relative' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Modelis *</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Modelis *")}</label>
                 <input
                   type="text"
-                  placeholder={make ? `Izvēlieties ${make} modeli...` : 'Vispirms izvēlieties marku'}
+                  placeholder={make ? `${t('Izvēlieties modeli...')} (${make})` : t('Vispirms izvēlieties marku')}
                   value={model}
                   onChange={(e) => { setModel(e.target.value); setActiveDropdown('model'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'model')}
@@ -986,7 +989,7 @@ export default function PievienotAuto() {
                         </div>
                       ))
                     ) : (
-                      <div style={{ padding: '8px 12px', fontSize: '13.5px', color: '#6b7280' }}>Ievadiet modeli brīvā formā</div>
+                      <div style={{ padding: '8px 12px', fontSize: '13.5px', color: '#6b7280' }}>{t("Ievadiet modeli brīvā formā")}</div>
                     )}
                   </div>
                 )}
@@ -996,11 +999,11 @@ export default function PievienotAuto() {
             {/* 2. Rinda: Gads / Cena */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="dropdown-container" style={{ position: 'relative' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Izlaiduma gads *</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Izlaiduma gads *")}</label>
                 <input
                   type="text"
                   inputMode="numeric"
-                  placeholder="Piem., 2020"
+                  placeholder={t("Piem., 2020")}
                   value={year}
                   onChange={(e) => { setYear(e.target.value); setActiveDropdown('year'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'year')}
@@ -1020,7 +1023,7 @@ export default function PievienotAuto() {
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        {y} g.
+                        {y}{t("g.")}
                       </div>
                     ))}
                   </div>
@@ -1028,11 +1031,11 @@ export default function PievienotAuto() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Cena (€)</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Cena (€)")}</label>
                 <input
                   type="text"
                   inputMode="numeric"
-                  placeholder="Piem., 12 500"
+                  placeholder={t("Piem., 12 500")}
                   value={displayPrice}
                   onChange={(e) => handlePriceChange(e.target.value)}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'price')}
@@ -1046,12 +1049,12 @@ export default function PievienotAuto() {
             {/* 3. Rinda: Dzinēja tips / Dzinēja tilpums */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="dropdown-container" style={{ position: 'relative' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Dzinēja tips</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Dzinēja tips")}</label>
                 <input
                   type="text"
-                  placeholder="Izvēlieties dzinēju..."
-                  value={engine}
-                  onChange={(e) => { setEngine(e.target.value); setActiveDropdown('engine'); }}
+                  placeholder={t("Izvēlieties dzinēju...")}
+                  value={t(engine)}
+                  onChange={(e) => { setEngine(canonical(e.target.value, ENGINE_TYPES)); setActiveDropdown('engine'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'engine')}
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'engine')}
                   onPointerCancel={handleDropdownInputPointerCancel}
@@ -1061,7 +1064,7 @@ export default function PievienotAuto() {
                 />
                 {activeDropdown === 'engine' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {ENGINE_TYPES.filter(et => et.toLowerCase().includes(engine.toLowerCase())).map((et) => (
+                    {ENGINE_TYPES.filter(et => matches(et, engine)).map((et) => (
                       <div
                         key={et}
                         onClick={() => { setEngine(et); setActiveDropdown(null); }}
@@ -1069,7 +1072,7 @@ export default function PievienotAuto() {
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        {et}
+                        {t(et)}
                       </div>
                     ))}
                   </div>
@@ -1077,13 +1080,13 @@ export default function PievienotAuto() {
               </div>
 
               <div className="dropdown-container" style={{ position: 'relative' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Dzinēja tilpums (L)</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Dzinēja tilpums (L)")}</label>
                 <input
                   type="text"
                   inputMode="decimal"
-                  placeholder="Piem., 2.0"
-                  value={volume}
-                  onChange={(e) => { setVolume(e.target.value); setActiveDropdown('volume'); }}
+                  placeholder={t("Piem., 2.0")}
+                  value={t(volume)}
+                  onChange={(e) => { setVolume(canonical(e.target.value, ENGINE_VOLUMES)); setActiveDropdown('volume'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'volume')}
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'volume')}
                   onPointerCancel={handleDropdownInputPointerCancel}
@@ -1093,7 +1096,7 @@ export default function PievienotAuto() {
                 />
                 {activeDropdown === 'volume' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {ENGINE_VOLUMES.filter(v => v.includes(volume)).map((v) => (
+                    {ENGINE_VOLUMES.filter(v => matches(v, volume)).map((v) => (
                       <div
                         key={v}
                         onClick={() => { setVolume(v); setActiveDropdown(null); }}
@@ -1101,7 +1104,7 @@ export default function PievienotAuto() {
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        {v}
+                        {t(v)}
                       </div>
                     ))}
                   </div>
@@ -1112,12 +1115,12 @@ export default function PievienotAuto() {
             {/* 4. Rinda: Ātrumkārba / Virsbūves tips */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="dropdown-container" style={{ position: 'relative' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Ātrumkārba</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Ātrumkārba")}</label>
                 <input
                   type="text"
-                  placeholder="Izvēlieties kārbu..."
-                  value={gearbox}
-                  onChange={(e) => { setGearbox(e.target.value); setActiveDropdown('gearbox'); }}
+                  placeholder={t("Izvēlieties kārbu...")}
+                  value={t(gearbox)}
+                  onChange={(e) => { setGearbox(canonical(e.target.value, GEARBOX_TYPES)); setActiveDropdown('gearbox'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'gearbox')}
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'gearbox')}
                   onPointerCancel={handleDropdownInputPointerCancel}
@@ -1127,7 +1130,7 @@ export default function PievienotAuto() {
                 />
                 {activeDropdown === 'gearbox' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {GEARBOX_TYPES.filter(gt => gt.toLowerCase().includes(gearbox.toLowerCase())).map((gt) => (
+                    {GEARBOX_TYPES.filter(gt => matches(gt, gearbox)).map((gt) => (
                       <div
                         key={gt}
                         onClick={() => { setGearbox(gt); setActiveDropdown(null); }}
@@ -1135,7 +1138,7 @@ export default function PievienotAuto() {
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        {gt}
+                        {t(gt)}
                       </div>
                     ))}
                   </div>
@@ -1143,12 +1146,12 @@ export default function PievienotAuto() {
               </div>
 
               <div className="dropdown-container" style={{ position: 'relative' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Virsbūves tips</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Virsbūves tips")}</label>
                 <input
                   type="text"
-                  placeholder="Izvēlieties virsbūvi..."
-                  value={bodyType}
-                  onChange={(e) => { setBodyType(e.target.value); setActiveDropdown('bodyType'); }}
+                  placeholder={t("Izvēlieties virsbūvi...")}
+                  value={t(bodyType)}
+                  onChange={(e) => { setBodyType(canonical(e.target.value, BODY_TYPES)); setActiveDropdown('bodyType'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'bodyType')}
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'bodyType')}
                   onPointerCancel={handleDropdownInputPointerCancel}
@@ -1158,7 +1161,7 @@ export default function PievienotAuto() {
                 />
                 {activeDropdown === 'bodyType' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {BODY_TYPES.filter(bt => bt.toLowerCase().includes(bodyType.toLowerCase())).map((bt) => (
+                    {BODY_TYPES.filter(bt => matches(bt, bodyType)).map((bt) => (
                       <div
                         key={bt}
                         onClick={() => { setBodyType(bt); setActiveDropdown(null); }}
@@ -1166,7 +1169,7 @@ export default function PievienotAuto() {
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        {bt}
+                        {t(bt)}
                       </div>
                     ))}
                   </div>
@@ -1177,12 +1180,12 @@ export default function PievienotAuto() {
             {/* 5. Rinda: Krāsa / Nobraukums */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="dropdown-container" style={{ position: 'relative' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Krāsa</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Krāsa")}</label>
                 <input
                   type="text"
-                  placeholder="Izvēlieties krāsu..."
-                  value={color}
-                  onChange={(e) => { setColor(e.target.value); setActiveDropdown('color'); }}
+                  placeholder={t("Izvēlieties krāsu...")}
+                  value={t(color)}
+                  onChange={(e) => { setColor(canonical(e.target.value, COLORS.map(c => c.name))); setActiveDropdown('color'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'color')}
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'color')}
                   onPointerCancel={handleDropdownInputPointerCancel}
@@ -1192,7 +1195,7 @@ export default function PievienotAuto() {
                 />
                 {activeDropdown === 'color' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {COLORS.filter(c => c.name.toLowerCase().includes(color.toLowerCase())).map((c) => (
+                    {COLORS.filter(c => matches(c.name, color)).map((c) => (
                       <div
                         key={c.name}
                         onClick={() => { setColor(c.name); setActiveDropdown(null); }}
@@ -1201,7 +1204,7 @@ export default function PievienotAuto() {
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
                         <span style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: c.hex, border: `1px solid ${c.border}` }}></span>
-                        {c.name}
+                        {t(c.name)}
                       </div>
                     ))}
                   </div>
@@ -1209,11 +1212,11 @@ export default function PievienotAuto() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Nobraukums (km)</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Nobraukums (km)")}</label>
                 <input
                   type="text"
                   inputMode="numeric"
-                  placeholder="Piem., 180 000"
+                  placeholder={t("Piem., 180 000")}
                   value={displayNobraukums}
                   onChange={(e) => handleNobraukumsChange(e.target.value)}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'nobraukums')}
@@ -1227,10 +1230,10 @@ export default function PievienotAuto() {
             {/* 6. Rinda: VIN kods / Stūres novietojums */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>VIN kods</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("VIN kods")}</label>
                 <input
                   type="text"
-                  placeholder="Ievadiet VIN kods"
+                  placeholder={t("Ievadiet VIN kods")}
                   value={vin}
                   onChange={(e) => setVin(e.target.value)}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'vin')}
@@ -1241,12 +1244,12 @@ export default function PievienotAuto() {
               </div>
 
               <div className="dropdown-container" style={{ position: 'relative' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Stūres novietojums</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Stūres novietojums")}</label>
                 <input
                   type="text"
-                  placeholder="Izvēlieties..."
-                  value={sture}
-                  onChange={(e) => { setSture(e.target.value); setActiveDropdown('sture'); }}
+                  placeholder={t("Izvēlieties...")}
+                  value={t(sture)}
+                  onChange={(e) => { setSture(canonical(e.target.value, STEERING_TYPES)); setActiveDropdown('sture'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'sture')}
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'sture')}
                   onPointerCancel={handleDropdownInputPointerCancel}
@@ -1256,7 +1259,7 @@ export default function PievienotAuto() {
                 />
                 {activeDropdown === 'sture' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {STEERING_TYPES.filter(st => st.toLowerCase().includes(sture.toLowerCase())).map((st) => (
+                    {STEERING_TYPES.filter(st => matches(st, sture)).map((st) => (
                       <div
                         key={st}
                         onClick={() => { setSture(st); setActiveDropdown(null); }}
@@ -1264,7 +1267,7 @@ export default function PievienotAuto() {
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        {st}
+                        {t(st)}
                       </div>
                     ))}
                   </div>
@@ -1275,11 +1278,11 @@ export default function PievienotAuto() {
             {/* 7. Rinda: Tehniskā apskate / Salona krāsa */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Tehniskā apskate līdz</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Tehniskā apskate līdz")}</label>
                 <input
                   type="text"
                   inputMode="numeric"
-                  placeholder="MM/GGGG vai Datums"
+                  placeholder={t("MM/GGGG vai Datums")}
                   value={tehiskapskate}
                   onChange={(e) => setTehiskapskate(e.target.value)}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'tehiskapskate')}
@@ -1290,7 +1293,7 @@ export default function PievienotAuto() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Salona krāsa</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Salona krāsa")}</label>
                 <input
                   type="text"
                   placeholder="Piem., Melna āda"
@@ -1309,14 +1312,14 @@ export default function PievienotAuto() {
               
               {/* Valsts */}
               <div className="dropdown-container" style={{ position: 'relative' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Valsts</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Valsts")}</label>
                                 {selectedCountry.name === countryQuery && (
                   <img src={selectedCountry.flagUrl} alt="" style={{ position: 'absolute', left: '10px', top: '28px', width: '24px', height: '16px', objectFit: 'cover', borderRadius: '2px', zIndex: 1, pointerEvents: 'none' }} />
                 )}
                 <input
                   type="text"
-                  value={countryQuery}
-                  onChange={(e) => { setCountryQuery(e.target.value); setActiveDropdown('country'); }}
+                  value={t(countryQuery)}
+                  onChange={(e) => { setCountryQuery(canonical(e.target.value, COUNTRIES.map(c => c.name))); setActiveDropdown('country'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'country')}
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'country')}
                   onPointerCancel={handleDropdownInputPointerCancel}
@@ -1325,7 +1328,7 @@ export default function PievienotAuto() {
                   style={{ width: '100%', padding: '10px', textIndent: selectedCountry.name === countryQuery ? '42px' : '0', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
                 />
 {activeDropdown === 'country' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>                    {COUNTRIES.filter((c) => countryQuery === selectedCountry.name || c.name.toLowerCase().includes(countryQuery.toLowerCase())).map((c) => (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>                    {COUNTRIES.filter((c) => countryQuery === selectedCountry.name || matches(c.name, countryQuery)).map((c) => (
                       <div
                         key={c.code}                        onClick={() => { setSelectedCountry(c); setCountryQuery(c.name); setRegion(''); setActiveDropdown(null); }}
                         style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
@@ -1333,7 +1336,7 @@ export default function PievienotAuto() {
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
                         <img src={c.flagUrl} alt="" style={{ width: '24px', height: '16px', objectFit: 'cover', borderRadius: '2px' }} />
-                        <span>{c.name}</span>
+                        <span>{t(c.name)}</span>
                       </div>
                     ))}
                   </div>
@@ -1342,12 +1345,12 @@ export default function PievienotAuto() {
 
               {/* Reģions / Pilsēta */}
               <div className="dropdown-container" style={{ position: 'relative' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Reģions / Pilsēta</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Reģions / Pilsēta")}</label>
                 <input
                   type="text"
-                  placeholder="Izvēlieties reģionu..."
-                  value={region}
-                  onChange={(e) => { setRegion(e.target.value); setActiveDropdown('region'); }}
+                  placeholder={t("Izvēlieties reģionu...")}
+                  value={t(region)}
+                  onChange={(e) => { setRegion(canonical(e.target.value, selectedCountry.regions)); setActiveDropdown('region'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'region')}
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'region')}
                   onPointerCancel={handleDropdownInputPointerCancel}
@@ -1357,7 +1360,7 @@ export default function PievienotAuto() {
                 />
                 {activeDropdown === 'region' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    {selectedCountry.regions.filter(r => r.toLowerCase().includes(region.toLowerCase())).map((r) => (
+                    {selectedCountry.regions.filter(r => matches(r, region)).map((r) => (
                       <div
                         key={r}
                         onClick={() => { setRegion(r); setActiveDropdown(null); }}
@@ -1365,7 +1368,7 @@ export default function PievienotAuto() {
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        {r}
+                        {t(r)}
                       </div>
                     ))}
                   </div>
@@ -1377,10 +1380,10 @@ export default function PievienotAuto() {
             {/* Kontakti (E-pasts un Telefons) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>E-pasts</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("E-pasts")}</label>
                 <input
                   type="email"
-                  placeholder="tavs@epasts.lv"
+                  placeholder={t("tavs@epasts.lv")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'email')}
@@ -1391,7 +1394,7 @@ export default function PievienotAuto() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Telefons</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Telefons")}</label>
                 <input
                   type="text"
                   inputMode="tel"
@@ -1408,10 +1411,10 @@ export default function PievienotAuto() {
 
             {/* Apraksts (palielināts augstums līdz 7 rindām, lai ērtāk drukāt) */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Apraksts</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Apraksts")}</label>
               <textarea
                 rows={7}
-                placeholder="Papildus informācija par auto stāvokli, komplektāciju..."
+                placeholder={t("Papildus informācija par auto stāvokli, komplektāciju...")}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 onPointerDown={(event) => handleDropdownInputPointerDown(event, 'description')}
@@ -1423,7 +1426,7 @@ export default function PievienotAuto() {
 
             {/* Bilžu augšupielāde (sašaurināts un pacelts augstāk) */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>Fotoattēli</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Fotoattēli")}</label>
               <div
                 data-add-car-upload="true"
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -1450,9 +1453,9 @@ export default function PievienotAuto() {
                 />
                 <label htmlFor="file-upload" style={{ cursor: 'pointer', display: 'block' }}>
                   <span style={{ display: 'block', fontSize: '13.5px', color: '#374151', fontWeight: '500', marginBottom: '2px' }}>
-                    <span style={{ color: '#2563eb' }}>Izvēlēties failus</span>
+                    <span style={{ color: '#2563eb' }}>{t("Izvēlēties failus")}</span>
                   </span>
-                  <span style={{ fontSize: '11.5px', color: '#6b7280' }}>PNG, JPG vai WEBP</span>
+                  <span style={{ fontSize: '11.5px', color: '#6b7280' }}>{t("PNG, JPG vai WEBP")}</span>
                 </label>
               </div>
 
@@ -1471,7 +1474,7 @@ export default function PievienotAuto() {
                         <button type="button" onClick={() => removeImage(index)} style={{ background: 'rgba(220,38,38,0.8)', color: '#fff', border: 'none', borderRadius: '3px', width: '20px', height: '20px', fontSize: '10px', cursor: 'pointer' }}>✕</button>
                       </div>
                       {index === 0 && (
-                        <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: '9px', textAlign: 'center', padding: '2px 0' }}>Galvenā</span>
+                        <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: '9px', textAlign: 'center', padding: '2px 0' }}>{t("Galvenā")}</span>
                       )}
                     </div>
                   ))}
@@ -1496,7 +1499,7 @@ export default function PievienotAuto() {
                   cursor: loading ? 'not-allowed' : 'pointer'
                 }}
               >
-                {loading ? 'Pievieno sludinājumu...' : 'Pievienot sludinājumu'}
+                {loading ? t('Pievieno sludinājumu...') : t('Pievienot sludinājumu')}
               </button>
             </div>
 
@@ -1506,12 +1509,12 @@ export default function PievienotAuto() {
         {/* LABĀ PUSE - 2 Baneri */}
         <div data-add-car-ad-rail="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
-            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 3</span>
-            <span>Sānu baneris labajā pusē (augšā)!</span>
+            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("REKLĀMA 3")}</span>
+            <span>{t("Sānu baneris labajā pusē (augšā)!")}</span>
           </div>
           <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
-            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA 4</span>
-            <span>Sānu baneris labajā pusē (apakšā)!</span>
+            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("REKLĀMA 4")}</span>
+            <span>{t("Sānu baneris labajā pusē (apakšā)!")}</span>
           </div>
         </div>
 
@@ -1519,3 +1522,4 @@ export default function PievienotAuto() {
     </div>
   )
 }
+

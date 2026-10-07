@@ -1,5 +1,7 @@
 'use client'
 
+import { useI18n } from '../../lib/i18n'
+
 const sections = [
   {
     title: '1. Vispārīgie noteikumi',
@@ -106,21 +108,22 @@ const sections = [
 ]
 
 export default function TermsPage() {
+  const { t, matches, canonical } = useI18n()
   return (
     <div data-info-page="true" style={{ maxWidth: '860px', margin: '0 auto', padding: '18px 16px 56px', color: '#1e293b' }}>
       <article style={{ padding: 'clamp(20px, 5vw, 40px)', background: '#ffffff', border: '1px solid #dbe3ec', borderRadius: '14px', boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)' }}>
-        <p style={{ margin: '0 0 28px', color: '#64748b', fontSize: '14px' }}>Spēkā no 2026. gada 21. septembra</p>
+        <p style={{ margin: '0 0 28px', color: '#64748b', fontSize: '14px' }}>{t("Spēkā no 2026. gada 21. septembra")}</p>
 
         {sections.map((section) => (
           <section key={section.title} style={{ marginTop: '28px' }}>
-            <h2 style={{ margin: '0 0 12px', color: '#0f172a', fontSize: '20px', lineHeight: 1.3 }}>{section.title}</h2>
-            {section.intro && <p style={{ margin: '0 0 10px', lineHeight: 1.65 }}>{section.intro}</p>}
+            <h2 style={{ margin: '0 0 12px', color: '#0f172a', fontSize: '20px', lineHeight: 1.3 }}>{t(section.title)}</h2>
+            {section.intro && <p style={{ margin: '0 0 10px', lineHeight: 1.65 }}>{t(section.intro)}</p>}
             {section.paragraphs?.map((paragraph) => (
-              <p key={paragraph} style={{ margin: '0 0 12px', lineHeight: 1.65 }}>{paragraph}</p>
+              <p key={paragraph} style={{ margin: '0 0 12px', lineHeight: 1.65 }}>{t(paragraph)}</p>
             ))}
             {section.items && (
               <ul style={{ margin: 0, paddingLeft: '22px' }}>
-                {section.items.map((item) => <li key={item} style={{ marginBottom: '8px', lineHeight: 1.6 }}>{item}</li>)}
+                {section.items.map((item) => <li key={item} style={{ marginBottom: '8px', lineHeight: 1.6 }}>{t(item)}</li>)}
               </ul>
             )}
           </section>
@@ -129,3 +132,4 @@ export default function TermsPage() {
     </div>
   )
 }
+

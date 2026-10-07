@@ -1,5 +1,7 @@
 'use client'
 
+import { useI18n } from '../../lib/i18n'
+
 import type { CSSProperties } from 'react'
 
 const PLACEMENT_HEIGHT_PX = 300
@@ -24,14 +26,16 @@ const placementStyle: CSSProperties = {
 }
 
 export default function TemAutoSponsorPlacement() {
+  const { t, matches, canonical } = useI18n()
   return (
     <aside
       data-temauto-sponsor-placement="true"
-      aria-label="REKLĀMA"
+      aria-label={t("REKLĀMA")}
       style={placementStyle}
     >
-      <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA</span>
-      <span>REKLĀMA — vieta reklāmas devējam</span>
+      <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("REKLĀMA")}</span>
+      <span>{t("REKLĀMA — vieta reklāmas devējam")}</span>
     </aside>
   )
 }
+

@@ -1,5 +1,7 @@
 'use client'
 
+import { useI18n } from '../lib/i18n'
+
 import DemoPhoto from './components/DemoPhoto'
 import { Fragment, useEffect, useState, useMemo, useRef, useLayoutEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -161,6 +163,7 @@ function formatNumberWithSpace(value: number | string): string {
 }
 
 function ListingCardGallery({ images, alt, compact = false }: { images: string[]; alt: string; compact?: boolean }) {
+  const { t } = useI18n()
   const galleryRef = useRef<HTMLDivElement>(null)
   const galleryTouched = useRef(false)
   const touchStartX = useRef<number | null>(null)
@@ -316,6 +319,7 @@ function ListingCardGallery({ images, alt, compact = false }: { images: string[]
 }
 
 export default function Sakumlapa() {
+  const { t, matches, canonical } = useI18n()
   const router = useRouter()
   const [cars, setCars] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -943,12 +947,12 @@ export default function Sakumlapa() {
     const matchesMinTilpums = minTilpums ? carVolume >= Number(minTilpums) : true
     const matchesMaxTilpums = maxTilpums ? carVolume <= Number(maxTilpums) : true
 
-    const matchesValsts = valsts ? (car.country || car.valsts || '').toLowerCase().includes(valsts.toLowerCase()) : true
-    const matchesRegions = regions ? (car.region || car.regions || '').toLowerCase().includes(regions.toLowerCase()) : true
-    const matchesDzinejs = dzinejs ? (car.engine || car.dzinejs || '').toLowerCase().includes(dzinejs.toLowerCase()) : true
-    const matchesAtrumkarba = atrumkarba ? (car.gearbox || car.atrumkarba || '').toLowerCase().includes(atrumkarba.toLowerCase()) : true
-    const matchesVirsbuve = virsbuve ? (car.body_type || car.virsbuve || '').toLowerCase().includes(virsbuve.toLowerCase()) : true
-    const matchesKrasa = krasa ? (car.color || car.krasa || '').toLowerCase().includes(krasa.toLowerCase()) : true
+    const matchesValsts = valsts ? matches(car.country || car.valsts || '', valsts) : true
+    const matchesRegions = regions ? matches(car.region || car.regions || '', regions) : true
+    const matchesDzinejs = dzinejs ? matches(car.engine || car.dzinejs || '', dzinejs) : true
+    const matchesAtrumkarba = atrumkarba ? matches(car.gearbox || car.atrumkarba || '', atrumkarba) : true
+    const matchesVirsbuve = virsbuve ? matches(car.body_type || car.virsbuve || '', virsbuve) : true
+    const matchesKrasa = krasa ? matches(car.color || car.krasa || '', krasa) : true
 
     return matchesMake && matchesModel && matchesFavorite && matchesMinPrice && matchesMaxPrice && 
            matchesMinYear && matchesMaxYear && matchesMinTilpums && matchesMaxTilpums &&
@@ -1169,13 +1173,13 @@ export default function Sakumlapa() {
         }
       `}</style>
 
-      <div data-mobile-catalogue-actions="true" aria-label="Kataloga izvēlne">
+      <div data-mobile-catalogue-actions="true" aria-label={t("Kataloga izvēlne")}>
         <button
           type="button"
           aria-expanded={mobileMakesOpen}
           onClick={() => toggleMobileCatalogueOverlay('makes')}
         >
-          <span>Visas markas</span>
+          <span>{t("Visas markas")}</span>
           <span>({cars.length}) {mobileMakesOpen ? '▴' : '▾'}</span>
         </button>
         <button
@@ -1183,7 +1187,7 @@ export default function Sakumlapa() {
           aria-expanded={mobileFiltersOpen}
           onClick={() => toggleMobileCatalogueOverlay('filters')}
         >
-          <span>Filtri</span>
+          <span>{t("Filtri")}</span>
           <span>{hasActiveFilters ? '● ' : ''}{mobileFiltersOpen ? '▴' : '▾'}</span>
         </button>
       </div>
@@ -1194,7 +1198,7 @@ export default function Sakumlapa() {
         <div data-makes-column="true" data-mobile-open={mobileMakesOpen ? 'true' : 'false'} style={{ position: 'sticky', top: '72px', alignSelf: 'start', height: 'calc(100dvh - 88px)', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
           <div data-makes-panel="true" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
           {loading ? (
-            <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
+            <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>{t("Ielādē...")}</div>
           ) : (
             <div>
               <button
@@ -1216,7 +1220,7 @@ export default function Sakumlapa() {
                   marginBottom: '4px'
                 }}
               >
-                <span>Visas markas</span>
+                <span>{t("Visas markas")}</span>
                 <span style={{ fontSize: '12px', color: '#6b7280' }}>({cars.length})</span>
               </button>
               <div data-makes-list="true" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
@@ -1243,7 +1247,7 @@ export default function Sakumlapa() {
                         textAlign: 'left'
                       }}
                     >
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{make}</span>
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t(make)}</span>
                       <span style={{ fontSize: '11px', color: '#6b7280', marginLeft: '2px', flexShrink: 0 }}>({count})</span>
                     </button>
                   )
@@ -1251,15 +1255,15 @@ export default function Sakumlapa() {
               </div>
             </div>
           )}
-          <div data-mobile-sponsor="true" aria-label="Sponsora vieta">
-            <strong>SPONSORS</strong>
-            <span>Vieta sadarbības partnerim</span>
+          <div data-mobile-sponsor="true" aria-label={t("Sponsora vieta")}>
+            <strong>{t("SPONSORS")}</strong>
+            <span>{t("Vieta sadarbības partnerim")}</span>
           </div>
           </div>
 
           <nav
             data-makes-info="true"
-            aria-label="Informācija"
+            aria-label={t("Informācija")}
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
@@ -1269,7 +1273,7 @@ export default function Sakumlapa() {
               borderTop: '2px solid #cbd5e1'
             }}
           >
-            {['Lietošanas noteikumi', 'Privātuma politika', 'Drošība un krāpniecība', 'Kontakti', 'Ieteikumi', 'Biežāk uzdotie jautājumi'].map((label) => (
+            {[t('Lietošanas noteikumi'), t('Privātuma politika'), t('Drošība un krāpniecība'), t('Kontakti'), t('Ieteikumi'), t('Biežāk uzdotie jautājumi')].map((label) => (
               <button
                 key={label}
                 type="button"
@@ -1295,7 +1299,7 @@ export default function Sakumlapa() {
                   cursor: 'pointer'
                 }}
               >
-                {label}
+                {t(label)}
               </button>
             ))}
           </nav>
@@ -1341,7 +1345,7 @@ export default function Sakumlapa() {
             
             <div data-filter-heading="true" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
               <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0, color: '#111827' }}>
-                {showFavorites ? 'Mani favorīti' : searchMake ? `${searchMake} sludinājumi` : 'Visi auto sludinājumi'}
+                {showFavorites ? t('Mani favorīti') : searchMake ? `${t(searchMake)} ${t('sludinājumi')}` : t('Visi auto sludinājumi')}
               </h2>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1361,7 +1365,7 @@ export default function Sakumlapa() {
                       fontWeight: '700'
                     }}
                   >
-                    {showFavorites ? 'Rādīt visus' : `Mani favorīti (${favoriteIds.length})`}
+                    {showFavorites ? t('Rādīt visus') : `${t('Mani favorīti')} (${favoriteIds.length})`}
                   </button>
                 )}
 
@@ -1382,7 +1386,7 @@ export default function Sakumlapa() {
                       fontWeight: '600'
                     }}
                   >
-                    <span>✕ Notīrīt filtrus</span>
+                    <span>{t("✕ Notīrīt filtrus")}</span>
                   </button>
                 )}
               </div>
@@ -1390,13 +1394,13 @@ export default function Sakumlapa() {
 
             <div
               data-year-sort="true"
-              aria-label="Kārtot sludinājumus pēc izlaiduma gada"
+              aria-label={t("Kārtot sludinājumus pēc izlaiduma gada")}
               style={{ display: 'none' }}
             >
               <button
                 type="button"
                 data-year-sort-direction="asc"
-                aria-label="Gads augošā secībā"
+                aria-label={t("Gads augošā secībā")}
                 aria-pressed={yearSort === 'asc'}
                 onClick={() => applyListingSort(yearSort === 'asc' ? null : 'asc')}
               >
@@ -1405,16 +1409,15 @@ export default function Sakumlapa() {
               <button
                 type="button"
                 data-year-sort-reset="true"
-                aria-label="Izslēgt kārtošanu pēc gada"
+                aria-label={t("Izslēgt kārtošanu pēc gada")}
                 aria-pressed={yearSort === null}
                 onClick={() => applyListingSort(null)}
-              >
-                Gads
+              >{t("Gads")}
               </button>
               <button
                 type="button"
                 data-year-sort-direction="desc"
-                aria-label="Gads dilstošā secībā"
+                aria-label={t("Gads dilstošā secībā")}
                 aria-pressed={yearSort === 'desc'}
                 onClick={() => applyListingSort(yearSort === 'desc' ? null : 'desc')}
               >
@@ -1425,13 +1428,13 @@ export default function Sakumlapa() {
             <div
               data-year-sort="true"
               data-price-sort="true"
-              aria-label="Kārtot sludinājumus pēc cenas"
+              aria-label={t("Kārtot sludinājumus pēc cenas")}
               style={{ display: 'none' }}
             >
               <button
                 type="button"
                 data-year-sort-direction="asc"
-                aria-label="Cena augošā secībā"
+                aria-label={t("Cena augošā secībā")}
                 aria-pressed={priceSort === 'asc'}
                 onClick={() => applyListingSort(priceSort === 'asc' ? null : 'asc', 'price')}
               >
@@ -1440,16 +1443,15 @@ export default function Sakumlapa() {
               <button
                 type="button"
                 data-year-sort-reset="true"
-                aria-label="Izslēgt kārtošanu pēc cenas"
+                aria-label={t("Izslēgt kārtošanu pēc cenas")}
                 aria-pressed={priceSort === null}
                 onClick={() => applyListingSort(null, 'price')}
-              >
-                Cena
+              >{t("Cena")}
               </button>
               <button
                 type="button"
                 data-year-sort-direction="desc"
-                aria-label="Cena dilstošā secībā"
+                aria-label={t("Cena dilstošā secībā")}
                 aria-pressed={priceSort === 'desc'}
                 onClick={() => applyListingSort(priceSort === 'desc' ? null : 'desc', 'price')}
               >
@@ -1463,16 +1465,16 @@ export default function Sakumlapa() {
                 <input
                   type="text"
                   data-filter-field="valsts"
-                  placeholder="Valsts"
-                  value={valsts}
-                  onChange={(e) => { setValsts(e.target.value); setActiveDropdown('valsts'); }}
+                  placeholder={t("Valsts")}
+                  value={t(valsts)}
+                  onChange={(e) => { setValsts(canonical(e.target.value, COUNTRIES.map(c => c.name))); setActiveDropdown('valsts'); }}
                   onClick={() => toggleDropdown('valsts')}
                   style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'valsts' && (
                   <div data-filter-dropdown="true" style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setValsts(''); setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas valstis</div>
-                    {COUNTRIES.filter(c => c.name.toLowerCase().includes(valsts.toLowerCase())).map((c) => (
+                    <div onClick={() => { setValsts(''); setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>{t("Visas valstis")}</div>
+                    {COUNTRIES.filter(c => matches(c.name, valsts)).map((c) => (
                       <div
                         key={c.name}
                         onClick={() => { 
@@ -1484,10 +1486,10 @@ export default function Sakumlapa() {
                       >
                         <img 
                           src={`https://flagcdn.com/20x15/${c.code}.png`} 
-                          alt={c.name} 
+                          alt={t(c.name)} 
                           style={{ width: '20px', height: '15px', objectFit: 'cover', borderRadius: '2px', border: '1px solid #e5e7eb' }} 
                         />
-                        <span>{c.name}</span>
+                        <span>{t(c.name)}</span>
                       </div>
                     ))}
                   </div>
@@ -1498,22 +1500,22 @@ export default function Sakumlapa() {
                 <input
                   type="text"
                   data-filter-field="regions"
-                  placeholder={valsts ? `Reģions (${valsts})` : "Reģions"}
-                  value={regions}
-                  onChange={(e) => { setRegions(e.target.value); setActiveDropdown('regions'); }}
+                  placeholder={valsts ? `${t('Reģions')} (${t(valsts)})` : t("Reģions")}
+                  value={t(regions)}
+                  onChange={(e) => { setRegions(canonical(e.target.value, availableRegions)); setActiveDropdown('regions'); }}
                   onClick={() => toggleDropdown('regions')}
                   style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'regions' && (
                   <div data-filter-dropdown="true" style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visi reģioni</div>
-                    {availableRegions.filter(r => r.toLowerCase().includes(regions.toLowerCase())).map((r) => (
+                    <div onClick={() => { setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>{t("Visi reģioni")}</div>
+                    {availableRegions.filter(r => matches(r, regions)).map((r) => (
                       <div
                         key={r}
                         onClick={() => { setRegions(r); setActiveDropdown(null); }}
                         style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}
                       >
-                        {r}
+                        {t(r)}
                       </div>
                     ))}
                   </div>
@@ -1525,7 +1527,7 @@ export default function Sakumlapa() {
                   type="text" 
                   data-filter-field="minPrice"
                   inputMode="numeric"
-                  placeholder="Cena no" 
+                  placeholder={t("Cena no")} 
                   value={displayMinPrice} 
                   onChange={(e) => {
                     const formatted = formatNumberWithSpace(e.target.value)
@@ -1537,7 +1539,7 @@ export default function Sakumlapa() {
                 <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
                 <input 
                   type="text" 
-                  placeholder="līdz" 
+                  placeholder={t("līdz")} 
                   data-filter-field="maxPrice"
                   inputMode="numeric"
                   value={displayMaxPrice} 
@@ -1551,9 +1553,9 @@ export default function Sakumlapa() {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <input type="number" data-filter-field="minYear" inputMode="numeric" placeholder="Gads no" value={minYear} onChange={(e) => setMinYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
+                <input type="number" data-filter-field="minYear" inputMode="numeric" placeholder={t("Gads no")} value={minYear} onChange={(e) => setMinYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
                 <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
-                <input type="number" data-filter-field="maxYear" inputMode="numeric" placeholder="līdz" value={maxYear} onChange={(e) => setMaxYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
+                <input type="number" data-filter-field="maxYear" inputMode="numeric" placeholder={t("līdz")} value={maxYear} onChange={(e) => setMaxYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
               </div>
             </div>
 
@@ -1579,27 +1581,27 @@ export default function Sakumlapa() {
                     cursor: favoriteIds.length === 0 ? 'default' : 'pointer'
                   }}
                 >
-                  {showFavorites ? 'Rādīt visus' : favoriteIds.length > 0 ? `Mani favorīti (${favoriteIds.length})` : 'Mani favorīti'}
+                  {showFavorites ? t('Rādīt visus') : favoriteIds.length > 0 ? `${t('Mani favorīti')} (${favoriteIds.length})` : t('Mani favorīti')}
                 </button>
                 <input
                   type="text"
                   data-filter-field="dzinejs"
-                  placeholder="Dzinējs"
-                  value={dzinejs}
-                  onChange={(e) => { setDzinejs(e.target.value); setActiveDropdown('dzinejs'); }}
+                  placeholder={t("Dzinējs")}
+                  value={t(dzinejs)}
+                  onChange={(e) => { setDzinejs(canonical(e.target.value, ENGINE_TYPES)); setActiveDropdown('dzinejs'); }}
                   onClick={() => toggleDropdown('dzinejs')}
                   style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'dzinejs' && (
                   <div data-filter-dropdown="true" style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setDzinejs(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visi dzinēji</div>
-                    {ENGINE_TYPES.filter(d => d.toLowerCase().includes(dzinejs.toLowerCase())).map((d) => (
+                    <div onClick={() => { setDzinejs(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>{t("Visi dzinēji")}</div>
+                    {ENGINE_TYPES.filter(d => matches(d, dzinejs)).map((d) => (
                       <div
                         key={d}
                         onClick={() => { setDzinejs(d); setActiveDropdown(null); }}
                         style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}
                       >
-                        {d}
+                        {t(d)}
                       </div>
                     ))}
                   </div>
@@ -1612,7 +1614,7 @@ export default function Sakumlapa() {
                     type="text" 
                     data-filter-field="minTilpums"
                     inputMode="decimal"
-                    placeholder="Tilp. no" 
+                    placeholder={t("Tilp. no")} 
                     value={minTilpums} 
                     onChange={(e) => { setMinTilpums(e.target.value); setActiveDropdown('minTilpums'); }} 
                     onClick={() => toggleDropdown('minTilpums')}
@@ -1621,7 +1623,7 @@ export default function Sakumlapa() {
                   {activeDropdown === 'minTilpums' && (
                     <div data-filter-dropdown="true" style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                       {VOLUMES.map((v) => (
-                        <div key={v} onClick={() => { setMinTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>{v}</div>
+                        <div key={v} onClick={() => { setMinTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>{t(v)}</div>
                       ))}
                     </div>
                   )}
@@ -1630,7 +1632,7 @@ export default function Sakumlapa() {
                 <div style={{ position: 'relative', width: '70px' }}>
                   <input 
                     type="text" 
-                    placeholder="līdz" 
+                    placeholder={t("līdz")} 
                     data-filter-field="maxTilpums"
                     inputMode="decimal"
                     value={maxTilpums} 
@@ -1641,74 +1643,74 @@ export default function Sakumlapa() {
                   {activeDropdown === 'maxTilpums' && (
                     <div data-filter-dropdown="true" style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                       {VOLUMES.map((v) => (
-                        <div key={v} onClick={() => { setMaxTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>{v}</div>
+                        <div key={v} onClick={() => { setMaxTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>{t(v)}</div>
                       ))}
                     </div>
                   )}
                 </div>
               </div>
 
-              <div data-desktop-compact-filter="true" style={{ position: 'relative', flex: '1', minWidth: '90px', '--desktop-filter-width': `${Math.max(100, (atrumkarba.length + 2) * 7)}px` } as React.CSSProperties}>
+              <div data-desktop-compact-filter="true" style={{ position: 'relative', flex: '1', minWidth: '90px', '--desktop-filter-width': `${Math.max(100, (t(atrumkarba).length + 2) * 7)}px` } as React.CSSProperties}>
                 <input
                   type="text"
                   data-filter-field="atrumkarba"
-                  placeholder="Ātrumkārba"
-                  value={atrumkarba}
-                  onChange={(e) => { setAtrumkarba(e.target.value); setActiveDropdown('atrumkarba'); }}
+                  placeholder={t("Ātrumkārba")}
+                  value={t(atrumkarba)}
+                  onChange={(e) => { setAtrumkarba(canonical(e.target.value, GEARBOX_TYPES)); setActiveDropdown('atrumkarba'); }}
                   onClick={() => toggleDropdown('atrumkarba')}
                   style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'atrumkarba' && (
                   <div data-filter-dropdown="true" style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setAtrumkarba(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas kārbas</div>
-                    {GEARBOX_TYPES.filter(g => g.toLowerCase().includes(atrumkarba.toLowerCase())).map((g) => (
-                      <div key={g} onClick={() => { setAtrumkarba(g); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}>{g}</div>
+                    <div onClick={() => { setAtrumkarba(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>{t("Visas kārbas")}</div>
+                    {GEARBOX_TYPES.filter(g => matches(g, atrumkarba)).map((g) => (
+                      <div key={g} onClick={() => { setAtrumkarba(g); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}>{t(g)}</div>
                     ))}
                   </div>
                 )}
               </div>
 
-              <div data-desktop-compact-filter="true" style={{ position: 'relative', flex: '1', minWidth: '90px', '--desktop-filter-width': `${Math.max(92, (virsbuve.length + 2) * 7)}px` } as React.CSSProperties}>
+              <div data-desktop-compact-filter="true" style={{ position: 'relative', flex: '1', minWidth: '90px', '--desktop-filter-width': `${Math.max(92, (t(virsbuve).length + 2) * 7)}px` } as React.CSSProperties}>
                 <input
                   type="text"
                   data-filter-field="virsbuve"
-                  placeholder="Virsbūve"
-                  value={virsbuve}
-                  onChange={(e) => { setVirsbuve(e.target.value); setActiveDropdown('virsbuve'); }}
+                  placeholder={t("Virsbūve")}
+                  value={t(virsbuve)}
+                  onChange={(e) => { setVirsbuve(canonical(e.target.value, BODY_TYPES)); setActiveDropdown('virsbuve'); }}
                   onClick={() => toggleDropdown('virsbuve')}
                   style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'virsbuve' && (
                   <div data-filter-dropdown="true" style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setVirsbuve(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas virsbūves</div>
-                    {BODY_TYPES.filter(b => b.toLowerCase().includes(virsbuve.toLowerCase())).map((b) => (
-                      <div key={b} onClick={() => { setVirsbuve(b); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}>{b}</div>
+                    <div onClick={() => { setVirsbuve(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>{t("Visas virsbūves")}</div>
+                    {BODY_TYPES.filter(b => matches(b, virsbuve)).map((b) => (
+                      <div key={b} onClick={() => { setVirsbuve(b); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}>{t(b)}</div>
                     ))}
                   </div>
                 )}
               </div>
 
-              <div data-desktop-compact-filter="true" style={{ position: 'relative', flex: '1', minWidth: '90px', '--desktop-filter-width': `${Math.max(80, (krasa.length + 2) * 7)}px` } as React.CSSProperties}>
+              <div data-desktop-compact-filter="true" style={{ position: 'relative', flex: '1', minWidth: '90px', '--desktop-filter-width': `${Math.max(80, (t(krasa).length + 2) * 7)}px` } as React.CSSProperties}>
                 <input
                   type="text"
                   data-filter-field="krasa"
-                  placeholder="Krāsa"
-                  value={krasa}
-                  onChange={(e) => { setKrasa(e.target.value); setActiveDropdown('krasa'); }}
+                  placeholder={t("Krāsa")}
+                  value={t(krasa)}
+                  onChange={(e) => { setKrasa(canonical(e.target.value, COLORS.map(c => c.name))); setActiveDropdown('krasa'); }}
                   onClick={() => toggleDropdown('krasa')}
                   style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'krasa' && (
                   <div data-filter-dropdown="true" style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setKrasa(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas krāsas</div>
-                    {COLORS.filter(k => k.name.toLowerCase().includes(krasa.toLowerCase())).map((k) => (
+                    <div onClick={() => { setKrasa(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>{t("Visas krāsas")}</div>
+                    {COLORS.filter(k => matches(k.name, krasa)).map((k) => (
                       <div 
                         key={k.name} 
                         onClick={() => { setKrasa(k.name); setActiveDropdown(null); }} 
                         style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                       >
                         <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: k.hex, border: `1px solid ${k.border}` }}></span>
-                        <span>{k.name}</span>
+                        <span>{t(k.name)}</span>
                       </div>
                     ))}
                   </div>
@@ -1719,21 +1721,21 @@ export default function Sakumlapa() {
                 const current = field === 'year' ? yearSort : priceSort
                 return (
                   <div key={field} data-desktop-sort-control={field}>
-                    <div data-desktop-sort-toggle="true" data-sort-active={current !== null ? 'true' : undefined} role="group" aria-label={`Kārtošana: ${label}`}>
+                    <div data-desktop-sort-toggle="true" data-sort-active={current !== null ? 'true' : undefined} role="group" aria-label={`${t('Kārtošana')}: ${t(label)}`}>
                       <button
                         type="button"
-                        aria-label={`${label}: augošā secībā`}
+                        aria-label={`${t(label)}: ${t('augošā secībā')}`}
                         aria-pressed={current === 'asc'}
                         onClick={() => { setActiveDropdown(null); applyListingSort('asc', field) }}
                       >↑</button>
                       <button
                         type="button"
-                        aria-label={label}
+                        aria-label={t(label)}
                         onClick={() => { setActiveDropdown(null); applyListingSort(null, field) }}
-                      >{label}</button>
+                      >{t(label)}</button>
                       <button
                         type="button"
-                        aria-label={`${label}: dilstošā secībā`}
+                        aria-label={`${t(label)}: ${t('dilstošā secībā')}`}
                         aria-pressed={current === 'desc'}
                         onClick={() => { setActiveDropdown(null); applyListingSort('desc', field) }}
                       >↓</button>
@@ -1747,9 +1749,9 @@ export default function Sakumlapa() {
           {/* SKATS */}
           <div data-listings="true">
             {loading ? (
-              <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
+              <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>{t("Notiek sludinājumu ielāde...")}</div>
             ) : filteredCars.length === 0 ? (
-              <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>Nav atrasts neviens sludinājums ar šādiem kritērijiem.</div>
+              <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>{t("Nav atrasts neviens sludinājums ar šādiem kritērijiem.")}</div>
             ) : searchMake === '' && !showFavorites ? (
               /* GRID SKATS */
               <div data-listings-grid="true" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '16px' }}>
@@ -1826,12 +1828,11 @@ export default function Sakumlapa() {
                               cursor: 'pointer',
                               userSelect: 'none'
                             }}
-                          >
-                            Mans favorīts
+                          >{t("Mans favorīts")}
                           </span>
                         </div>
                         <div data-card-meta="true" style={{ fontSize: '13px', color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <span data-card-year="true">{car.year ? `${car.year} g.` : ''}</span>
+                          <span data-card-year="true">{car.year ? `${car.year} ${t('g.')}` : ''}</span>
                           <span data-card-price="true" style={{ color: '#111827', fontWeight: 'bold' }}>{car.price ? `${formatNumberWithSpace(car.price)} €` : ''}</span>
                           {cardEngineSummary && <span data-card-engine-summary="true">{cardEngineSummary}</span>}
                           {normalizedCardGearbox && (
@@ -1843,9 +1844,9 @@ export default function Sakumlapa() {
                       </div>
                     </a>
                     {(index + 1) % 5 === 0 && (
-                      <div data-mobile-sponsor="true" aria-label="Sponsora vieta">
-                        <strong>SPONSORS</strong>
-                        <span>Vieta sadarbības partnerim</span>
+                      <div data-mobile-sponsor="true" aria-label={t("Sponsora vieta")}>
+                        <strong>{t("SPONSORS")}</strong>
+                        <span>{t("Vieta sadarbības partnerim")}</span>
                       </div>
                     )}
                     </Fragment>
@@ -1870,15 +1871,15 @@ export default function Sakumlapa() {
                   borderTopRightRadius: '8px',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}>
-                  <div>Foto</div>
-                  <div>Automobilis</div>
-                  <div>Gads</div>
-                  <div>Dzinējs</div>
-                  <div>Virsbūve</div>
-                  <div>Krāsa</div>
-                  <div>Nobraukums</div>
+                  <div>{t("Foto")}</div>
+                  <div>{t("Automobilis")}</div>
+                  <div>{t("Gads")}</div>
+                  <div>{t("Dzinējs")}</div>
+                  <div>{t("Virsbūve")}</div>
+                  <div>{t("Krāsa")}</div>
+                  <div>{t("Nobraukums")}</div>
                   <div></div>
-                  <div style={{ textAlign: 'right' }}>Cena</div>
+                  <div style={{ textAlign: 'right' }}>{t("Cena")}</div>
                 </div>
 
                 {/* Skrollējams satura konteiners */}
@@ -1961,8 +1962,7 @@ export default function Sakumlapa() {
                               cursor: 'pointer',
                               userSelect: 'none'
                             }}
-                          >
-                            Mans favorīts
+                          >{t("Mans favorīts")}
                           </span>
                         </div>
 
@@ -2001,9 +2001,9 @@ export default function Sakumlapa() {
                         </div>
                       </a>
                       {(index + 1) % 5 === 0 && (
-                        <div data-mobile-sponsor="true" aria-label="Sponsora vieta">
-                          <strong>SPONSORS</strong>
-                          <span>Vieta sadarbības partnerim</span>
+                        <div data-mobile-sponsor="true" aria-label={t("Sponsora vieta")}>
+                          <strong>{t("SPONSORS")}</strong>
+                          <span>{t("Vieta sadarbības partnerim")}</span>
                         </div>
                       )}
                       </Fragment>
@@ -2014,7 +2014,7 @@ export default function Sakumlapa() {
             )}
 
             {!loading && filteredCars.length > 0 && totalPages > 1 && (
-              <nav data-pagination="true" aria-label="Sludinājumu lapas" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: '8px', padding: '18px 0 4px' }}>
+              <nav data-pagination="true" aria-label={t("Sludinājumu lapas")} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: '8px', padding: '18px 0 4px' }}>
                 {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
                   <button
                     key={page}
@@ -2047,11 +2047,11 @@ export default function Sakumlapa() {
             <aside
               key={placement}
               data-temauto-sponsor-placement="true"
-              aria-label="Sponsora vieta"
+              aria-label={t("Sponsora vieta")}
               style={{ width: '100%', minHeight: 0, flex: '1 1 0', boxSizing: 'border-box', border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}
             >
-              <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>SPONSORS</span>
-              <span>Vieta sadarbības partnerim</span>
+              <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("SPONSORS")}</span>
+              <span>{t("Vieta sadarbības partnerim")}</span>
             </aside>
           ))}
         </div>
@@ -2060,3 +2060,4 @@ export default function Sakumlapa() {
     </div>
   )
 }
+
