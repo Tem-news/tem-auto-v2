@@ -142,7 +142,7 @@ export default function Header() {
   const [visitCount, setVisitCount] = useState<number>(0)
 
   const currentLang = language
-  const setCurrentLang = (code: string) => { if (code === 'LV' || code === 'EN' || code === 'RU' || code === 'LT' || code === 'EE') setLanguage(code) }
+  const setCurrentLang = (code: string) => { if (code === 'LV' || code === 'EN' || code === 'RU' || code === 'LT' || code === 'EE' || code === 'DE') setLanguage(code) }
   const [currentRegion, setCurrentRegion] = useState('Latvija (EUR)')
   const [mobileTheme, setMobileTheme] = useState<'day' | 'night'>('day')
 
@@ -334,7 +334,7 @@ export default function Header() {
     document.documentElement.dataset.temautoTheme = theme
   }
 
-  const filteredLanguages = LANGUAGES.filter(l => ['LV', 'EN', 'RU', 'LT', 'EE'].includes(l.code)).filter(l => 
+  const filteredLanguages = LANGUAGES.filter(l => ['LV', 'EN', 'RU', 'LT', 'EE', 'DE'].includes(l.code)).filter(l => 
     l.name.toLowerCase().includes(langSearch.toLowerCase()) || 
     l.code.toLowerCase().includes(langSearch.toLowerCase())
   )
