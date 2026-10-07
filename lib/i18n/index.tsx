@@ -3,9 +3,10 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import english from './en.json'
 import russian from './ru.json'
+import lithuanian from './lt.json'
 
-export type Language = 'LV' | 'EN' | 'RU'
-const dictionaries: Record<Exclude<Language, 'LV'>, Record<string, string>> = { EN: english, RU: russian }
+export type Language = 'LV' | 'EN' | 'RU' | 'LT'
+const dictionaries: Record<Exclude<Language, 'LV'>, Record<string, string>> = { EN: english, RU: russian, LT: lithuanian }
 const STORAGE_KEY = 'temauto-language'
 const LanguageContext = createContext<{ language: Language; setLanguage: (value: Language) => void }>({ language: 'LV', setLanguage: () => {} })
 
@@ -26,9 +27,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
     const preferred = navigator.language.toLowerCase()
-    updateLanguage(saved === 'EN' || saved === 'RU' || saved === 'LV' ? saved : !saved && preferred.startsWith('ru') ? 'RU' : !saved && preferred.startsWith('en') ? 'EN' : 'LV')
+    updateLanguage(saved === 'EN' || saved === 'RU' || saved === 'LT' || saved === 'LV' ? saved : !saved && preferred.startsWith('lt') ? 'LT' : !saved && preferred.startsWith('ru') ? 'RU' : !saved && preferred.startsWith('en') ? 'EN' : 'LV')
     const sync = (event: StorageEvent) => {
-      if (event.key === STORAGE_KEY) updateLanguage(event.newValue === 'EN' || event.newValue === 'RU' ? event.newValue : 'LV')
+      if (event.key === STORAGE_KEY) updateLanguage(event.newValue === 'EN' || event.newValue === 'RU' || event.newValue === 'LT' ? event.newValue : 'LV')
     }
     window.addEventListener('storage', sync)
     return () => window.removeEventListener('storage', sync)
