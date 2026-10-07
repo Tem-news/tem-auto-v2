@@ -588,23 +588,7 @@ export default function Sakumlapa() {
   const [maxYear, setMaxYear] = useState('')
   const [yearSort, setYearSort] = useState<'asc' | 'desc' | null>(null)
   const [priceSort, setPriceSort] = useState<'asc' | 'desc' | null>(null)
-  const [desktopSortOpen, setDesktopSortOpen] = useState<'year' | 'price' | null>(null)
 
-  useEffect(() => {
-    if (!desktopSortOpen) return
-    const closeOutside = (event: PointerEvent) => {
-      if (!(event.target instanceof Element) || !event.target.closest('[data-desktop-sort-control]')) setDesktopSortOpen(null)
-    }
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setDesktopSortOpen(null)
-    }
-    document.addEventListener('pointerdown', closeOutside)
-    document.addEventListener('keydown', closeOnEscape)
-    return () => {
-      document.removeEventListener('pointerdown', closeOutside)
-      document.removeEventListener('keydown', closeOnEscape)
-    }
-  }, [desktopSortOpen])
   const [dzinejs, setDzinejs] = useState('')
   const [minTilpums, setMinTilpums] = useState('')
   const [maxTilpums, setMaxTilpums] = useState('')
@@ -1735,42 +1719,25 @@ export default function Sakumlapa() {
                 const current = field === 'year' ? yearSort : priceSort
                 return (
                   <div key={field} data-desktop-sort-control={field}>
-                    <button
-                      type="button"
-                      data-desktop-sort-toggle="true"
-                      data-sort-active={current !== null ? 'true' : undefined}
-                      aria-expanded={desktopSortOpen === field}
-                      aria-controls={`desktop-sort-${field}`}
-                      onClick={() => {
-                        setActiveDropdown(null)
-                        if (current !== null) {
-                          applyListingSort(null, field)
-                          setDesktopSortOpen(null)
-                        } else {
-                          setDesktopSortOpen(open => open === field ? null : field)
-                        }
-                      }}
-                    ><span aria-hidden="true">↑</span> {label} <span aria-hidden="true">↓</span></button>
-                    {desktopSortOpen === field && (
-                      <div id={`desktop-sort-${field}`} data-desktop-sort-options="true" aria-label={`Kārtošana: ${label}`}>
-                        {([
-                          { direction: 'asc', symbol: '↑', title: 'Augošā secībā' },
-                          { direction: 'desc', symbol: '↓', title: 'Dilstošā secībā' }
-                        ] as const).map(({ direction, symbol, title }) => (
-                          <button
-                            key={title}
-                            type="button"
-                            title={title}
-                            aria-label={`${label}: ${title.toLowerCase()}`}
-                            aria-pressed={current === direction}
-                            onClick={() => {
-                              applyListingSort(direction, field)
-                              setDesktopSortOpen(null)
-                            }}
-                          >{symbol}</button>
-                        ))}
-                      </div>
-                    )}
+                    <div data-desktop-sort-toggle="true" data-sort-active={current !== null ? 'true' : undefined} role="group" aria-label={`Kārtošana: ${label}`}>
+                      <button
+                        type="button"
+                        aria-label={`${label}: augošā secībā`}
+                        aria-pressed={current === 'asc'}
+                        onClick={() => { setActiveDropdown(null); applyListingSort('asc', field) }}
+                      >↑</button>
+                      <button
+                        type="button"
+                        aria-label={label}
+                        onClick={() => { setActiveDropdown(null); applyListingSort(null, field) }}
+                      >{label}</button>
+                      <button
+                        type="button"
+                        aria-label={`${label}: dilstošā secībā`}
+                        aria-pressed={current === 'desc'}
+                        onClick={() => { setActiveDropdown(null); applyListingSort('desc', field) }}
+                      >↓</button>
+                    </div>
                   </div>
                 )
               })}

@@ -1464,52 +1464,30 @@
     cursor: pointer;
   }
 
-  [data-desktop-sort-options='true'] {
-    position: absolute;
-    top: calc(100% + 3px);
-    left: 0;
-    right: 0;
-    z-index: 60;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 2px;
-    padding: 3px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    background: #fff;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  }
-
-  [data-desktop-sort-options='true'] button {
-    height: 32px;
-    border: 1px solid transparent;
-    border-radius: 4px;
+  [data-desktop-sort-toggle='true'] button {
+    height: 100%;
+    min-width: 0;
+    padding: 0;
+    border: 0;
     background: transparent;
-    color: #1f2937;
-    font: 700 24px Arial, sans-serif;
+    color: inherit;
+    font: inherit;
     cursor: pointer;
   }
 
-  [data-desktop-sort-toggle='true'][data-sort-active='true'],
-  [data-desktop-sort-options='true'] button[aria-pressed='true'] {
+  [data-desktop-sort-toggle='true'][data-sort-active='true'] {
     color: #1d4ed8;
     background: #dbeafe;
     border-color: #2563eb;
   }
 
-  html[data-temauto-theme='night'] [data-desktop-sort-toggle='true'],
-  html[data-temauto-theme='night'] [data-desktop-sort-options='true'] {
+  html[data-temauto-theme='night'] [data-desktop-sort-toggle='true'] {
     color: #f1f5f9;
     background: #1e293b;
     border-color: #475569;
   }
 
-  html[data-temauto-theme='night'] [data-desktop-sort-options='true'] button {
-    color: #f1f5f9;
-  }
-
-  html[data-temauto-theme='night'] [data-desktop-sort-toggle='true'][data-sort-active='true'],
-  html[data-temauto-theme='night'] [data-desktop-sort-options='true'] button[aria-pressed='true'] {
+  html[data-temauto-theme='night'] [data-desktop-sort-toggle='true'][data-sort-active='true'] button[aria-pressed='true'] {
     color: #7dd3fc;
     background: #0c4a6e;
     border-color: #38bdf8;
