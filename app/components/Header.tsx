@@ -1542,7 +1542,7 @@ export default function Header() {
                 </div>
               </div>
               <nav aria-label={t("Informācija")}>
-                {[t('Lietošanas noteikumi'), t('Privātuma politika'), t('Drošība un krāpniecība'), t('Kontakti'), t('Tavi ieteikumi')].map((label) => (
+                {['Lietošanas noteikumi', 'Privātuma politika', 'Drošība un krāpniecība', 'Kontakti', 'Tavi ieteikumi'].map((label) => (
                   <button
                     key={label}
                     type="button"

@@ -1273,7 +1273,7 @@ export default function Sakumlapa() {
               borderTop: '2px solid #cbd5e1'
             }}
           >
-            {[t('Lietošanas noteikumi'), t('Privātuma politika'), t('Drošība un krāpniecība'), t('Kontakti'), t('Ieteikumi'), t('Biežāk uzdotie jautājumi')].map((label) => (
+            {['Lietošanas noteikumi', 'Privātuma politika', 'Drošība un krāpniecība', 'Kontakti', 'Ieteikumi', 'Biežāk uzdotie jautājumi'].map((label) => (
               <button
                 key={label}
                 type="button"
