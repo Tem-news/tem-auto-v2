@@ -10,9 +10,10 @@ import french from './fr.json'
 import spanish from './es.json'
 import portuguese from './pt.json'
 import italian from './it.json'
+import finnish from './fi.json'
 
-export type Language = 'LV' | 'EN' | 'RU' | 'LT' | 'EE' | 'DE' | 'FR' | 'ES' | 'PT' | 'IT'
-const dictionaries: Record<Exclude<Language, 'LV'>, Record<string, string>> = { EN: english, RU: russian, LT: lithuanian, EE: estonian, DE: german, FR: french, ES: spanish, PT: portuguese, IT: italian }
+export type Language = 'LV' | 'EN' | 'RU' | 'LT' | 'EE' | 'DE' | 'FR' | 'ES' | 'PT' | 'IT' | 'FI'
+const dictionaries: Record<Exclude<Language, 'LV'>, Record<string, string>> = { EN: english, RU: russian, LT: lithuanian, EE: estonian, DE: german, FR: french, ES: spanish, PT: portuguese, IT: italian, FI: finnish }
 const STORAGE_KEY = 'temauto-language'
 const LanguageContext = createContext<{ language: Language; setLanguage: (value: Language) => void }>({ language: 'LV', setLanguage: () => {} })
 
@@ -33,9 +34,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
     const preferred = navigator.language.toLowerCase()
-    updateLanguage(saved === 'EN' || saved === 'RU' || saved === 'LT' || saved === 'EE' || saved === 'DE' || saved === 'FR' || saved === 'ES' || saved === 'PT' || saved === 'IT' || saved === 'LV' ? saved : !saved && preferred.startsWith('it') ? 'IT' : !saved && preferred.startsWith('pt') ? 'PT' : !saved && preferred.startsWith('es') ? 'ES' : !saved && preferred.startsWith('fr') ? 'FR' : !saved && preferred.startsWith('de') ? 'DE' : !saved && preferred.startsWith('et') ? 'EE' : !saved && preferred.startsWith('lt') ? 'LT' : !saved && preferred.startsWith('ru') ? 'RU' : !saved && preferred.startsWith('en') ? 'EN' : 'LV')
+    updateLanguage(saved === 'EN' || saved === 'RU' || saved === 'LT' || saved === 'EE' || saved === 'DE' || saved === 'FR' || saved === 'ES' || saved === 'PT' || saved === 'IT' || saved === 'FI' || saved === 'LV' ? saved : !saved && preferred.startsWith('fi') ? 'FI' : !saved && preferred.startsWith('it') ? 'IT' : !saved && preferred.startsWith('pt') ? 'PT' : !saved && preferred.startsWith('es') ? 'ES' : !saved && preferred.startsWith('fr') ? 'FR' : !saved && preferred.startsWith('de') ? 'DE' : !saved && preferred.startsWith('et') ? 'EE' : !saved && preferred.startsWith('lt') ? 'LT' : !saved && preferred.startsWith('ru') ? 'RU' : !saved && preferred.startsWith('en') ? 'EN' : 'LV')
     const sync = (event: StorageEvent) => {
-      if (event.key === STORAGE_KEY) updateLanguage(event.newValue === 'EN' || event.newValue === 'RU' || event.newValue === 'LT' || event.newValue === 'EE' || event.newValue === 'DE' || event.newValue === 'FR' || event.newValue === 'ES' || event.newValue === 'PT' || event.newValue === 'IT' ? event.newValue : 'LV')
+      if (event.key === STORAGE_KEY) updateLanguage(event.newValue === 'EN' || event.newValue === 'RU' || event.newValue === 'LT' || event.newValue === 'EE' || event.newValue === 'DE' || event.newValue === 'FR' || event.newValue === 'ES' || event.newValue === 'PT' || event.newValue === 'IT' || event.newValue === 'FI' ? event.newValue : 'LV')
     }
     window.addEventListener('storage', sync)
     return () => window.removeEventListener('storage', sync)
