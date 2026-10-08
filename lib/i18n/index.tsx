@@ -14,9 +14,10 @@ import finnish from './fi.json'
 import polish from './pl.json'
 import swedish from './sv.json'
 import norwegian from './no.json'
+import danish from './da.json'
 
-export type Language = 'LV' | 'EN' | 'RU' | 'LT' | 'EE' | 'DE' | 'FR' | 'ES' | 'PT' | 'IT' | 'FI' | 'PL' | 'SV' | 'NO'
-const dictionaries: Record<Exclude<Language, 'LV'>, Record<string, string>> = { EN: english, RU: russian, LT: lithuanian, EE: estonian, DE: german, FR: french, ES: spanish, PT: portuguese, IT: italian, FI: finnish, PL: polish, SV: swedish, NO: norwegian }
+export type Language = 'LV' | 'EN' | 'RU' | 'LT' | 'EE' | 'DE' | 'FR' | 'ES' | 'PT' | 'IT' | 'FI' | 'PL' | 'SV' | 'NO' | 'DA'
+const dictionaries: Record<Exclude<Language, 'LV'>, Record<string, string>> = { EN: english, RU: russian, LT: lithuanian, EE: estonian, DE: german, FR: french, ES: spanish, PT: portuguese, IT: italian, FI: finnish, PL: polish, SV: swedish, NO: norwegian, DA: danish }
 const STORAGE_KEY = 'temauto-language'
 const LanguageContext = createContext<{ language: Language; setLanguage: (value: Language) => void }>({ language: 'LV', setLanguage: () => {} })
 
@@ -37,9 +38,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
     const preferred = navigator.language.toLowerCase()
-    updateLanguage(saved === 'EN' || saved === 'RU' || saved === 'LT' || saved === 'EE' || saved === 'DE' || saved === 'FR' || saved === 'ES' || saved === 'PT' || saved === 'IT' || saved === 'FI' || saved === 'PL' || saved === 'SV' || saved === 'NO' || saved === 'LV' ? saved : !saved && (preferred.startsWith('no') || preferred.startsWith('nb')) ? 'NO' : !saved && preferred.startsWith('sv') ? 'SV' : !saved && preferred.startsWith('pl') ? 'PL' : !saved && preferred.startsWith('fi') ? 'FI' : !saved && preferred.startsWith('it') ? 'IT' : !saved && preferred.startsWith('pt') ? 'PT' : !saved && preferred.startsWith('es') ? 'ES' : !saved && preferred.startsWith('fr') ? 'FR' : !saved && preferred.startsWith('de') ? 'DE' : !saved && preferred.startsWith('et') ? 'EE' : !saved && preferred.startsWith('lt') ? 'LT' : !saved && preferred.startsWith('ru') ? 'RU' : !saved && preferred.startsWith('en') ? 'EN' : 'LV')
+    updateLanguage(saved === 'EN' || saved === 'RU' || saved === 'LT' || saved === 'EE' || saved === 'DE' || saved === 'FR' || saved === 'ES' || saved === 'PT' || saved === 'IT' || saved === 'FI' || saved === 'PL' || saved === 'SV' || saved === 'NO' || saved === 'DA' || saved === 'LV' ? saved : !saved && preferred.startsWith('da') ? 'DA' : !saved && (preferred.startsWith('no') || preferred.startsWith('nb')) ? 'NO' : !saved && preferred.startsWith('sv') ? 'SV' : !saved && preferred.startsWith('pl') ? 'PL' : !saved && preferred.startsWith('fi') ? 'FI' : !saved && preferred.startsWith('it') ? 'IT' : !saved && preferred.startsWith('pt') ? 'PT' : !saved && preferred.startsWith('es') ? 'ES' : !saved && preferred.startsWith('fr') ? 'FR' : !saved && preferred.startsWith('de') ? 'DE' : !saved && preferred.startsWith('et') ? 'EE' : !saved && preferred.startsWith('lt') ? 'LT' : !saved && preferred.startsWith('ru') ? 'RU' : !saved && preferred.startsWith('en') ? 'EN' : 'LV')
     const sync = (event: StorageEvent) => {
-      if (event.key === STORAGE_KEY) updateLanguage(event.newValue === 'EN' || event.newValue === 'RU' || event.newValue === 'LT' || event.newValue === 'EE' || event.newValue === 'DE' || event.newValue === 'FR' || event.newValue === 'ES' || event.newValue === 'PT' || event.newValue === 'IT' || event.newValue === 'FI' || event.newValue === 'PL' || event.newValue === 'SV' || event.newValue === 'NO' ? event.newValue : 'LV')
+      if (event.key === STORAGE_KEY) updateLanguage(event.newValue === 'EN' || event.newValue === 'RU' || event.newValue === 'LT' || event.newValue === 'EE' || event.newValue === 'DE' || event.newValue === 'FR' || event.newValue === 'ES' || event.newValue === 'PT' || event.newValue === 'IT' || event.newValue === 'FI' || event.newValue === 'PL' || event.newValue === 'SV' || event.newValue === 'NO' || event.newValue === 'DA' ? event.newValue : 'LV')
     }
     window.addEventListener('storage', sync)
     return () => window.removeEventListener('storage', sync)
