@@ -27,6 +27,7 @@ const LANGUAGES = [
   { code: 'PT', name: 'Português', flagCode: 'pt' },
   { code: 'CS', name: 'Čeština', flagCode: 'cz' },
   { code: 'SK', name: 'Slovenčina', flagCode: 'sk' },
+  { code: 'SL', name: 'Slovenščina', flagCode: 'si' },
   { code: 'HU', name: 'Magyar', flagCode: 'hu' },
   { code: 'RO', name: 'Română', flagCode: 'ro' },
   { code: 'BG', name: 'Български', flagCode: 'bg' },
@@ -143,7 +144,7 @@ export default function Header() {
   const [visitCount, setVisitCount] = useState<number>(0)
 
   const currentLang = language
-  const setCurrentLang = (code: string) => { if (code === 'LV' || code === 'EN' || code === 'RU' || code === 'LT' || code === 'EE' || code === 'DE' || code === 'FR' || code === 'ES' || code === 'PT' || code === 'IT' || code === 'FI' || code === 'PL' || code === 'SV' || code === 'NO' || code === 'DA' || code === 'BG' || code === 'HU' || code === 'RO' || code === 'CS' || code === 'EL' || code === 'NL' || code === 'GA' || code === 'SK') setLanguage(code) }
+  const setCurrentLang = (code: string) => { if (code === 'LV' || code === 'EN' || code === 'RU' || code === 'LT' || code === 'EE' || code === 'DE' || code === 'FR' || code === 'ES' || code === 'PT' || code === 'IT' || code === 'FI' || code === 'PL' || code === 'SV' || code === 'NO' || code === 'DA' || code === 'BG' || code === 'HU' || code === 'RO' || code === 'CS' || code === 'EL' || code === 'NL' || code === 'GA' || code === 'SK' || code === 'SL') setLanguage(code) }
   const [currentRegion, setCurrentRegion] = useState('Latvija (EUR)')
   const [mobileTheme, setMobileTheme] = useState<'day' | 'night'>('day')
 
@@ -335,7 +336,7 @@ export default function Header() {
     document.documentElement.dataset.temautoTheme = theme
   }
 
-  const filteredLanguages = LANGUAGES.filter(l => ['LV', 'EN', 'RU', 'LT', 'EE', 'DE', 'FR', 'ES', 'PT', 'IT', 'FI', 'PL', 'SV', 'NO', 'DA', 'BG', 'HU', 'RO', 'CS', 'EL', 'NL', 'GA', 'SK'].includes(l.code)).filter(l => 
+  const filteredLanguages = LANGUAGES.filter(l => ['LV', 'EN', 'RU', 'LT', 'EE', 'DE', 'FR', 'ES', 'PT', 'IT', 'FI', 'PL', 'SV', 'NO', 'DA', 'BG', 'HU', 'RO', 'CS', 'EL', 'NL', 'GA', 'SK', 'SL'].includes(l.code)).filter(l => 
     l.name.toLowerCase().includes(langSearch.toLowerCase()) || 
     l.code.toLowerCase().includes(langSearch.toLowerCase())
   )
