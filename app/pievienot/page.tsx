@@ -1,6 +1,7 @@
 'use client'
 
 import { useI18n } from '../../lib/i18n'
+import { COUNTRIES, findCountry } from '../../lib/countries'
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
@@ -183,58 +184,7 @@ const ENGINE_VOLUMES = [
   '2.2', '2.4', '2.5', '2.8', '3.0', '3.2', '3.5', '4.0', '4.4', '5.0', 'Elektro / Nav'
 ]
 
-const COUNTRIES = [
-  { name: 'Latvija', code: 'lv', flagUrl: 'https://flagcdn.com/w40/lv.png', regions: ['Rīga un rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale'] },
-  { name: 'Lietuva', code: 'lt', flagUrl: 'https://flagcdn.com/w40/lt.png', regions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža', 'Alytus'] },
-  { name: 'Igaunija', code: 'ee', flagUrl: 'https://flagcdn.com/w40/ee.png', regions: ['Tallina', 'Tartu', 'Narva', 'Pērnava', 'Kohtla-Järve'] },
-  { 
-    name: 'Vācija', 
-    code: 'de', 
-    flagUrl: 'https://flagcdn.com/w40/de.png',
-    regions: [
-      'Bavārija (Bayern)', 'Bādene-Virtemberga (Baden-Württemberg)', 'Ziemeļreina-Vestfālene (Nordrhein-Westfalen)',
-      'Lejassaksija (Niedersachsen)', 'Hesene (Hessen)', 'Reinlande-Pfalca (Rheinland-Pfalz)',
-      'Saksija (Sachsen)', 'Tīringene (Thüringen)', 'Brandenburga (Brandenburg)', 'Saksija-Anhalte (Saksija-Anhalt)',
-      'Šlēsviga-Holšteina (Schleswig-Holstein)', 'Mēklenburga-Priekšpomerānija (Mecklenburg-Vorpommern)',
-      'Hamburga', 'Berlīne', 'Brēmene', 'Sārija (Saarland)', 'Minhene', 'Frankfurte pie Mainas', 'Ķelne', 'Štutgarte'
-    ] 
-  },
-  { name: 'Lielbritānija', code: 'gb', flagUrl: 'https://flagcdn.com/w40/gb.png', regions: ['Londona', 'Mančestra', 'Birmingema', 'Liverpūle', 'Skotija', 'Velsa', 'Ziemeļīrija'] },
-  { 
-    name: 'ASV', 
-    code: 'us', 
-    flagUrl: 'https://flagcdn.com/w40/us.png',
-    regions: [
-      'Alabama', 'Aļaska (Alaska)', 'Arizona', 'Arkanzasa (Arkansas)', 'Kalifornija (California)', 
-      'Kolorādo', 'Konektikuta (Connecticut)', 'Delavēra (Delaware)', 'Florida', 'Džordžija (Georgia)',
-      'Havajas (Hawaii)', 'Aidaho (Idaho)', 'Ilinoisa (Illinois)', 'Indiana', 'Aiovas (Iowa)',
-      'Kanzasa (Kansas)', 'Kentuki (Kentucky)', 'Luiziāna (Louisiana)', 'Meina (Maine)', 'Merilenda (Maryland)', 
-      'Masačūsetsa (Massachusetts)', 'Mičigana (Michigan)', 'Minesota (Minnesota)', 'Misisipi (Mississippi)', 
-      'Misūri (Missouri)', 'Montāna (Montana)', 'Nebraska', 'Nevada', 'Ņūhempšīra (New Hampshire)', 
-      'Ņūdžersija (New Jersey)', 'Ņūmeksika (New Mexico)', 'Ņujorka (New York)', 'Ziemeļkarolīna (North Carolina)', 
-      'Ziemeļdakota (North Dakota)', 'Ohaio (Ohio)', 'Oklahoma', 'Oregonas (Oregon)', 'Pensilvānija (Pennsylvania)', 
-      'Roudailenda (Rhode Island)', 'Dienvidkarolīna (South Carolina)', 'Dienviddakota (South Dakota)', 'Tenesī (Tennessee)', 
-      'Teksasa (Texas)', 'Jūta (Utah)', 'Vermonta (Vermont)', 'Virdžīnija (Virginia)', 'Vašingtona (Washington)', 
-      'Rietumvirdžīnija (West Virginia)', 'Viskonsina (Wisconsin)', 'Vaiominga (Wyoming)'
-    ] 
-  },
-  { name: 'Japāna', code: 'jp', flagUrl: 'https://flagcdn.com/w40/jp.png', regions: ['Tokija', 'Osaka', 'Kioto', 'Jokohama', 'Nagoja', 'Fukuoka', 'Hokaido'] },
-  { name: 'Krievija', code: 'ru', flagUrl: 'https://flagcdn.com/w40/ru.png', regions: ['Maskava', 'Sanktpēterburga', 'Novosibirska', 'Jekaterinburga', 'Kazaņa', 'Soči', 'Kaliningrada'] },
-  { name: 'Zviedrija', code: 'se', flagUrl: 'https://flagcdn.com/w40/se.png', regions: ['Stokholma', 'Gēteborga', 'Malme', 'Uppsala'] },
-  { name: 'Norvēģija', code: 'no', flagUrl: 'https://flagcdn.com/w40/no.png', regions: ['Oslo', 'Bergena', 'Tronheima', 'Stavangere'] },
-  { name: 'Polija', code: 'pl', flagUrl: 'https://flagcdn.com/w40/pl.png', regions: ['Varšava', 'Krakova', 'Gdaņska', 'Poznaņa', 'Vroclava', 'Lodza'] },
-  { name: 'Somija', code: 'fi', flagUrl: 'https://flagcdn.com/w40/fi.png', regions: ['Helsinki', 'Espo', 'Tamperes', 'Vantaa', 'Oulu'] },
-  { name: 'Dānija', code: 'dk', flagUrl: 'https://flagcdn.com/w40/dk.png', regions: ['Kopenhāgena', 'Orhūsa', 'Odense', 'Olborka'] },
-  { name: 'Francija', code: 'fr', flagUrl: 'https://flagcdn.com/w40/fr.png', regions: ['Parīze', 'Marseļa', 'Liona', 'Tulūza', 'Nica', 'Nante'] },
-  { name: 'Itālija', code: 'it', flagUrl: 'https://flagcdn.com/w40/it.png', regions: ['Roma', 'Milāna', 'Neapole', 'Turīna', 'Palermo', 'Florence'] },
-  { name: 'Spānija', code: 'es', flagUrl: 'https://flagcdn.com/w40/es.png', regions: ['Madride', 'Barselona', 'Valensija', 'Seviļa', 'Saragosa', 'Malaga'] },
-  { name: 'Nīderlande', code: 'nl', flagUrl: 'https://flagcdn.com/w40/nl.png', regions: ['Amsterdama', 'Roterdama', 'Hāga', 'Utrehta', 'Eindhovena'] },
-  { name: 'Ķīna', code: 'cn', flagUrl: 'https://flagcdn.com/w40/cn.png', regions: ['Pekina', 'Šanhaja', 'Guandžou', 'Šendžena', 'Čendu'] },
-  { name: 'Dienvidkoreja', code: 'kr', flagUrl: 'https://flagcdn.com/w40/kr.png', regions: ['Seula', 'Pusana', 'Inčhona', 'Tegu'] },
-  { name: 'Apvienotie Arābu Emirāti', code: 'ae', flagUrl: 'https://flagcdn.com/w40/ae.png', regions: ['Dubaija', 'Abū Dabī', 'Šardža'] },
-  { name: 'Kanāda', code: 'ca', flagUrl: 'https://flagcdn.com/w40/ca.png', regions: ['Ontārio', 'Kvebeka', 'Britu Kolumbija', 'Alberta', 'Monreāla', 'Toronto'] },
-  { name: 'Austrālija', code: 'au', flagUrl: 'https://flagcdn.com/w40/au.png', regions: ['Sidneja', 'Melburna', 'Brisbena', 'Pērta', 'Adelaida'] }
-]
+
 
 const CURRENT_YEAR = new Date().getFullYear()
 const YEARS = Array.from({ length: CURRENT_YEAR - 1969 }, (_, i) => (CURRENT_YEAR - i).toString())
@@ -245,7 +195,7 @@ type ImageItem = {
 }
 
 export default function PievienotAuto() {
-  const { t, matches, canonical } = useI18n()
+  const { t, matches, canonical, setCountryLanguage } = useI18n()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
@@ -1319,7 +1269,7 @@ export default function PievienotAuto() {
                 <input
                   type="text"
                   value={t(countryQuery)}
-                  onChange={(e) => { setCountryQuery(canonical(e.target.value, COUNTRIES.map(c => c.name))); setActiveDropdown('country'); }}
+                  onChange={(e) => { const value = canonical(e.target.value, COUNTRIES.map(c => c.name)); setCountryQuery(value); const country = findCountry(value); if (country) { setSelectedCountry(country); setCountryLanguage(country.name); } setActiveDropdown('country'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'country')}
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'country')}
                   onPointerCancel={handleDropdownInputPointerCancel}
@@ -1330,7 +1280,7 @@ export default function PievienotAuto() {
 {activeDropdown === 'country' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>                    {COUNTRIES.filter((c) => countryQuery === selectedCountry.name || matches(c.name, countryQuery)).map((c) => (
                       <div
-                        key={c.code}                        onClick={() => { setSelectedCountry(c); setCountryQuery(c.name); setRegion(''); setActiveDropdown(null); }}
+                        key={c.code}                        onClick={() => { setSelectedCountry(c); setCountryQuery(c.name); setCountryLanguage(c.name); setRegion(''); setActiveDropdown(null); }}
                         style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
@@ -1522,4 +1472,3 @@ export default function PievienotAuto() {
     </div>
   )
 }
-

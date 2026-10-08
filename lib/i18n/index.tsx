@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { findCountry, translatedCountryName } from '../countries'
 import english from './en.json'
 import russian from './ru.json'
 import lithuanian from './lt.json'
@@ -41,7 +42,7 @@ export function translateText(text: string, language: Language): string {
   if (messages[trimmed] !== undefined) return text.replace(trimmed, messages[trimmed])
   const currency = text.match(/^(.*?) (\([A-Z]{3}\))$/)
   if (currency) return `${translateText(currency[1], language)} ${currency[2]}`
-  return text
+  return translatedCountryName(text, language) ?? text
 }
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
@@ -75,5 +76,9 @@ export function useI18n() {
   const canonical = useCallback((value: string, options: readonly string[]) =>
     options.find(option => option === value || translateText(option, language).toLocaleLowerCase(language === 'TR' ? 'tr' : undefined) === value.toLocaleLowerCase(language === 'TR' ? 'tr' : undefined)) ?? value,
   [language])
-  return { language, setLanguage, t, matches, canonical }
+  const setCountryLanguage = useCallback((value: string) => {
+    const country = findCountry(value)
+    if (country) setLanguage(country.language)
+  }, [setLanguage])
+  return { language, setLanguage, t, matches, canonical, setCountryLanguage }
 }

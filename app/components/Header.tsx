@@ -1,6 +1,7 @@
 'use client'
 
 import { useI18n } from '../../lib/i18n'
+import { COUNTRIES, findCountry } from '../../lib/countries'
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
@@ -51,80 +52,15 @@ const INFO_PAGE_TITLES: Record<string, string> = {
   '/tavi-ieteikumi': 'Tavi ieteikumi'
 }
 
-const REGIONS = [
-  { 
-    name: 'Latvija (EUR)', 
-    flagCode: 'lv', 
-    group: 'Baltija',
-    subregions: ['Rīga', 'Jūrmala', 'Pierīga', 'Kurzeme', 'Vidzeme', 'Zemgale', 'Latgale', 'Liepāja', 'Daugavpils', 'Ventspils', 'Jelgava', 'Valmiera', 'Ogre']
-  },
-  { 
-    name: 'ASV & Ziemeļamerika (USD)', 
-    flagCode: 'us', 
-    group: 'Ziemeļamerika',
-    subregions: [
-      'Alabama (AL)', 'Aļaska (AK)', 'Arizona (AZ)', 'Arkanzasa (AR)', 'Kalifornija (CA)', 
-      'Kolorādo (CO)', 'Konektikuta (CT)', 'Delavēra (DE)', 'Florida (FL)', 'Džordžija (GA)', 
-      'Havajas (HI)', 'Aidaho (ID)', 'Ilinoisa (IL)', 'Indianāna (IN)', 'Aiova (IA)', 
-      'Kanzasa (KS)', 'Kentuki (KY)', 'Luiziāna (LA)', 'Meina (ME)', 'Merilenda (MD)', 
-      ' Masačūsetsa (MA)', 'Mičigana (MI)', 'Minesota (MN)', 'Misisipi (MS)', 'Misūri (MO)', 
-      'Montāna (MT)', 'Nebraska (NE)', 'Nevada (NV)', 'Ņūhempšīra (NH)', 'Ņūdžersija (NJ)', 
-      'Ņūmexika (NM)', 'Ņujorka (NY)', 'Ziemeļkarolīna (NC)', 'Ziemeļdakota (ND)', 'Ohaio (OH)', 
-      'Oklahoma (OK)', 'Oregonas štats (OR)', 'Pensilvānija (PA)', 'Roda Ailenda (RI)', 'Dienvidkarolīna (SC)', 
-      'Dienviddakota (SD)', 'Tenesī (TN)', 'Teksasa (TX)', 'Jūta (UT)', 'Vermonta (VT)', 
-      'Virdžīnija (VA)', 'Vašingtona (WA)', 'Rietumvirdžīnija (WV)', 'Viskonsina (WI)', 'Vaiominga (WY)'
-    ]
-  },
-  { 
-    name: 'Vācija (EUR)', 
-    flagCode: 'de', 
-    group: 'Centrāleiropa',
-    subregions: [
-      'Berlīne', 'Minhene', 'Hamburga', 'Ķelne', 'Frankfurte pie Mainas', 
-      'Štutgarte', 'Bādene-Virtemberga', 'Bavārija', 'Brandenburga', 'Brēmene', 
-      'Hesene', 'Mēklenburga-Priekšpomerānija', 'Lejassaksija', 'Ziemeļreina-Vestfālene', 
-      'Reina-Palatināte', 'Sāra', 'Saksija', 'Saksija-Anhalte', 'Šlēsviga-Holšteina', 'Tīringene'
-    ]
-  },
-  { 
-    name: 'Apvienotā Karaliste (GBP)', 
-    flagCode: 'gb', 
-    group: 'Eiropa',
-    subregions: ['Londona', 'Mančestra', 'Birmingema', 'Skotija', 'Velsa', 'Ziemeļīrija', 'Liverpūle', 'Līdsā', 'Bristole', 'Glāzgova', 'Edinburga', 'Belfāsta']
-  },
-  { name: 'Eiropa (EUR)', flagCode: 'eu', group: 'Kontinents', subregions: ['Eirozona', 'Eiropas Savienība', 'Skandināvija', 'Baltija', 'Austrumeiropa'] },
-  { name: 'Lietuva (EUR)', flagCode: 'lt', group: 'Baltija', subregions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža', 'Aukštaitija', 'Žemaitija', 'Dzūkija', 'Suvalkija'] },
-  { name: 'Igaunija (EUR)', flagCode: 'ee', group: 'Baltija', subregions: ['Tallina', 'Tartu', 'Narva', 'Pērnava', 'Hāpsalu', 'Sāmsala', 'Hījumā', 'Viljandi'] },
-  { name: 'Francija (EUR)', flagCode: 'fr', group: 'Eiropa', subregions: ['Parīze', 'Marseļa', 'Liona', 'Tulūza', 'Nica', 'Nante', 'Bordo', 'Provansa', 'Korsika', 'Normandija'] },
-  { name: 'Spānija (EUR)', flagCode: 'es', group: 'Eiropa', subregions: ['Madride', 'Barselona', 'Valensija', 'Seviļa', 'Andalūzija', 'Katalonija', 'Malaga', 'Baleāru salas', 'Kanāriju salas'] },
-  { name: 'Itālija (EUR)', flagCode: 'it', group: 'Eiropa', subregions: ['Roma', 'Milāna', 'Neapole', 'Turīna', 'Sicīlija', 'Venēcija', 'Florence', 'Toskāna', 'Sardīnija', 'Kalabrija'] },
-  { name: 'Polija (PLN)', flagCode: 'pl', group: 'Eiropa', subregions: ['Varšava', 'Krakova', 'Gdaņska', 'Vroclava', 'Poznaņa', 'Lodza', 'Silēzija', 'Mazovija', 'Mazpolija'] },
-  { name: 'Zviedrija (SEK)', flagCode: 'se', group: 'Skandināvija', subregions: ['Stokholma', 'Gēteborga', 'Malme', 'Upsala', 'Norlande', 'Svealande', 'Gētalande'] },
-  { name: 'Norvēģija (NOK)', flagCode: 'no', group: 'Skandināvija', subregions: ['Oslo', 'Bergena', 'Tronheima', 'Stavangere', 'Ziemeļnorvēģija', 'Austrumorvēģija', 'Rietumorvēģija'] },
-  { name: 'Somija (EUR)', flagCode: 'fi', group: 'Skandināvija', subregions: ['Helsinki', 'Espoo', 'Tampere', 'Turku', 'Lapzeme', 'Oulu', 'Ūsimā'] },
-  { name: 'Dānija (DKK)', flagCode: 'dk', group: 'Skandināvija', subregions: ['Kopenhāgena', 'Orhusa', 'Odense', 'Olborga', 'Zēlande', 'Jītlande'] },
-  { name: 'Nīderlande (EUR)', flagCode: 'nl', group: 'Eiropa', subregions: ['Amsterdama', 'Roterdama', 'Hāga', 'Utrehta', 'Eindhovena', 'Ziemeļholande', 'Dienvidholande'] },
-  { name: 'Beļģija (EUR)', flagCode: 'be', group: 'Eiropa', subregions: ['Brusese', 'Antverpene', 'Gente', 'Flandrija', 'Valonija', 'Lježa'] },
-  { name: 'Austrija (EUR)', flagCode: 'at', group: 'Eiropa', subregions: ['Vīne', 'Zalcburga', 'Grāca', 'Linca', 'Tiroli', 'Forarlberga', 'Kārtene'] },
-  { name: 'Šveice (CHF)', flagCode: 'ch', group: 'Eiropa', subregions: ['Cīrihe', 'Ženēva', 'Bāzeli', 'Berne', 'Lozanna', 'Lucerna'] },
-  { name: 'Čehija (CZK)', flagCode: 'cz', group: 'Eiropa', subregions: ['Prāga', 'Brno', 'Ostrava', 'Plzeņa', 'Bohēmija', 'Morāvija'] },
-  { name: 'Ukraina (UAH)', flagCode: 'ua', group: 'Austrumeiropa', subregions: ['Kijiva', 'Ļviva', 'Odesa', 'Harkiva', 'Dnipro', 'Zaporižja', 'Krimas Autonomā Republika'] },
-  { name: 'Turcija (TRY)', flagCode: 'tr', group: 'Eirāzija', subregions: ['Stambula', 'Ankara', 'Antalja', 'Izmira', 'Bursa', 'Adana', 'Konja'] },
-  { name: 'Kanāda (CAD)', flagCode: 'ca', group: 'Ziemeļamerika', subregions: ['Ontārio', 'Kvebeka', 'Britu Kolumbija', 'Alberta', 'Vankūvera', 'Toronto', 'Monreāla', 'Manitoba', 'Saskačevana', 'Jaunskotija'] },
-  { name: 'Meksika (MXN)', flagCode: 'mx', group: 'Ziemeļamerika', subregions: ['Mehiko', 'Gvadalahara', 'Monterreja', 'Kankūna', 'Puebla', 'Halisko'] },
-  { name: 'Brazīlija (BRL)', flagCode: 'br', group: 'Dienvidamerika', subregions: ['Sanpaulu', 'Rio de Žaneiro', 'Brazīlija', 'Minasa Žeraisa', 'Baija', 'Parana'] },
-  { name: 'Argentīna (ARS)', flagCode: 'ar', group: 'Dienvidamerika', subregions: ['Buenosairesa', 'Kordoba', 'Mendosa', 'Rosario', 'Santa Fe'] },
-  { name: 'Austrālija (AUD)', flagCode: 'au', group: 'Okeānija', subregions: ['Sidneja', 'Melburna', 'Brisbena', 'Pērta', 'Jaundienvidvelsa', 'Viktorija', 'Kvīnslenda'] },
-  { name: 'Jaunzēlande (NZD)', flagCode: 'nz', group: 'Okeānija', subregions: ['Oklanda', 'Velingtona', 'Kraistčērča', 'Hamiltona', 'Tauranga'] },
-  { name: 'Japāna (JPY)', flagCode: 'jp', group: 'Āzija', subregions: ['Tokija', 'Osaka', 'Kioto', 'Hokaido', 'Jokohama', 'Nagoja', 'Fukuoka', 'Okinava'] },
-  { name: 'Ķīna (CNY)', flagCode: 'cn', group: 'Āzija', subregions: ['Pekina', 'Šanhaja', 'Guandžou', 'Šeņdžeņa', 'Honkonga', 'Maoana', 'Sičuaņa'] },
-  { name: 'Dienvidkoreja (KRW)', flagCode: 'kr', group: 'Āzija', subregions: ['Seula', 'Pusana', 'Inčhona', 'Čedžu', 'Tegu', 'Tedžona'] },
-  { name: 'Indija (INR)', flagCode: 'in', group: 'Āzija', subregions: ['Mumbaja', 'Deli', 'Bangalora', 'Goa', 'Haidarābāda', 'Čennai', 'Kolkata'] },
-  { name: 'Apvienotie Arābu Emirāti (AED)', flagCode: 'ae', group: 'Tuvie Austrumi', subregions: ['Dubaija', 'Abudabi', 'Šārdža', 'Adžmana', 'Raselhaima'] }
-]
+const REGIONS = COUNTRIES.map(country => ({
+  name: `${country.name} (${country.currency})`,
+  flagCode: country.code,
+  group: country.group,
+  subregions: country.headerRegions,
+}))
 
 export default function Header() {
-  const { t, matches, canonical, language, setLanguage } = useI18n()
+  const { t, matches, canonical, language, setLanguage, setCountryLanguage } = useI18n()
   const router = useRouter()
   const pathname = usePathname()
   const isListingDetail = /^\/auto\/[^/]+\/?$/.test(pathname)
@@ -147,6 +83,12 @@ export default function Header() {
   const currentLang = language
   const setCurrentLang = (code: string) => { if (code === 'LV' || code === 'EN' || code === 'RU' || code === 'LT' || code === 'EE' || code === 'DE' || code === 'FR' || code === 'ES' || code === 'PT' || code === 'IT' || code === 'FI' || code === 'PL' || code === 'SV' || code === 'NO' || code === 'DA' || code === 'BG' || code === 'HU' || code === 'RO' || code === 'CS' || code === 'EL' || code === 'NL' || code === 'GA' || code === 'SK' || code === 'SL' || code === 'MT' || code === 'TR') setLanguage(code) }
   const [currentRegion, setCurrentRegion] = useState('Latvija (EUR)')
+  const selectRegion = (value: string) => {
+    setCurrentRegion(value)
+    localStorage.setItem('temauto-region', value)
+    const region = REGIONS.find(item => item.name === value || item.subregions.includes(value))
+    if (region) setCountryLanguage(region.name)
+  }
   const [mobileTheme, setMobileTheme] = useState<'day' | 'night'>('day')
 
   const [langOpen, setLangOpen] = useState(false)
@@ -187,8 +129,13 @@ export default function Header() {
     document.documentElement.dataset.temautoTheme = initialTheme
     
     const savedRegion = localStorage.getItem('temauto-region')
-    if (savedRegion && REGIONS.some(region => region.name === savedRegion || region.subregions?.includes(savedRegion))) {
-      setCurrentRegion(savedRegion)
+    if (savedRegion) {
+      const country = findCountry(savedRegion)
+      if (country) {
+        setCurrentRegion(`${country.name} (${country.currency})`)
+      } else if (REGIONS.some(region => region.subregions.includes(savedRegion))) {
+        setCurrentRegion(savedRegion)
+      }
     }
 
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -1241,7 +1188,7 @@ export default function Header() {
                           onMouseEnter={() => setHoveredRegion(r.name)}
                           onClick={() => {
                             // TAGAD VAR NOFIKSĒT ARĪ PAŠU VALSTI NEATKARĪGI NO TĀ, VAI TAI IR APAKŠREĢIONI!
-                            setCurrentRegion(r.name)
+                            selectRegion(r.name)
                             setRegionOpen(false)
                             setRegionSearch('')
                             closeMobileMenuAfterSelectorChoice()
@@ -1276,7 +1223,7 @@ export default function Header() {
                     {/* Ērta opcija izvēlēties TIKAI valsti tieši no reģionu saraksta augšas */}
                     <div
                       onClick={() => {
-                        setCurrentRegion(hoveredRegionObj.name)
+                        selectRegion(hoveredRegionObj.name)
                         setRegionOpen(false)
                         setRegionSearch('')
                         closeMobileMenuAfterSelectorChoice()
@@ -1303,7 +1250,7 @@ export default function Header() {
                         <div
                           key={sub}
                           onClick={() => {
-                            setCurrentRegion(sub)
+                            selectRegion(sub)
                             setRegionOpen(false)
                             setRegionSearch('')
                             closeMobileMenuAfterSelectorChoice()
@@ -1500,13 +1447,13 @@ export default function Header() {
                             onPointerUp={(event) => {
                               event.preventDefault()
                               event.stopPropagation()
-                              setCurrentRegion(region.name)
+                              selectRegion(region.name)
                               localStorage.setItem('temauto-region', region.name)
                               setRegionOpen(false)
                               setRegionSearch('')
                             }}
                             onClick={() => {
-                              setCurrentRegion(region.name)
+                              selectRegion(region.name)
                                                             localStorage.setItem('temauto-region', region.name)
                               setRegionOpen(false)
                               setRegionSearch('')
@@ -1571,4 +1518,3 @@ export default function Header() {
     </header>
   )
 }
-

@@ -1,6 +1,7 @@
 'use client'
 
 import { useI18n } from '../lib/i18n'
+import { COUNTRIES } from '../lib/countries'
 
 import DemoPhoto from './components/DemoPhoto'
 import { Fragment, useEffect, useState, useMemo, useRef, useLayoutEffect } from 'react'
@@ -50,36 +51,7 @@ const OFFICIAL_MAKES: { [key: string]: string } = {
   'tesla': 'Tesla'
 }
 
-const COUNTRIES = [
-  { name: 'Latvija', code: 'lv' },
-  { name: 'Lietuva', code: 'lt' },
-  { name: 'Igaunija', code: 'ee' },
-  { name: 'Vācija', code: 'de' },
-  { name: 'Polija', code: 'pl' },
-  { name: 'Zviedrija', code: 'se' },
-  { name: 'Somija', code: 'fi' },
-  { name: 'Dānija', code: 'dk' },
-  { name: 'Norvēģija', code: 'no' },
-  { name: 'Nīderlande', code: 'nl' },
-  { name: 'Beļģija', code: 'be' },
-  { name: 'Francija', code: 'fr' },
-  { name: 'Itālija', code: 'it' },
-  { name: 'Spānija', code: 'es' },
-  { name: 'Lielbritānija', code: 'gb' },
-  { name: 'ASV', code: 'us' },
-  { name: 'Kanāda', code: 'ca' },
-  { name: 'Austrija', code: 'at' },
-  { name: 'Šveice', code: 'ch' },
-  { name: 'Čehija', code: 'cz' },
-  { name: 'Islande', code: 'is' },
-  { name: 'Īrija', code: 'ie' },
-  { name: 'Japāna', code: 'jp' },
-  { name: 'Koreja', code: 'kr' },
-  { name: 'Portugāle', code: 'pt' },
-  { name: 'Rumānija', code: 'ro' },
-  { name: 'Turcija', code: 'tr' },
-  { name: 'Ukraina', code: 'ua' }
-]
+
 
 const REGIONS_BY_COUNTRY: { [key: string]: string[] } = {
   'Latvija': ['Rīga', 'Rīgas rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale', 'Liepāja', 'Ventspils', 'Jelgava', 'Daugavpils', 'Valmiera', 'Jēkabpils', 'Ogre', 'Tukums', 'Cēsis'],
@@ -319,7 +291,7 @@ function ListingCardGallery({ images, alt, compact = false }: { images: string[]
 }
 
 export default function Sakumlapa() {
-  const { t, matches, canonical } = useI18n()
+  const { t, matches, canonical, setCountryLanguage } = useI18n()
   const router = useRouter()
   const [cars, setCars] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -1467,7 +1439,7 @@ export default function Sakumlapa() {
                   data-filter-field="valsts"
                   placeholder={t("Valsts")}
                   value={t(valsts)}
-                  onChange={(e) => { setValsts(canonical(e.target.value, COUNTRIES.map(c => c.name))); setActiveDropdown('valsts'); }}
+                  onChange={(e) => { const value = canonical(e.target.value, COUNTRIES.map(c => c.name)); setValsts(value); setCountryLanguage(value); setActiveDropdown('valsts'); }}
                   onClick={() => toggleDropdown('valsts')}
                   style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
@@ -1478,7 +1450,8 @@ export default function Sakumlapa() {
                       <div
                         key={c.name}
                         onClick={() => { 
-                          setValsts(c.name); 
+                          setValsts(c.name);
+                          setCountryLanguage(c.name); 
                           setRegions(''); 
                           setActiveDropdown(null); 
                         }}
@@ -2060,4 +2033,3 @@ export default function Sakumlapa() {
     </div>
   )
 }
-
