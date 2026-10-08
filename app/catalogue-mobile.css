@@ -9,6 +9,17 @@
   display: none;
 }
 
+@media (min-width: 768px) {
+  [data-header-lang-panel='true'] {
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+
+  [data-header-lang-panel='true'] > div {
+    overscroll-behavior-y: contain;
+  }
+}
+
 @media (max-width: 767px) {
   html,
   body {
@@ -1493,3 +1504,4 @@
     border-color: #38bdf8;
   }
 }
+
