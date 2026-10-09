@@ -2,6 +2,7 @@
 
 import { useI18n } from '../lib/i18n'
 import { COUNTRIES } from '../lib/countries'
+import { catalogueCountryCode, listingBelongsToCountry } from '../lib/catalogueCountry'
 
 import DemoPhoto from './components/DemoPhoto'
 import { Fragment, useEffect, useState, useMemo, useRef, useLayoutEffect } from 'react'
@@ -554,8 +555,30 @@ export default function Sakumlapa() {
   }, [loading])
 
   const [valsts, setValsts] = useState('')
+  const [catalogueCountry, setCatalogueCountry] = useState('lv')
+  useEffect(() => {
+    const savedCountry = catalogueCountryCode(localStorage.getItem('temauto-region') || 'Latvija')
+    if (savedCountry) setCatalogueCountry(savedCountry)
+    const syncInitialCountry = (event: Event) => {
+      const code = catalogueCountryCode((event as CustomEvent<string>).detail)
+      if (code) setCatalogueCountry(code)
+    }
+    const syncSelectedCountry = (event: Event) => {
+      syncInitialCountry(event)
+      setValsts('')
+      setRegions('')
+      setCurrentPage(1)
+    }
+    window.addEventListener('temauto-initial-region', syncInitialCountry)
+    window.addEventListener('temauto-catalogue-country', syncSelectedCountry)
+    return () => {
+      window.removeEventListener('temauto-initial-region', syncInitialCountry)
+      window.removeEventListener('temauto-catalogue-country', syncSelectedCountry)
+    }
+  }, [])
   const selectFilterCountry = (value: string) => {
     setValsts(value)
+    setCurrentPage(1)
     window.dispatchEvent(new CustomEvent('temauto-filter-country', { detail: value }))
   }
   const [regions, setRegions] = useState('')
@@ -886,9 +909,14 @@ export default function Sakumlapa() {
     return foundKey ? REGIONS_BY_COUNTRY[foundKey] : DEFAULT_REGIONS
   }, [valsts])
 
+  const selectedCountryCode = catalogueCountryCode(valsts) || (!valsts ? catalogueCountry : undefined)
+  const countryCars = useMemo(() => cars.filter(car =>
+    selectedCountryCode ? listingBelongsToCountry(car, selectedCountryCode) : matches(car.country || car.valsts || '', valsts)
+  ), [cars, valsts, selectedCountryCode, matches])
+
   const makeCounts = useMemo(() => {
     const counts: { [key: string]: number } = {}
-    cars.forEach(car => {
+    countryCars.forEach(car => {
       if (car.make) {
         const cleanMake = car.make.trim()
         if (cleanMake) {
@@ -901,10 +929,10 @@ export default function Sakumlapa() {
       .filter(([make]) => make.toLowerCase() !== 'zaz' && !extraSections.includes(make))
       .sort((a, b) => a[0].localeCompare(b[0]))
     return [...makes, ...extraSections.map((name): [string, number] => [name, counts[name] || 0])]
-  }, [cars])
+  }, [countryCars])
 
   const filteredCars = cars.filter((car) => {
-    if (showFavorites && !isMobileCatalogue) {
+    if (showFavorites) {
       return favoriteIds.includes(String(car.id))
     }
     const matchesMake = searchMake ? (car.make || '').toLowerCase().includes(searchMake.toLowerCase()) : true
@@ -923,7 +951,7 @@ export default function Sakumlapa() {
     const matchesMinTilpums = minTilpums ? carVolume >= Number(minTilpums) : true
     const matchesMaxTilpums = maxTilpums ? carVolume <= Number(maxTilpums) : true
 
-    const matchesValsts = valsts ? matches(car.country || car.valsts || '', valsts) : true
+    const matchesValsts = selectedCountryCode ? listingBelongsToCountry(car, selectedCountryCode) : matches(car.country || car.valsts || '', valsts)
     const matchesRegions = regions ? matches(car.region || car.regions || '', regions) : true
     const matchesDzinejs = dzinejs ? matches(car.engine || car.dzinejs || '', dzinejs) : true
     const matchesAtrumkarba = atrumkarba ? matches(car.gearbox || car.atrumkarba || '', atrumkarba) : true
@@ -1156,7 +1184,7 @@ export default function Sakumlapa() {
           onClick={() => toggleMobileCatalogueOverlay('makes')}
         >
           <span>{t("Visas markas")}</span>
-          <span>({cars.length}) {mobileMakesOpen ? '▴' : '▾'}</span>
+          <span>({countryCars.length}) {mobileMakesOpen ? '▴' : '▾'}</span>
         </button>
         <button
           type="button"
@@ -1197,7 +1225,7 @@ export default function Sakumlapa() {
                 }}
               >
                 <span>{t("Visas markas")}</span>
-                <span style={{ fontSize: '12px', color: '#6b7280' }}>({cars.length})</span>
+                <span style={{ fontSize: '12px', color: '#6b7280' }}>({countryCars.length})</span>
               </button>
               <div data-makes-list="true" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
                 {makeCounts.map(([make, count]) => {
@@ -2037,3 +2065,4 @@ export default function Sakumlapa() {
     </div>
   )
 }
+

@@ -105,7 +105,9 @@ export default function Header() {
     return () => window.removeEventListener('temauto-filter-country', syncFilterCountry)
   }, [currentRegion])
   const selectRegion = (value: string) => {
+    regionBeforeFiltering.current = null
     setCurrentRegion(value)
+    window.dispatchEvent(new CustomEvent('temauto-catalogue-country', { detail: value }))
     localStorage.setItem('temauto-region', value)
     const region = REGIONS.find(item => item.name === value || item.subregions.includes(value))
     if (region) setCountryLanguage(region.name)
