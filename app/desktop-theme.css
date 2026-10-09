@@ -244,3 +244,32 @@
     color: #94a3b8 !important;
   }
 }
+
+/* Shared informational pages, desktop only. */
+@media (min-width: 768px) {
+  html[data-temauto-desktop-theme='night'] body:has([data-info-page='true']),
+  html[data-temauto-desktop-theme='night'] [data-info-page='true'] {
+    background-color: #020617 !important;
+    color: #e2e8f0 !important;
+  }
+  html[data-temauto-desktop-theme='night'] body:has([data-info-page='true']) header {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 16px 0 #020617 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-info-page='true'] article {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-info-page='true'] :is(h1, h2, h3) {
+    color: #f1f5f9 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-info-page='true'] :is(p, li) {
+    color: #cbd5e1 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-info-page='true'] section[style*='background'] {
+    background: #1e293b !important;
+    border-color: #475569 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-info-page='true'] a {
+    color: #93c5fd !important;
+  }
+}
