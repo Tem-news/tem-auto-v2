@@ -1,0 +1,145 @@
+/* Desktop home catalogue only; independent of the mobile theme. */
+@media (min-width: 768px) {
+  html[data-temauto-desktop-theme='day'] [data-catalogue-page='true'] [data-desktop-sort-toggle='true'] {
+    background: #ffffff !important;
+    color: #1f2937 !important;
+    border-color: #d1d5db !important;
+  }
+  html[data-temauto-desktop-theme='day'] [data-catalogue-page='true'] [data-desktop-sort-toggle='true'][data-sort-active='true'] {
+    background: #dbeafe !important;
+    color: #1d4ed8 !important;
+    border-color: #2563eb !important;
+  }
+  html[data-temauto-desktop-theme='day'] [data-catalogue-page='true'] [data-desktop-sort-toggle='true'] button {
+    background: transparent !important;
+    color: inherit !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-filter-row='true'] {
+    box-shadow: 0 -24px 0 #020617, 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-filter-heading='true'] h2 {
+    color: #f1f5f9 !important;
+  }
+
+  html[data-temauto-desktop-theme='night'] body:has([data-catalogue-page='true']),
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] {
+    background-color: #020617 !important;
+    color: #e2e8f0 !important;
+  }
+
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] :is([data-makes-column='true'], [data-filter-row='true'], [data-make-table='true'], [data-listings-grid='true'] > a) {
+    background-color: #0f172a !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+  }
+
+  html[data-temauto-desktop-theme='night'] [data-makes-column='true'] button {
+    color: #cbd5e1 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-makes-column='true'] button span {
+    color: inherit !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-makes-column='true'] button[data-make-selected='true'] {
+    background-color: #164e63 !important;
+    border-color: #38bdf8 !important;
+    color: #a5f3fc !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-makes-info='true'] {
+    border-color: #334155 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-makes-info='true'] button {
+    background-color: #1e293b !important;
+    border-color: #475569 !important;
+    color: #e2e8f0 !important;
+  }
+
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-filter-row='true'] input,
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-filter-dropdown='true'] {
+    background-color: #1e293b !important;
+    border-color: #475569 !important;
+    color: #f1f5f9 !important;
+    color-scheme: dark;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-filter-row='true'] input::placeholder {
+    color: #cbd5e1 !important;
+    opacity: 1;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-filter-dropdown='true'] > div {
+    color: #e2e8f0 !important;
+    border-color: #334155 !important;
+    background-color: #1e293b !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-filter-dropdown='true'] > div:hover {
+    background-color: #334155 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-filter-clear='true'] {
+    background-color: #450a0a !important;
+    border-color: #b91c1c !important;
+    color: #fecaca !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-desktop-filter-favorites='true'] {
+    background-color: #14532d !important;
+    border-color: #15803d !important;
+    color: #bbf7d0 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-desktop-filter-favorites='true'][aria-pressed='true'] {
+    background-color: #15803d !important;
+    color: #ffffff !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-desktop-filter-favorites='true'][data-favorites-empty='true'] {
+    background-color: #1e293b !important;
+    border-color: #475569 !important;
+    color: #94a3b8 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-desktop-sort-toggle='true'] {
+    background-color: #1e293b !important;
+    border-color: #475569 !important;
+    color: #e2e8f0 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-desktop-sort-toggle='true'][data-sort-active='true'] {
+    background-color: #164e63 !important;
+    border-color: #38bdf8 !important;
+    color: #a5f3fc !important;
+  }
+
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-card-title='true'],
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-cell='car'] > span:not([role='button']) {
+    color: #93c5fd !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-card-meta='true'],
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-cell]:not([data-cell='car']):not([data-cell='price']) {
+    color: #cbd5e1 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] :is([data-card-price='true'], [data-cell='price']) {
+    color: #f8fafc !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-listings='true'] [role='button'][aria-pressed='false'] {
+    color: #94a3b8 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-listings='true'] [role='button'][aria-pressed='true'] {
+    color: #4ade80 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-make-table-header='true'] {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-make-table-row='true'] {
+    background-color: #0f172a !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-make-table-row='true']:nth-of-type(even) {
+    background-color: #111827 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-pagination='true'] button:not([aria-current='page']) {
+    background-color: #1e293b !important;
+    border-color: #475569 !important;
+    color: #e2e8f0 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-catalogue-page='true'] [data-temauto-sponsor-placement='true'] {
+    background-color: #0f172a !important;
+    border-color: #475569 !important;
+    color: #94a3b8 !important;
+  }
+}

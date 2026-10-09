@@ -1,6 +1,7 @@
 'use client'
 
 import { useI18n } from '../../lib/i18n'
+import '../desktop-theme.css'
 import { COUNTRIES, findCountry } from '../../lib/countries'
 
 import { useState, useEffect, useRef } from 'react'
@@ -113,6 +114,17 @@ export default function Header() {
     if (region) setCountryLanguage(region.name)
   }
   const [mobileTheme, setMobileTheme] = useState<'day' | 'night'>('day')
+  const [desktopTheme, setDesktopTheme] = useState<'day' | 'night'>('day')
+  useEffect(() => {
+    const theme = localStorage.getItem('temauto-desktop-theme') === 'night' ? 'night' : 'day'
+    setDesktopTheme(theme)
+    document.documentElement.dataset.temautoDesktopTheme = theme
+  }, [])
+  const applyDesktopTheme = (theme: 'day' | 'night') => {
+    setDesktopTheme(theme)
+    localStorage.setItem('temauto-desktop-theme', theme)
+    document.documentElement.dataset.temautoDesktopTheme = theme
+  }
 
   const [langOpen, setLangOpen] = useState(false)
   const [regionOpen, setRegionOpen] = useState(false)
@@ -1073,6 +1085,23 @@ export default function Header() {
         )}
 
         <div data-header-controls="true" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          {isDesktopHeader && pathname === '/' && (
+            <div data-desktop-theme-picker="true" role="group" aria-label={t('Ekrāna režīms')} style={{ display: 'flex', gap: '4px' }}>
+              {(['day', 'night'] as const).map(theme => (
+                <button
+                  key={theme}
+                  type="button"
+                  aria-label={t(theme === 'day' ? 'Dienas režīms' : 'Nakts režīms')}
+                  aria-pressed={desktopTheme === theme}
+                  onClick={() => applyDesktopTheme(theme)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 9px', borderRadius: '6px', border: desktopTheme === theme ? '1px solid #7dd3fc' : '1px solid #475569', backgroundColor: desktopTheme === theme ? '#1e40af' : '#1e293b', color: '#f8fafc', fontFamily: 'inherit', fontSize: '12px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                >
+                  <span aria-hidden="true">{theme === 'day' ? '☀️' : '🌙'}</span>
+                  <span>{t(theme === 'day' ? 'Diena' : 'Nakts')}</span>
+                </button>
+              ))}
+            </div>
+          )}
           
           {/* Valodas izvēlne */}
           <div style={{ position: 'relative' }} ref={langRef}>

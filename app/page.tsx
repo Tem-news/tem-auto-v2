@@ -1207,6 +1207,7 @@ export default function Sakumlapa() {
             <div>
               <button
                 onClick={() => setMakeAndHistory('')}
+                data-make-selected={searchMake === '' ? 'true' : undefined}
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -1233,6 +1234,7 @@ export default function Sakumlapa() {
                   return (
                     <button
                       key={make}
+                      data-make-selected={isSelected ? 'true' : undefined}
                       onClick={() => handleMakeSelect(make)}
                       style={{
                         gridColumn: make === 'Moto/velo' ? '1' : make === 'Avio' || make === 'Cits' ? '2' : undefined,
@@ -1570,6 +1572,7 @@ export default function Sakumlapa() {
                 <button
                   type="button"
                   data-desktop-filter-favorites="true"
+                  data-favorites-empty={favoriteIds.length === 0 ? 'true' : undefined}
                   aria-pressed={showFavorites}
                   disabled={favoriteIds.length === 0}
                   onClick={toggleFavoritesView}
@@ -1806,7 +1809,7 @@ export default function Sakumlapa() {
                       <ListingCardGallery key={`${safeCurrentPage}-${yearSort ?? ''}-${priceSort ?? ''}-${car.id}`} images={galleryImages} alt={`${car.make} ${car.model || ''}`.trim()} />
                       <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                          <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#1d4ed8', minWidth: 0 }}>
+                          <div data-card-title="true" style={{ fontWeight: 'bold', fontSize: '15px', color: '#1d4ed8', minWidth: 0 }}>
                             {car.make} {car.model}
                           </div>
                           <span
