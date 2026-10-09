@@ -4,7 +4,7 @@ import { useI18n } from '../../lib/i18n'
 
 import DemoPhoto from '../components/DemoPhoto'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
@@ -106,6 +106,50 @@ export default function KabinetsPage() {
   const [cars, setCars] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
+
+  const rememberCabinetReturnPosition = () => {
+    if (!window.matchMedia('(max-width: 767px)').matches) return
+    window.history.replaceState(
+      {
+        ...(window.history.state || {}),
+        temAutoCabinetReturnPath: window.location.pathname + window.location.search,
+        temAutoCabinetReturnScrollY: window.scrollY
+      },
+      '',
+      window.location.href
+    )
+  }
+
+  useLayoutEffect(() => {
+    if (loading || !window.matchMedia('(max-width: 767px)').matches) return
+    const historyState = window.history.state || {}
+    const returnScrollY = historyState.temAutoCabinetReturnScrollY
+    if (
+      historyState.temAutoCabinetReturnPath !== window.location.pathname + window.location.search ||
+      typeof returnScrollY !== 'number' || !Number.isFinite(returnScrollY)
+    ) return
+
+    const cleanHistoryState = { ...historyState }
+    delete cleanHistoryState.temAutoCabinetReturnPath
+    delete cleanHistoryState.temAutoCabinetReturnScrollY
+    window.history.replaceState(cleanHistoryState, '', window.location.href)
+
+    const restorePosition = () => window.scrollTo({ top: returnScrollY, left: 0, behavior: 'auto' })
+    restorePosition()
+    let secondFrame = 0
+    const firstFrame = window.requestAnimationFrame(() => {
+      restorePosition()
+      secondFrame = window.requestAnimationFrame(restorePosition)
+    })
+    const shortTimer = window.setTimeout(restorePosition, 120)
+    const layoutTimer = window.setTimeout(restorePosition, 350)
+    return () => {
+      window.cancelAnimationFrame(firstFrame)
+      if (secondFrame) window.cancelAnimationFrame(secondFrame)
+      window.clearTimeout(shortTimer)
+      window.clearTimeout(layoutTimer)
+    }
+  }, [loading])
 
   useEffect(() => {
     async function loadCabinet() {
@@ -264,7 +308,7 @@ export default function KabinetsPage() {
                       backgroundColor: '#ffffff'
                     }}
                   >
-                    <Link href={`/auto/${car.id}`} data-cell="photo" aria-label={`${t('Apskatīt')} ${car.make || ''} ${car.model || ''}`.trim()}>
+                    <Link href={`/auto/${car.id}`} onClick={rememberCabinetReturnPosition} data-cell="photo" aria-label={`${t('Apskatīt')} ${car.make || ''} ${car.model || ''}`.trim()}>
                       {galleryImages.length > 0 ? (
                         <>
                           <DemoPhoto data-cabinet-desktop-photo="true" src={coverImage} alt="" draggable={false} style={{ width: '112px', height: '68px', objectFit: 'cover', borderRadius: '6px' }} />
@@ -276,11 +320,12 @@ export default function KabinetsPage() {
                     </Link>
 
                     <div data-cell="car" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-                      <Link href={`/auto/${car.id}`} data-cabinet-car-title="true" style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1d4ed8', textDecoration: 'none', fontSize: '15px', fontWeight: '700' }}>
+                      <Link href={`/auto/${car.id}`} onClick={rememberCabinetReturnPosition} data-cabinet-car-title="true" style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1d4ed8', textDecoration: 'none', fontSize: '15px', fontWeight: '700' }}>
                         {car.make} {car.model}
                       </Link>
                       <Link
                         href={`/auto/${car.id}/edit`}
+                        onClick={rememberCabinetReturnPosition}
                         role="button"
                         data-cabinet-mobile-edit="true"
                         style={{ flexShrink: 0, marginLeft: 'auto', color: '#2563eb', textDecoration: 'none', fontSize: '12px', fontWeight: '700' }}
