@@ -1,6 +1,7 @@
 'use client'
 
 import { useI18n } from '../../../lib/i18n'
+import { findCountry } from '../../../lib/countries'
 
 import DemoPhoto from '../../components/DemoPhoto'
 
@@ -493,6 +494,7 @@ export default function AutoLapa() {
   }
 
   const finalMileage = getMileage()
+  const desktopCountryFlag = getCountryFlagCode(car.country || 'Latvija', car.country_code) || findCountry(car.country || 'Latvija')?.code
 
   return (
     <>
@@ -895,7 +897,16 @@ export default function AutoLapa() {
           {/* Valsts un Pilsēta */}
           {(car.country || car.city) && (
             <div data-listing-location-card="true" style={{ backgroundColor: '#f0fdf4', padding: '12px 16px', borderRadius: '10px', border: '1px solid #bbf7d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-              <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.country || t('Latvija')}</span>
+              <span style={{ color: '#166534', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '7px' }}>
+                {desktopCountryFlag && (
+                  <img
+                    src={`https://flagcdn.com/w40/${desktopCountryFlag}.png`}
+                    alt={`${car.country || t('Latvija')} ${t('karogs')}`}
+                    style={{ width: '22px', height: '15px', objectFit: 'cover', borderRadius: '2px', flexShrink: 0 }}
+                  />
+                )}
+                <span>{car.country || t('Latvija')}</span>
+              </span>
               <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.city || car.region || ''}</span>
             </div>
           )}
