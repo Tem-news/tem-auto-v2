@@ -1347,6 +1347,7 @@ export default function Sakumlapa() {
 
                 {hasActiveFilters && (
                   <button 
+                    data-filter-clear="true"
                     onClick={clearAllFilters} 
                     style={{ 
                       display: 'flex', 

@@ -1313,6 +1313,16 @@
     color: #f1f5f9 !important;
   }
 
+  html[data-temauto-theme='night'] [data-filter-row='true'] [data-filter-clear='true'] {
+    color: #fecaca !important;
+    background-color: #450a0a !important;
+    border-color: #b91c1c !important;
+  }
+
+  html[data-temauto-theme='night'] [data-filter-row='true'] [data-filter-clear='true'] > span {
+    color: inherit !important;
+  }
+
   html[data-temauto-theme='night'] [data-filter-row='true'] input::placeholder {
     color: #cbd5e1 !important;
     opacity: 1;
