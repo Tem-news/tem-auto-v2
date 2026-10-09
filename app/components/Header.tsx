@@ -163,7 +163,9 @@ export default function Header() {
       if (langRef.current && !langRef.current.contains(event.target as Node)) {
         setLangOpen(false)
       }
-      if (regionRef.current && !regionRef.current.contains(event.target as Node)) {
+      const inlineRegionPanel = event.target instanceof Element &&
+        event.target.closest('[data-header-region-panel="true"][data-mobile-menu-inline="true"]')
+      if (regionRef.current && !regionRef.current.contains(event.target as Node) && !inlineRegionPanel) {
         setRegionOpen(false)
       }
     }
