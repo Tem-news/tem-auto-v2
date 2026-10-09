@@ -1085,7 +1085,7 @@ export default function Header() {
         )}
 
         <div data-header-controls="true" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-          {isDesktopHeader && pathname === '/' && (
+          {isDesktopHeader && (
             <div data-desktop-theme-picker="true" role="group" aria-label={t('Ekrāna režīms')} style={{ display: 'flex', gap: '4px' }}>
               {(['day', 'night'] as const).map(theme => (
                 <button
