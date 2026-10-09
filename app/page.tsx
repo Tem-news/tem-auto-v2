@@ -291,7 +291,7 @@ function ListingCardGallery({ images, alt, compact = false }: { images: string[]
 }
 
 export default function Sakumlapa() {
-  const { t, matches, canonical, setCountryLanguage } = useI18n()
+  const { t, matches, canonical } = useI18n()
   const router = useRouter()
   const [cars, setCars] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -554,6 +554,10 @@ export default function Sakumlapa() {
   }, [loading])
 
   const [valsts, setValsts] = useState('')
+  const selectFilterCountry = (value: string) => {
+    setValsts(value)
+    window.dispatchEvent(new CustomEvent('temauto-filter-country', { detail: value }))
+  }
   const [regions, setRegions] = useState('')
   
   const [minPrice, setMinPrice] = useState('')
@@ -816,7 +820,7 @@ export default function Sakumlapa() {
 
   const clearAllFilters = () => {
     setSearchModel('')
-    setValsts('')
+    selectFilterCountry('')
     setRegions('')
     setMinPrice('')
     setMaxPrice('')
@@ -1439,19 +1443,18 @@ export default function Sakumlapa() {
                   data-filter-field="valsts"
                   placeholder={t("Valsts")}
                   value={t(valsts)}
-                  onChange={(e) => { const value = canonical(e.target.value, COUNTRIES.map(c => c.name)); setValsts(value); setCountryLanguage(value); setActiveDropdown('valsts'); }}
+                  onChange={(e) => { const value = canonical(e.target.value, COUNTRIES.map(c => c.name)); selectFilterCountry(value); setActiveDropdown('valsts'); }}
                   onClick={() => toggleDropdown('valsts')}
                   style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'valsts' && (
                   <div data-filter-dropdown="true" style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setValsts(''); setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>{t("Visas valstis")}</div>
+                    <div onClick={() => { selectFilterCountry(''); setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>{t("Visas valstis")}</div>
                     {COUNTRIES.filter(c => matches(c.name, valsts)).map((c) => (
                       <div
                         key={c.name}
                         onClick={() => { 
-                          setValsts(c.name);
-                          setCountryLanguage(c.name); 
+                          selectFilterCountry(c.name); 
                           setRegions(''); 
                           setActiveDropdown(null); 
                         }}

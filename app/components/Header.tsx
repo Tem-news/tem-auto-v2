@@ -83,6 +83,22 @@ export default function Header() {
   const currentLang = language
   const setCurrentLang = (code: string) => { if (code === 'LV' || code === 'EN' || code === 'RU' || code === 'LT' || code === 'EE' || code === 'DE' || code === 'FR' || code === 'ES' || code === 'PT' || code === 'IT' || code === 'FI' || code === 'PL' || code === 'SV' || code === 'NO' || code === 'DA' || code === 'BG' || code === 'HU' || code === 'RO' || code === 'CS' || code === 'EL' || code === 'NL' || code === 'GA' || code === 'SK' || code === 'SL' || code === 'MT' || code === 'TR') setLanguage(code) }
   const [currentRegion, setCurrentRegion] = useState('Latvija (EUR)')
+  const regionBeforeFiltering = useRef<string | null>(null)
+  useEffect(() => {
+    const syncFilterCountry = (event: Event) => {
+      const value = (event as CustomEvent<string>).detail
+      const country = findCountry(value)
+      if (country) {
+        if (regionBeforeFiltering.current === null) regionBeforeFiltering.current = currentRegion
+        setCurrentRegion(`${country.name} (${country.currency})`)
+      } else if (!value && regionBeforeFiltering.current !== null) {
+        setCurrentRegion(regionBeforeFiltering.current)
+        regionBeforeFiltering.current = null
+      }
+    }
+    window.addEventListener('temauto-filter-country', syncFilterCountry)
+    return () => window.removeEventListener('temauto-filter-country', syncFilterCountry)
+  }, [currentRegion])
   const selectRegion = (value: string) => {
     setCurrentRegion(value)
     localStorage.setItem('temauto-region', value)
