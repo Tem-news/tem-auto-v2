@@ -1,5 +1,8 @@
 /* Desktop home catalogue only; independent of the mobile theme. */
 @media (min-width: 768px) {
+  html[data-temauto-desktop-theme='night'] body:has([data-catalogue-page='true']) header {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 16px 0 #020617 !important;
+  }
   html[data-temauto-desktop-theme='day'] [data-catalogue-page='true'] [data-desktop-sort-toggle='true'] {
     background: #ffffff !important;
     color: #1f2937 !important;
