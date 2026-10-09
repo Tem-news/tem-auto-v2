@@ -85,6 +85,11 @@ export default function Header() {
   const [currentRegion, setCurrentRegion] = useState('Latvija (EUR)')
   const regionBeforeFiltering = useRef<string | null>(null)
   useEffect(() => {
+    const syncInitialRegion = (event: Event) => setCurrentRegion((event as CustomEvent<string>).detail)
+    window.addEventListener('temauto-initial-region', syncInitialRegion)
+    return () => window.removeEventListener('temauto-initial-region', syncInitialRegion)
+  }, [])
+  useEffect(() => {
     const syncFilterCountry = (event: Event) => {
       const value = (event as CustomEvent<string>).detail
       const country = findCountry(value)
@@ -1536,3 +1541,4 @@ export default function Header() {
     </header>
   )
 }
+

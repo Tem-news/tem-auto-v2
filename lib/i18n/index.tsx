@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { findCountry, translatedCountryName } from '../countries'
+import { initializeVisitorLocale } from '../visitorLocale'
 import english from './en.json'
 import russian from './ru.json'
 import lithuanian from './lt.json'
@@ -50,12 +51,22 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
     const preferred = navigator.language.toLowerCase()
-    updateLanguage(saved === 'EN' || saved === 'RU' || saved === 'LT' || saved === 'EE' || saved === 'DE' || saved === 'FR' || saved === 'ES' || saved === 'PT' || saved === 'IT' || saved === 'FI' || saved === 'PL' || saved === 'SV' || saved === 'NO' || saved === 'DA' || saved === 'BG' || saved === 'HU' || saved === 'RO' || saved === 'CS' || saved === 'EL' || saved === 'NL' || saved === 'GA' || saved === 'SK' || saved === 'SL' || saved === 'MT' || saved === 'TR' || saved === 'LV' ? saved : !saved && preferred.startsWith('tr') ? 'TR' : !saved && preferred.startsWith('mt') ? 'MT' : !saved && preferred.startsWith('sl') ? 'SL' : !saved && preferred.startsWith('sk') ? 'SK' : !saved && preferred.startsWith('ga') ? 'GA' : !saved && preferred.startsWith('nl') ? 'NL' : !saved && preferred.startsWith('el') ? 'EL' : !saved && preferred.startsWith('cs') ? 'CS' : !saved && preferred.startsWith('ro') ? 'RO' : !saved && preferred.startsWith('hu') ? 'HU' : !saved && preferred.startsWith('bg') ? 'BG' : !saved && preferred.startsWith('da') ? 'DA' : !saved && (preferred.startsWith('no') || preferred.startsWith('nb')) ? 'NO' : !saved && preferred.startsWith('sv') ? 'SV' : !saved && preferred.startsWith('pl') ? 'PL' : !saved && preferred.startsWith('fi') ? 'FI' : !saved && preferred.startsWith('it') ? 'IT' : !saved && preferred.startsWith('pt') ? 'PT' : !saved && preferred.startsWith('es') ? 'ES' : !saved && preferred.startsWith('fr') ? 'FR' : !saved && preferred.startsWith('de') ? 'DE' : !saved && preferred.startsWith('et') ? 'EE' : !saved && preferred.startsWith('lt') ? 'LT' : !saved && preferred.startsWith('ru') ? 'RU' : !saved && preferred.startsWith('en') ? 'EN' : 'LV')
+    const initialLanguage: Language = saved === 'EN' || saved === 'RU' || saved === 'LT' || saved === 'EE' || saved === 'DE' || saved === 'FR' || saved === 'ES' || saved === 'PT' || saved === 'IT' || saved === 'FI' || saved === 'PL' || saved === 'SV' || saved === 'NO' || saved === 'DA' || saved === 'BG' || saved === 'HU' || saved === 'RO' || saved === 'CS' || saved === 'EL' || saved === 'NL' || saved === 'GA' || saved === 'SK' || saved === 'SL' || saved === 'MT' || saved === 'TR' || saved === 'LV' ? saved : !saved && preferred.startsWith('tr') ? 'TR' : !saved && preferred.startsWith('mt') ? 'MT' : !saved && preferred.startsWith('sl') ? 'SL' : !saved && preferred.startsWith('sk') ? 'SK' : !saved && preferred.startsWith('ga') ? 'GA' : !saved && preferred.startsWith('nl') ? 'NL' : !saved && preferred.startsWith('el') ? 'EL' : !saved && preferred.startsWith('cs') ? 'CS' : !saved && preferred.startsWith('ro') ? 'RO' : !saved && preferred.startsWith('hu') ? 'HU' : !saved && preferred.startsWith('bg') ? 'BG' : !saved && preferred.startsWith('da') ? 'DA' : !saved && (preferred.startsWith('no') || preferred.startsWith('nb')) ? 'NO' : !saved && preferred.startsWith('sv') ? 'SV' : !saved && preferred.startsWith('pl') ? 'PL' : !saved && preferred.startsWith('fi') ? 'FI' : !saved && preferred.startsWith('it') ? 'IT' : !saved && preferred.startsWith('pt') ? 'PT' : !saved && preferred.startsWith('es') ? 'ES' : !saved && preferred.startsWith('fr') ? 'FR' : !saved && preferred.startsWith('de') ? 'DE' : !saved && preferred.startsWith('et') ? 'EE' : !saved && preferred.startsWith('lt') ? 'LT' : !saved && preferred.startsWith('ru') ? 'RU' : !saved && preferred.startsWith('en') ? 'EN' : 'LV'
+    updateLanguage(initialLanguage)
+    const controller = new AbortController()
+    initializeVisitorLocale(localStorage, initialLanguage, controller.signal).then(locale => {
+      if (!locale) return
+      updateLanguage(locale.language)
+      window.dispatchEvent(new CustomEvent('temauto-initial-region', { detail: locale.region }))
+    })
     const sync = (event: StorageEvent) => {
       if (event.key === STORAGE_KEY) updateLanguage(event.newValue === 'EN' || event.newValue === 'RU' || event.newValue === 'LT' || event.newValue === 'EE' || event.newValue === 'DE' || event.newValue === 'FR' || event.newValue === 'ES' || event.newValue === 'PT' || event.newValue === 'IT' || event.newValue === 'FI' || event.newValue === 'PL' || event.newValue === 'SV' || event.newValue === 'NO' || event.newValue === 'DA' || event.newValue === 'BG' || event.newValue === 'HU' || event.newValue === 'RO' || event.newValue === 'CS' || event.newValue === 'EL' || event.newValue === 'NL' || event.newValue === 'GA' || event.newValue === 'SK' || event.newValue === 'SL' || event.newValue === 'MT' || event.newValue === 'TR' ? event.newValue : 'LV')
     }
     window.addEventListener('storage', sync)
-    return () => window.removeEventListener('storage', sync)
+    return () => {
+      controller.abort()
+      window.removeEventListener('storage', sync)
+    }
   }, [])
   useEffect(() => { document.documentElement.lang = language === 'EE' ? 'et' : language.toLowerCase() }, [language])
   const setLanguage = useCallback((value: Language) => {
