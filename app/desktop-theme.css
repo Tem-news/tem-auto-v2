@@ -146,3 +146,101 @@
     color: #94a3b8 !important;
   }
 }
+
+/* Cabinet and new listing form use the saved desktop preference. */
+@media (min-width: 768px) {
+  html[data-temauto-desktop-theme='night'] [data-add-car-heading='true'] {
+    border-color: #334155 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-add-car-form-card='true'] > div:not([data-add-car-heading='true']) {
+    background-color: #450a0a !important;
+    border-color: #b91c1c !important;
+    color: #fecaca !important;
+  }
+  html[data-temauto-desktop-theme='night'] body:has(:is([data-cabinet-page='true'], [data-add-car-page='true'])),
+  html[data-temauto-desktop-theme='night'] :is([data-cabinet-page='true'], [data-add-car-page='true']) {
+    background-color: #020617 !important;
+    color: #e2e8f0 !important;
+  }
+  html[data-temauto-desktop-theme='night'] body:has(:is([data-cabinet-page='true'], [data-add-car-page='true'])) header {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 16px 0 #020617 !important;
+  }
+  html[data-temauto-desktop-theme='night'] :is([data-cabinet-panel='true'], [data-cabinet-list='true'], [data-add-car-form-card='true']) {
+    background-color: #0f172a !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-cabinet-title='true'],
+  html[data-temauto-desktop-theme='night'] [data-add-car-heading='true'] h1 {
+    color: #f1f5f9 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-cabinet-list='true'] [data-make-table-row='true'] {
+    background-color: #0f172a !important;
+    border-color: #334155 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-cabinet-list='true'] [data-make-table-row='true']:nth-child(even) {
+    background-color: #111827 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-cabinet-list='true'] [data-cell='year'] {
+    color: #cbd5e1 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-cabinet-list='true'] [data-cell='price'] {
+    color: #f8fafc !important;
+  }
+  html[data-temauto-desktop-theme='night'] :is([data-cabinet-car-title='true'], [data-cabinet-desktop-edit='true']) {
+    color: #93c5fd !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-cabinet-panel='true'] > div:not([data-cabinet-list='true']) {
+    color: #cbd5e1 !important;
+    border-color: #475569 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-cabinet-panel='true'] > div[style*='background-color'] {
+    background-color: #450a0a !important;
+    color: #fecaca !important;
+  }
+
+  html[data-temauto-desktop-theme='night'] [data-add-car-heading='true'] p,
+  html[data-temauto-desktop-theme='night'] [data-add-car-form='true'] label {
+    color: #cbd5e1 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-add-car-form='true'] input:not([type='file']),
+  html[data-temauto-desktop-theme='night'] [data-add-car-form='true'] textarea,
+  html[data-temauto-desktop-theme='night'] [data-add-car-form='true'] .dropdown-container > button,
+  html[data-temauto-desktop-theme='night'] [data-add-car-form='true'] .dropdown-container > div {
+    background-color: #1e293b !important;
+    border-color: #475569 !important;
+    color: #f1f5f9 !important;
+    color-scheme: dark;
+  }
+  html[data-temauto-desktop-theme='night'] [data-add-car-form='true'] input::placeholder,
+  html[data-temauto-desktop-theme='night'] [data-add-car-form='true'] textarea::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1;
+  }
+  html[data-temauto-desktop-theme='night'] [data-add-car-form='true'] .dropdown-container > div > div {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-add-car-form='true'] .dropdown-container > div > div:hover {
+    background-color: #334155 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-add-car-upload='true'] {
+    background-color: #1e293b !important;
+    border-color: #475569 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-add-car-upload='true'] span {
+    color: #cbd5e1 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-add-car-upload='true'] span span {
+    color: #93c5fd !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-add-car-previews='true'] > div {
+    border-color: #475569 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-add-car-ad-rail='true'] > div {
+    background-color: #0f172a !important;
+    border-color: #475569 !important;
+    color: #94a3b8 !important;
+  }
+}
