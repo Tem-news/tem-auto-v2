@@ -10,12 +10,15 @@
 }
 
 @media (min-width: 768px) {
-  [data-header-lang-panel='true'] {
+  [data-header-lang-panel='true'],
+  [data-header-region-panel='true'],
+  [data-header-region-subregions='true'] {
     overflow-y: auto;
     overscroll-behavior-y: contain;
   }
 
-  [data-header-lang-panel='true'] > div {
+  [data-header-lang-panel='true'] > div,
+  [data-header-region-panel='true'] > div {
     overscroll-behavior-y: contain;
   }
 }
@@ -1504,4 +1507,3 @@
     border-color: #38bdf8;
   }
 }
-
