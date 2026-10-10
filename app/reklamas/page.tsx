@@ -9,6 +9,55 @@ const empty = { title: '', slot: 'desktop_1' as AdSlot, target_url: '', active: 
 const types: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp', 'video/mp4': 'mp4', 'video/webm': 'webm' }
 const localDate = (value: string | null) => value ? new Date(new Date(value).getTime() - new Date(value).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''
 
+function MobileAdvertisingCountries({ codes, onChange }: { codes: string[] | null; onChange: (codes: string[] | null) => void }) {
+  const [phase, setPhase] = useState<0 | 1 | 2>(0)
+  const [search, setSearch] = useState('')
+  const input = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (phase !== 2) return
+    const keepVisible = () => input.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+    window.visualViewport?.addEventListener('resize', keepVisible)
+    return () => window.visualViewport?.removeEventListener('resize', keepVisible)
+  }, [phase])
+  const tap = () => {
+    if (phase === 0) {
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+      setPhase(1)
+    } else if (phase === 1) {
+      if (input.current) {
+        input.current.readOnly = false
+        input.current.focus({ preventScroll: true })
+      }
+      setPhase(2)
+    } else {
+      if (input.current) { input.current.readOnly = true; input.current.blur() }
+      setSearch('')
+      setPhase(0)
+    }
+  }
+  return <fieldset data-ad-countries="true" data-mobile-ad-countries="true">
+    <legend>Valstis, kurās rādīt reklāmu</legend>
+    <div style={{ position: 'relative' }}>
+      <label>Meklēt valsti<input ref={input} type="search" value={search} readOnly={phase !== 2} aria-expanded={phase > 0} aria-controls="mobile-ad-country-options"
+        placeholder="Valsts nosaukums…" style={{ scrollMarginTop: 70 }}
+        onPointerDown={event => { event.preventDefault(); event.stopPropagation() }}
+        onClick={event => { event.preventDefault(); event.stopPropagation(); tap() }}
+        onChange={event => setSearch(event.target.value)} /></label>
+      {phase > 0 && <div id="mobile-ad-country-options" data-ad-country-options="true">
+        <label data-ad-country="true"><input type="checkbox" checked={codes === null} onChange={event => onChange(event.target.checked ? null : [])} /><span>Visas valstis</span></label>
+        {COUNTRIES.filter(country => country.name.toLocaleLowerCase('lv').includes(search.trim().toLocaleLowerCase('lv'))).map(country => <label key={country.code} data-ad-country="true">
+          <input type="checkbox" checked={codes === null || codes.includes(country.code)} onChange={event => {
+            const current = codes === null ? COUNTRIES.map(item => item.code) : codes
+            const next = event.target.checked ? [...current, country.code] : current.filter(code => code !== country.code)
+            onChange(next.length === COUNTRIES.length ? null : next)
+          }} />
+          <img src={country.flagUrl} alt="" width={20} height={15} style={{ objectFit: 'cover' }} /><span>{country.name}</span>
+        </label>)}
+      </div>}
+    </div>
+  </fieldset>
+}
+
 export default function AdvertisingAdmin() {
   const [access, setAccess] = useState<'loading' | 'allowed' | 'denied'>('loading')
   const [ads, setAds] = useState<Advertisement[]>([])
@@ -20,6 +69,15 @@ export default function AdvertisingAdmin() {
   const [countrySearch, setCountrySearch] = useState('')
   const [busy, setBusy] = useState(false)
   const fileInput = useRef<HTMLInputElement>(null)
+  const [mobileCountries, setMobileCountries] = useState(false)
+  const [countryPickerVersion, setCountryPickerVersion] = useState(0)
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 767px)')
+    const sync = () => setMobileCountries(query.matches)
+    sync()
+    query.addEventListener('change', sync)
+    return () => query.removeEventListener('change', sync)
+  }, [])
   const refresh = async () => {
     const { data, error } = await supabase.from('temauto_ads').select('*').order('created_at', { ascending: false })
     if (error) throw error
@@ -43,9 +101,9 @@ export default function AdvertisingAdmin() {
     setPreview(url)
     return () => URL.revokeObjectURL(url)
   }, [file, editing])
-  const reset = () => { setForm(empty); setCountrySearch(''); setEditing(null); setFile(null); if (fileInput.current) fileInput.current.value = '' }
+  const reset = () => { setCountryPickerVersion(value => value + 1); setForm(empty); setCountrySearch(''); setEditing(null); setFile(null); if (fileInput.current) fileInput.current.value = '' }
   const edit = (ad: Advertisement) => {
-    setEditing(ad); setCountrySearch(''); setFile(null); setMessage('')
+    setCountryPickerVersion(value => value + 1); setEditing(ad); setCountrySearch(''); setFile(null); setMessage('')
     if (fileInput.current) fileInput.current.value = ''
     setForm({ title: ad.title, slot: ad.slot, target_url: ad.target_url, active: ad.active, starts_at: localDate(ad.starts_at), ends_at: localDate(ad.ends_at), country_codes: ad.country_codes ?? null })
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -115,6 +173,8 @@ export default function AdvertisingAdmin() {
       [data-ad-admin] [data-ad-country-list] {max-height:260px;overflow-y:auto;overscroll-behavior:contain;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:4px}
       [data-ad-admin] label[data-ad-country] {display:flex;align-items:center;gap:8px;margin:0;padding:8px;cursor:pointer}
       [data-ad-admin] [data-ad-countries] {min-width:0;margin:16px 0;padding:12px;border:1px solid #94a3b8;border-radius:6px}
+      [data-ad-admin] [data-ad-country-options] {position:absolute;top:100%;left:0;right:0;z-index:20;max-height:260px;overflow-y:auto;overscroll-behavior:contain;background:#fff;color:#0f172a;border:1px solid #94a3b8;border-radius:6px;box-shadow:0 6px 16px #0003;touch-action:pan-y}
+      @media(max-width:767px){[data-ad-admin] [data-ad-desktop-countries]{display:none}html[data-temauto-theme=night] [data-ad-admin] [data-ad-country-options]{background:#0f172a;color:#f1f5f9}}
       [data-ad-admin] button:disabled {opacity:.5;cursor:wait}
       html[data-temauto-theme=night] [data-ad-admin] {color:#f1f5f9;background:#020617}
       html[data-temauto-theme=night] [data-ad-admin] form,html[data-temauto-theme=night] [data-ad-admin] article {background:#0f172a}
@@ -128,7 +188,7 @@ export default function AdvertisingAdmin() {
       <h2>{editing ? 'Rediģēt reklāmu' : 'Pievienot reklāmu'}</h2>
       <label>Reklāmas nosaukums<input required maxLength={120} value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></label>
       <label>Reklāmas vieta<select value={form.slot} onChange={e => setForm({ ...form, slot: e.target.value as AdSlot })}>{Object.entries(AD_SLOTS).map(([key, name]) => <option key={key} value={key}>{name}</option>)}</select></label>
-      <fieldset data-ad-countries="true">
+      {mobileCountries ? <MobileAdvertisingCountries key={`${editing?.id || 'new'}-${countryPickerVersion}`} codes={form.country_codes} onChange={codes => setForm(previous => ({ ...previous, country_codes: codes }))} /> : <fieldset data-ad-countries="true" data-ad-desktop-countries="true">
         <legend>Valstis, kurās rādīt reklāmu</legend>
         <label><input type="checkbox" checked={form.country_codes === null} onChange={e => setForm({ ...form, country_codes: e.target.checked ? null : [] })} /> Visas valstis</label>
         {form.country_codes !== null && <details>
@@ -146,7 +206,7 @@ export default function AdvertisingAdmin() {
           </div>
         </details>}
         <p style={{ marginBottom: 0 }}>{form.country_codes === null ? 'Reklāma būs redzama visās platformas valstīs.' : form.country_codes.length ? `Izvēlētas: ${COUNTRIES.filter(country => form.country_codes?.includes(country.code)).map(country => country.name).join(', ')}` : 'Atzīmē vienu vai vairākas valstis.'}</p>
-      </fieldset>
+      </fieldset>}
       <label>Reklāmdevēja vietne<input type="url" placeholder="https://… (nav obligāti)" value={form.target_url} onChange={e => setForm({ ...form, target_url: e.target.value })} /></label>
       <label>Attēls, GIF vai video<input ref={fileInput} type="file" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm" onChange={e => setFile(e.target.files?.[0] || null)} /></label>
       <p>JPG, PNG, GIF, WebP, MP4 vai WebM, līdz 20 MB. Video tiek atskaņots bez skaņas. Faili tiek glabāti publiskā reklāmu glabātuvē — neaugšupielādē konfidenciālus materiālus.</p>
