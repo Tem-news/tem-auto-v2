@@ -102,6 +102,7 @@ export default function AdvertisingAdmin() {
   const video = file ? file.type.startsWith('video/') : editing?.media_type === 'video'
   return <main data-ad-admin="true" style={{ maxWidth: 960, margin: '0 auto', padding: '24px 16px 56px' }}>
     <style>{`
+      @media(max-width:767px){[data-ad-admin] > h1,[data-ad-admin] > a[href="/kabinets"]{display:none}}
       [data-ad-admin] {color:#0f172a;background:#f8fafc}
       [data-ad-admin] form,[data-ad-admin] article {background:white;border:1px solid #cbd5e1;border-radius:10px;padding:18px;margin:16px 0}
       [data-ad-admin] label {display:block;margin:12px 0}

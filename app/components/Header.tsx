@@ -70,6 +70,7 @@ export default function Header() {
   const isAddCar = pathname === '/pievienot' || /^\/auto\/[^/]+\/edit\/?$/.test(pathname)
   const isCabinet = pathname === '/kabinets'
   const infoPageTitle = INFO_PAGE_TITLES[pathname]
+  const mobileInfoPageTitle = pathname === '/reklamas' ? 'Reklāmu pārvaldība' : infoPageTitle
   const [isDesktopHeader, setIsDesktopHeader] = useState(false)
   useEffect(() => {
     const query = window.matchMedia('(min-width: 768px)')
@@ -655,7 +656,7 @@ export default function Header() {
     `}</style>
   )
 
-  if (infoPageTitle && !isDesktopHeader) {
+  if (mobileInfoPageTitle && !isDesktopHeader) {
     return (
       <>
         <header
@@ -707,7 +708,7 @@ export default function Header() {
             </Link>
 
             <strong style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', maxWidth: 'calc(100% - 190px)', color: '#e2e8f0', fontSize: 'clamp(14px, 4vw, 18px)', lineHeight: 1.15, textAlign: 'center' }}>
-              {t(infoPageTitle)}
+              {t(mobileInfoPageTitle)}
             </strong>
           </div>
         </header>
