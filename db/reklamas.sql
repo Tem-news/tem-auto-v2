@@ -11,7 +11,7 @@ create table public.temauto_ads (
  slot text not null check (slot in ('desktop_1','desktop_2','desktop_form_1','desktop_form_2','desktop_login','desktop_form_left_1','desktop_form_left_2','mobile_menu','mobile_list','mobile_brands')),
  media_path text not null check (media_path ~ '^[a-f0-9-]{36}\.(jpg|png|gif|webp|mp4|webm)$'),
  media_type text not null check (media_type in ('image','video')),
- target_url text not null check (target_url ~ '^https://[^/@[:space:]]+([/?#][^[:space:]]*)?$'),
+ target_url text not null check (target_url = '' or target_url ~ '^https://[^/@[:space:]]+([/?#][^[:space:]]*)?$'),
  active boolean not null default false,
  starts_at timestamptz,
  ends_at timestamptz,

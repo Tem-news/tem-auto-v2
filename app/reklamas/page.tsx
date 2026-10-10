@@ -52,8 +52,9 @@ export default function AdvertisingAdmin() {
     event.preventDefault()
     if (busy) return
     setMessage('')
-    const link = safeAdLink(form.target_url.trim())
-    if (!link) { setMessage('Ievadi pilnu https:// reklāmdevēja adresi bez lietotājvārda vai paroles.'); return }
+    const address = form.target_url.trim()
+    const link = address ? safeAdLink(address) : ''
+    if (address && !link) { setMessage('Ievadi pilnu https:// reklāmdevēja adresi bez lietotājvārda vai paroles.'); return }
     if (!file && !editing) { setMessage('Pievieno reklāmas failu.'); return }
     if (file && (!types[file.type] || file.size > 20 * 1024 * 1024)) { setMessage('Atļauts JPG, PNG, GIF, WebP, MP4 vai WebM līdz 20 MB.'); return }
     const start = form.starts_at ? new Date(form.starts_at).toISOString() : null
@@ -121,7 +122,7 @@ export default function AdvertisingAdmin() {
       <h2>{editing ? 'Rediģēt reklāmu' : 'Pievienot reklāmu'}</h2>
       <label>Reklāmas nosaukums<input required maxLength={120} value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></label>
       <label>Reklāmas vieta<select value={form.slot} onChange={e => setForm({ ...form, slot: e.target.value as AdSlot })}>{Object.entries(AD_SLOTS).map(([key, name]) => <option key={key} value={key}>{name}</option>)}</select></label>
-      <label>Reklāmdevēja vietne<input type="url" required placeholder="https://…" value={form.target_url} onChange={e => setForm({ ...form, target_url: e.target.value })} /></label>
+      <label>Reklāmdevēja vietne<input type="url" placeholder="https://… (nav obligāti)" value={form.target_url} onChange={e => setForm({ ...form, target_url: e.target.value })} /></label>
       <label>Attēls, GIF vai video<input ref={fileInput} type="file" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm" onChange={e => setFile(e.target.files?.[0] || null)} /></label>
       <p>JPG, PNG, GIF, WebP, MP4 vai WebM, līdz 20 MB. Video tiek atskaņots bez skaņas. Faili tiek glabāti publiskā reklāmu glabātuvē — neaugšupielādē konfidenciālus materiālus.</p>
       {preview && <div style={{ height: 220, background: '#1e293b', borderRadius: 8 }}>{video ? <video src={preview} controls muted playsInline style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <img src={preview} alt="Reklāmas priekšskatījums" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />}</div>}
