@@ -1,5 +1,7 @@
 'use client'
 
+import AdvertisingSlot from '../components/AdvertisingSlot'
+
 import { useI18n } from '../../lib/i18n'
 import { COUNTRIES, findCountry } from '../../lib/countries'
 
@@ -851,14 +853,14 @@ export default function PievienotAuto() {
         
         {/* KREISĀ PUSE - 2 Baneri */}
         <div data-add-car-ad-rail="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+          <AdvertisingSlot slot="desktop_form_left_1" style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
             <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("REKLĀMA 1")}</span>
             <span>{t("Sānu baneris augšējais!")}</span>
-          </div>
-          <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+          </AdvertisingSlot>
+          <AdvertisingSlot slot="desktop_form_left_2" style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
             <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("REKLĀMA 2")}</span>
             <span>{t("Sānu baneris apakšējais!")}</span>
-          </div>
+          </AdvertisingSlot>
         </div>
 
         {/* VIDUS: Forma */}
@@ -1458,17 +1460,18 @@ export default function PievienotAuto() {
 
         {/* LABĀ PUSE - 2 Baneri */}
         <div data-add-car-ad-rail="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+          <AdvertisingSlot slot="desktop_form_1" style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
             <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("REKLĀMA 3")}</span>
             <span>{t("Sānu baneris labajā pusē (augšā)!")}</span>
-          </div>
-          <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+          </AdvertisingSlot>
+          <AdvertisingSlot slot="desktop_form_2" style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
             <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("REKLĀMA 4")}</span>
             <span>{t("Sānu baneris labajā pusē (apakšā)!")}</span>
-          </div>
+          </AdvertisingSlot>
         </div>
 
       </div>
     </div>
   )
 }
+

@@ -1,5 +1,7 @@
 'use client'
 
+import AdvertisingSlot from '../components/AdvertisingSlot'
+
 import { useI18n } from '../../lib/i18n'
 
 import { useEffect, useState } from 'react'
@@ -308,10 +310,10 @@ export default function LoginPage() {
 
         {/* Labā puse: Reklāmas baneris */}
         <div data-login-ad="true" style={{ width: '260px', flexShrink: 0 }}>
-          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '380px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <AdvertisingSlot slot="desktop_login" style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '380px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>{t("Reklāma")}</span>
             <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>{t("Ekskluzīvs baneris šeit!")}<br/><span style={{ fontSize: '12px' }}>{t("(Maksimāla uzmanība)")}</span></p>
-          </div>
+          </AdvertisingSlot>
         </div>
 
       </div>

@@ -1,5 +1,7 @@
 'use client'
 
+import AdvertisingSlot from '../../components/AdvertisingSlot'
+
 import { useI18n } from '../../../lib/i18n'
 import { findCountry } from '../../../lib/countries'
 
@@ -1356,14 +1358,14 @@ export default function AutoLapa() {
         {/* LABĀ MALA: divi vienādi, gari platformā integrēti sponsoru lauki */}
         <div data-listing-detail-sponsors="true" style={{ gridColumn: '3', gridRow: '1 / span 2', width: '240px', height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {[1, 2].map((placement) => (
-            <aside
+            <AdvertisingSlot as="aside" slot={placement === 1 ? "desktop_1" : "desktop_2"}
               key={placement}
               aria-label={t("Sponsora vieta")}
               style={{ width: '100%', minHeight: 0, flex: '1 1 0', boxSizing: 'border-box', border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}
             >
               <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("SPONSORS")}</span>
               <span>{t("Vieta sadarbības partnerim")}</span>
-            </aside>
+            </AdvertisingSlot>
           ))}
         </div>
 

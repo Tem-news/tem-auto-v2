@@ -2,6 +2,8 @@
 
 import { useI18n } from '../../lib/i18n'
 
+import { isAdvertisingAdmin } from '../../lib/advertising'
+
 import DemoPhoto from '../components/DemoPhoto'
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
@@ -102,6 +104,12 @@ function CabinetListingGallery({ images }: { images: string[] }) {
 export default function KabinetsPage() {
   const { t, matches, canonical } = useI18n()
   const router = useRouter()
+  const [adAdmin, setAdAdmin] = useState(false)
+  useEffect(() => {
+    let alive = true
+    isAdvertisingAdmin().then(allowed => { if (alive) setAdAdmin(allowed) })
+    return () => { alive = false }
+  }, [])
   const [user, setUser] = useState<any>(null)
   const [cars, setCars] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -274,6 +282,8 @@ export default function KabinetsPage() {
       <section data-cabinet-panel="true" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
         <h2 data-cabinet-title="true" style={{ margin: '0 0 16px', color: '#111827', fontSize: '18px' }}>{t("Mani sludinājumi (")}{cars.length})
         </h2>
+
+        {adAdmin && <p style={{ margin: '0 0 16px' }}><Link href="/reklamas" style={{ color: '#0284c7', fontWeight: 600 }}>Reklāmu pārvaldība</Link></p>}
 
         {errorMessage ? (
           <div style={{ padding: '16px', borderRadius: '8px', backgroundColor: '#fee2e2', color: '#b91c1c' }}>{t(errorMessage)}</div>

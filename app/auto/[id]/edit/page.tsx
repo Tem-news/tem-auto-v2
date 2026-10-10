@@ -1,5 +1,7 @@
 'use client'
 
+import AdvertisingSlot from '../../../components/AdvertisingSlot'
+
 import { useI18n } from '../../../../lib/i18n'
 import { COUNTRIES } from '../../../../lib/countries'
 
@@ -1116,10 +1118,10 @@ export default function RedigetAuto() {
         <div data-edit-ad-column="true" style={{ width: '260px', flexShrink: 0 }}>
           <div style={{ position: 'fixed', top: '100px', width: '260px', height: 'calc(100dvh - 120px)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {[1, 2].map((placement) => (
-              <div key={placement} style={{ flex: '1 1 0', minHeight: 0, boxSizing: 'border-box', backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+              <AdvertisingSlot slot={placement === 1 ? "desktop_form_1" : "desktop_form_2"} key={placement} style={{ flex: '1 1 0', minHeight: 0, boxSizing: 'border-box', backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                 <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>{t("Reklāma")}</span>
                 <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>{t("Ekskluzīvs baneris šeit!")}<br/><span style={{ fontSize: '12px' }}>{t("(Maksimāla uzmanība)")}</span></p>
-              </div>
+              </AdvertisingSlot>
             ))}
           </div>
         </div>
@@ -1128,3 +1130,4 @@ export default function RedigetAuto() {
     </div>
   )
 }
+

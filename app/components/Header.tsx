@@ -1,5 +1,7 @@
 'use client'
 
+import AdvertisingSlot from './AdvertisingSlot'
+
 import { useI18n } from '../../lib/i18n'
 import '../desktop-theme.css'
 import { COUNTRIES, findCountry } from '../../lib/countries'
@@ -1559,10 +1561,7 @@ export default function Header() {
                   </button>
                 ))}
               </nav>
-              <div data-mobile-sponsor="true" data-mobile-menu-sponsor="true" aria-label={t("Sponsora vieta")}>
-                <strong>{t("SPONSORS")}</strong>
-                <span>{t("Vieta sadarbības partnerim")}</span>
-              </div>
+              <AdvertisingSlot slot="mobile_menu" data-mobile-sponsor="true" data-mobile-menu-sponsor="true" aria-label={t("Sponsora vieta")}><strong>{t("SPONSORS")}</strong><span>{t("Vieta sadarbības partnerim")}</span></AdvertisingSlot>
             </div>
           )}
 

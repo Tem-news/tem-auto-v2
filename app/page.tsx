@@ -1,5 +1,7 @@
 'use client'
 
+import AdvertisingSlot from './components/AdvertisingSlot'
+
 import { useI18n } from '../lib/i18n'
 import { COUNTRIES } from '../lib/countries'
 import { catalogueCountryCode, listingBelongsToCountry } from '../lib/catalogueCountry'
@@ -1261,10 +1263,7 @@ export default function Sakumlapa() {
               </div>
             </div>
           )}
-          <div data-mobile-sponsor="true" aria-label={t("Sponsora vieta")}>
-            <strong>{t("SPONSORS")}</strong>
-            <span>{t("Vieta sadarbības partnerim")}</span>
-          </div>
+          <AdvertisingSlot slot="mobile_brands" data-mobile-sponsor="true" aria-label={t("Sponsora vieta")}><strong>{t("SPONSORS")}</strong><span>{t("Vieta sadarbības partnerim")}</span></AdvertisingSlot>
           </div>
 
           <nav
@@ -1852,10 +1851,7 @@ export default function Sakumlapa() {
                       </div>
                     </a>
                     {(index + 1) % 5 === 0 && (
-                      <div data-mobile-sponsor="true" aria-label={t("Sponsora vieta")}>
-                        <strong>{t("SPONSORS")}</strong>
-                        <span>{t("Vieta sadarbības partnerim")}</span>
-                      </div>
+                      <AdvertisingSlot slot="mobile_list" data-mobile-sponsor="true" aria-label={t("Sponsora vieta")}><strong>{t("SPONSORS")}</strong><span>{t("Vieta sadarbības partnerim")}</span></AdvertisingSlot>
                     )}
                     </Fragment>
                   )
@@ -2009,10 +2005,7 @@ export default function Sakumlapa() {
                         </div>
                       </a>
                       {(index + 1) % 5 === 0 && (
-                        <div data-mobile-sponsor="true" aria-label={t("Sponsora vieta")}>
-                          <strong>{t("SPONSORS")}</strong>
-                          <span>{t("Vieta sadarbības partnerim")}</span>
-                        </div>
+                        <AdvertisingSlot slot="mobile_list" data-mobile-sponsor="true" aria-label={t("Sponsora vieta")}><strong>{t("SPONSORS")}</strong><span>{t("Vieta sadarbības partnerim")}</span></AdvertisingSlot>
                       )}
                       </Fragment>
                     )
@@ -2052,7 +2045,7 @@ export default function Sakumlapa() {
         {/* LABĀ PUSE - divi gari, nekustīgi platformas sponsoru lauki */}
         <div data-sponsor-rail="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', height: 'calc(100dvh - 88px)', minHeight: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {[1, 2].map((placement) => (
-            <aside
+            <AdvertisingSlot as="aside" slot={placement === 1 ? "desktop_1" : "desktop_2"}
               key={placement}
               data-temauto-sponsor-placement="true"
               aria-label={t("Sponsora vieta")}
@@ -2060,7 +2053,7 @@ export default function Sakumlapa() {
             >
               <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("SPONSORS")}</span>
               <span>{t("Vieta sadarbības partnerim")}</span>
-            </aside>
+            </AdvertisingSlot>
           ))}
         </div>
 
