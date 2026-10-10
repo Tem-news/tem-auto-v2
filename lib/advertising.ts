@@ -16,7 +16,10 @@ export const AD_SLOTS = {
 export type AdSlot = keyof typeof AD_SLOTS
 export type Advertisement = {
   id: string; title: string; slot: AdSlot; media_path: string; media_type: 'image' | 'video';
-  target_url: string; active: boolean; starts_at: string | null; ends_at: string | null; created_at: string;
+  country_codes: string[] | null; target_url: string; active: boolean; starts_at: string | null; ends_at: string | null; created_at: string;
+}
+export function advertisementForCountry(ads: Advertisement[], slot: AdSlot, countryCode: string): Advertisement | null {
+  return ads.find(ad => ad.slot === slot && (ad.country_codes == null || ad.country_codes.includes(countryCode))) || null
 }
 export const AD_BUCKET = 'temauto-ads'
 export const mediaUrl = (path: string) => supabase.storage.from(AD_BUCKET).getPublicUrl(path).data.publicUrl

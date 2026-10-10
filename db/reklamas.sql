@@ -12,6 +12,7 @@ create table public.temauto_ads (
  media_path text not null check (media_path ~ '^[a-f0-9-]{36}\.(jpg|png|gif|webp|mp4|webm)$'),
  media_type text not null check (media_type in ('image','video')),
  target_url text not null check (target_url = '' or target_url ~ '^https://[^/@[:space:]]+([/?#][^[:space:]]*)?$'),
+ country_codes text[] check (country_codes is null or (cardinality(country_codes) between 1 and 158 and array_ndims(country_codes) = 1 and array_position(country_codes, null) is null and country_codes <@ array['lv','dz','ad','ao','ag','ae','ar','am','us','au','at','tl','bs','by','bb','bz','be','bj','bo','ba','bw','br','bg','bf','bi','cf','td','cz','cl','dk','za','ss','dm','do','dj','ec','gq','er','et','eg','fj','ph','fr','ga','gy','gm','gh','gd','gr','gt','gn','gw','ht','hn','hr','ee','in','iq','is','it','il','ie','jm','nz','jo','cv','cm','ca','kz','ke','cy','kg','ki','co','km','cg','cd','cr','ci','ru','cu','ls','lb','lr','gb','lt','li','lu','mg','my','mw','mv','ml','mt','ma','mu','mh','mx','fm','md','mc','mz','na','nr','ne','ng','ni','nl','no','pk','pw','pa','pg','py','pe','pl','pt','rw','ro','sv','ws','sm','st','sc','sn','kn','lc','vc','sg','sl','sk','si','fi','es','sd','sr','sz','ch','th','tz','tg','to','tt','tn','tr','tv','ug','ua','hu','uy','vu','va','de','ve','zm','sb','zw','se']::text[])),
  active boolean not null default false,
  starts_at timestamptz,
  ends_at timestamptz,

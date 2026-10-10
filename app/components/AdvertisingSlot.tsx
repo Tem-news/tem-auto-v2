@@ -2,7 +2,8 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useI18n } from '../../lib/i18n'
-import { mediaUrl, publishedAds, safeAdLink, type AdSlot, type Advertisement } from '../../lib/advertising'
+import { catalogueCountryCode } from '../../lib/catalogueCountry'
+import { advertisementForCountry, mediaUrl, publishedAds, safeAdLink, type AdSlot, type Advertisement } from '../../lib/advertising'
 
 export default function AdvertisingSlot({ slot, as: Tag = 'div', children, style, ...attributes }: {
   slot: AdSlot; as?: 'div' | 'aside'; children: ReactNode; style?: CSSProperties;
@@ -22,11 +23,23 @@ export default function AdvertisingSlot({ slot, as: Tag = 'div', children, style
   }, [expanded])
   useEffect(() => {
     let alive = true
-    const refresh = () => publishedAds().then(ads => { if (alive) setAd(ads.find(item => item.slot === slot) || null) })
+    let country = document.documentElement.dataset.temautoAdCountry || catalogueCountryCode(localStorage.getItem('temauto-region') || 'Latvija') || 'lv'
+    const refresh = () => publishedAds().then(ads => { if (alive) setAd(advertisementForCountry(ads, slot, country)) })
+    const selectCountry = (event: Event) => {
+      country = (event as CustomEvent<string>).detail
+      setExpanded(false)
+      void refresh()
+    }
+    window.addEventListener('temauto-ad-country', selectCountry)
     void refresh()
     const timer = window.setInterval(refresh, 30000)
     window.addEventListener('temauto-ads-updated', refresh)
-    return () => { alive = false; clearInterval(timer); window.removeEventListener('temauto-ads-updated', refresh) }
+    return () => {
+      alive = false
+      clearInterval(timer)
+      window.removeEventListener('temauto-ads-updated', refresh)
+      window.removeEventListener('temauto-ad-country', selectCountry)
+    }
   }, [slot])
   const href = ad && safeAdLink(ad.target_url)
   const mobile = slot.startsWith('mobile_')

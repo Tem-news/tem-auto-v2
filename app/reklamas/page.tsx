@@ -1,10 +1,11 @@
 'use client'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import Link from 'next/link'
+import { COUNTRIES } from '../../lib/countries'
 import { supabase } from '../../lib/supabase'
 import { AD_BUCKET, AD_SLOTS, invalidateAds, isAdvertisingAdmin, mediaUrl, safeAdLink, type Advertisement, type AdSlot } from '../../lib/advertising'
 
-const empty = { title: '', slot: 'desktop_1' as AdSlot, target_url: '', active: false, starts_at: '', ends_at: '' }
+const empty = { title: '', slot: 'desktop_1' as AdSlot, target_url: '', active: false, starts_at: '', ends_at: '', country_codes: [] as string[] | null }
 const types: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp', 'video/mp4': 'mp4', 'video/webm': 'webm' }
 const localDate = (value: string | null) => value ? new Date(new Date(value).getTime() - new Date(value).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''
 
@@ -16,6 +17,7 @@ export default function AdvertisingAdmin() {
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState('')
   const [message, setMessage] = useState('')
+  const [countrySearch, setCountrySearch] = useState('')
   const [busy, setBusy] = useState(false)
   const fileInput = useRef<HTMLInputElement>(null)
   const refresh = async () => {
@@ -41,17 +43,18 @@ export default function AdvertisingAdmin() {
     setPreview(url)
     return () => URL.revokeObjectURL(url)
   }, [file, editing])
-  const reset = () => { setForm(empty); setEditing(null); setFile(null); if (fileInput.current) fileInput.current.value = '' }
+  const reset = () => { setForm(empty); setCountrySearch(''); setEditing(null); setFile(null); if (fileInput.current) fileInput.current.value = '' }
   const edit = (ad: Advertisement) => {
-    setEditing(ad); setFile(null); setMessage('')
+    setEditing(ad); setCountrySearch(''); setFile(null); setMessage('')
     if (fileInput.current) fileInput.current.value = ''
-    setForm({ title: ad.title, slot: ad.slot, target_url: ad.target_url, active: ad.active, starts_at: localDate(ad.starts_at), ends_at: localDate(ad.ends_at) })
+    setForm({ title: ad.title, slot: ad.slot, target_url: ad.target_url, active: ad.active, starts_at: localDate(ad.starts_at), ends_at: localDate(ad.ends_at), country_codes: ad.country_codes ?? null })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
   const save = async (event: FormEvent) => {
     event.preventDefault()
     if (busy) return
     setMessage('')
+    if (form.country_codes !== null && form.country_codes.length === 0) { setMessage('Izvēlies vismaz vienu valsti vai atzīmē “Visas valstis”.'); return }
     const address = form.target_url.trim()
     const link = address ? safeAdLink(address) : ''
     if (address && !link) { setMessage('Ievadi pilnu https:// reklāmdevēja adresi bez lietotājvārda vai paroles.'); return }
@@ -109,6 +112,9 @@ export default function AdvertisingAdmin() {
       [data-ad-admin] label {display:block;margin:12px 0}
       [data-ad-admin] input:not([type=checkbox]),[data-ad-admin] select {display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #94a3b8;border-radius:6px;margin-top:5px;font:inherit}
       [data-ad-admin] button {padding:10px 14px;border:1px solid #64748b;border-radius:6px;margin:4px;cursor:pointer;font:inherit}
+      [data-ad-admin] [data-ad-country-list] {max-height:260px;overflow-y:auto;overscroll-behavior:contain;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:4px}
+      [data-ad-admin] label[data-ad-country] {display:flex;align-items:center;gap:8px;margin:0;padding:8px;cursor:pointer}
+      [data-ad-admin] [data-ad-countries] {min-width:0;margin:16px 0;padding:12px;border:1px solid #94a3b8;border-radius:6px}
       [data-ad-admin] button:disabled {opacity:.5;cursor:wait}
       html[data-temauto-theme=night] [data-ad-admin] {color:#f1f5f9;background:#020617}
       html[data-temauto-theme=night] [data-ad-admin] form,html[data-temauto-theme=night] [data-ad-admin] article {background:#0f172a}
@@ -122,13 +128,32 @@ export default function AdvertisingAdmin() {
       <h2>{editing ? 'Rediģēt reklāmu' : 'Pievienot reklāmu'}</h2>
       <label>Reklāmas nosaukums<input required maxLength={120} value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></label>
       <label>Reklāmas vieta<select value={form.slot} onChange={e => setForm({ ...form, slot: e.target.value as AdSlot })}>{Object.entries(AD_SLOTS).map(([key, name]) => <option key={key} value={key}>{name}</option>)}</select></label>
+      <fieldset data-ad-countries="true">
+        <legend>Valstis, kurās rādīt reklāmu</legend>
+        <label><input type="checkbox" checked={form.country_codes === null} onChange={e => setForm({ ...form, country_codes: e.target.checked ? null : [] })} /> Visas valstis</label>
+        {form.country_codes !== null && <details>
+          <summary style={{ cursor: 'pointer' }}>Izvēlēties valstis ({form.country_codes.length})</summary>
+          <label>Meklēt valsti<input type="search" value={countrySearch} onChange={e => setCountrySearch(e.target.value)} placeholder="Valsts nosaukums…" /></label>
+          <div data-ad-country-list="true">
+            {COUNTRIES.filter(country => country.name.toLocaleLowerCase('lv').includes(countrySearch.trim().toLocaleLowerCase('lv'))).map(country => <label key={country.code} data-ad-country="true">
+              <input type="checkbox" checked={form.country_codes?.includes(country.code) || false} onChange={e => {
+                const checked = e.target.checked
+                setForm(previous => ({ ...previous, country_codes: checked ? [...(previous.country_codes || []), country.code] : (previous.country_codes || []).filter(code => code !== country.code) }))
+              }} />
+              <img src={country.flagUrl} alt="" width={20} height={15} style={{ objectFit: 'cover' }} />
+              <span>{country.name}</span>
+            </label>)}
+          </div>
+        </details>}
+        <p style={{ marginBottom: 0 }}>{form.country_codes === null ? 'Reklāma būs redzama visās platformas valstīs.' : form.country_codes.length ? `Izvēlētas: ${COUNTRIES.filter(country => form.country_codes?.includes(country.code)).map(country => country.name).join(', ')}` : 'Atzīmē vienu vai vairākas valstis.'}</p>
+      </fieldset>
       <label>Reklāmdevēja vietne<input type="url" placeholder="https://… (nav obligāti)" value={form.target_url} onChange={e => setForm({ ...form, target_url: e.target.value })} /></label>
       <label>Attēls, GIF vai video<input ref={fileInput} type="file" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm" onChange={e => setFile(e.target.files?.[0] || null)} /></label>
       <p>JPG, PNG, GIF, WebP, MP4 vai WebM, līdz 20 MB. Video tiek atskaņots bez skaņas. Faili tiek glabāti publiskā reklāmu glabātuvē — neaugšupielādē konfidenciālus materiālus.</p>
       {preview && <div style={{ height: 220, background: '#1e293b', borderRadius: 8 }}>{video ? <video src={preview} controls muted playsInline style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <img src={preview} alt="Reklāmas priekšskatījums" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />}</div>}
       <label>Sākums (Tavas ierīces vietējais laiks)<input type="datetime-local" value={form.starts_at} onChange={e => setForm({ ...form, starts_at: e.target.value })} /></label>
       <label>Beigas (Tavas ierīces vietējais laiks)<input type="datetime-local" value={form.ends_at} onChange={e => setForm({ ...form, ends_at: e.target.value })} /></label>
-      <p>Tukšs lauks nozīmē, ka attiecīgā laika ierobežojuma nav. Vienā vietā rāda jaunāko aktīvo reklāmu, kuras publicēšanas laiks ir spēkā.</p>
+      <p>Tukšs lauks nozīmē, ka attiecīgā laika ierobežojuma nav. Vienā vietā rāda jaunāko aktīvo reklāmu, kas atbilst izvēlētajai valstij un kuras publicēšanas laiks ir spēkā.</p>
       <label><input type="checkbox" checked={form.active} onChange={e => setForm({ ...form, active: e.target.checked })} /> Publicēt reklāmu</label>
       <button type="submit" disabled={busy}>{busy ? 'Saglabā…' : 'Saglabāt'}</button>
       {editing && <button type="button" disabled={busy} onClick={reset}>Atcelt rediģēšanu</button>}
@@ -137,6 +162,7 @@ export default function AdvertisingAdmin() {
     {ads.map(ad => <article key={ad.id}>
       <h3>{ad.title}</h3><p>{AD_SLOTS[ad.slot]} · {ad.active ? 'Ieslēgta' : 'Apturēta'}</p>
       <p>{ad.starts_at ? new Date(ad.starts_at).toLocaleString('lv-LV') : 'Bez sākuma ierobežojuma'} → {ad.ends_at ? new Date(ad.ends_at).toLocaleString('lv-LV') : 'Bez beigu ierobežojuma'}</p>
+      <p>Valstis: {ad.country_codes == null ? 'Visas valstis' : COUNTRIES.filter(country => ad.country_codes?.includes(country.code)).map(country => country.name).join(', ')}</p>
       <a href={safeAdLink(ad.target_url) || undefined} target="_blank" rel="noopener noreferrer">{ad.target_url}</a>
       <div><button disabled={busy} onClick={() => edit(ad)}>Rediģēt</button><button disabled={busy} onClick={() => change(ad)}>{ad.active ? 'Apturēt' : 'Aktivizēt'}</button><button disabled={busy} onClick={() => change(ad, true)}>Dzēst</button></div>
     </article>)}
