@@ -58,6 +58,39 @@ function MobileAdvertisingCountries({ codes, onChange }: { codes: string[] | nul
   </fieldset>
 }
 
+function DesktopAdvertisingCountries({ codes, onChange }: { codes: string[] | null; onChange: (codes: string[] | null) => void }) {
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const container = useRef<HTMLFieldSetElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const closeOutside = (event: PointerEvent) => {
+      if (!container.current?.contains(event.target as Node)) setOpen(false)
+    }
+    document.addEventListener('pointerdown', closeOutside)
+    return () => document.removeEventListener('pointerdown', closeOutside)
+  }, [open])
+  return <fieldset ref={container} data-ad-countries="true" data-ad-desktop-countries="true">
+    <legend>Valstis, kurās rādīt reklāmu</legend>
+    <div style={{ position: 'relative' }}>
+      <label>Meklēt valsti<input type="search" value={search} aria-expanded={open} aria-controls="desktop-ad-country-options" placeholder="Valsts nosaukums…"
+        onFocus={() => setOpen(true)} onClick={() => setOpen(true)} onChange={event => { setSearch(event.target.value); setOpen(true) }}
+        onKeyDown={event => { if (event.key === 'Escape') { setOpen(false); event.currentTarget.blur() } }} /></label>
+      {open && <div id="desktop-ad-country-options" data-ad-country-options="true">
+        <label data-ad-country="true"><input type="checkbox" checked={codes === null} onChange={event => onChange(event.target.checked ? null : [])} /><span>Visas valstis</span></label>
+        {COUNTRIES.filter(country => country.name.toLocaleLowerCase('lv').includes(search.trim().toLocaleLowerCase('lv'))).map(country => <label key={country.code} data-ad-country="true">
+          <input type="checkbox" checked={codes === null || codes.includes(country.code)} onChange={event => {
+            const current = codes === null ? COUNTRIES.map(item => item.code) : codes
+            const next = event.target.checked ? [...current, country.code] : current.filter(code => code !== country.code)
+            onChange(next.length === COUNTRIES.length ? null : next)
+          }} />
+          <img src={country.flagUrl} alt="" width={20} height={15} style={{ objectFit: 'cover' }} /><span>{country.name}</span>
+        </label>)}
+      </div>}
+    </div>
+  </fieldset>
+}
+
 export default function AdvertisingAdmin() {
   const [access, setAccess] = useState<'loading' | 'allowed' | 'denied'>('loading')
   const [ads, setAds] = useState<Advertisement[]>([])
@@ -178,6 +211,7 @@ export default function AdvertisingAdmin() {
       [data-ad-admin] button:disabled {opacity:.5;cursor:wait}
       html[data-temauto-theme=night] [data-ad-admin] {color:#f1f5f9;background:#020617}
       html[data-temauto-theme=night] [data-ad-admin] form,html[data-temauto-theme=night] [data-ad-admin] article {background:#0f172a}
+      @media(min-width:768px){html[data-temauto-desktop-theme=night] [data-ad-admin] [data-ad-country-options]{background:#0f172a;color:#f1f5f9}}
       @media(min-width:768px){html[data-temauto-desktop-theme=night] [data-ad-admin]{color:#f1f5f9;background:#020617}html[data-temauto-desktop-theme=night] [data-ad-admin] form,html[data-temauto-desktop-theme=night] [data-ad-admin] article{background:#0f172a}}
     `}</style>
     <Link href="/kabinets">← Mans kabinets</Link>
@@ -188,25 +222,7 @@ export default function AdvertisingAdmin() {
       <h2>{editing ? 'Rediģēt reklāmu' : 'Pievienot reklāmu'}</h2>
       <label>Reklāmas nosaukums<input required maxLength={120} value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></label>
       <label>Reklāmas vieta<select value={form.slot} onChange={e => setForm({ ...form, slot: e.target.value as AdSlot })}>{Object.entries(AD_SLOTS).map(([key, name]) => <option key={key} value={key}>{name}</option>)}</select></label>
-      {mobileCountries ? <MobileAdvertisingCountries key={`${editing?.id || 'new'}-${countryPickerVersion}`} codes={form.country_codes} onChange={codes => setForm(previous => ({ ...previous, country_codes: codes }))} /> : <fieldset data-ad-countries="true" data-ad-desktop-countries="true">
-        <legend>Valstis, kurās rādīt reklāmu</legend>
-        <label><input type="checkbox" checked={form.country_codes === null} onChange={e => setForm({ ...form, country_codes: e.target.checked ? null : [] })} /> Visas valstis</label>
-        {form.country_codes !== null && <details>
-          <summary style={{ cursor: 'pointer' }}>Izvēlēties valstis ({form.country_codes.length})</summary>
-          <label>Meklēt valsti<input type="search" value={countrySearch} onChange={e => setCountrySearch(e.target.value)} placeholder="Valsts nosaukums…" /></label>
-          <div data-ad-country-list="true">
-            {COUNTRIES.filter(country => country.name.toLocaleLowerCase('lv').includes(countrySearch.trim().toLocaleLowerCase('lv'))).map(country => <label key={country.code} data-ad-country="true">
-              <input type="checkbox" checked={form.country_codes?.includes(country.code) || false} onChange={e => {
-                const checked = e.target.checked
-                setForm(previous => ({ ...previous, country_codes: checked ? [...(previous.country_codes || []), country.code] : (previous.country_codes || []).filter(code => code !== country.code) }))
-              }} />
-              <img src={country.flagUrl} alt="" width={20} height={15} style={{ objectFit: 'cover' }} />
-              <span>{country.name}</span>
-            </label>)}
-          </div>
-        </details>}
-        <p style={{ marginBottom: 0 }}>{form.country_codes === null ? 'Reklāma būs redzama visās platformas valstīs.' : form.country_codes.length ? `Izvēlētas: ${COUNTRIES.filter(country => form.country_codes?.includes(country.code)).map(country => country.name).join(', ')}` : 'Atzīmē vienu vai vairākas valstis.'}</p>
-      </fieldset>}
+      {mobileCountries ? <MobileAdvertisingCountries key={`${editing?.id || 'new'}-${countryPickerVersion}`} codes={form.country_codes} onChange={codes => setForm(previous => ({ ...previous, country_codes: codes }))} /> : <DesktopAdvertisingCountries key={`${editing?.id || 'new'}-${countryPickerVersion}`} codes={form.country_codes} onChange={codes => setForm(previous => ({ ...previous, country_codes: codes }))} />}
       <label>Reklāmdevēja vietne<input type="url" placeholder="https://… (nav obligāti)" value={form.target_url} onChange={e => setForm({ ...form, target_url: e.target.value })} /></label>
       <label>Attēls, GIF vai video<input ref={fileInput} type="file" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm" onChange={e => setFile(e.target.files?.[0] || null)} /></label>
       <p>JPG, PNG, GIF, WebP, MP4 vai WebM, līdz 20 MB. Video tiek atskaņots bez skaņas. Faili tiek glabāti publiskā reklāmu glabātuvē — neaugšupielādē konfidenciālus materiālus.</p>
