@@ -61,6 +61,7 @@ function MobileAdvertisingCountries({ codes, onChange }: { codes: string[] | nul
 function DesktopAdvertisingCountries({ codes, onChange }: { codes: string[] | null; onChange: (codes: string[] | null) => void }) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
+  const openBeforePointer = useRef(false)
   const container = useRef<HTMLFieldSetElement>(null)
   useEffect(() => {
     if (!open) return
@@ -74,7 +75,12 @@ function DesktopAdvertisingCountries({ codes, onChange }: { codes: string[] | nu
     <legend>Valstis, kurās rādīt reklāmu</legend>
     <div style={{ position: 'relative' }}>
       <label>Meklēt valsti<input type="search" value={search} aria-expanded={open} aria-controls="desktop-ad-country-options" placeholder="Valsts nosaukums…"
-        onFocus={() => setOpen(true)} onClick={() => setOpen(true)} onChange={event => { setSearch(event.target.value); setOpen(true) }}
+        onPointerDown={() => { openBeforePointer.current = open }}
+        onFocus={() => setOpen(true)} onClick={event => {
+          const next = event.detail === 0 ? !open : !openBeforePointer.current
+          setOpen(next)
+          if (!next) event.currentTarget.blur()
+        }} onChange={event => { setSearch(event.target.value); setOpen(true) }}
         onKeyDown={event => { if (event.key === 'Escape') { setOpen(false); event.currentTarget.blur() } }} /></label>
       {open && <div id="desktop-ad-country-options" data-ad-country-options="true">
         <label data-ad-country="true"><input type="checkbox" checked={codes === null} onChange={event => onChange(event.target.checked ? null : [])} /><span>Visas valstis</span></label>
@@ -211,7 +217,7 @@ export default function AdvertisingAdmin() {
       [data-ad-admin] button:disabled {opacity:.5;cursor:wait}
       html[data-temauto-theme=night] [data-ad-admin] {color:#f1f5f9;background:#020617}
       html[data-temauto-theme=night] [data-ad-admin] form,html[data-temauto-theme=night] [data-ad-admin] article {background:#0f172a}
-      @media(min-width:768px){html[data-temauto-desktop-theme=night] [data-ad-admin] [data-ad-country-options]{background:#0f172a;color:#f1f5f9}}
+      @media(min-width:768px){html[data-temauto-desktop-theme=night] [data-ad-admin] > a[href="/kabinets"]{color:#93c5fd}html[data-temauto-desktop-theme=night] [data-ad-admin] [data-ad-country-options]{background:#0f172a;color:#f1f5f9}}
       @media(min-width:768px){html[data-temauto-desktop-theme=night] [data-ad-admin]{color:#f1f5f9;background:#020617}html[data-temauto-desktop-theme=night] [data-ad-admin] form,html[data-temauto-desktop-theme=night] [data-ad-admin] article{background:#0f172a}}
     `}</style>
     <Link href="/kabinets">← Mans kabinets</Link>
