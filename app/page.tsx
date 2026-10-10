@@ -1,9 +1,23 @@
 'use client'
-import { useEffect, useState, useMemo, useRef } from 'react'
-import Link from 'next/link'
+
+import AdvertisingSlot from './components/AdvertisingSlot'
+
+import { useI18n } from '../lib/i18n'
+import { COUNTRIES } from '../lib/countries'
+import { catalogueCountryCode, listingBelongsToCountry } from '../lib/catalogueCountry'
+
+import DemoPhoto from './components/DemoPhoto'
+import { Fragment, useEffect, useState, useMemo, useRef, useLayoutEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
+import { canUseDevPreviewFallback, isPreviewListing, loadAdaptedPreviewCars } from '../lib/previewFallback'
+import './catalogue-mobile.css'
 	
+const LISTINGS_PER_PAGE = 48
+const FAVORITES_STORAGE_KEY = 'temauto-favorite-car-ids'
+const RECENTLY_VIEWED_STORAGE_KEY = 'temauto-recently-viewed-listings'
+const RECENTLY_VIEWED_TTL_MS = 24 * 60 * 60 * 1000
+
 const OFFICIAL_MAKES: { [key: string]: string } = {
   'bmw': 'BMW',
   'audi': 'Audi',
@@ -40,36 +54,7 @@ const OFFICIAL_MAKES: { [key: string]: string } = {
   'tesla': 'Tesla'
 }
 
-const COUNTRIES = [
-  { name: 'Latvija', code: 'lv' },
-  { name: 'Lietuva', code: 'lt' },
-  { name: 'Igaunija', code: 'ee' },
-  { name: 'Vācija', code: 'de' },
-  { name: 'Polija', code: 'pl' },
-  { name: 'Zviedrija', code: 'se' },
-  { name: 'Somija', code: 'fi' },
-  { name: 'Dānija', code: 'dk' },
-  { name: 'Norvēģija', code: 'no' },
-  { name: 'Nīderlande', code: 'nl' },
-  { name: 'Beļģija', code: 'be' },
-  { name: 'Francija', code: 'fr' },
-  { name: 'Itālija', code: 'it' },
-  { name: 'Spānija', code: 'es' },
-  { name: 'Lielbritānija', code: 'gb' },
-  { name: 'ASV', code: 'us' },
-  { name: 'Kanāda', code: 'ca' },
-  { name: 'Austrija', code: 'at' },
-  { name: 'Šveice', code: 'ch' },
-  { name: 'Čehija', code: 'cz' },
-  { name: 'Islande', code: 'is' },
-  { name: 'Īrija', code: 'ie' },
-  { name: 'Japāna', code: 'jp' },
-  { name: 'Koreja', code: 'kr' },
-  { name: 'Portugāle', code: 'pt' },
-  { name: 'Rumānija', code: 'ro' },
-  { name: 'Turcija', code: 'tr' },
-  { name: 'Ukraina', code: 'ua' }
-]
+
 
 const REGIONS_BY_COUNTRY: { [key: string]: string[] } = {
   'Latvija': ['Rīga', 'Rīgas rajons', 'Jūrmala', 'Pierīga', 'Vidzeme', 'Kurzeme', 'Zemgale', 'Latgale', 'Liepāja', 'Ventspils', 'Jelgava', 'Daugavpils', 'Valmiera', 'Jēkabpils', 'Ogre', 'Tukums', 'Cēsis'],
@@ -152,14 +137,452 @@ function formatNumberWithSpace(value: number | string): string {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
 
+function ListingCardGallery({ images, alt, compact = false }: { images: string[]; alt: string; compact?: boolean }) {
+  const { t } = useI18n()
+  const galleryRef = useRef<HTMLDivElement>(null)
+  const galleryTouched = useRef(false)
+  const touchStartX = useRef<number | null>(null)
+  const didSwipe = useRef(false)
+  const scrollEndTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const mouseDrag = useRef<{ pointerId: number; x: number; left: number } | null>(null)
+  const isLooping = images.length > 1
+  const loopImages = isLooping ? [images[images.length - 1], ...images, images[0]] : images
+
+  const jumpTo = (left: number) => {
+    const gallery = galleryRef.current
+    if (!gallery) return
+    gallery.style.scrollBehavior = 'auto'
+    gallery.scrollLeft = left
+    requestAnimationFrame(() => {
+      gallery.style.scrollBehavior = ''
+    })
+  }
+
+  useLayoutEffect(() => {
+    galleryTouched.current = false
+    if (!isLooping) return
+
+    const placeOnFirstImage = () => {
+      const gallery = galleryRef.current
+      if (gallery?.clientWidth) jumpTo(gallery.clientWidth)
+    }
+
+    const restoreCover = () => {
+      galleryTouched.current = false
+      placeOnFirstImage()
+    }
+    const resizeObserver = new ResizeObserver(() => {
+      if (!galleryTouched.current) placeOnFirstImage()
+    })
+    if (galleryRef.current) resizeObserver.observe(galleryRef.current)
+    placeOnFirstImage()
+    window.addEventListener('pageshow', restoreCover)
+    window.addEventListener('resize', placeOnFirstImage)
+    return () => {
+      window.removeEventListener('resize', placeOnFirstImage)
+      window.removeEventListener('pageshow', restoreCover)
+      resizeObserver.disconnect()
+      if (scrollEndTimer.current) clearTimeout(scrollEndTimer.current)
+    }
+  }, [isLooping, images.join('|')])
+
+  const handleScroll = () => {
+    if (!isLooping || !galleryRef.current || mouseDrag.current) return
+    if (!galleryTouched.current) {
+      const width = galleryRef.current.clientWidth
+      if (width && Math.abs(galleryRef.current.scrollLeft - width) > 1) jumpTo(width)
+      return
+    }
+    if (scrollEndTimer.current) clearTimeout(scrollEndTimer.current)
+    scrollEndTimer.current = setTimeout(() => {
+      const gallery = galleryRef.current
+      if (!gallery?.clientWidth) return
+      const slide = Math.round(gallery.scrollLeft / gallery.clientWidth)
+      if (slide === 0) jumpTo(images.length * gallery.clientWidth)
+      if (slide === images.length + 1) jumpTo(gallery.clientWidth)
+    }, 80)
+  }
+
+  return (
+    <div
+      ref={galleryRef}
+      data-card-gallery="true"
+      data-make-row-gallery={compact ? 'true' : undefined}
+      onPointerDown={(event) => {
+        galleryTouched.current = true
+        if (!isLooping || event.pointerType !== 'mouse' || event.button !== 0 || !window.matchMedia('(min-width: 768px)').matches) return
+        event.preventDefault()
+        didSwipe.current = false
+        if (scrollEndTimer.current) clearTimeout(scrollEndTimer.current)
+        const gallery = event.currentTarget
+        const width = gallery.clientWidth
+        if (width) {
+          const slide = Math.round(gallery.scrollLeft / width)
+          if (slide === 0) jumpTo(images.length * width)
+          else if (slide === images.length + 1) jumpTo(width)
+        }
+        mouseDrag.current = { pointerId: event.pointerId, x: event.clientX, left: event.currentTarget.scrollLeft }
+        event.currentTarget.setPointerCapture(event.pointerId)
+      }}
+      onPointerMove={(event) => {
+        const drag = mouseDrag.current
+        if (!drag || drag.pointerId !== event.pointerId) return
+        const distance = event.clientX - drag.x
+        if (Math.abs(distance) > 8) didSwipe.current = true
+        if (!didSwipe.current) return
+        event.preventDefault()
+        event.currentTarget.scrollLeft = drag.left - distance
+      }}
+      onPointerUp={(event) => {
+        const drag = mouseDrag.current
+        if (!drag || drag.pointerId !== event.pointerId) return
+        mouseDrag.current = null
+        const gallery = event.currentTarget
+        const width = gallery.clientWidth
+        const distance = event.clientX - drag.x
+        if (width && didSwipe.current) {
+          const startSlide = Math.round(drag.left / width)
+          const direction = Math.abs(distance) > 30 ? (distance < 0 ? 1 : -1) : 0
+          gallery.scrollTo({ left: Math.max(0, Math.min(images.length + 1, startSlide + direction)) * width, behavior: 'smooth' })
+          handleScroll()
+        }
+        if (gallery.hasPointerCapture(event.pointerId)) gallery.releasePointerCapture(event.pointerId)
+      }}
+      onPointerCancel={(event) => {
+        const drag = mouseDrag.current
+        if (!drag || drag.pointerId !== event.pointerId) return
+        mouseDrag.current = null
+        event.currentTarget.scrollTo({ left: drag.left, behavior: 'smooth' })
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
+      }}
+      onScroll={handleScroll}
+      onTouchStart={(event) => {
+        galleryTouched.current = true
+        touchStartX.current = event.touches[0]?.clientX ?? null
+        didSwipe.current = false
+      }}
+      onTouchMove={(event) => {
+        const currentX = event.touches[0]?.clientX
+        if (touchStartX.current !== null && currentX !== undefined && Math.abs(currentX - touchStartX.current) > 8) {
+          didSwipe.current = true
+        }
+      }}
+      onClickCapture={(event) => {
+        if (didSwipe.current) {
+          event.preventDefault()
+          event.stopPropagation()
+          didSwipe.current = false
+        }
+      }}
+      style={{ width: compact ? '95px' : '100%', height: compact ? '60px' : '160px', backgroundColor: '#f3f4f6', overflow: 'hidden', display: 'flex', borderRadius: compact ? '4px' : undefined, border: compact ? '1px solid #d1d5db' : undefined, boxSizing: 'border-box' }}
+    >
+      {loopImages.map((image, index) => (
+        <DemoPhoto
+          key={`${image}-${index}`}
+          src={image}
+          alt={(!isLooping && index === 0) || (isLooping && index === 1) ? alt : ''}
+          draggable={false}
+          onLoad={() => {
+            const gallery = galleryRef.current
+            if (isLooping && !galleryTouched.current && gallery?.clientWidth) jumpTo(gallery.clientWidth)
+          }}
+          style={{ width: '100%', minWidth: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      ))}
+    </div>
+  )
+}
+
 export default function Sakumlapa() {
+  const { t, matches, canonical } = useI18n()
   const router = useRouter()
   const [cars, setCars] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [searchMake, setSearchMake] = useState('')
   const [searchModel, setSearchModel] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([])
+  const [recentlyViewedIds, setRecentlyViewedIds] = useState<string[]>([])
+  const [showFavorites, setShowFavorites] = useState(false)
+  const [mobileMakesOpen, setMobileMakesOpen] = useState(false)
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+  const [mobileFiltersClosing, setMobileFiltersClosing] = useState(false)
+  const mobileFiltersTouchStart = useRef<{ x: number; y: number } | null>(null)
+  const [isMobileCatalogue, setIsMobileCatalogue] = useState(false)
+
+  useEffect(() => {
+    const mobileQuery = window.matchMedia('(max-width: 767px)')
+    const syncMobileCatalogue = () => setIsMobileCatalogue(mobileQuery.matches)
+
+    syncMobileCatalogue()
+    mobileQuery.addEventListener('change', syncMobileCatalogue)
+    return () => mobileQuery.removeEventListener('change', syncMobileCatalogue)
+  }, [])
+
+  useEffect(() => {
+    try {
+      const savedFavoriteIds = JSON.parse(localStorage.getItem(FAVORITES_STORAGE_KEY) || '[]')
+      if (Array.isArray(savedFavoriteIds)) {
+        setFavoriteIds(savedFavoriteIds.map(String))
+      }
+    } catch {
+      setFavoriteIds([])
+    }
+  }, [])
+
+  useEffect(() => {
+    try {
+      const now = Date.now()
+      const savedViews = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_STORAGE_KEY) || '{}') as Record<string, number>
+      const activeViews = Object.fromEntries(
+        Object.entries(savedViews).filter(([, viewedAt]) =>
+          typeof viewedAt === 'number' && now - viewedAt < RECENTLY_VIEWED_TTL_MS
+        )
+      )
+
+      setRecentlyViewedIds(Object.keys(activeViews))
+      localStorage.setItem(RECENTLY_VIEWED_STORAGE_KEY, JSON.stringify(activeViews))
+    } catch {
+      setRecentlyViewedIds([])
+    }
+  }, [])
+
+  const rememberListingReturnPosition = () => {
+    try {
+      window.history.replaceState(
+        {
+          ...(window.history.state || {}),
+          temAutoListingReturnPath: window.location.pathname + window.location.search,
+          temAutoListingReturnScrollY: window.scrollY
+        },
+        '',
+        window.location.href
+      )
+    } catch {
+      // The listing can still open if browser history state is unavailable.
+    }
+  }
+
+  const markListingViewed = (carId: number | string) => {
+    const normalizedId = String(carId)
+    const now = Date.now()
+
+    setRecentlyViewedIds(currentIds =>
+      currentIds.includes(normalizedId) ? currentIds : [...currentIds, normalizedId]
+    )
+
+    try {
+      const savedViews = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_STORAGE_KEY) || '{}') as Record<string, number>
+      const activeViews = Object.fromEntries(
+        Object.entries(savedViews).filter(([, viewedAt]) =>
+          typeof viewedAt === 'number' && now - viewedAt < RECENTLY_VIEWED_TTL_MS
+        )
+      )
+      activeViews[normalizedId] = now
+      localStorage.setItem(RECENTLY_VIEWED_STORAGE_KEY, JSON.stringify(activeViews))
+    } catch {
+      localStorage.setItem(RECENTLY_VIEWED_STORAGE_KEY, JSON.stringify({ [normalizedId]: now }))
+    }
+  }
+
+  const toggleFavorite = (carId: number | string) => {
+    const normalizedId = String(carId)
+    setFavoriteIds(currentIds => {
+      const nextIds = currentIds.includes(normalizedId)
+        ? currentIds.filter(id => id !== normalizedId)
+        : [...currentIds, normalizedId]
+
+      localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(nextIds))
+      if (nextIds.length === 0) {
+        setShowFavorites(false)
+      }
+      return nextIds
+    })
+  }
+
+  const toggleFavoritesView = () => {
+    setShowFavorites(current => !current)
+    setCurrentPage(1)
+
+    if (mobileFiltersOpen) {
+      if (window.history.state?.temAutoCatalogueOverlay === 'filters') {
+        window.history.back()
+      } else {
+        setMobileFiltersOpen(false)
+      }
+    }
+  }
   
+  useEffect(() => {
+    let lastKnownScrollY = window.scrollY
+    let restoringGuard = false
+    let releaseScrollTimer: number | null = null
+    const previousScrollRestoration = window.history.scrollRestoration
+    window.history.scrollRestoration = 'manual'
+
+    const ensureScrollGuard = () => {
+      const currentState = { ...(window.history.state || {}) }
+
+      if (currentState.temAutoScrollGuard === true) return
+
+      delete currentState.temAutoCatalogueOverlay
+      window.history.replaceState(currentState, '', window.location.href)
+      window.history.pushState(
+        { ...currentState, temAutoScrollGuard: true },
+        '',
+        window.location.href
+      )
+    }
+
+    const syncFromAddress = (event?: PopStateEvent) => {
+      const addressParams = new URLSearchParams(window.location.search)
+      const makeFromAddress = addressParams.get('make') || ''
+      const pageFromAddress = Number(addressParams.get('page') || '1')
+      const historyState = event?.state || window.history.state || {}
+      const mobileOverlay = historyState.temAutoCatalogueOverlay
+
+      setSearchMake(makeFromAddress)
+      setCurrentPage(Number.isInteger(pageFromAddress) && pageFromAddress > 0 ? pageFromAddress : 1)
+
+      if (restoringGuard) {
+        restoringGuard = false
+        setMobileMakesOpen(false)
+        setMobileFiltersOpen(false)
+        return
+      }
+
+      if (historyState.temAutoHeaderReturn === true) {
+        const cleanHistoryState = { ...historyState }
+        delete cleanHistoryState.temAutoHeaderReturn
+        window.history.replaceState(cleanHistoryState, '', window.location.href)
+        setMobileMakesOpen(mobileOverlay === 'makes')
+        setMobileFiltersOpen(mobileOverlay === 'filters')
+        return
+      }
+
+      const visibleOverlay = document.querySelector(
+        "[data-mobile-menu='true'], [data-header-visitor-stats='true'], [data-makes-column='true'][data-mobile-open='true'], [data-filter-row='true'][data-mobile-open='true']"
+      )
+      const shouldReturnToTop =
+        !visibleOverlay &&
+        window.location.pathname === '/' &&
+        makeFromAddress === '' &&
+        Math.max(lastKnownScrollY, window.scrollY) > 80
+
+      if (shouldReturnToTop) {
+        restoringGuard = true
+        setMobileMakesOpen(false)
+        setMobileFiltersOpen(false)
+        window.history.forward()
+        window.scrollTo(0, 0)
+
+        if (releaseScrollTimer !== null) {
+          window.clearTimeout(releaseScrollTimer)
+        }
+        releaseScrollTimer = window.setTimeout(() => {
+          window.scrollTo(0, 0)
+          lastKnownScrollY = 0
+          releaseScrollTimer = null
+        }, 250)
+        return
+      }
+
+      setMobileMakesOpen(mobileOverlay === 'makes')
+      setMobileFiltersOpen(mobileOverlay === 'filters')
+
+      if (
+        historyState.temAutoScrollGuard !== true &&
+        window.location.pathname === '/' &&
+        makeFromAddress === '' &&
+        !mobileOverlay
+      ) {
+        window.history.back()
+      }
+    }
+
+    const rememberScrollPosition = () => {
+      if (!restoringGuard) {
+        lastKnownScrollY = window.scrollY
+      }
+    }
+
+    ensureScrollGuard()
+    syncFromAddress()
+    window.addEventListener('popstate', syncFromAddress)
+    window.addEventListener('scroll', rememberScrollPosition, { passive: true })
+
+    return () => {
+      window.removeEventListener('popstate', syncFromAddress)
+      window.removeEventListener('scroll', rememberScrollPosition)
+      if (releaseScrollTimer !== null) {
+        window.clearTimeout(releaseScrollTimer)
+      }
+      window.history.scrollRestoration = previousScrollRestoration
+    }
+  }, [])
+
+  useEffect(() => {
+    if (loading) return
+
+    const historyState = window.history.state || {}
+    const returnPath = historyState.temAutoListingReturnPath
+    const returnScrollY = historyState.temAutoListingReturnScrollY
+    const currentPath = window.location.pathname + window.location.search
+
+    if (returnPath !== currentPath || typeof returnScrollY !== 'number') return
+
+    const cleanHistoryState = { ...historyState }
+    delete cleanHistoryState.temAutoListingReturnPath
+    delete cleanHistoryState.temAutoListingReturnScrollY
+    window.history.replaceState(cleanHistoryState, '', window.location.href)
+
+    const restorePosition = () => {
+      window.scrollTo({ top: returnScrollY, left: 0, behavior: 'auto' })
+    }
+
+    let secondFrame = 0
+    const firstFrame = window.requestAnimationFrame(() => {
+      restorePosition()
+      secondFrame = window.requestAnimationFrame(restorePosition)
+    })
+    const shortTimer = window.setTimeout(restorePosition, 120)
+    const layoutTimer = window.setTimeout(restorePosition, 350)
+
+    return () => {
+      window.cancelAnimationFrame(firstFrame)
+      if (secondFrame) window.cancelAnimationFrame(secondFrame)
+      window.clearTimeout(shortTimer)
+      window.clearTimeout(layoutTimer)
+    }
+  }, [loading])
+
   const [valsts, setValsts] = useState('')
+  const [catalogueCountry, setCatalogueCountry] = useState('lv')
+  useEffect(() => {
+    const savedCountry = catalogueCountryCode(localStorage.getItem('temauto-region') || 'Latvija')
+    if (savedCountry) setCatalogueCountry(savedCountry)
+    const syncInitialCountry = (event: Event) => {
+      const code = catalogueCountryCode((event as CustomEvent<string>).detail)
+      if (code) setCatalogueCountry(code)
+    }
+    const syncSelectedCountry = (event: Event) => {
+      syncInitialCountry(event)
+      setValsts('')
+      setRegions('')
+      setCurrentPage(1)
+    }
+    window.addEventListener('temauto-initial-region', syncInitialCountry)
+    window.addEventListener('temauto-catalogue-country', syncSelectedCountry)
+    return () => {
+      window.removeEventListener('temauto-initial-region', syncInitialCountry)
+      window.removeEventListener('temauto-catalogue-country', syncSelectedCountry)
+    }
+  }, [])
+  const selectFilterCountry = (value: string) => {
+    setValsts(value)
+    setCurrentPage(1)
+    window.dispatchEvent(new CustomEvent('temauto-filter-country', { detail: value }))
+  }
   const [regions, setRegions] = useState('')
   
   const [minPrice, setMinPrice] = useState('')
@@ -168,6 +591,9 @@ export default function Sakumlapa() {
   const [displayMaxPrice, setDisplayMaxPrice] = useState('')
   const [minYear, setMinYear] = useState('')
   const [maxYear, setMaxYear] = useState('')
+  const [yearSort, setYearSort] = useState<'asc' | 'desc' | null>(null)
+  const [priceSort, setPriceSort] = useState<'asc' | 'desc' | null>(null)
+
   const [dzinejs, setDzinejs] = useState('')
   const [minTilpums, setMinTilpums] = useState('')
   const [maxTilpums, setMaxTilpums] = useState('')
@@ -177,10 +603,241 @@ export default function Sakumlapa() {
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const filterTapReady = useRef<string | null>(null)
+  const filterActiveField = useRef<HTMLInputElement | null>(null)
+  const filterPointerStart = useRef<{ name: string; x: number; y: number } | null>(null)
+  const filterDropdownHistoryArmed = useRef(false)
+  const filterKeyboardHistoryArmed = useRef(false)
+  const filterIgnoreNextPopstate = useRef(false)
+  const filterRaisedFieldClickPending = useRef(false)
+  const filterSuggestionFields = new Set([
+    'valsts',
+    'regions',
+    'dzinejs',
+    'minTilpums',
+    'maxTilpums',
+    'atrumkarba',
+    'virsbuve',
+    'krasa'
+  ])
 
   const toggleDropdown = (name: string) => {
     setActiveDropdown(prev => prev === name ? null : name)
   }
+
+  const handleFilterPointerDownCapture = (event: React.PointerEvent<HTMLDivElement>) => {
+    filterRaisedFieldClickPending.current = false
+    const field = (event.target as HTMLElement).closest<HTMLInputElement>('[data-filter-field]')
+    const name = field?.dataset.filterField
+    const isMobileTouch = window.matchMedia('(max-width: 767px)').matches && event.pointerType !== 'mouse'
+    if (!field || !name || !isMobileTouch) return
+
+    event.preventDefault()
+    filterPointerStart.current = { name, x: event.clientX, y: event.clientY }
+  }
+
+  const handleFilterPointerUpCapture = (event: React.PointerEvent<HTMLDivElement>) => {
+    const field = (event.target as HTMLElement).closest<HTMLInputElement>('[data-filter-field]')
+    const name = field?.dataset.filterField
+    const start = filterPointerStart.current
+    filterPointerStart.current = null
+    if (!field || !name || !start || start.name !== name) return
+
+    const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y)
+    if (moved > 10) return
+
+    filterActiveField.current = field
+    const isSuggestionField = filterSuggestionFields.has(name)
+
+    if (filterTapReady.current === name && document.activeElement === field) {
+      // Closing a raised field must consume the click even if it lands on a sort button.
+      filterRaisedFieldClickPending.current = ['dzinejs', 'minTilpums', 'maxTilpums', 'atrumkarba', 'virsbuve', 'krasa'].includes(name)
+      const historySteps =
+        (filterKeyboardHistoryArmed.current ? 1 : 0) +
+        (filterDropdownHistoryArmed.current ? 1 : 0)
+      filterKeyboardHistoryArmed.current = false
+      filterDropdownHistoryArmed.current = false
+      field.blur()
+      filterTapReady.current = null
+      setActiveDropdown(null)
+      if (historySteps > 0) window.history.go(-historySteps)
+      return
+    }
+
+    if (filterTapReady.current === name || ['minPrice', 'maxPrice', 'minYear', 'maxYear'].includes(name)) {
+      filterTapReady.current = name
+      if (isSuggestionField) setActiveDropdown(name)
+      if (!filterKeyboardHistoryArmed.current) {
+        window.history.pushState(
+          { ...window.history.state, temAutoFilterKeyboard: name },
+          '',
+          window.location.href
+        )
+        filterKeyboardHistoryArmed.current = true
+      }
+      // Moving these fields can retarget this tap's subsequent click to a suggestion.
+      filterRaisedFieldClickPending.current = name === 'dzinejs' || name === 'virsbuve'
+      field.focus({ preventScroll: true })
+      return
+    }
+
+    filterTapReady.current = name
+    if (isSuggestionField) {
+      if (!filterDropdownHistoryArmed.current) {
+        window.history.pushState(
+          { ...window.history.state, temAutoFilterDropdown: name },
+          '',
+          window.location.href
+        )
+        filterDropdownHistoryArmed.current = true
+      }
+      setActiveDropdown(name)
+    } else {
+      setActiveDropdown(null)
+    }
+    field.blur()
+  }
+
+  const handleFilterClickCapture = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (filterRaisedFieldClickPending.current) {
+      filterRaisedFieldClickPending.current = false
+      event.preventDefault()
+      event.stopPropagation()
+      return
+    }
+    const field = (event.target as HTMLElement).closest<HTMLInputElement>('[data-filter-field]')
+    if (!field || !window.matchMedia('(max-width: 767px)').matches) return
+    event.preventDefault()
+    event.stopPropagation()
+  }
+
+  useEffect(() => {
+    const handleFilterBack = () => {
+      if (filterIgnoreNextPopstate.current) {
+        filterIgnoreNextPopstate.current = false
+        return
+      }
+
+      if (filterKeyboardHistoryArmed.current) {
+        filterKeyboardHistoryArmed.current = false
+        const fieldName = filterTapReady.current
+        const field = filterActiveField.current
+        if (field && document.activeElement === field) field.blur()
+        if (fieldName && filterSuggestionFields.has(fieldName)) {
+          setActiveDropdown(fieldName)
+        }
+        return
+      }
+
+      if (filterDropdownHistoryArmed.current) {
+        filterDropdownHistoryArmed.current = false
+        filterTapReady.current = null
+        setActiveDropdown(null)
+      }
+    }
+
+    window.addEventListener('popstate', handleFilterBack)
+    return () => window.removeEventListener('popstate', handleFilterBack)
+  }, [])
+
+  useEffect(() => {
+    const viewport = window.visualViewport
+    if (!viewport) return
+
+    let previousHeight = viewport.height
+    const handleFilterKeyboardResize = () => {
+      const currentHeight = viewport.height
+      const keyboardWasClosed =
+        filterKeyboardHistoryArmed.current &&
+        currentHeight > previousHeight + 80
+      previousHeight = currentHeight
+      if (!keyboardWasClosed) return
+
+      filterKeyboardHistoryArmed.current = false
+      const field = filterActiveField.current
+      if (field && document.activeElement === field) field.blur()
+
+      filterIgnoreNextPopstate.current = true
+      window.history.back()
+    }
+
+    viewport.addEventListener('resize', handleFilterKeyboardResize)
+    return () => viewport.removeEventListener('resize', handleFilterKeyboardResize)
+  }, [])
+
+  useEffect(() => {
+    if (activeDropdown !== null || filterKeyboardHistoryArmed.current) return
+    if (!filterDropdownHistoryArmed.current) return
+
+    filterDropdownHistoryArmed.current = false
+    filterTapReady.current = null
+    window.history.back()
+  }, [activeDropdown])
+
+  useEffect(() => {
+    if (!mobileFiltersOpen || !window.matchMedia('(max-width: 767px)').matches) return
+
+    const panel = dropdownRef.current?.querySelector<HTMLDivElement>("[data-filter-row='true'][data-mobile-open='true']")
+    if (!panel) return
+    const viewport = window.visualViewport
+    const raisedFields = new Set(['dzinejs', 'minTilpums', 'maxTilpums', 'atrumkarba', 'virsbuve', 'krasa'])
+    const previousPadding = panel.style.getPropertyValue('padding-bottom')
+    const previousPriority = panel.style.getPropertyPriority('padding-bottom')
+    let adjustedDropdown: HTMLElement | null = null
+    let previousMaxHeight = ''
+    let frame = 0
+
+    const restoreLayout = () => {
+      if (previousPadding) panel.style.setProperty('padding-bottom', previousPadding, previousPriority)
+      else panel.style.removeProperty('padding-bottom')
+      if (adjustedDropdown) adjustedDropdown.style.maxHeight = previousMaxHeight
+      adjustedDropdown = null
+    }
+
+    const positionField = () => {
+      restoreLayout()
+      const field = filterActiveField.current
+      if (!field || document.activeElement !== field || !raisedFields.has(field.dataset.filterField || '')) return
+
+      // Extra scroll space lets even the last field reach the top of the panel.
+      panel.style.setProperty('padding-bottom', panel.clientHeight + 'px', 'important')
+      const panelTop = panel.getBoundingClientRect().top + panel.clientTop + 8
+      panel.scrollTop += field.getBoundingClientRect().top - panelTop
+
+      const dropdown = field.parentElement?.querySelector<HTMLElement>('[data-filter-dropdown]')
+      if (dropdown) {
+        adjustedDropdown = dropdown
+        previousMaxHeight = dropdown.style.maxHeight
+        const visibleBottom = Math.min(
+          panel.getBoundingClientRect().bottom,
+          viewport ? viewport.offsetTop + viewport.height : window.innerHeight
+        )
+        dropdown.style.maxHeight = Math.max(0, Math.min(220, visibleBottom - dropdown.getBoundingClientRect().top - 8)) + 'px'
+      }
+    }
+
+    const schedulePosition = () => {
+      window.cancelAnimationFrame(frame)
+      frame = window.requestAnimationFrame(positionField)
+    }
+
+    panel.addEventListener('focusin', schedulePosition)
+    panel.addEventListener('focusout', schedulePosition)
+    viewport?.addEventListener('resize', schedulePosition)
+    viewport?.addEventListener('scroll', schedulePosition)
+    window.addEventListener('resize', schedulePosition)
+    schedulePosition()
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+      panel.removeEventListener('focusin', schedulePosition)
+      panel.removeEventListener('focusout', schedulePosition)
+      viewport?.removeEventListener('resize', schedulePosition)
+      viewport?.removeEventListener('scroll', schedulePosition)
+      window.removeEventListener('resize', schedulePosition)
+      restoreLayout()
+    }
+  }, [mobileFiltersOpen, activeDropdown])
 
   const hasActiveFilters = searchMake 
     ? Boolean(searchModel || valsts || regions || minPrice || maxPrice || minYear || maxYear || dzinejs || minTilpums || maxTilpums || atrumkarba || virsbuve || krasa)
@@ -188,7 +845,7 @@ export default function Sakumlapa() {
 
   const clearAllFilters = () => {
     setSearchModel('')
-    setValsts('')
+    selectFilterCountry('')
     setRegions('')
     setMinPrice('')
     setMaxPrice('')
@@ -224,12 +881,20 @@ export default function Sakumlapa() {
 
       if (carsError) {
         console.error('Kļūda ielādējot auto:', carsError)
-      } else {
+      } else if ((carsData || []).length > 0) {
         const normalizedCars = (carsData || []).map(car => ({
           ...car,
           make: normalizeMake(car.make)
         }))
         setCars(normalizedCars)
+      } else if (canUseDevPreviewFallback()) {
+        const previewCars = loadAdaptedPreviewCars().map(car => ({
+          ...car,
+          make: normalizeMake(car.make || '')
+        }))
+        setCars(previewCars)
+      } else {
+        setCars([])
       }
       setLoading(false)
     }
@@ -246,9 +911,14 @@ export default function Sakumlapa() {
     return foundKey ? REGIONS_BY_COUNTRY[foundKey] : DEFAULT_REGIONS
   }, [valsts])
 
+  const selectedCountryCode = catalogueCountryCode(valsts) || (!valsts ? catalogueCountry : undefined)
+  const countryCars = useMemo(() => cars.filter(car =>
+    selectedCountryCode ? listingBelongsToCountry(car, selectedCountryCode) : matches(car.country || car.valsts || '', valsts)
+  ), [cars, valsts, selectedCountryCode, matches])
+
   const makeCounts = useMemo(() => {
     const counts: { [key: string]: number } = {}
-    cars.forEach(car => {
+    countryCars.forEach(car => {
       if (car.make) {
         const cleanMake = car.make.trim()
         if (cleanMake) {
@@ -256,12 +926,20 @@ export default function Sakumlapa() {
         }
       }
     })
-    return Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0]))
-  }, [cars])
+    const extraSections = ['Avio', 'Moto/velo', 'Cits']
+    const makes = Object.entries(counts)
+      .filter(([make]) => make.toLowerCase() !== 'zaz' && !extraSections.includes(make))
+      .sort((a, b) => a[0].localeCompare(b[0]))
+    return [...makes, ...extraSections.map((name): [string, number] => [name, counts[name] || 0])]
+  }, [countryCars])
 
   const filteredCars = cars.filter((car) => {
+    if (showFavorites) {
+      return favoriteIds.includes(String(car.id))
+    }
     const matchesMake = searchMake ? (car.make || '').toLowerCase().includes(searchMake.toLowerCase()) : true
     const matchesModel = searchModel ? (car.model || '').toLowerCase().includes(searchModel.toLowerCase()) : true
+    const matchesFavorite = showFavorites ? favoriteIds.includes(String(car.id)) : true
     
     const carPrice = Number(car.price)
     const matchesMinPrice = minPrice ? carPrice >= Number(minPrice) : true
@@ -275,39 +953,263 @@ export default function Sakumlapa() {
     const matchesMinTilpums = minTilpums ? carVolume >= Number(minTilpums) : true
     const matchesMaxTilpums = maxTilpums ? carVolume <= Number(maxTilpums) : true
 
-    const matchesValsts = valsts ? (car.country || car.valsts || '').toLowerCase().includes(valsts.toLowerCase()) : true
-    const matchesRegions = regions ? (car.region || car.regions || '').toLowerCase().includes(regions.toLowerCase()) : true
-    const matchesDzinejs = dzinejs ? (car.engine || car.dzinejs || '').toLowerCase().includes(dzinejs.toLowerCase()) : true
-    const matchesAtrumkarba = atrumkarba ? (car.gearbox || car.atrumkarba || '').toLowerCase().includes(atrumkarba.toLowerCase()) : true
-    const matchesVirsbuve = virsbuve ? (car.body_type || car.virsbuve || '').toLowerCase().includes(virsbuve.toLowerCase()) : true
-    const matchesKrasa = krasa ? (car.color || car.krasa || '').toLowerCase().includes(krasa.toLowerCase()) : true
+    const matchesValsts = selectedCountryCode ? listingBelongsToCountry(car, selectedCountryCode) : matches(car.country || car.valsts || '', valsts)
+    const matchesRegions = regions ? matches(car.region || car.regions || '', regions) : true
+    const matchesDzinejs = dzinejs ? matches(car.engine || car.dzinejs || '', dzinejs) : true
+    const matchesAtrumkarba = atrumkarba ? matches(car.gearbox || car.atrumkarba || '', atrumkarba) : true
+    const matchesVirsbuve = virsbuve ? matches(car.body_type || car.virsbuve || '', virsbuve) : true
+    const matchesKrasa = krasa ? matches(car.color || car.krasa || '', krasa) : true
 
-    return matchesMake && matchesModel && matchesMinPrice && matchesMaxPrice && 
+    return matchesMake && matchesModel && matchesFavorite && matchesMinPrice && matchesMaxPrice && 
            matchesMinYear && matchesMaxYear && matchesMinTilpums && matchesMaxTilpums &&
            matchesValsts && matchesRegions && matchesDzinejs && matchesAtrumkarba && matchesVirsbuve && matchesKrasa
   })
 
-  const handleMakeSelect = (make: string) => {
-    if (searchMake.toLowerCase() === make.toLowerCase()) {
-      setSearchMake('')
+  const getListingYear = (car: any) => {
+    const rawYear = car.year ?? car.gads ?? car.production_year ?? car.izlaiduma_gads ?? ''
+    const yearMatch = String(rawYear).match(/\d{4}/)
+    return yearMatch ? Number(yearMatch[0]) : 0
+  }
+
+  const getListingPrice = (car: any): number | null => {
+    const rawPrice = String(car.price ?? '').replace(/\s/g, '').replace(',', '.')
+    if (!rawPrice) return null
+    const price = Number(rawPrice)
+    return Number.isFinite(price) && price >= 0 ? price : null
+  }
+
+  const sortDirection = priceSort ?? yearSort
+  const sortedFilteredCars = sortDirection
+    ? [...filteredCars].sort((firstCar, secondCar) => {
+        const firstValue = priceSort ? getListingPrice(firstCar) : getListingYear(firstCar) || null
+        const secondValue = priceSort ? getListingPrice(secondCar) : getListingYear(secondCar) || null
+        if (firstValue === null && secondValue === null) return 0
+        if (firstValue === null) return 1
+        if (secondValue === null) return -1
+        return sortDirection === 'asc' ? firstValue - secondValue : secondValue - firstValue
+      })
+    : filteredCars
+
+  const applyListingSort = (direction: 'asc' | 'desc' | null, field: 'year' | 'price' = 'year') => {
+    setYearSort(field === 'year' ? direction : null)
+    setPriceSort(field === 'price' ? direction : null)
+    setCurrentPage(1)
+
+    const nextAddress = new URL(window.location.href)
+    nextAddress.searchParams.delete('page')
+    window.history.replaceState(
+      window.history.state,
+      '',
+      nextAddress.pathname + nextAddress.search
+    )
+
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      const returnListingsToTop = () => {
+        setCurrentPage(1)
+        setMobileFiltersOpen(false)
+        setMobileFiltersClosing(false)
+        const address = new URL(window.location.href)
+        address.searchParams.delete('page')
+        window.history.replaceState(window.history.state, '', address.pathname + address.search)
+        const scrollToStart = () => {
+          window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+          document.querySelector<HTMLElement>('[data-make-table-body="true"]')?.scrollTo({ top: 0, behavior: 'auto' })
+        }
+        window.requestAnimationFrame(scrollToStart)
+        window.setTimeout(scrollToStart, 180)
+      }
+
+      if (mobileFiltersOpen && window.history.state?.temAutoCatalogueOverlay === 'filters') {
+        const steps = 1 + Number(filterDropdownHistoryArmed.current) + Number(filterKeyboardHistoryArmed.current)
+        filterDropdownHistoryArmed.current = false
+        filterKeyboardHistoryArmed.current = false
+        filterTapReady.current = null
+        filterActiveField.current?.blur()
+        setActiveDropdown(null)
+        window.addEventListener('popstate', returnListingsToTop, { once: true })
+        window.history.go(-steps)
+      } else {
+        returnListingsToTop()
+      }
+    }
+  }
+
+  const totalPages = Math.max(1, Math.ceil(sortedFilteredCars.length / LISTINGS_PER_PAGE))
+  const safeCurrentPage = Math.min(currentPage, totalPages)
+  const paginatedCars = sortedFilteredCars.slice(
+    (safeCurrentPage - 1) * LISTINGS_PER_PAGE,
+    safeCurrentPage * LISTINGS_PER_PAGE
+  )
+
+  const setPageAndHistory = (page: number) => {
+    const nextPage = Math.min(Math.max(page, 1), totalPages)
+    setCurrentPage(nextPage)
+    const nextAddress = new URL(window.location.href)
+    if (nextPage === 1) {
+      nextAddress.searchParams.delete('page')
     } else {
-      setSearchMake(make)
+      nextAddress.searchParams.set('page', String(nextPage))
+    }
+    window.history.pushState({}, '', nextAddress.pathname + nextAddress.search)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const setMakeAndHistory = (make: string) => {
+    setSearchMake(make)
+    setCurrentPage(1)
+    const nextAddress = new URL(window.location.href)
+    nextAddress.searchParams.delete('page')
+    if (make) {
+      nextAddress.searchParams.set('make', make)
+    } else {
+      nextAddress.searchParams.delete('make')
+    }
+    window.history.pushState({}, '', nextAddress.pathname + nextAddress.search)
+  }
+
+  const handleMakeSelect = (make: string) => {
+    const nextMake = searchMake.toLowerCase() === make.toLowerCase() ? '' : make
+    setMakeAndHistory(nextMake)
+    setMobileMakesOpen(false)
+
+    const returnMakeListingsToTop = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+      document.documentElement.scrollTop = 0
+      document.body.scrollTop = 0
+    }
+    returnMakeListingsToTop()
+    window.requestAnimationFrame(returnMakeListingsToTop)
+    window.setTimeout(returnMakeListingsToTop, 180)
+  }
+
+  const toggleMobileCatalogueOverlay = (overlay: 'makes' | 'filters') => {
+    const isOpen = overlay === 'makes' ? mobileMakesOpen : mobileFiltersOpen
+    const currentOverlay = window.history.state?.temAutoCatalogueOverlay
+
+    if (isOpen) {
+      if (currentOverlay === overlay) {
+        window.history.back()
+      } else {
+        setMobileMakesOpen(false)
+        setMobileFiltersOpen(false)
+      }
+      return
+    }
+
+    const nextState = { ...window.history.state, temAutoCatalogueOverlay: overlay }
+    if (currentOverlay) {
+      window.history.replaceState(nextState, '', window.location.href)
+    } else {
+      window.history.pushState(nextState, '', window.location.href)
+    }
+    setMobileMakesOpen(overlay === 'makes')
+    setMobileFiltersOpen(overlay === 'filters')
+  }
+
+  const handleMobileFiltersTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    const startedInsideSuggestionList = (event.target as HTMLElement).closest('[data-filter-dropdown="true"]')
+    if (startedInsideSuggestionList) {
+      mobileFiltersTouchStart.current = null
+      return
+    }
+
+    const touch = event.touches[0]
+    mobileFiltersTouchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null
+  }
+
+  const handleMobileFiltersTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const start = mobileFiltersTouchStart.current
+    const touch = event.changedTouches[0]
+    mobileFiltersTouchStart.current = null
+    if (!start || !touch) return
+
+    const deltaX = touch.clientX - start.x
+    const deltaY = touch.clientY - start.y
+    const isUpwardDismiss = deltaY < -100 && Math.abs(deltaY) > Math.abs(deltaX)
+
+    if (isUpwardDismiss) {
+      setMobileFiltersClosing(true)
+      window.setTimeout(() => {
+        toggleMobileCatalogueOverlay('filters')
+        setMobileFiltersClosing(false)
+      }, 180)
     }
   }
 
   return (
-    <div ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
+    <div data-catalogue-page="true" ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
+
+      <style>{`
+        @media (min-width: 768px) {
+          [data-makes-info='true'] { margin-bottom: 12px; }
+          [data-catalogue-layout="true"] [data-make-table-row="true"] > [data-cell="car"] {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 4px !important;
+          }
+
+          [data-mobile-favorites='true'] { display: none !important; }
+          [data-desktop-filter-favorites='true'] {
+            display: block !important;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: calc(50% - 4px);
+            height: 100%;
+            box-sizing: border-box;
+          }
+          [data-desktop-engine-group='true'] > input {
+            width: calc(50% - 4px) !important;
+            margin-left: calc(50% + 4px);
+          }
+          [data-desktop-engine-group='true'] > [data-filter-dropdown='true'] {
+            left: calc(50% + 4px) !important;
+          }
+
+          [data-filter-row='true'][data-default-catalogue='true'] {
+            margin-top: -16px !important;
+            padding-top: 6px !important;
+          }
+          [data-filter-row='true'][data-default-catalogue='true'] [data-filter-heading='true'] > h2 {
+            display: none !important;
+          }
+          [data-filter-row='true'][data-default-catalogue='true'] [data-filter-heading='true']:not(:has(button:not([data-mobile-favorites='true']))) {
+            display: none !important;
+          }
+        }
+      `}</style>
+
+      <div data-mobile-catalogue-actions="true" aria-label={t("Kataloga izvēlne")}>
+        <button
+          type="button"
+          aria-expanded={mobileMakesOpen}
+          onClick={() => toggleMobileCatalogueOverlay('makes')}
+        >
+          <span>{t("Visas markas")}</span>
+          <span>({countryCars.length}) {mobileMakesOpen ? '▴' : '▾'}</span>
+        </button>
+        <button
+          type="button"
+          aria-expanded={mobileFiltersOpen}
+          onClick={() => toggleMobileCatalogueOverlay('filters')}
+        >
+          <span>{t("Filtri")}</span>
+          <span>{hasActiveFilters ? '● ' : ''}{mobileFiltersOpen ? '▴' : '▾'}</span>
+        </button>
+      </div>
       
-      <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
+      <div data-catalogue-layout="true" style={{ display: 'grid', gridTemplateColumns: '270px 1fr 240px', gap: '16px', alignItems: 'start', width: '100%' }}>
         
         {/* KREISĀ PUSE - Marku saraksts */}
-        <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box' }}>
+        <div data-makes-column="true" data-mobile-open={mobileMakesOpen ? 'true' : 'false'} style={{ position: 'sticky', top: '72px', alignSelf: 'start', height: 'calc(100dvh - 88px)', minHeight: '500px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '6px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
+          <div data-makes-panel="true" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
           {loading ? (
-            <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>Ielādē...</div>
+            <div style={{ fontSize: '13px', color: '#6b7280', padding: '8px' }}>{t("Ielādē...")}</div>
           ) : (
             <div>
               <button
-                onClick={() => setSearchMake('')}
+                onClick={() => setMakeAndHistory('')}
+                data-make-selected={searchMake === '' ? 'true' : undefined}
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -325,17 +1227,19 @@ export default function Sakumlapa() {
                   marginBottom: '4px'
                 }}
               >
-                <span>Visas markas</span>
-                <span style={{ fontSize: '12px', color: '#6b7280' }}>({cars.length})</span>
+                <span>{t("Visas markas")}</span>
+                <span style={{ fontSize: '12px', color: '#6b7280' }}>({countryCars.length})</span>
               </button>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
+              <div data-makes-list="true" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
                 {makeCounts.map(([make, count]) => {
                   const isSelected = searchMake.toLowerCase() === make.toLowerCase()
                   return (
                     <button
                       key={make}
+                      data-make-selected={isSelected ? 'true' : undefined}
                       onClick={() => handleMakeSelect(make)}
                       style={{
+                        gridColumn: make === 'Moto/velo' ? '1' : make === 'Avio' || make === 'Cits' ? '2' : undefined,
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
@@ -351,7 +1255,7 @@ export default function Sakumlapa() {
                         textAlign: 'left'
                       }}
                     >
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{make}</span>
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t(make)}</span>
                       <span style={{ fontSize: '11px', color: '#6b7280', marginLeft: '2px', flexShrink: 0 }}>({count})</span>
                     </button>
                   )
@@ -359,13 +1263,75 @@ export default function Sakumlapa() {
               </div>
             </div>
           )}
+          <AdvertisingSlot slot="mobile_brands" data-mobile-sponsor="true" aria-label={t("Sponsora vieta")}><strong>{t("SPONSORS")}</strong><span>{t("Vieta sadarbības partnerim")}</span></AdvertisingSlot>
+          </div>
+
+          <nav
+            data-makes-info="true"
+            aria-label={t("Informācija")}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '6px',
+              marginTop: 'auto',
+              paddingTop: '12px',
+              borderTop: '2px solid #cbd5e1'
+            }}
+          >
+            {['Lietošanas noteikumi', 'Privātuma politika', 'Drošība un krāpniecība', 'Kontakti', 'Ieteikumi', 'Biežāk uzdotie jautājumi'].map((label) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => label !== 'Biežāk uzdotie jautājumi' && router.push(
+                  label === 'Lietošanas noteikumi' ? '/lietosanas-noteikumi' :
+                  label === 'Privātuma politika' ? '/privatuma-politika' :
+                  label === 'Drošība un krāpniecība' ? '/drosiba-un-krapnieciba' :
+                  label === 'Kontakti' ? '/kontakti' : '/tavi-ieteikumi'
+                )}
+                style={{
+                  minHeight: '34px',
+                  padding: '6px 8px',
+                  backgroundColor: '#f1f5f9',
+                  color: '#334155',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  fontFamily: 'inherit',
+                  fontSize: '12.5px',
+                  fontWeight: '700',
+                  lineHeight: '1.2',
+                  textAlign: 'left',
+                  opacity: 1,
+                  cursor: 'pointer'
+                }}
+              >
+                {t(label)}
+              </button>
+            ))}
+          </nav>
         </div>
 
         {/* VIDUS: Filtri un Sludinājumu saraksts */}
-        <div style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
+        <div data-catalogue-center="true" style={{ minWidth: 0, width: '100%', alignSelf: 'start' }}>
           
           {/* FILTRI */}
-          <div style={{ 
+          <div
+            data-filter-row="true"
+            data-default-catalogue={!searchMake && !showFavorites ? 'true' : undefined}
+            data-mobile-open={mobileFiltersOpen ? 'true' : 'false'}
+            data-mobile-closing={mobileFiltersClosing ? 'true' : undefined}
+            onTouchStart={handleMobileFiltersTouchStart}
+            onTouchEnd={handleMobileFiltersTouchEnd}
+            onPointerDownCapture={handleFilterPointerDownCapture}
+            onPointerUpCapture={handleFilterPointerUpCapture}
+            onClickCapture={handleFilterClickCapture}
+            onPointerCancel={() => {
+              filterPointerStart.current = null
+            }}
+            onTouchCancel={() => {
+              mobileFiltersTouchStart.current = null
+              setMobileFiltersClosing(false)
+            }}
+            style={{ 
             position: 'sticky', 
             top: '72px', 
             zIndex: 30, 
@@ -379,34 +1345,124 @@ export default function Sakumlapa() {
             flexDirection: 'column', 
             gap: '8px', 
             border: '1px solid #e5e7eb',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+            boxShadow: '0 -24px 0 #f8fafc, 0 4px 6px -1px rgba(0, 0, 0, 0.05)'
           }}>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+            <div data-filter-heading="true" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
               <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0, color: '#111827' }}>
-                {searchMake ? `${searchMake} sludinājumi` : 'Visi auto sludinājumi'}
+                {showFavorites ? t('Mani favorīti') : searchMake ? `${t(searchMake)} ${t('sludinājumi')}` : t('Visi auto sludinājumi')}
               </h2>
-              
-              {hasActiveFilters && (
-                <button 
-                  onClick={clearAllFilters} 
-                  style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '4px', 
-                    backgroundColor: '#fee2e2', 
-                    color: '#991b1b', 
-                    border: '1px solid #fecaca', 
-                    borderRadius: '6px', 
-                    padding: '4px 10px', 
-                    cursor: 'pointer', 
-                    fontSize: '12px', 
-                    fontWeight: '600'
-                  }}
-                >
-                  <span>✕ Notīrīt filtrus</span>
-                </button>
-              )}
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {favoriteIds.length > 0 && (
+                  <button
+                    type="button"
+                    data-mobile-favorites="true"
+                    onClick={toggleFavoritesView}
+                    style={{
+                      backgroundColor: showFavorites ? '#15803d' : '#dcfce7',
+                      color: showFavorites ? '#ffffff' : '#166534',
+                      border: '1px solid #86efac',
+                      borderRadius: '6px',
+                      padding: '4px 10px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: '700'
+                    }}
+                  >
+                    {showFavorites ? t('Rādīt visus') : `${t('Mani favorīti')} (${favoriteIds.length})`}
+                  </button>
+                )}
+
+                {hasActiveFilters && (
+                  <button 
+                    data-filter-clear="true"
+                    onClick={clearAllFilters} 
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '4px', 
+                      backgroundColor: '#fee2e2', 
+                      color: '#991b1b', 
+                      border: '1px solid #fecaca', 
+                      borderRadius: '6px', 
+                      padding: '4px 10px', 
+                      cursor: 'pointer', 
+                      fontSize: '12px', 
+                      fontWeight: '600'
+                    }}
+                  >
+                    <span>{t("✕ Notīrīt filtrus")}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div
+              data-year-sort="true"
+              aria-label={t("Kārtot sludinājumus pēc izlaiduma gada")}
+              style={{ display: 'none' }}
+            >
+              <button
+                type="button"
+                data-year-sort-direction="asc"
+                aria-label={t("Gads augošā secībā")}
+                aria-pressed={yearSort === 'asc'}
+                onClick={() => applyListingSort(yearSort === 'asc' ? null : 'asc')}
+              >
+                <span aria-hidden="true">↑</span>
+              </button>
+              <button
+                type="button"
+                data-year-sort-reset="true"
+                aria-label={t("Izslēgt kārtošanu pēc gada")}
+                aria-pressed={yearSort === null}
+                onClick={() => applyListingSort(null)}
+              >{t("Gads")}
+              </button>
+              <button
+                type="button"
+                data-year-sort-direction="desc"
+                aria-label={t("Gads dilstošā secībā")}
+                aria-pressed={yearSort === 'desc'}
+                onClick={() => applyListingSort(yearSort === 'desc' ? null : 'desc')}
+              >
+                <span aria-hidden="true">↓</span>
+              </button>
+            </div>
+
+            <div
+              data-year-sort="true"
+              data-price-sort="true"
+              aria-label={t("Kārtot sludinājumus pēc cenas")}
+              style={{ display: 'none' }}
+            >
+              <button
+                type="button"
+                data-year-sort-direction="asc"
+                aria-label={t("Cena augošā secībā")}
+                aria-pressed={priceSort === 'asc'}
+                onClick={() => applyListingSort(priceSort === 'asc' ? null : 'asc', 'price')}
+              >
+                <span aria-hidden="true">↑</span>
+              </button>
+              <button
+                type="button"
+                data-year-sort-reset="true"
+                aria-label={t("Izslēgt kārtošanu pēc cenas")}
+                aria-pressed={priceSort === null}
+                onClick={() => applyListingSort(null, 'price')}
+              >{t("Cena")}
+              </button>
+              <button
+                type="button"
+                data-year-sort-direction="desc"
+                aria-label={t("Cena dilstošā secībā")}
+                aria-pressed={priceSort === 'desc'}
+                onClick={() => applyListingSort(priceSort === 'desc' ? null : 'desc', 'price')}
+              >
+                <span aria-hidden="true">↓</span>
+              </button>
             </div>
 
             {/* 1. Rinda */}
@@ -414,20 +1470,21 @@ export default function Sakumlapa() {
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
                   type="text"
-                  placeholder="Valsts"
-                  value={valsts}
-                  onChange={(e) => { setValsts(e.target.value); setActiveDropdown('valsts'); }}
+                  data-filter-field="valsts"
+                  placeholder={t("Valsts")}
+                  value={t(valsts)}
+                  onChange={(e) => { const value = canonical(e.target.value, COUNTRIES.map(c => c.name)); selectFilterCountry(value); setActiveDropdown('valsts'); }}
                   onClick={() => toggleDropdown('valsts')}
                   style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'valsts' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setValsts(''); setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas valstis</div>
-                    {COUNTRIES.filter(c => c.name.toLowerCase().includes(valsts.toLowerCase())).map((c) => (
+                  <div data-filter-dropdown="true" style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    <div onClick={() => { selectFilterCountry(''); setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>{t("Visas valstis")}</div>
+                    {COUNTRIES.filter(c => matches(c.name, valsts)).map((c) => (
                       <div
                         key={c.name}
                         onClick={() => { 
-                          setValsts(c.name); 
+                          selectFilterCountry(c.name); 
                           setRegions(''); 
                           setActiveDropdown(null); 
                         }}
@@ -435,10 +1492,10 @@ export default function Sakumlapa() {
                       >
                         <img 
                           src={`https://flagcdn.com/20x15/${c.code}.png`} 
-                          alt={c.name} 
+                          alt={t(c.name)} 
                           style={{ width: '20px', height: '15px', objectFit: 'cover', borderRadius: '2px', border: '1px solid #e5e7eb' }} 
                         />
-                        <span>{c.name}</span>
+                        <span>{t(c.name)}</span>
                       </div>
                     ))}
                   </div>
@@ -448,22 +1505,23 @@ export default function Sakumlapa() {
               <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
                 <input
                   type="text"
-                  placeholder={valsts ? `Reģions (${valsts})` : "Reģions"}
-                  value={regions}
-                  onChange={(e) => { setRegions(e.target.value); setActiveDropdown('regions'); }}
+                  data-filter-field="regions"
+                  placeholder={valsts ? `${t('Reģions')} (${t(valsts)})` : t("Reģions")}
+                  value={t(regions)}
+                  onChange={(e) => { setRegions(canonical(e.target.value, availableRegions)); setActiveDropdown('regions'); }}
                   onClick={() => toggleDropdown('regions')}
                   style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'regions' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visi reģioni</div>
-                    {availableRegions.filter(r => r.toLowerCase().includes(regions.toLowerCase())).map((r) => (
+                  <div data-filter-dropdown="true" style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    <div onClick={() => { setRegions(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>{t("Visi reģioni")}</div>
+                    {availableRegions.filter(r => matches(r, regions)).map((r) => (
                       <div
                         key={r}
                         onClick={() => { setRegions(r); setActiveDropdown(null); }}
                         style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}
                       >
-                        {r}
+                        {t(r)}
                       </div>
                     ))}
                   </div>
@@ -473,7 +1531,9 @@ export default function Sakumlapa() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <input 
                   type="text" 
-                  placeholder="Cena no" 
+                  data-filter-field="minPrice"
+                  inputMode="numeric"
+                  placeholder={t("Cena no")} 
                   value={displayMinPrice} 
                   onChange={(e) => {
                     const formatted = formatNumberWithSpace(e.target.value)
@@ -485,7 +1545,9 @@ export default function Sakumlapa() {
                 <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
                 <input 
                   type="text" 
-                  placeholder="līdz" 
+                  placeholder={t("līdz")} 
+                  data-filter-field="maxPrice"
+                  inputMode="numeric"
                   value={displayMaxPrice} 
                   onChange={(e) => {
                     const formatted = formatNumberWithSpace(e.target.value)
@@ -497,33 +1559,56 @@ export default function Sakumlapa() {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <input type="number" placeholder="Gads no" value={minYear} onChange={(e) => setMinYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
+                <input type="number" data-filter-field="minYear" inputMode="numeric" placeholder={t("Gads no")} value={minYear} onChange={(e) => setMinYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
                 <span style={{ fontSize: '12px', color: '#4b5563' }}>→</span>
-                <input type="number" placeholder="līdz" value={maxYear} onChange={(e) => setMaxYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
+                <input type="number" data-filter-field="maxYear" inputMode="numeric" placeholder={t("līdz")} value={maxYear} onChange={(e) => setMaxYear(e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff' }} />
               </div>
             </div>
 
             {/* 2. Rinda */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-              <div style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
+              <div data-desktop-engine-group="true" style={{ position: 'relative', flex: '1', minWidth: '110px' }}>
+                <button
+                  type="button"
+                  data-desktop-filter-favorites="true"
+                  data-favorites-empty={favoriteIds.length === 0 ? 'true' : undefined}
+                  aria-pressed={showFavorites}
+                  disabled={favoriteIds.length === 0}
+                  onClick={toggleFavoritesView}
+                  style={{
+                    display: 'none',
+                    backgroundColor: favoriteIds.length === 0 ? '#f3f4f6' : showFavorites ? '#15803d' : '#dcfce7',
+                    color: favoriteIds.length === 0 ? '#9ca3af' : showFavorites ? '#ffffff' : '#166534',
+                    border: favoriteIds.length === 0 ? '1px solid #d1d5db' : '1px solid #86efac',
+                    borderRadius: '6px',
+                    padding: '6px',
+                    fontFamily: 'inherit',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    cursor: favoriteIds.length === 0 ? 'default' : 'pointer'
+                  }}
+                >
+                  {showFavorites ? t('Rādīt visus') : favoriteIds.length > 0 ? `${t('Mani favorīti')} (${favoriteIds.length})` : t('Mani favorīti')}
+                </button>
                 <input
                   type="text"
-                  placeholder="Dzinējs"
-                  value={dzinejs}
-                  onChange={(e) => { setDzinejs(e.target.value); setActiveDropdown('dzinejs'); }}
+                  data-filter-field="dzinejs"
+                  placeholder={t("Dzinējs")}
+                  value={t(dzinejs)}
+                  onChange={(e) => { setDzinejs(canonical(e.target.value, ENGINE_TYPES)); setActiveDropdown('dzinejs'); }}
                   onClick={() => toggleDropdown('dzinejs')}
                   style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'dzinejs' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setDzinejs(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visi dzinēji</div>
-                    {ENGINE_TYPES.filter(d => d.toLowerCase().includes(dzinejs.toLowerCase())).map((d) => (
+                  <div data-filter-dropdown="true" style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    <div onClick={() => { setDzinejs(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>{t("Visi dzinēji")}</div>
+                    {ENGINE_TYPES.filter(d => matches(d, dzinejs)).map((d) => (
                       <div
                         key={d}
                         onClick={() => { setDzinejs(d); setActiveDropdown(null); }}
                         style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}
                       >
-                        {d}
+                        {t(d)}
                       </div>
                     ))}
                   </div>
@@ -534,16 +1619,18 @@ export default function Sakumlapa() {
                 <div style={{ position: 'relative', width: '70px' }}>
                   <input 
                     type="text" 
-                    placeholder="Tilp. no" 
+                    data-filter-field="minTilpums"
+                    inputMode="decimal"
+                    placeholder={t("Tilp. no")} 
                     value={minTilpums} 
                     onChange={(e) => { setMinTilpums(e.target.value); setActiveDropdown('minTilpums'); }} 
                     onClick={() => toggleDropdown('minTilpums')}
                     style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }} 
                   />
                   {activeDropdown === 'minTilpums' && (
-                    <div style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    <div data-filter-dropdown="true" style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                       {VOLUMES.map((v) => (
-                        <div key={v} onClick={() => { setMinTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>{v}</div>
+                        <div key={v} onClick={() => { setMinTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>{t(v)}</div>
                       ))}
                     </div>
                   )}
@@ -552,103 +1639,161 @@ export default function Sakumlapa() {
                 <div style={{ position: 'relative', width: '70px' }}>
                   <input 
                     type="text" 
-                    placeholder="līdz" 
+                    placeholder={t("līdz")} 
+                    data-filter-field="maxTilpums"
+                    inputMode="decimal"
                     value={maxTilpums} 
                     onChange={(e) => { setMaxTilpums(e.target.value); setActiveDropdown('maxTilpums'); }} 
                     onClick={() => toggleDropdown('maxTilpums')}
                     style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }} 
                   />
                   {activeDropdown === 'maxTilpums' && (
-                    <div style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    <div data-filter-dropdown="true" style={{ position: 'absolute', top: '100%', left: 0, width: '100px', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                       {VOLUMES.map((v) => (
-                        <div key={v} onClick={() => { setMaxTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>{v}</div>
+                        <div key={v} onClick={() => { setMaxTilpums(v); setActiveDropdown(null); }} style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>{t(v)}</div>
                       ))}
                     </div>
                   )}
                 </div>
               </div>
 
-              <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
+              <div data-desktop-compact-filter="true" style={{ position: 'relative', flex: '1', minWidth: '90px', '--desktop-filter-width': `${Math.max(100, (t(atrumkarba).length + 2) * 7)}px` } as React.CSSProperties}>
                 <input
                   type="text"
-                  placeholder="Ātrumkārba"
-                  value={atrumkarba}
-                  onChange={(e) => { setAtrumkarba(e.target.value); setActiveDropdown('atrumkarba'); }}
+                  data-filter-field="atrumkarba"
+                  placeholder={t("Ātrumkārba")}
+                  value={t(atrumkarba)}
+                  onChange={(e) => { setAtrumkarba(canonical(e.target.value, GEARBOX_TYPES)); setActiveDropdown('atrumkarba'); }}
                   onClick={() => toggleDropdown('atrumkarba')}
                   style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'atrumkarba' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setAtrumkarba(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas kārbas</div>
-                    {GEARBOX_TYPES.filter(g => g.toLowerCase().includes(atrumkarba.toLowerCase())).map((g) => (
-                      <div key={g} onClick={() => { setAtrumkarba(g); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}>{g}</div>
+                  <div data-filter-dropdown="true" style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '150px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    <div onClick={() => { setAtrumkarba(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>{t("Visas kārbas")}</div>
+                    {GEARBOX_TYPES.filter(g => matches(g, atrumkarba)).map((g) => (
+                      <div key={g} onClick={() => { setAtrumkarba(g); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}>{t(g)}</div>
                     ))}
                   </div>
                 )}
               </div>
 
-              <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
+              <div data-desktop-compact-filter="true" style={{ position: 'relative', flex: '1', minWidth: '90px', '--desktop-filter-width': `${Math.max(92, (t(virsbuve).length + 2) * 7)}px` } as React.CSSProperties}>
                 <input
                   type="text"
-                  placeholder="Virsbūve"
-                  value={virsbuve}
-                  onChange={(e) => { setVirsbuve(e.target.value); setActiveDropdown('virsbuve'); }}
+                  data-filter-field="virsbuve"
+                  placeholder={t("Virsbūve")}
+                  value={t(virsbuve)}
+                  onChange={(e) => { setVirsbuve(canonical(e.target.value, BODY_TYPES)); setActiveDropdown('virsbuve'); }}
                   onClick={() => toggleDropdown('virsbuve')}
                   style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'virsbuve' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setVirsbuve(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas virsbūves</div>
-                    {BODY_TYPES.filter(b => b.toLowerCase().includes(virsbuve.toLowerCase())).map((b) => (
-                      <div key={b} onClick={() => { setVirsbuve(b); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}>{b}</div>
+                  <div data-filter-dropdown="true" style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    <div onClick={() => { setVirsbuve(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>{t("Visas virsbūves")}</div>
+                    {BODY_TYPES.filter(b => matches(b, virsbuve)).map((b) => (
+                      <div key={b} onClick={() => { setVirsbuve(b); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer' }}>{t(b)}</div>
                     ))}
                   </div>
                 )}
               </div>
 
-              <div style={{ position: 'relative', flex: '1', minWidth: '90px' }}>
+              <div data-desktop-compact-filter="true" style={{ position: 'relative', flex: '1', minWidth: '90px', '--desktop-filter-width': `${Math.max(80, (t(krasa).length + 2) * 7)}px` } as React.CSSProperties}>
                 <input
                   type="text"
-                  placeholder="Krāsa"
-                  value={krasa}
-                  onChange={(e) => { setKrasa(e.target.value); setActiveDropdown('krasa'); }}
+                  data-filter-field="krasa"
+                  placeholder={t("Krāsa")}
+                  value={t(krasa)}
+                  onChange={(e) => { setKrasa(canonical(e.target.value, COLORS.map(c => c.name))); setActiveDropdown('krasa'); }}
                   onClick={() => toggleDropdown('krasa')}
                   style={{ width: '100%', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '12px', backgroundColor: '#fff', boxSizing: 'border-box', cursor: 'pointer' }}
                 />
                 {activeDropdown === 'krasa' && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                    <div onClick={() => { setKrasa(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>Visas krāsas</div>
-                    {COLORS.filter(k => k.name.toLowerCase().includes(krasa.toLowerCase())).map((k) => (
+                  <div data-filter-dropdown="true" style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    <div onClick={() => { setKrasa(''); setActiveDropdown(null); }} style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>{t("Visas krāsas")}</div>
+                    {COLORS.filter(k => matches(k.name, krasa)).map((k) => (
                       <div 
                         key={k.name} 
                         onClick={() => { setKrasa(k.name); setActiveDropdown(null); }} 
                         style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                       >
                         <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: k.hex, border: `1px solid ${k.border}` }}></span>
-                        <span>{k.name}</span>
+                        <span>{t(k.name)}</span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
+              {(['year', 'price'] as const).map((field) => {
+                const label = field === 'year' ? 'Gads' : 'Cena'
+                const current = field === 'year' ? yearSort : priceSort
+                return (
+                  <div key={field} data-desktop-sort-control={field}>
+                    <div data-desktop-sort-toggle="true" data-sort-active={current !== null ? 'true' : undefined} role="group" aria-label={`${t('Kārtošana')}: ${t(label)}`}>
+                      <button
+                        type="button"
+                        aria-label={`${t(label)}: ${t('augošā secībā')}`}
+                        aria-pressed={current === 'asc'}
+                        onClick={() => { setActiveDropdown(null); applyListingSort('asc', field) }}
+                      >↑</button>
+                      <button
+                        type="button"
+                        aria-label={t(label)}
+                        onClick={() => { setActiveDropdown(null); applyListingSort(null, field) }}
+                      >{t(label)}</button>
+                      <button
+                        type="button"
+                        aria-label={`${t(label)}: ${t('dilstošā secībā')}`}
+                        aria-pressed={current === 'desc'}
+                        onClick={() => { setActiveDropdown(null); applyListingSort('desc', field) }}
+                      >↓</button>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
 
           {/* SKATS */}
-          <div>
+          <div data-listings="true">
             {loading ? (
-              <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Notiek sludinājumu ielāde...</div>
+              <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>{t("Notiek sludinājumu ielāde...")}</div>
             ) : filteredCars.length === 0 ? (
-              <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>Nav atrasts neviens sludinājums ar šādiem kritērijiem.</div>
-            ) : searchMake === '' ? (
+              <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>{t("Nav atrasts neviens sludinājums ar šādiem kritērijiem.")}</div>
+            ) : searchMake === '' && !showFavorites ? (
               /* GRID SKATS */
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
-                {filteredCars.map((car, index) => {
-                  const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
+              <div data-listings-grid="true" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '16px' }}>
+                {paginatedCars.map((car, index) => {
+                  const fallbackImage = 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'
+                  const galleryImages = Array.from(new Set([
+                    car.image,
+                    car.image_url,
+                    ...(Array.isArray(car.images) ? car.images : [])
+                  ].filter((image): image is string => Boolean(image))))
+                  if (galleryImages.length === 0) galleryImages.push(fallbackImage)
+                  const cardEngineType = car.engine || car.dzinejs || ''
+                  const cardEngineVolume = car.volume !== null && car.volume !== undefined && car.volume !== '' ? `${car.volume}L` : ''
+                  const rawCardGearbox = car.gearbox || car.atrumkarba || car.transmission || ''
+                  const normalizedCardGearbox = rawCardGearbox.toLowerCase().includes('pusautom')
+                    ? 'Pusautomāts'
+                    : rawCardGearbox.toLowerCase().includes('autom')
+                      ? 'Automāts'
+                      : rawCardGearbox.toLowerCase().includes('mehān') || rawCardGearbox.toLowerCase().includes('manual') || rawCardGearbox.toLowerCase().includes('manuāl')
+                        ? 'Manuāls'
+                        : rawCardGearbox
+                  const cardEngineSummary = [cardEngineType, cardEngineVolume].filter(Boolean).join(' ')
+                  const previewCard = isPreviewListing(car)
                   return (
-                    <Link 
+                    <Fragment key={car.id || index}>
+                    <a 
                       key={car.id || index} 
-                      href={`/auto/${car.id}`} 
+                      href={`/auto/${car.id}`}
+                      data-recently-viewed={recentlyViewedIds.includes(String(car.id)) ? 'true' : undefined}
+                      data-preview-listing={previewCard ? 'true' : undefined}
+                      onClick={(event) => {
+                        event.currentTarget.dataset.recentlyViewed = 'true'
+                        rememberListingReturnPosition()
+                        markListingViewed(car.id)
+                      }}
                       style={{ 
                         backgroundColor: '#ffffff', 
                         border: '1px solid #e5e7eb', 
@@ -660,37 +1805,64 @@ export default function Sakumlapa() {
                         flexDirection: 'column'
                       }}
                     >
-                      <div style={{ width: '100%', height: '160px', backgroundColor: '#f3f4f6', overflow: 'hidden' }}>
-                        <img 
-                          src={imageUrl} 
-                          alt={car.make} 
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                        />
-                      </div>
+                      <ListingCardGallery key={`${safeCurrentPage}-${yearSort ?? ''}-${priceSort ?? ''}-${car.id}`} images={galleryImages} alt={`${car.make} ${car.model || ''}`.trim()} />
                       <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
-                        <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#1d4ed8' }}>
-                          {car.make} {car.model}
-                        </div>
-                        <div style={{ fontSize: '13px', color: '#4b5563', display: 'flex', justifyContent: 'space-between' }}>
-                          <span>{car.year ? `${car.year} g.` : ''}</span>
-                          <span>{car.volume ? `${car.volume}L` : ''}</span>
-                        </div>
-                        <div style={{ marginTop: 'auto', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontWeight: 'bold', fontSize: '16px', color: '#111827' }}>
-                            {car.price ? `${formatNumberWithSpace(car.price)} €` : ''}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                          <div data-card-title="true" style={{ fontWeight: 'bold', fontSize: '15px', color: '#1d4ed8', minWidth: 0 }}>
+                            {car.make} {car.model}
+                          </div>
+                          <span
+                            role="button"
+                            tabIndex={0}
+                            aria-pressed={favoriteIds.includes(String(car.id))}
+                            onClick={(event) => {
+                              event.preventDefault()
+                              event.stopPropagation()
+                              toggleFavorite(car.id)
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault()
+                                event.stopPropagation()
+                                toggleFavorite(car.id)
+                              }
+                            }}
+                            style={{
+                              flexShrink: 0,
+                              color: favoriteIds.includes(String(car.id)) ? '#15803d' : '#9ca3af',
+                              fontSize: '12px',
+                              fontWeight: favoriteIds.includes(String(car.id)) ? '700' : '500',
+                              cursor: 'pointer',
+                              userSelect: 'none'
+                            }}
+                          >{t("Mans favorīts")}
                           </span>
                         </div>
+                        <div data-card-meta="true" style={{ fontSize: '13px', color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <span data-card-year="true">{car.year ? `${car.year} ${t('g.')}` : ''}</span>
+                          <span data-card-price="true" style={{ color: '#111827', fontWeight: 'bold' }}>{car.price ? `${formatNumberWithSpace(car.price)} €` : ''}</span>
+                          {cardEngineSummary && <span data-card-engine-summary="true">{cardEngineSummary}</span>}
+                          {normalizedCardGearbox && (
+                            <span data-card-gearbox="true" style={{ order: 4, whiteSpace: 'nowrap' }}>
+                              {normalizedCardGearbox}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </Link>
+                    </a>
+                    {(index + 1) % 5 === 0 && (
+                      <AdvertisingSlot slot="mobile_list" data-mobile-sponsor="true" aria-label={t("Sponsora vieta")}><strong>{t("SPONSORS")}</strong><span>{t("Vieta sadarbības partnerim")}</span></AdvertisingSlot>
+                    )}
+                    </Fragment>
                   )
                 })}
               </div>
             ) : (
               /* TABULAS SKATS - Fiksēta zaļā galvene un skrollējams saturs */
-              <div style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', position: 'relative' }}>
+              <div data-make-table="true" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', position: 'relative' }}>
                 
                 {/* Nekustīgā zaļā galvenes strīpa */}
-                <div style={{ 
+                <div data-make-table-header="true" style={{ 
                   display: 'grid', 
                   gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
                   backgroundColor: '#15803d', 
@@ -703,32 +1875,50 @@ export default function Sakumlapa() {
                   borderTopRightRadius: '8px',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}>
-                  <div>Foto</div>
-                  <div>Automobilis</div>
-                  <div>Gads</div>
-                  <div>Dzinējs</div>
-                  <div>Virsbūve</div>
-                  <div>Krāsa</div>
-                  <div>Nobraukums</div>
+                  <div>{t("Foto")}</div>
+                  <div>{t("Automobilis")}</div>
+                  <div>{t("Gads")}</div>
+                  <div>{t("Dzinējs")}</div>
+                  <div>{t("Virsbūve")}</div>
+                  <div>{t("Krāsa")}</div>
+                  <div>{t("Nobraukums")}</div>
                   <div></div>
-                  <div style={{ textAlign: 'right' }}>Cena</div>
+                  <div style={{ textAlign: 'right' }}>{t("Cena")}</div>
                 </div>
 
                 {/* Skrollējams satura konteiners */}
-                <div style={{ maxHeight: 'calc(100vh - 250px)', overflowY: 'auto' }}>
-                  {filteredCars.map((car, index) => {
+                <div data-make-table-body="true" style={{ maxHeight: 'calc(100vh - 250px)', overflowY: 'auto' }}>
+                  {paginatedCars.map((car, index) => {
                     const imageUrl = car.image_url || (car.images && car.images[0]) || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=300&q=80'
+                    const rowGalleryImages = Array.from(new Set([
+                      car.image,
+                      car.image_url,
+                      ...(Array.isArray(car.images) ? car.images : [])
+                    ].filter((image): image is string => Boolean(image))))
+                    if (rowGalleryImages.length === 0) rowGalleryImages.push(imageUrl)
+                    const previewCard = isPreviewListing(car)
                     
-                    const engineType = car.engine || car.dzinejs || '-'
+                    const engineType = car.engine || car.engine_type || car.fuel_type || car.fuel || car.dzinejs || car.degviela || '-'
+                    const engineVolume = car.volume !== null && car.volume !== undefined && car.volume !== '' ? `${car.volume}L` : ''
+                    const mobileEngineSummary = [engineType === '-' ? '' : engineType, engineVolume].filter(Boolean).join(' ')
                     const bodyType = car.body_type || car.virsbuve || '-'
                     const carColor = car.color || car.krasa || '-'
                     const rawMileage = car.mileage || car.noobraukums || car.nobraukums
                     const formattedMileage = rawMileage ? `${formatNumberWithSpace(rawMileage)} km` : '-'
 
                     return (
-                      <Link 
+                      <Fragment key={car.id || index}>
+                      <a 
                         key={car.id || index} 
-                        href={`/auto/${car.id}`} 
+                        href={`/auto/${car.id}`}
+                        data-recently-viewed={recentlyViewedIds.includes(String(car.id)) ? 'true' : undefined}
+                        data-preview-listing={previewCard ? 'true' : undefined}
+                        onClick={(event) => {
+                        event.currentTarget.dataset.recentlyViewed = 'true'
+                        rememberListingReturnPosition()
+                        markListingViewed(car.id)
+                      }}
+                        data-make-table-row="true"
                         style={{ 
                           display: 'grid', 
                           gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
@@ -743,73 +1933,132 @@ export default function Sakumlapa() {
                         }}
                       >
                         {/* 1. Foto */}
-                        <div>
-                          <img 
-                            src={imageUrl} 
-                            alt={car.make} 
-                            style={{ width: '95px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #d1d5db' }} 
-                          />
+                        <div data-cell="photo">
+                          <ListingCardGallery key={`${safeCurrentPage}-${yearSort ?? ''}-${priceSort ?? ''}-${car.id}`} images={rowGalleryImages} alt={`${car.make} ${car.model || ''}`.trim()} compact />
                         </div>
 
                         {/* 2. Automobilis */}
-                        <div style={{ color: '#1d4ed8', fontSize: '15px', fontWeight: '700', paddingRight: '8px' }}>
-                          {car.make} {car.model}
+                        <div data-cell="car" style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingRight: '8px' }}>
+                          <span style={{ color: '#1d4ed8', fontSize: '15px', fontWeight: '700' }}>
+                            {car.make} {car.model}
+                          </span>
+                          <span
+                            role="button"
+                            tabIndex={0}
+                            aria-pressed={favoriteIds.includes(String(car.id))}
+                            onClick={(event) => {
+                              event.preventDefault()
+                              event.stopPropagation()
+                              toggleFavorite(car.id)
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault()
+                                event.stopPropagation()
+                                toggleFavorite(car.id)
+                              }
+                            }}
+                            style={{
+                              flexShrink: 0,
+                              color: favoriteIds.includes(String(car.id)) ? '#15803d' : '#9ca3af',
+                              fontSize: '11px',
+                              fontWeight: favoriteIds.includes(String(car.id)) ? '700' : '500',
+                              cursor: 'pointer',
+                              userSelect: 'none'
+                            }}
+                          >{t("Mans favorīts")}
+                          </span>
                         </div>
 
                         {/* 3. Gads */}
-                        <div style={{ color: '#374151' }}>
-                          {car.year || '-'}
+                        <div data-cell="year" style={{ color: '#374151' }}>
+                          <span>{car.year || '-'}</span>
+                          {mobileEngineSummary && <span data-mobile-engine-summary="true">{mobileEngineSummary}</span>}
                         </div>
 
                         {/* 4. Dzinējs */}
-                        <div style={{ color: '#374151' }}>
+                        <div data-cell="engine" style={{ color: '#374151' }}>
                           {engineType}
                         </div>
 
                         {/* 5. Virsbūve */}
-                        <div style={{ color: '#374151' }}>
+                        <div data-cell="body" style={{ color: '#374151' }}>
                           {bodyType}
                         </div>
 
                         {/* 6. Krāsa */}
-                        <div style={{ color: '#374151' }}>
+                        <div data-cell="color" style={{ color: '#374151' }}>
                           {carColor}
                         </div>
 
                         {/* 7. Nobraukums */}
-                        <div style={{ color: '#374151' }}>
+                        <div data-cell="mileage" style={{ color: '#374151' }}>
                           {formattedMileage}
                         </div>
 
                         {/* Tukšs lauks */}
-                        <div></div>
+                        <div data-cell="spacer"></div>
 
                         {/* 8. Cena */}
-                        <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '15px' }}>
+                        <div data-cell="price" style={{ textAlign: 'right', fontWeight: 'bold', color: '#111827', fontSize: '15px' }}>
                           {car.price ? `${formatNumberWithSpace(car.price)} €` : ''}
                         </div>
-                      </Link>
+                      </a>
+                      {(index + 1) % 5 === 0 && (
+                        <AdvertisingSlot slot="mobile_list" data-mobile-sponsor="true" aria-label={t("Sponsora vieta")}><strong>{t("SPONSORS")}</strong><span>{t("Vieta sadarbības partnerim")}</span></AdvertisingSlot>
+                      )}
+                      </Fragment>
                     )
                   })}
                 </div>
               </div>
             )}
+
+            {!loading && filteredCars.length > 0 && totalPages > 1 && (
+              <nav data-pagination="true" aria-label={t("Sludinājumu lapas")} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: '8px', padding: '18px 0 4px' }}>
+                {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                  <button
+                    key={page}
+                    type="button"
+                    onClick={() => setPageAndHistory(page)}
+                    aria-current={safeCurrentPage === page ? 'page' : undefined}
+                    style={{
+                      minWidth: '36px',
+                      height: '36px',
+                      padding: '0 10px',
+                      borderRadius: '6px',
+                      border: safeCurrentPage === page ? '1px solid #1d4ed8' : '1px solid #d1d5db',
+                      backgroundColor: safeCurrentPage === page ? '#2563eb' : '#ffffff',
+                      color: safeCurrentPage === page ? '#ffffff' : '#1f2937',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </nav>
+            )}
           </div>
         </div>
 
-        {/* LABĀ PUSE - Reklāmas vieta */}
-        <div style={{ position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
-            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA</span>
-            <span>Globālais baneris šeit!</span>
-          </div>
-          <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
-            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>REKLĀMA</span>
-            <span>Globālais baneris šeit!</span>
-          </div>
+        {/* LABĀ PUSE - divi gari, nekustīgi platformas sponsoru lauki */}
+        <div data-sponsor-rail="true" style={{ position: 'sticky', top: '72px', alignSelf: 'start', height: 'calc(100dvh - 88px)', minHeight: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {[1, 2].map((placement) => (
+            <AdvertisingSlot as="aside" slot={placement === 1 ? "desktop_1" : "desktop_2"}
+              key={placement}
+              data-temauto-sponsor-placement="true"
+              aria-label={t("Sponsora vieta")}
+              style={{ width: '100%', minHeight: 0, flex: '1 1 0', boxSizing: 'border-box', border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}
+            >
+              <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("SPONSORS")}</span>
+              <span>{t("Vieta sadarbības partnerim")}</span>
+            </AdvertisingSlot>
+          ))}
         </div>
 
       </div>
     </div>
   )
 }
+

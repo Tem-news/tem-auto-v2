@@ -1,8 +1,14 @@
 'use client'
 
+import AdvertisingSlot from './AdvertisingSlot'
+
+import { useI18n } from '../../lib/i18n'
+import '../desktop-theme.css'
+import { COUNTRIES, findCountry } from '../../lib/countries'
+
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
 const LANGUAGES = [
@@ -21,9 +27,12 @@ const LANGUAGES = [
   { code: 'NO', name: 'Norsk', flagCode: 'no' },
   { code: 'DA', name: 'Dansk', flagCode: 'dk' },
   { code: 'NL', name: 'Nederlands', flagCode: 'nl' },
+  { code: 'GA', name: 'Gaeilge', flagCode: 'ie' },
   { code: 'PT', name: 'Português', flagCode: 'pt' },
   { code: 'CS', name: 'Čeština', flagCode: 'cz' },
   { code: 'SK', name: 'Slovenčina', flagCode: 'sk' },
+  { code: 'SL', name: 'Slovenščina', flagCode: 'si' },
+  { code: 'MT', name: 'Malti', flagCode: 'mt' },
   { code: 'HU', name: 'Magyar', flagCode: 'hu' },
   { code: 'RO', name: 'Română', flagCode: 'ro' },
   { code: 'BG', name: 'Български', flagCode: 'bg' },
@@ -38,88 +47,93 @@ const LANGUAGES = [
   { code: 'HE', name: 'עברית (Hebrew)', flagCode: 'il' }
 ]
 
-const REGIONS = [
-  { 
-    name: 'Latvija (EUR)', 
-    flagCode: 'lv', 
-    group: 'Baltija',
-    subregions: ['Rīga', 'Jūrmala', 'Pierīga', 'Kurzeme', 'Vidzeme', 'Zemgale', 'Latgale', 'Liepāja', 'Daugavpils', 'Ventspils', 'Jelgava', 'Valmiera', 'Ogre']
-  },
-  { 
-    name: 'ASV & Ziemeļamerika (USD)', 
-    flagCode: 'us', 
-    group: 'Ziemeļamerika',
-    subregions: [
-      'Alabama (AL)', 'Aļaska (AK)', 'Arizona (AZ)', 'Arkanzasa (AR)', 'Kalifornija (CA)', 
-      'Kolorādo (CO)', 'Konektikuta (CT)', 'Delavēra (DE)', 'Florida (FL)', 'Džordžija (GA)', 
-      'Havajas (HI)', 'Aidaho (ID)', 'Ilinoisa (IL)', 'Indianāna (IN)', 'Aiova (IA)', 
-      'Kanzasa (KS)', 'Kentuki (KY)', 'Luiziāna (LA)', 'Meina (ME)', 'Merilenda (MD)', 
-      ' Masačūsetsa (MA)', 'Mičigana (MI)', 'Minesota (MN)', 'Misisipi (MS)', 'Misūri (MO)', 
-      'Montāna (MT)', 'Nebraska (NE)', 'Nevada (NV)', 'Ņūhempšīra (NH)', 'Ņūdžersija (NJ)', 
-      'Ņūmexika (NM)', 'Ņujorka (NY)', 'Ziemeļkarolīna (NC)', 'Ziemeļdakota (ND)', 'Ohaio (OH)', 
-      'Oklahoma (OK)', 'Oregonas štats (OR)', 'Pensilvānija (PA)', 'Roda Ailenda (RI)', 'Dienvidkarolīna (SC)', 
-      'Dienviddakota (SD)', 'Tenesī (TN)', 'Teksasa (TX)', 'Jūta (UT)', 'Vermonta (VT)', 
-      'Virdžīnija (VA)', 'Vašingtona (WA)', 'Rietumvirdžīnija (WV)', 'Viskonsina (WI)', 'Vaiominga (WY)'
-    ]
-  },
-  { 
-    name: 'Vācija (EUR)', 
-    flagCode: 'de', 
-    group: 'Centrāleiropa',
-    subregions: [
-      'Berlīne', 'Minhene', 'Hamburga', 'Ķelne', 'Frankfurte pie Mainas', 
-      'Štutgarte', 'Bādene-Virtemberga', 'Bavārija', 'Brandenburga', 'Brēmene', 
-      'Hesene', 'Mēklenburga-Priekšpomerānija', 'Lejassaksija', 'Ziemeļreina-Vestfālene', 
-      'Reina-Palatināte', 'Sāra', 'Saksija', 'Saksija-Anhalte', 'Šlēsviga-Holšteina', 'Tīringene'
-    ]
-  },
-  { 
-    name: 'Apvienotā Karaliste (GBP)', 
-    flagCode: 'gb', 
-    group: 'Eiropa',
-    subregions: ['Londona', 'Mančestra', 'Birmingema', 'Skotija', 'Velsa', 'Ziemeļīrija', 'Liverpūle', 'Līdsā', 'Bristole', 'Glāzgova', 'Edinburga', 'Belfāsta']
-  },
-  { name: 'Eiropa (EUR)', flagCode: 'eu', group: 'Kontinents', subregions: ['Eirozona', 'Eiropas Savienība', 'Skandināvija', 'Baltija', 'Austrumeiropa'] },
-  { name: 'Lietuva (EUR)', flagCode: 'lt', group: 'Baltija', subregions: ['Viļņa', 'Kauņa', 'Klaipēda', 'Šauļi', 'Panevēža', 'Aukštaitija', 'Žemaitija', 'Dzūkija', 'Suvalkija'] },
-  { name: 'Igaunija (EUR)', flagCode: 'ee', group: 'Baltija', subregions: ['Tallina', 'Tartu', 'Narva', 'Pērnava', 'Hāpsalu', 'Sāmsala', 'Hījumā', 'Viljandi'] },
-  { name: 'Francija (EUR)', flagCode: 'fr', group: 'Eiropa', subregions: ['Parīze', 'Marseļa', 'Liona', 'Tulūza', 'Nica', 'Nante', 'Bordo', 'Provansa', 'Korsika', 'Normandija'] },
-  { name: 'Spānija (EUR)', flagCode: 'es', group: 'Eiropa', subregions: ['Madride', 'Barselona', 'Valensija', 'Seviļa', 'Andalūzija', 'Katalonija', 'Malaga', 'Baleāru salas', 'Kanāriju salas'] },
-  { name: 'Itālija (EUR)', flagCode: 'it', group: 'Eiropa', subregions: ['Roma', 'Milāna', 'Neapole', 'Turīna', 'Sicīlija', 'Venēcija', 'Florence', 'Toskāna', 'Sardīnija', 'Kalabrija'] },
-  { name: 'Polija (PLN)', flagCode: 'pl', group: 'Eiropa', subregions: ['Varšava', 'Krakova', 'Gdaņska', 'Vroclava', 'Poznaņa', 'Lodza', 'Silēzija', 'Mazovija', 'Mazpolija'] },
-  { name: 'Zviedrija (SEK)', flagCode: 'se', group: 'Skandināvija', subregions: ['Stokholma', 'Gēteborga', 'Malme', 'Upsala', 'Norlande', 'Svealande', 'Gētalande'] },
-  { name: 'Norvēģija (NOK)', flagCode: 'no', group: 'Skandināvija', subregions: ['Oslo', 'Bergena', 'Tronheima', 'Stavangere', 'Ziemeļnorvēģija', 'Austrumorvēģija', 'Rietumorvēģija'] },
-  { name: 'Somija (EUR)', flagCode: 'fi', group: 'Skandināvija', subregions: ['Helsinki', 'Espoo', 'Tampere', 'Turku', 'Lapzeme', 'Oulu', 'Ūsimā'] },
-  { name: 'Dānija (DKK)', flagCode: 'dk', group: 'Skandināvija', subregions: ['Kopenhāgena', 'Orhusa', 'Odense', 'Olborga', 'Zēlande', 'Jītlande'] },
-  { name: 'Nīderlande (EUR)', flagCode: 'nl', group: 'Eiropa', subregions: ['Amsterdama', 'Roterdama', 'Hāga', 'Utrehta', 'Eindhovena', 'Ziemeļholande', 'Dienvidholande'] },
-  { name: 'Beļģija (EUR)', flagCode: 'be', group: 'Eiropa', subregions: ['Brusese', 'Antverpene', 'Gente', 'Flandrija', 'Valonija', 'Lježa'] },
-  { name: 'Austrija (EUR)', flagCode: 'at', group: 'Eiropa', subregions: ['Vīne', 'Zalcburga', 'Grāca', 'Linca', 'Tiroli', 'Forarlberga', 'Kārtene'] },
-  { name: 'Šveice (CHF)', flagCode: 'ch', group: 'Eiropa', subregions: ['Cīrihe', 'Ženēva', 'Bāzeli', 'Berne', 'Lozanna', 'Lucerna'] },
-  { name: 'Čehija (CZK)', flagCode: 'cz', group: 'Eiropa', subregions: ['Prāga', 'Brno', 'Ostrava', 'Plzeņa', 'Bohēmija', 'Morāvija'] },
-  { name: 'Ukraina (UAH)', flagCode: 'ua', group: 'Austrumeiropa', subregions: ['Kijiva', 'Ļviva', 'Odesa', 'Harkiva', 'Dnipro', 'Zaporižja', 'Krimas Autonomā Republika'] },
-  { name: 'Turcija (TRY)', flagCode: 'tr', group: 'Eirāzija', subregions: ['Stambula', 'Ankara', 'Antalja', 'Izmira', 'Bursa', 'Adana', 'Konja'] },
-  { name: 'Kanāda (CAD)', flagCode: 'ca', group: 'Ziemeļamerika', subregions: ['Ontārio', 'Kvebeka', 'Britu Kolumbija', 'Alberta', 'Vankūvera', 'Toronto', 'Monreāla', 'Manitoba', 'Saskačevana', 'Jaunskotija'] },
-  { name: 'Meksika (MXN)', flagCode: 'mx', group: 'Ziemeļamerika', subregions: ['Mehiko', 'Gvadalahara', 'Monterreja', 'Kankūna', 'Puebla', 'Halisko'] },
-  { name: 'Brazīlija (BRL)', flagCode: 'br', group: 'Dienvidamerika', subregions: ['Sanpaulu', 'Rio de Žaneiro', 'Brazīlija', 'Minasa Žeraisa', 'Baija', 'Parana'] },
-  { name: 'Argentīna (ARS)', flagCode: 'ar', group: 'Dienvidamerika', subregions: ['Buenosairesa', 'Kordoba', 'Mendosa', 'Rosario', 'Santa Fe'] },
-  { name: 'Austrālija (AUD)', flagCode: 'au', group: 'Okeānija', subregions: ['Sidneja', 'Melburna', 'Brisbena', 'Pērta', 'Jaundienvidvelsa', 'Viktorija', 'Kvīnslenda'] },
-  { name: 'Jaunzēlande (NZD)', flagCode: 'nz', group: 'Okeānija', subregions: ['Oklanda', 'Velingtona', 'Kraistčērča', 'Hamiltona', 'Tauranga'] },
-  { name: 'Japāna (JPY)', flagCode: 'jp', group: 'Āzija', subregions: ['Tokija', 'Osaka', 'Kioto', 'Hokaido', 'Jokohama', 'Nagoja', 'Fukuoka', 'Okinava'] },
-  { name: 'Ķīna (CNY)', flagCode: 'cn', group: 'Āzija', subregions: ['Pekina', 'Šanhaja', 'Guandžou', 'Šeņdžeņa', 'Honkonga', 'Maoana', 'Sičuaņa'] },
-  { name: 'Dienvidkoreja (KRW)', flagCode: 'kr', group: 'Āzija', subregions: ['Seula', 'Pusana', 'Inčhona', 'Čedžu', 'Tegu', 'Tedžona'] },
-  { name: 'Indija (INR)', flagCode: 'in', group: 'Āzija', subregions: ['Mumbaja', 'Deli', 'Bangalora', 'Goa', 'Haidarābāda', 'Čennai', 'Kolkata'] },
-  { name: 'Apvienotie Arābu Emirāti (AED)', flagCode: 'ae', group: 'Tuvie Austrumi', subregions: ['Dubaija', 'Abudabi', 'Šārdža', 'Adžmana', 'Raselhaima'] }
-]
+const INFO_PAGE_TITLES: Record<string, string> = {
+  '/lietosanas-noteikumi': 'Lietošanas noteikumi',
+  '/privatuma-politika': 'Privātuma politika',
+  '/drosiba-un-krapnieciba': 'Drošība un krāpniecība',
+  '/kontakti': 'Kontakti',
+  '/tavi-ieteikumi': 'Tavi ieteikumi'
+}
+
+const REGIONS = COUNTRIES.map(country => ({
+  name: `${country.name} (${country.currency})`,
+  flagCode: country.code,
+  group: country.group,
+  subregions: country.headerRegions,
+}))
 
 export default function Header() {
+  const { t, matches, canonical, language, setLanguage, setCountryLanguage } = useI18n()
   const router = useRouter()
+  const pathname = usePathname()
+  const isListingDetail = /^\/auto\/[^/]+\/?$/.test(pathname)
+  const isAddCar = pathname === '/pievienot' || /^\/auto\/[^/]+\/edit\/?$/.test(pathname)
+  const isCabinet = pathname === '/kabinets'
+  const infoPageTitle = INFO_PAGE_TITLES[pathname]
+  const mobileInfoPageTitle = pathname === '/reklamas' ? 'Reklāmu pārvaldība' : infoPageTitle
+  const [isDesktopHeader, setIsDesktopHeader] = useState(false)
+  useEffect(() => {
+    const query = window.matchMedia('(min-width: 768px)')
+    const sync = () => setIsDesktopHeader(query.matches)
+    sync()
+    query.addEventListener('change', sync)
+    return () => query.removeEventListener('change', sync)
+  }, [])
+  const desktopPageTitle = infoPageTitle || (isCabinet ? 'Mans kabinets' : isAddCar ? (pathname.includes('/edit') ? 'Rediģēt sludinājumu' : 'Pievienot sludinājumu') : isListingDetail ? 'Sludinājums' : pathname === '/login' ? 'Reģistrācija / Ienākt' : '')
+
   const [user, setUser] = useState<any>(null)
   const [visitCount, setVisitCount] = useState<number>(0)
 
-  const [currentLang, setCurrentLang] = useState('LV')
+  const currentLang = language
+  const setCurrentLang = (code: string) => { if (code === 'LV' || code === 'EN' || code === 'RU' || code === 'LT' || code === 'EE' || code === 'DE' || code === 'FR' || code === 'ES' || code === 'PT' || code === 'IT' || code === 'FI' || code === 'PL' || code === 'SV' || code === 'NO' || code === 'DA' || code === 'BG' || code === 'HU' || code === 'RO' || code === 'CS' || code === 'EL' || code === 'NL' || code === 'GA' || code === 'SK' || code === 'SL' || code === 'MT' || code === 'TR') setLanguage(code) }
   const [currentRegion, setCurrentRegion] = useState('Latvija (EUR)')
+  const regionBeforeFiltering = useRef<string | null>(null)
+  useEffect(() => {
+    const syncInitialRegion = (event: Event) => setCurrentRegion((event as CustomEvent<string>).detail)
+    window.addEventListener('temauto-initial-region', syncInitialRegion)
+    return () => window.removeEventListener('temauto-initial-region', syncInitialRegion)
+  }, [])
+  useEffect(() => {
+    const syncFilterCountry = (event: Event) => {
+      const value = (event as CustomEvent<string>).detail
+      const country = findCountry(value)
+      if (country) {
+        if (regionBeforeFiltering.current === null) regionBeforeFiltering.current = currentRegion
+        setCurrentRegion(`${country.name} (${country.currency})`)
+      } else if (!value && regionBeforeFiltering.current !== null) {
+        setCurrentRegion(regionBeforeFiltering.current)
+        regionBeforeFiltering.current = null
+      }
+    }
+    window.addEventListener('temauto-filter-country', syncFilterCountry)
+    return () => window.removeEventListener('temauto-filter-country', syncFilterCountry)
+  }, [currentRegion])
+  const selectRegion = (value: string) => {
+    regionBeforeFiltering.current = null
+    setCurrentRegion(value)
+    window.dispatchEvent(new CustomEvent('temauto-catalogue-country', { detail: value }))
+    localStorage.setItem('temauto-region', value)
+    const region = REGIONS.find(item => item.name === value || item.subregions.includes(value))
+    if (region) setCountryLanguage(region.name)
+  }
+  const [mobileTheme, setMobileTheme] = useState<'day' | 'night'>('day')
+  const [desktopTheme, setDesktopTheme] = useState<'day' | 'night'>('day')
+  useEffect(() => {
+    const theme = localStorage.getItem('temauto-desktop-theme') === 'night' ? 'night' : 'day'
+    setDesktopTheme(theme)
+    document.documentElement.dataset.temautoDesktopTheme = theme
+  }, [])
+  const applyDesktopTheme = (theme: 'day' | 'night') => {
+    setDesktopTheme(theme)
+    localStorage.setItem('temauto-desktop-theme', theme)
+    document.documentElement.dataset.temautoDesktopTheme = theme
+  }
 
   const [langOpen, setLangOpen] = useState(false)
   const [regionOpen, setRegionOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileMenuClosing, setMobileMenuClosing] = useState(false)
+  const [visitorStatsOpen, setVisitorStatsOpen] = useState(false)
   const [hoveredRegion, setHoveredRegion] = useState<string | null>('Latvija (EUR)')
   
   const [langSearch, setLangSearch] = useState('')
@@ -127,8 +141,41 @@ export default function Header() {
 
   const langRef = useRef<HTMLDivElement>(null)
   const regionRef = useRef<HTMLDivElement>(null)
+  const langSearchRef = useRef<HTMLInputElement>(null)
+  const regionSearchRef = useRef<HTMLInputElement>(null)
+  const mobileSelectorKeyboardReady = useRef<'lang' | 'region' | null>(null)
+  const mobileSelectorReturnToMenu = useRef(false)
+  const mobileSelectorPointerStart = useRef<{ selector: 'lang' | 'region'; x: number; y: number } | null>(null)
+  const mobileSelectorDismissUntil = useRef(0)
+  const mobileMenuTouchStart = useRef<{ x: number; y: number } | null>(null)
+  const visitorStatsTouchStart = useRef<{ x: number; y: number } | null>(null)
+  const mobileMenuScrollY = useRef(0)
+  const mobileMenuTouchOpenAt = useRef(0)
+  const mobileMenuGestureDismissed = useRef(false)
 
   useEffect(() => {
+    if (window.matchMedia('(max-width: 767px)').matches) return
+
+    if (langOpen) langSearchRef.current?.focus()
+    if (regionOpen) regionSearchRef.current?.focus()
+  }, [langOpen, regionOpen])
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('temauto-mobile-theme')
+    const initialTheme = savedTheme === 'night' ? 'night' : 'day'
+    setMobileTheme(initialTheme)
+    document.documentElement.dataset.temautoTheme = initialTheme
+    
+    const savedRegion = localStorage.getItem('temauto-region')
+    if (savedRegion) {
+      const country = findCountry(savedRegion)
+      if (country) {
+        setCurrentRegion(`${country.name} (${country.currency})`)
+      } else if (REGIONS.some(region => region.subregions.includes(savedRegion))) {
+        setCurrentRegion(savedRegion)
+      }
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
     })
@@ -154,26 +201,106 @@ export default function Header() {
       if (langRef.current && !langRef.current.contains(event.target as Node)) {
         setLangOpen(false)
       }
-      if (regionRef.current && !regionRef.current.contains(event.target as Node)) {
+      const inlineRegionPanel = event.target instanceof Element &&
+        event.target.closest('[data-header-region-panel="true"][data-mobile-menu-inline="true"]')
+      if (regionRef.current && !regionRef.current.contains(event.target as Node) && !inlineRegionPanel) {
         setRegionOpen(false)
       }
     }
+    const syncHeaderOverlayFromHistory = () => {
+      const headerOverlay = window.history.state?.temAutoHeaderOverlay
+
+      if (headerOverlay !== 'menu') {
+        langSearchRef.current?.blur()
+        regionSearchRef.current?.blur()
+        mobileSelectorKeyboardReady.current = null
+        setLangOpen(false)
+        setRegionOpen(false)
+        setLangSearch('')
+        setRegionSearch('')
+      }
+
+      if (mobileMenuGestureDismissed.current) {
+        if (headerOverlay === 'menu') {
+          window.history.back()
+          return
+        }
+
+        mobileMenuGestureDismissed.current = false
+        setMobileMenuClosing(false)
+        setMobileMenuOpen(false)
+        setVisitorStatsOpen(headerOverlay === 'visitors')
+        return
+      }
+
+      setMobileMenuClosing(false)
+      setMobileMenuOpen(headerOverlay === 'menu')
+      setVisitorStatsOpen(headerOverlay === 'visitors')
+    }
+
     document.addEventListener('mousedown', handleClickOutside)
+    window.addEventListener('popstate', syncHeaderOverlayFromHistory)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
+      window.removeEventListener('popstate', syncHeaderOverlayFromHistory)
       subscription.unsubscribe()
     }
   }, [])
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-    router.push('/')
-    router.refresh()
+  useEffect(() => {
+    if ((!mobileMenuOpen && !visitorStatsOpen && !langOpen && !regionOpen) || !window.matchMedia('(max-width: 767px)').matches) return
+
+    const savedScrollY = mobileMenuScrollY.current
+    const previousScrollRestoration = window.history.scrollRestoration
+    let restoreFrame: number | null = null
+
+    const keepBackgroundInPlace = () => {
+      if (Math.abs(window.scrollY - savedScrollY) < 1 || restoreFrame !== null) return
+      restoreFrame = window.requestAnimationFrame(() => {
+        window.scrollTo(0, savedScrollY)
+        restoreFrame = null
+      })
+    }
+
+    window.history.scrollRestoration = 'manual'
+    window.scrollTo(0, savedScrollY)
+    window.addEventListener('scroll', keepBackgroundInPlace, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', keepBackgroundInPlace)
+      if (restoreFrame !== null) {
+        window.cancelAnimationFrame(restoreFrame)
+      }
+
+      const restoreScroll = () => window.scrollTo(0, savedScrollY)
+      restoreScroll()
+      window.requestAnimationFrame(restoreScroll)
+      window.setTimeout(() => {
+        restoreScroll()
+        window.history.scrollRestoration = previousScrollRestoration
+      }, 80)
+    }
+  }, [mobileMenuOpen, visitorStatsOpen, langOpen, regionOpen])
+
+      const closeMobileMenuBeforeNavigation = () => {
+    langSearchRef.current?.blur()
+    regionSearchRef.current?.blur()
+    mobileSelectorKeyboardReady.current = null
+    setLangOpen(false)
+    setRegionOpen(false)
+    setMobileMenuClosing(false)
+    setMobileMenuOpen(false)
+
+    if (window.matchMedia('(max-width: 767px)').matches && window.history.state?.temAutoHeaderOverlay) {
+      const nextHistoryState = { ...window.history.state }
+      delete nextHistoryState.temAutoHeaderOverlay
+      window.history.replaceState(nextHistoryState, '', window.location.href)
+    }
   }
 
   const handleAddCarClick = (e: React.MouseEvent) => {
     e.preventDefault()
+    closeMobileMenuBeforeNavigation()
     if (!user) {
       sessionStorage.setItem('redirectAfterLogin', '/pievienot')
       router.push('/login')
@@ -182,22 +309,658 @@ export default function Header() {
     }
   }
 
-  const filteredLanguages = LANGUAGES.filter(l => 
+  const handleHeaderLogout = async () => {
+    const shouldLogout = window.confirm(t('Vai tiešām izlogoties?'))
+    if (!shouldLogout) return
+
+    await supabase.auth.signOut()
+    router.push('/')
+    router.refresh()
+  }
+  const applyMobileTheme = (theme: 'day' | 'night') => {
+        setMobileTheme(theme)
+    
+    localStorage.setItem('temauto-mobile-theme', theme)
+    document.documentElement.dataset.temautoTheme = theme
+  }
+
+  const filteredLanguages = LANGUAGES.filter(l => ['LV', 'EN', 'RU', 'LT', 'EE', 'DE', 'FR', 'ES', 'PT', 'IT', 'FI', 'PL', 'SV', 'NO', 'DA', 'BG', 'HU', 'RO', 'CS', 'EL', 'NL', 'GA', 'SK', 'SL', 'MT', 'TR'].includes(l.code)).filter(l => 
     l.name.toLowerCase().includes(langSearch.toLowerCase()) || 
     l.code.toLowerCase().includes(langSearch.toLowerCase())
   )
 
   const filteredRegions = REGIONS.filter(r => 
-    r.name.toLowerCase().includes(regionSearch.toLowerCase()) ||
-    r.subregions?.some(sub => sub.toLowerCase().includes(regionSearch.toLowerCase()))
+    matches(r.name, regionSearch) ||
+    r.subregions?.some(sub => matches(sub, regionSearch))
   )
 
   const currentLangObj = LANGUAGES.find(l => l.code === currentLang)
   const currentRegionObj = REGIONS.find(r => r.name === currentRegion || r.subregions?.includes(currentRegion))
   const hoveredRegionObj = REGIONS.find(r => r.name === hoveredRegion)
 
+  const closeMobileMenuAfterSelectorChoice = () => {
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      langSearchRef.current?.blur()
+      regionSearchRef.current?.blur()
+      mobileSelectorKeyboardReady.current = null
+      setMobileMenuClosing(false)
+      setMobileMenuOpen(false)
+      if (['menu', 'language'].includes(window.history.state?.temAutoHeaderOverlay)) {
+        window.history.back()
+      }
+    }
+  }
+
+  const toggleLanguageSelector = () => {
+    if (!window.matchMedia('(max-width: 767px)').matches) {
+      setLangOpen(!langOpen)
+      setRegionOpen(false)
+      return
+    }
+
+    if (langOpen) {
+      if (window.history.state?.temAutoHeaderOverlay === 'language') {
+        window.history.back()
+      } else {
+        setLangOpen(false)
+      }
+      return
+    }
+
+    mobileMenuScrollY.current = window.scrollY
+    mobileSelectorReturnToMenu.current = false
+    mobileSelectorKeyboardReady.current = 'lang'
+    const baseHistoryState = { ...window.history.state, temAutoHeaderReturn: true }
+    delete baseHistoryState.temAutoHeaderOverlay
+    window.history.replaceState(baseHistoryState, '', window.location.href)
+    window.history.pushState(
+      { ...baseHistoryState, temAutoHeaderOverlay: 'language' },
+      '',
+      window.location.href
+    )
+    setMobileMenuOpen(false)
+    setVisitorStatsOpen(false)
+    setRegionOpen(false)
+    setLangOpen(true)
+  }
+
+  const handleMobileSelectorPointerDown = (
+    event: React.PointerEvent<HTMLInputElement>,
+    selector: 'lang' | 'region'
+  ) => {
+    if (window.matchMedia('(max-width: 767px)').matches && event.pointerType !== 'mouse') {
+      event.preventDefault()
+      mobileSelectorPointerStart.current = { selector, x: event.clientX, y: event.clientY }
+    }
+  }
+
+  const handleMobileSelectorPointerUp = (
+    event: React.PointerEvent<HTMLInputElement>,
+    selector: 'lang' | 'region'
+  ) => {
+    if (!window.matchMedia('(max-width: 767px)').matches || event.pointerType === 'mouse') return
+
+    event.preventDefault()
+    event.stopPropagation()
+
+    const input = event.currentTarget
+    const start = mobileSelectorPointerStart.current
+    mobileSelectorPointerStart.current = null
+    if (!start || start.selector !== selector) return
+
+    const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y)
+    if (moved > 10) return
+
+    if (mobileSelectorKeyboardReady.current === selector && document.activeElement === input) {
+      input.blur()
+      mobileSelectorKeyboardReady.current = null
+      mobileSelectorDismissUntil.current = Date.now() + 500
+      window.setTimeout(() => {
+        setLangOpen(false)
+        setRegionOpen(false)
+        setLangSearch('')
+        setRegionSearch('')
+        if (mobileSelectorReturnToMenu.current) {
+          setMobileMenuOpen(true)
+        } else if (window.history.state?.temAutoHeaderOverlay === 'language') {
+          window.history.back()
+        }
+      }, 0)
+      return
+    }
+
+    mobileSelectorKeyboardReady.current = selector
+    input.focus({ preventScroll: true })
+  }
+
+  const handleMobileSelectorClick = (event: React.MouseEvent<HTMLInputElement>) => {
+    if (!window.matchMedia('(max-width: 767px)').matches) return
+    event.preventDefault()
+    event.stopPropagation()
+  }
+
+  const toggleMobileMenu = () => {
+    const currentOverlay = window.history.state?.temAutoHeaderOverlay
+
+    if (mobileMenuOpen) {
+      if (currentOverlay === 'menu') {
+        window.history.back()
+      } else {
+        setMobileMenuOpen(false)
+      }
+      return
+    }
+
+    const savedScrollY = window.scrollY
+    mobileMenuScrollY.current = savedScrollY
+    window.scrollTo(0, savedScrollY)
+
+    const baseHistoryState = { ...window.history.state, temAutoHeaderReturn: true }
+    delete baseHistoryState.temAutoHeaderOverlay
+    window.history.replaceState(baseHistoryState, '', window.location.href)
+    window.history.pushState(
+      { ...baseHistoryState, temAutoHeaderOverlay: 'menu' },
+      '',
+      window.location.href
+    )
+    setMobileMenuClosing(false)
+    setMobileMenuOpen(true)
+    setVisitorStatsOpen(false)
+    setLangOpen(false)
+    setRegionOpen(false)
+  }
+
+  const handleMobileMenuButtonTouchStart = (event: React.TouchEvent<HTMLButtonElement>) => {
+    if (mobileMenuOpen) {
+      event.preventDefault()
+      mobileMenuTouchOpenAt.current = Date.now()
+      toggleMobileMenu()
+      return
+    }
+    event.preventDefault()
+    mobileMenuTouchOpenAt.current = Date.now()
+    toggleMobileMenu()
+  }
+
+  const handleMobileMenuButtonClick = () => {
+    if (Date.now() - mobileMenuTouchOpenAt.current < 700) return
+    toggleMobileMenu()
+  }
+
+  const dismissMobileMenuByGesture = () => {
+    if (mobileMenuGestureDismissed.current) return
+
+    mobileMenuGestureDismissed.current = true
+    setMobileMenuClosing(true)
+    window.setTimeout(() => {
+      if (window.history.state?.temAutoHeaderOverlay === 'menu') {
+        window.history.back()
+      } else {
+        mobileMenuGestureDismissed.current = false
+        setMobileMenuOpen(false)
+        setMobileMenuClosing(false)
+      }
+    }, 180)
+  }
+
+  const handleMobileMenuTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    const touch = event.touches[0]
+    mobileMenuGestureDismissed.current = false
+    mobileMenuTouchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null
+  }
+
+  const handleMobileMenuTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    const start = mobileMenuTouchStart.current
+    const touch = event.touches[0]
+    if (!start || !touch) return
+
+    const deltaX = touch.clientX - start.x
+    const deltaY = touch.clientY - start.y
+    const isUpwardDismiss = deltaY < -200 && Math.abs(deltaY) > Math.abs(deltaX)
+
+    if (isUpwardDismiss) {
+      mobileMenuTouchStart.current = null
+      dismissMobileMenuByGesture()
+    }
+  }
+
+  const handleMobileMenuTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const start = mobileMenuTouchStart.current
+    const touch = event.changedTouches[0]
+    mobileMenuTouchStart.current = null
+    if (!start || !touch) return
+
+    const deltaX = touch.clientX - start.x
+    const deltaY = touch.clientY - start.y
+    const isUpwardDismiss = deltaY < -200 && Math.abs(deltaY) > Math.abs(deltaX)
+
+    if (isUpwardDismiss) {
+      dismissMobileMenuByGesture()
+    }
+  }
+
+  const closeVisitorStats = () => {
+    if (window.history.state?.temAutoHeaderOverlay === 'visitors') {
+      window.history.back()
+    } else {
+      setVisitorStatsOpen(false)
+    }
+  }
+
+  const handleVisitorStatsTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    event.stopPropagation()
+    const touch = event.touches[0]
+    visitorStatsTouchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null
+  }
+
+  const handleVisitorStatsTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+  }
+
+  const handleVisitorStatsTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    event.stopPropagation()
+    const start = visitorStatsTouchStart.current
+    const touch = event.changedTouches[0]
+    visitorStatsTouchStart.current = null
+    if (!start || !touch) return
+
+    const deltaX = touch.clientX - start.x
+    const deltaY = touch.clientY - start.y
+    const isUpwardDismiss = deltaY < -100 && Math.abs(deltaY) > Math.abs(deltaX)
+
+    if (isUpwardDismiss) {
+      closeVisitorStats()
+    }
+  }
+
+  const toggleVisitorStats = () => {
+    const currentOverlay = window.history.state?.temAutoHeaderOverlay
+
+    if (visitorStatsOpen) {
+      closeVisitorStats()
+      return
+    }
+
+    mobileMenuScrollY.current = window.scrollY
+    window.history.pushState(
+      { ...window.history.state, temAutoHeaderOverlay: 'visitors' },
+      '',
+      window.location.href
+    )
+    setVisitorStatsOpen(true)
+    setMobileMenuOpen(false)
+    setLangOpen(false)
+    setRegionOpen(false)
+  }
+
+  const desktopLogoStyles = (
+    <style>{`
+      @media (min-width: 768px) {
+        header[data-temauto-header='true'] {
+          min-height: 58px !important;
+          padding-left: 20px !important;
+        }
+        [data-header-home-link='true'],
+        [data-header-desktop-logo='true'],
+        header[data-info-page-header='true'] > div > a:first-child,
+        header[data-cabinet-header='true'] > div > a:first-child,
+        header[data-add-car-header='true'] > div > a:first-child {
+          position: fixed !important;
+          top: 5px !important;
+          left: 20px !important;
+          width: 87px !important;
+          height: 43px !important;
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          justify-content: center !important;
+          gap: 0 !important;
+          z-index: 1001;
+        }
+        [data-header-brand='true'] { padding-left: 107px; }
+        header[data-temauto-header='true'] [aria-current='page'] {
+          border: 1px solid #7dd3fc !important;
+          box-shadow: 0 0 0 2px rgba(125,211,252,0.25);
+        }
+        header[data-info-page-header='true'] > div::before,
+        header[data-cabinet-header='true'] > div::before,
+        header[data-add-car-header='true'] > div::before {
+          content: '';
+          width: 87px;
+          height: 43px;
+          flex: 0 0 87px;
+        }
+        [data-header-home-link='true'] > span:first-child,
+        [data-header-desktop-logo='true'] > span:first-child,
+        header[data-info-page-header='true'] > div > a:first-child > span:first-child,
+        header[data-cabinet-header='true'] > div > a:first-child > span:first-child,
+        header[data-add-car-header='true'] > div > a:first-child > span:first-child {
+          font-size: 20px !important;
+          line-height: 20px !important;
+        }
+        [data-header-home-logo='true'],
+        [data-header-desktop-logo='true'] > span:last-child,
+        header[data-info-page-header='true'] > div > a:first-child > span:last-child,
+        header[data-cabinet-header='true'] > div > a:first-child > span:last-child,
+        header[data-add-car-header='true'] > div > a:first-child > span:last-child {
+          display: flex !important;
+          flex: 0 0 23px !important;
+          width: 44px !important;
+          height: 23px !important;
+          margin: -6px 0 0 !important;
+          transform: rotate(-3deg) !important;
+        }
+        [data-header-home-logo='true'] svg { width: 44px !important; height: 22px !important; }
+      }
+    `}</style>
+  )
+
+  if (mobileInfoPageTitle && !isDesktopHeader) {
+    return (
+      <>
+        <header
+          data-temauto-header="true"
+          data-info-page-header="true"
+          style={{
+            backgroundColor: '#0f172a',
+            color: '#ffffff',
+            padding: '3px 14px',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 1000,
+            width: '100%',
+            height: '58px',
+            boxSizing: 'border-box',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.18)'
+          }}
+        >
+        {desktopLogoStyles}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100%', height: '100%', minWidth: 0 }}>
+            <Link
+              href="/"
+              aria-label={t("TemAuto — atgriezties sākumlapā")}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 0,
+                flex: '0 0 auto',
+                color: '#22c55e',
+                textDecoration: 'none'
+              }}
+            >
+              <span style={{ fontSize: '20px', lineHeight: 1, fontWeight: 'bold', whiteSpace: 'nowrap' }}>TemAuto</span>
+              <span aria-hidden="true" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '44px', height: '23px', marginTop: '-6px', transform: 'rotate(-3deg)' }}>
+                <svg viewBox="0 0 64 32" width="44" height="22" role="img" aria-hidden="true">
+                  <path d="M5 21.5 C8 20.8 8.8 16.4 11.7 14.3 C14 12.7 18.1 13 21 12.4 C24.4 8.1 27.4 6.7 33.3 6.8 C40.8 6.9 43.3 7.8 47.6 13.2 C52.4 14.2 56.5 15.8 59 18.1 C60.2 19.2 59.8 21 58.7 22" fill="none" stroke="#16a34a" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M5.8 22.2 C13.5 23.1 20.4 22.7 27.6 22.8 C37.8 23 48.8 22.4 58.2 22.2" fill="none" stroke="#22c55e" strokeWidth="3.2" strokeLinecap="round" />
+                  <path d="M6.7 20.5 C10.4 18.9 9.8 15.5 13.1 13.7 M22 11.5 C26.1 7.4 29 7.2 34 7.4 C42 7.5 43.7 9.1 47 13.7" fill="none" stroke="#4ade80" strokeWidth="1.2" strokeLinecap="round" opacity="0.9" />
+                  <circle cx="16" cy="23" r="3.6" fill="#0f172a" stroke="#f8fafc" strokeWidth="2.1" />
+                  <circle cx="49" cy="23" r="3.6" fill="#0f172a" stroke="#f8fafc" strokeWidth="2.1" />
+                  <path d="M25.5 11.8 C29.8 11.1 35.2 11.2 39.7 12 M32.9 11.8 C32.5 15 32.3 18.3 31.8 21.2" fill="none" stroke="#ffffff" strokeWidth="3.6" strokeLinecap="round" />
+                  <path d="M26.2 12.5 C30.3 11.8 35.5 11.9 39 12.5" fill="none" stroke="#e2e8f0" strokeWidth="1" strokeLinecap="round" opacity="0.9" />
+                </svg>
+              </span>
+            </Link>
+
+            <strong style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', maxWidth: 'calc(100% - 190px)', color: '#e2e8f0', fontSize: 'clamp(14px, 4vw, 18px)', lineHeight: 1.15, textAlign: 'center' }}>
+              {t(mobileInfoPageTitle)}
+            </strong>
+          </div>
+        </header>
+        <div aria-hidden="true" style={{ height: '58px', flex: '0 0 58px' }} />
+      </>
+    )
+  }
+
+  if (isCabinet && !isDesktopHeader) {
+    return (
+      <>
+        <header
+          data-temauto-header="true"
+          data-cabinet-header="true"
+          style={{
+            backgroundColor: '#0f172a',
+            color: '#ffffff',
+            padding: '3px 14px',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 1000,
+            width: '100%',
+            height: '58px',
+            boxSizing: 'border-box',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.18)'
+          }}
+        >
+        {desktopLogoStyles}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', width: '100%', height: '100%', minWidth: 0 }}>
+            <Link
+              href="/"
+              aria-label={t("TemAuto — atgriezties sākumlapā")}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 0,
+                flex: '0 0 auto',
+                color: '#22c55e',
+                textDecoration: 'none'
+              }}
+            >
+              <span style={{ fontSize: '20px', lineHeight: 1, fontWeight: 'bold', whiteSpace: 'nowrap' }}>TemAuto</span>
+              <span
+                aria-hidden="true"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '44px',
+                  height: '23px',
+                  marginTop: '-6px',
+                  transform: 'rotate(-3deg)'
+                }}
+              >
+                <svg viewBox="0 0 64 32" width="44" height="22" role="img" aria-hidden="true">
+                  <path d="M5 21.5 C8 20.8 8.8 16.4 11.7 14.3 C14 12.7 18.1 13 21 12.4 C24.4 8.1 27.4 6.7 33.3 6.8 C40.8 6.9 43.3 7.8 47.6 13.2 C52.4 14.2 56.5 15.8 59 18.1 C60.2 19.2 59.8 21 58.7 22" fill="none" stroke="#16a34a" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M5.8 22.2 C13.5 23.1 20.4 22.7 27.6 22.8 C37.8 23 48.8 22.4 58.2 22.2" fill="none" stroke="#22c55e" strokeWidth="3.2" strokeLinecap="round" />
+                  <path d="M6.7 20.5 C10.4 18.9 9.8 15.5 13.1 13.7 M22 11.5 C26.1 7.4 29 7.2 34 7.4 C42 7.5 43.7 9.1 47 13.7" fill="none" stroke="#4ade80" strokeWidth="1.2" strokeLinecap="round" opacity="0.9" />
+                  <circle cx="16" cy="23" r="3.6" fill="#0f172a" stroke="#f8fafc" strokeWidth="2.1" />
+                  <circle cx="49" cy="23" r="3.6" fill="#0f172a" stroke="#f8fafc" strokeWidth="2.1" />
+                  <path d="M25.5 11.8 C29.8 11.1 35.2 11.2 39.7 12 M32.9 11.8 C32.5 15 32.3 18.3 31.8 21.2" fill="none" stroke="#ffffff" strokeWidth="3.6" strokeLinecap="round" />
+                  <path d="M26.2 12.5 C30.3 11.8 35.5 11.9 39 12.5" fill="none" stroke="#e2e8f0" strokeWidth="1" strokeLinecap="round" opacity="0.9" />
+                </svg>
+              </span>
+            </Link>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px', minWidth: 0 }}>
+              <strong style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', color: '#e2e8f0', fontSize: '16px', whiteSpace: 'nowrap' }}>{t("Mans kabinets")}</strong>
+              <button
+                type="button"
+                onClick={handleHeaderLogout}
+                style={{
+                  padding: '6px 10px',
+                  border: '1px solid #ef4444',
+                  borderRadius: '6px',
+                  backgroundColor: 'transparent',
+                  color: '#fca5a5',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >{t("Izlogoties")}
+              </button>
+            </div>
+          </div>
+        </header>
+        <div aria-hidden="true" style={{ height: '58px', flex: '0 0 58px' }} />
+      </>
+    )
+  }
+
+  if (isAddCar && !isDesktopHeader) {
+    return (
+      <>
+        <header
+          data-temauto-header="true"
+          data-add-car-header="true"
+          style={{
+            backgroundColor: '#0f172a',
+            color: '#ffffff',
+            padding: '3px 14px',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 1000,
+            width: '100%',
+            height: '58px',
+            boxSizing: 'border-box',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.18)'
+          }}
+        >
+        {desktopLogoStyles}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', width: '100%', height: '100%', minWidth: 0 }}>
+            <Link
+              href="/"
+              aria-label={t("TemAuto — atgriezties sākumlapā")}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 0,
+                flex: '0 0 auto',
+                color: '#22c55e',
+                textDecoration: 'none'
+              }}
+            >
+              <span style={{ fontSize: '20px', lineHeight: 1, fontWeight: 'bold', whiteSpace: 'nowrap' }}>TemAuto</span>
+              <span
+                aria-hidden="true"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '44px',
+                  height: '23px',
+                  marginTop: '-6px',
+                  transform: 'rotate(-3deg)'
+                }}
+              >
+                <svg viewBox="0 0 64 32" width="44" height="22" role="img" aria-hidden="true">
+                  <path d="M5 21.5 C8 20.8 8.8 16.4 11.7 14.3 C14 12.7 18.1 13 21 12.4 C24.4 8.1 27.4 6.7 33.3 6.8 C40.8 6.9 43.3 7.8 47.6 13.2 C52.4 14.2 56.5 15.8 59 18.1 C60.2 19.2 59.8 21 58.7 22" fill="none" stroke="#16a34a" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M5.8 22.2 C13.5 23.1 20.4 22.7 27.6 22.8 C37.8 23 48.8 22.4 58.2 22.2" fill="none" stroke="#22c55e" strokeWidth="3.2" strokeLinecap="round" />
+                  <path d="M6.7 20.5 C10.4 18.9 9.8 15.5 13.1 13.7 M22 11.5 C26.1 7.4 29 7.2 34 7.4 C42 7.5 43.7 9.1 47 13.7" fill="none" stroke="#4ade80" strokeWidth="1.2" strokeLinecap="round" opacity="0.9" />
+                  <circle cx="16" cy="23" r="3.6" fill="#0f172a" stroke="#f8fafc" strokeWidth="2.1" />
+                  <circle cx="49" cy="23" r="3.6" fill="#0f172a" stroke="#f8fafc" strokeWidth="2.1" />
+                  <path d="M25.5 11.8 C29.8 11.1 35.2 11.2 39.7 12 M32.9 11.8 C32.5 15 32.3 18.3 31.8 21.2" fill="none" stroke="#ffffff" strokeWidth="3.6" strokeLinecap="round" />
+                  <path d="M26.2 12.5 C30.3 11.8 35.5 11.9 39 12.5" fill="none" stroke="#e2e8f0" strokeWidth="1" strokeLinecap="round" opacity="0.9" />
+                </svg>
+              </span>
+            </Link>
+
+            {user?.email && (
+              <Link
+                href="/kabinets"
+                title={user.email}
+                aria-label={t("Atvērt lietotāja kabinetu")}
+                style={{
+                  minWidth: 0,
+                  maxWidth: '58%',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  color: '#cbd5e1',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  textAlign: 'right',
+                  marginRight: '12px',
+                  textDecoration: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                {user.email}
+              </Link>
+            )}
+          </div>
+        </header>
+        <div aria-hidden="true" style={{ height: '58px', flex: '0 0 58px' }} />
+      </>
+    )
+  }
+
+  if (isListingDetail && !isDesktopHeader) {
+    return (
+      <header
+        data-temauto-header="true"
+        data-listing-detail-header="true"
+        style={{
+          backgroundColor: '#0f172a',
+          color: '#ffffff',
+          padding: '12px 20px',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1000,
+          width: '100%',
+          boxSizing: 'border-box',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+        }}
+      >
+        {desktopLogoStyles}
+            <Link
+              href="/"
+              data-header-desktop-logo="true"
+              aria-label={t("TemAuto — atgriezties sākumlapā")}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 0,
+                flex: '0 0 auto',
+                color: '#22c55e',
+                textDecoration: 'none'
+              }}
+            >
+              <span style={{ fontSize: '20px', lineHeight: 1, fontWeight: 'bold', whiteSpace: 'nowrap' }}>TemAuto</span>
+              <span
+                aria-hidden="true"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '44px',
+                  height: '23px',
+                  marginTop: '-6px',
+                  transform: 'rotate(-3deg)'
+                }}
+              >
+                <svg viewBox="0 0 64 32" width="44" height="22" role="img" aria-hidden="true">
+                  <path d="M5 21.5 C8 20.8 8.8 16.4 11.7 14.3 C14 12.7 18.1 13 21 12.4 C24.4 8.1 27.4 6.7 33.3 6.8 C40.8 6.9 43.3 7.8 47.6 13.2 C52.4 14.2 56.5 15.8 59 18.1 C60.2 19.2 59.8 21 58.7 22" fill="none" stroke="#16a34a" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M5.8 22.2 C13.5 23.1 20.4 22.7 27.6 22.8 C37.8 23 48.8 22.4 58.2 22.2" fill="none" stroke="#22c55e" strokeWidth="3.2" strokeLinecap="round" />
+                  <path d="M6.7 20.5 C10.4 18.9 9.8 15.5 13.1 13.7 M22 11.5 C26.1 7.4 29 7.2 34 7.4 C42 7.5 43.7 9.1 47 13.7" fill="none" stroke="#4ade80" strokeWidth="1.2" strokeLinecap="round" opacity="0.9" />
+                  <circle cx="16" cy="23" r="3.6" fill="#0f172a" stroke="#f8fafc" strokeWidth="2.1" />
+                  <circle cx="49" cy="23" r="3.6" fill="#0f172a" stroke="#f8fafc" strokeWidth="2.1" />
+                  <path d="M25.5 11.8 C29.8 11.1 35.2 11.2 39.7 12 M32.9 11.8 C32.5 15 32.3 18.3 31.8 21.2" fill="none" stroke="#ffffff" strokeWidth="3.6" strokeLinecap="round" />
+                  <path d="M26.2 12.5 C30.3 11.8 35.5 11.9 39 12.5" fill="none" stroke="#e2e8f0" strokeWidth="1" strokeLinecap="round" opacity="0.9" />
+                </svg>
+              </span>
+            </Link>
+      </header>
+    )
+  }
+
   return (
-    <header 
+    <header
+      data-temauto-header="true"
       style={{ 
         backgroundColor: '#0f172a', 
         color: '#ffffff', 
@@ -207,50 +970,147 @@ export default function Header() {
         zIndex: 1000,
         width: '100%',
         boxSizing: 'border-box',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1), 0 16px 0 0 #f8fafc'
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
+        {desktopLogoStyles}
+      <div data-header-shell="true" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
         
         {/* KREISĀ PUSE: Logo un Apmeklētāji */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <Link 
-            href="/" 
+        <div data-header-brand="true" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <Link
+            href="/"
+            data-header-home-link="true"
+            aria-label={t("TemAuto — atgriezties sākumlapā")}
             onClick={(e) => {
               e.preventDefault()
-              window.location.href = '/'
+              const homeState = {
+                ...(window.history.state || {}),
+                temAutoScrollGuard: true
+              }
+              delete homeState.temAutoHeaderOverlay
+              delete homeState.temAutoCatalogueOverlay
+              window.history.replaceState(homeState, '', '/')
+              window.location.reload()
             }}
-            style={{ fontSize: '20px', fontWeight: 'bold', color: '#22c55e', textDecoration: 'none', cursor: 'pointer' }}
-          >
-            TemAuto
-          </Link>
-
-          <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              padding: '5px 12px',
-              backgroundColor: '#1e293b',
-              border: '1px solid #334155',
-              borderRadius: '20px',
-              fontSize: '13px',
-              color: '#e2e8f0',
-              fontWeight: '500'
+              gap: '20px',
+              color: '#22c55e',
+              textDecoration: 'none',
+              cursor: 'pointer'
             }}
           >
-            <span>👥</span>
-            <span>Apmeklētāji 24h: <strong style={{ color: '#22c55e' }}>{visitCount}</strong></span>
+            <span data-header-wordmark="true" style={{ fontSize: '20px', fontWeight: 'bold' }}>
+              TemAuto
+            </span>
+
+            {(
+              <span
+                data-header-home-logo="true"
+                aria-hidden="true"
+                style={{
+                  display: pathname === '/' ? 'flex' : 'none',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flex: '0 0 52px',
+                  width: '52px',
+                  height: '30px',
+                  marginLeft: 'auto',
+                  transform: 'rotate(-3deg)'
+                }}
+              >
+                <svg viewBox="0 0 64 32" width="52" height="28" role="img" aria-hidden="true">
+                  <path d="M5 21.5 C8 20.8 8.8 16.4 11.7 14.3 C14 12.7 18.1 13 21 12.4 C24.4 8.1 27.4 6.7 33.3 6.8 C40.8 6.9 43.3 7.8 47.6 13.2 C52.4 14.2 56.5 15.8 59 18.1 C60.2 19.2 59.8 21 58.7 22" fill="none" stroke="#16a34a" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M5.8 22.2 C13.5 23.1 20.4 22.7 27.6 22.8 C37.8 23 48.8 22.4 58.2 22.2" fill="none" stroke="#22c55e" strokeWidth="3.2" strokeLinecap="round" />
+                  <path d="M6.7 20.5 C10.4 18.9 9.8 15.5 13.1 13.7 M22 11.5 C26.1 7.4 29 7.2 34 7.4 C42 7.5 43.7 9.1 47 13.7" fill="none" stroke="#4ade80" strokeWidth="1.2" strokeLinecap="round" opacity="0.9" />
+                  <circle cx="16" cy="23" r="3.6" fill="#0f172a" stroke="#f8fafc" strokeWidth="2.1" />
+                  <circle cx="49" cy="23" r="3.6" fill="#0f172a" stroke="#f8fafc" strokeWidth="2.1" />
+                  <path d="M25.5 11.8 C29.8 11.1 35.2 11.2 39.7 12 M32.9 11.8 C32.5 15 32.3 18.3 31.8 21.2" fill="none" stroke="#ffffff" strokeWidth="3.6" strokeLinecap="round" />
+                  <path d="M26.2 12.5 C30.3 11.8 35.5 11.9 39 12.5" fill="none" stroke="#e2e8f0" strokeWidth="1" strokeLinecap="round" opacity="0.9" />
+                </svg>
+              </span>
+            )}
+          </Link>
+
+          <div data-header-visitor-wrap="true" style={{ position: 'relative' }}>
+            <button
+              type="button"
+              data-header-visitors="true"
+              aria-label={t("Apmeklējumi pēdējās 24 stundās")}
+              aria-expanded={visitorStatsOpen}
+              onClick={toggleVisitorStats}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '5px 12px',
+                backgroundColor: '#1e293b',
+                border: '1px solid #334155',
+                borderRadius: '20px',
+                fontSize: '13px',
+                color: '#e2e8f0',
+                fontWeight: '500',
+                cursor: 'pointer'
+              }}
+            >
+              <span aria-hidden="true">👤</span>
+              <span>24h: <strong style={{ color: '#22c55e' }}>{visitCount}</strong></span>
+            </button>
+            {visitorStatsOpen && (
+              <div
+                data-header-visitor-stats="true"
+                onTouchStart={handleVisitorStatsTouchStart}
+                onTouchMove={handleVisitorStatsTouchMove}
+                onTouchEnd={handleVisitorStatsTouchEnd}
+                onTouchCancel={() => {
+                  visitorStatsTouchStart.current = null
+                }}
+                style={{ touchAction: 'none', overscrollBehavior: 'contain' }}
+              >
+                <strong>{t("Apmeklējumi pa reģioniem")}</strong>
+                <div><span>{t("Kopā 24h")}</span><b>{visitCount}</b></div>
+                <small>{t("Detalizēts sadalījums būs redzams pēc reģionu uzskaites pieslēgšanas.")}</small>
+              </div>
+            )}
           </div>
         </div>
 
         {/* LABĀ PUSE: Valodas, Reģioni un Navigācija */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+        {isDesktopHeader && desktopPageTitle && (
+          <div data-desktop-page-title="true" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: isCabinet ? '40px' : '16px', flex: '1 1 auto', minWidth: 0, padding: '0 12px' }}>
+            <strong style={{ color: '#e2e8f0', fontSize: '16px', textAlign: 'center' }}>{t(desktopPageTitle)}</strong>
+            {isCabinet && (
+              <button type="button" onClick={handleHeaderLogout} style={{ padding: '6px 10px', border: '1px solid #ef4444', borderRadius: '6px', backgroundColor: 'transparent', color: '#fca5a5', cursor: 'pointer', whiteSpace: 'nowrap' }}>{t("Izlogoties")}</button>
+            )}
+          </div>
+        )}
+
+        <div data-header-controls="true" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          {isDesktopHeader && (
+            <div data-desktop-theme-picker="true" role="group" aria-label={t('Ekrāna režīms')} style={{ display: 'flex', gap: '4px' }}>
+              {(['day', 'night'] as const).map(theme => (
+                <button
+                  key={theme}
+                  type="button"
+                  aria-label={t(theme === 'day' ? 'Dienas režīms' : 'Nakts režīms')}
+                  aria-pressed={desktopTheme === theme}
+                  onClick={() => applyDesktopTheme(theme)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 9px', borderRadius: '6px', border: desktopTheme === theme ? '1px solid #7dd3fc' : '1px solid #475569', backgroundColor: desktopTheme === theme ? '#1e40af' : '#1e293b', color: '#f8fafc', fontFamily: 'inherit', fontSize: '12px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                >
+                  <span aria-hidden="true">{theme === 'day' ? '☀️' : '🌙'}</span>
+                  <span>{t(theme === 'day' ? 'Diena' : 'Nakts')}</span>
+                </button>
+              ))}
+            </div>
+          )}
           
           {/* Valodas izvēlne */}
           <div style={{ position: 'relative' }} ref={langRef}>
             <button
-              onClick={() => { setLangOpen(!langOpen); setRegionOpen(false); }}
+              onClick={toggleLanguageSelector}
+              data-header-language="true"
               style={{
                 padding: '6px 12px',
                 backgroundColor: '#1e293b',
@@ -276,20 +1136,34 @@ export default function Header() {
             </button>
 
             {langOpen && (
-              <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '230px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}>
+              <div
+                data-header-lang-panel="true"
+                data-mobile-menu-origin={mobileSelectorReturnToMenu.current ? 'true' : undefined}
+                style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', width: '230px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px', zIndex: 100 }}
+              >
                 <input
+                  ref={langSearchRef}
                   type="text"
-                  placeholder="Meklēt valodu..."
+                  placeholder={t("Meklēt valodu...")}
                   value={langSearch}
                   onChange={(e) => setLangSearch(e.target.value)}
-                  autoFocus
+                  onPointerDown={(event) => handleMobileSelectorPointerDown(event, 'lang')}
+                  onPointerUp={(event) => handleMobileSelectorPointerUp(event, 'lang')}
+                  onClick={handleMobileSelectorClick}
                   style={{ width: '100%', padding: '6px', backgroundColor: '#0f172a', border: '1px solid #475569', borderRadius: '4px', color: '#fff', fontSize: '12px', boxSizing: 'border-box', marginBottom: '6px' }}
                 />
                 <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
                   {filteredLanguages.map((l) => (
                     <div
                       key={l.code}
-                      onClick={() => { setCurrentLang(l.code); setLangOpen(false); setLangSearch(''); }}
+                      data-header-selector-option="true"
+                      data-selected={currentLang === l.code ? 'true' : undefined}
+                      onClick={() => {
+                        setCurrentLang(l.code)
+                        setLangOpen(false)
+                        setLangSearch('')
+                        closeMobileMenuAfterSelectorChoice()
+                      }}
                       style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '4px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: currentLang === l.code ? '#22c55e' : '#e2e8f0', backgroundColor: currentLang === l.code ? '#334155' : 'transparent' }}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentLang === l.code ? '#334155' : 'transparent'}
@@ -331,20 +1205,31 @@ export default function Header() {
                   style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} 
                 />
               )}
-              {currentRegion} ▾
+              <span data-header-region-label="true">{t(currentRegion)}</span> ▾
             </button>
 
             {regionOpen && (
-              <div style={{ display: 'flex', flexDirection: 'row-reverse', position: 'absolute', top: '100%', right: 0, marginTop: '6px', zIndex: 100 }}>
+              <div
+                data-header-region-flyout="true"
+                data-mobile-menu-origin={mobileSelectorReturnToMenu.current ? 'true' : undefined}
+                style={{ display: 'flex', flexDirection: 'row-reverse', position: 'absolute', top: '100%', right: 0, marginTop: '6px', zIndex: 100 }}
+              >
                 
                 {/* Galvenais valstu saraksts (atrodas pa labi, tieši zem izvēlnes pogas) */}
-                <div style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '0 8px 8px 0', width: '260px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px' }}>
+                <div
+                  data-header-region-panel="true"
+                  data-mobile-menu-origin={mobileSelectorReturnToMenu.current ? 'true' : undefined}
+                  style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '0 8px 8px 0', width: '260px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', padding: '8px' }}
+                >
                   <input
+                    ref={regionSearchRef}
                     type="text"
-                    placeholder="Meklēt valsti..."
+                    placeholder={t("Meklēt valsti...")}
                     value={regionSearch}
                     onChange={(e) => setRegionSearch(e.target.value)}
-                    autoFocus
+                    onPointerDown={(event) => handleMobileSelectorPointerDown(event, 'region')}
+                    onPointerUp={(event) => handleMobileSelectorPointerUp(event, 'region')}
+                    onClick={handleMobileSelectorClick}
                     style={{ width: '100%', padding: '6px', backgroundColor: '#0f172a', border: '1px solid #475569', borderRadius: '4px', color: '#fff', fontSize: '12px', boxSizing: 'border-box', marginBottom: '6px' }}
                   />
                   <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
@@ -355,12 +1240,15 @@ export default function Header() {
                       return (
                         <div
                           key={r.name}
+                          data-header-selector-option="true"
+                          data-selected={isSelected ? 'true' : undefined}
                           onMouseEnter={() => setHoveredRegion(r.name)}
                           onClick={() => {
                             // TAGAD VAR NOFIKSĒT ARĪ PAŠU VALSTI NEATKARĪGI NO TĀ, VAI TAI IR APAKŠREĢIONI!
-                            setCurrentRegion(r.name)
+                            selectRegion(r.name)
                             setRegionOpen(false)
                             setRegionSearch('')
+                            closeMobileMenuAfterSelectorChoice()
                           }}
                           style={{ 
                             padding: '6px 8px', 
@@ -376,7 +1264,7 @@ export default function Header() {
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '11px', color: '#94a3b8' }}>◀</span>
-                            <span>{r.name}</span>
+                            <span>{t(r.name)}</span>
                           </div>
                           <img src={`https://flagcdn.com/20x15/${r.flagCode}.png`} alt="" style={{ width: '18px', height: '13px', borderRadius: '2px', objectFit: 'cover' }} />
                         </div>
@@ -387,14 +1275,15 @@ export default function Header() {
 
                 {/* Papildu info logs, kas izpeld BLAKUS PA KREISI */}
                 {hoveredRegionObj && hoveredRegionObj.subregions && hoveredRegionObj.subregions.length > 0 && (
-                  <div style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRight: 'none', borderRadius: '8px 0 0 8px', width: '240px', boxShadow: '-10px 10px 15px -3px rgba(0,0,0,0.5)', padding: '12px', maxHeight: '316px', overflowY: 'auto' }}>
+                  <div data-header-region-subregions="true" style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRight: 'none', borderRadius: '8px 0 0 8px', width: '240px', boxShadow: '-10px 10px 15px -3px rgba(0,0,0,0.5)', padding: '12px', maxHeight: '316px', overflowY: 'auto' }}>
                     
                     {/* Ērta opcija izvēlēties TIKAI valsti tieši no reģionu saraksta augšas */}
                     <div
                       onClick={() => {
-                        setCurrentRegion(hoveredRegionObj.name)
+                        selectRegion(hoveredRegionObj.name)
                         setRegionOpen(false)
                         setRegionSearch('')
+                        closeMobileMenuAfterSelectorChoice()
                       }}
                       style={{
                         padding: '8px',
@@ -408,21 +1297,20 @@ export default function Header() {
                         marginBottom: '10px',
                         textAlign: 'center'
                       }}
-                    >
-                      🌐 Visa valsts: {hoveredRegionObj.name.split(' ')[0]}
+                    >{t("🌐 Visa valsts:")} {hoveredRegionObj.name.split(' ')[0]}
                     </div>
 
-                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '8px', borderBottom: '1px solid #334155', paddingBottom: '4px' }}>
-                      Reģioni / Štati ({hoveredRegionObj.subregions.length})
+                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '8px', borderBottom: '1px solid #334155', paddingBottom: '4px' }}>{t("Reģioni / Štati (")}{hoveredRegionObj.subregions.length})
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       {hoveredRegionObj.subregions.map((sub) => (
                         <div
                           key={sub}
                           onClick={() => {
-                            setCurrentRegion(sub)
+                            selectRegion(sub)
                             setRegionOpen(false)
                             setRegionSearch('')
+                            closeMobileMenuAfterSelectorChoice()
                           }}
                           style={{
                             padding: '6px 8px',
@@ -435,7 +1323,7 @@ export default function Header() {
                           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
                           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentRegion === sub ? '#334155' : 'transparent'}
                         >
-                          • {sub}
+                          • {t(sub)}
                         </div>
                       ))}
                     </div>
@@ -449,31 +1337,234 @@ export default function Header() {
           {/* Autentifikācija un Pievienot poga */}
           <nav style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {user ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '12px', color: '#cbd5e1', backgroundColor: '#1e293b', padding: '3px 10px', borderRadius: '12px', border: '1px solid #334155' }}>
-                  {user.email}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: '14px' }}
-                >
-                  Izlogoties
-                </button>
-              </div>
+              <Link
+                href="/kabinets"
+                data-header-account-link="true"
+                aria-current={isDesktopHeader && isCabinet ? 'page' : undefined}
+                                onClick={closeMobileMenuBeforeNavigation}
+                style={{ fontSize: '12px', color: '#cbd5e1', backgroundColor: '#1e293b', padding: '5px 10px', borderRadius: '12px', border: '1px solid #334155', textDecoration: 'none', cursor: 'pointer' }}
+              >
+                {user.user_metadata?.nickname || user.email}
+              </Link>
             ) : (
-              <Link href="/login" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '14px' }}>
-                Ielogoties
+              <Link href="/login?mode=register" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>{t("Reģistrēties")}
               </Link>
             )}
-
+            <button
+              type="button"
+              data-mobile-menu-toggle="true"
+              aria-label={t("Atvērt izvēlni")}
+              aria-expanded={mobileMenuOpen}
+              onTouchStart={handleMobileMenuButtonTouchStart}
+              onClick={handleMobileMenuButtonClick}
+            >
+              <span aria-hidden="true">☰</span>
+            </button>
             <a
               href="/pievienot"
+              data-header-add="true"
+              aria-current={isDesktopHeader && pathname === '/pievienot' ? 'page' : undefined}
               onClick={handleAddCarClick}
               style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
-            >
-              + Pievienot auto
+            >{t("+ Pievienot auto")}
             </a>
           </nav>
+
+          {mobileMenuOpen && (
+            <div
+              data-mobile-menu="true"
+              data-closing={mobileMenuClosing ? 'true' : undefined}
+              onPointerUpCapture={(event) => {
+                if ((event.target as HTMLElement).closest('[data-header-selector-option="true"]')) {
+                  mobileSelectorDismissUntil.current = Date.now() + 500
+                }
+              }}
+              onClickCapture={(event) => {
+                if (Date.now() < mobileSelectorDismissUntil.current) {
+                  event.preventDefault()
+                  event.stopPropagation()
+                }
+              }}
+              onTouchStart={handleMobileMenuTouchStart}
+              onTouchMove={handleMobileMenuTouchMove}
+              onTouchEnd={handleMobileMenuTouchEnd}
+              onTouchCancel={() => {
+                mobileMenuTouchStart.current = null
+                if (!mobileMenuGestureDismissed.current) {
+                  setMobileMenuClosing(false)
+                }
+              }}
+            >
+              <div data-mobile-menu-selectors="true">
+                                <div data-mobile-menu-selector-row="true">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (Date.now() < mobileSelectorDismissUntil.current) return
+                      mobileSelectorReturnToMenu.current = true
+                      mobileSelectorKeyboardReady.current = 'lang'
+                      regionSearchRef.current?.blur()
+                      setLangOpen(true)
+                      setRegionOpen(false)
+                    }}
+                  >
+                    <span>{t("Valoda")}</span>
+                    <strong>
+                      {currentLangObj && (
+                        <img src={`https://flagcdn.com/20x15/${currentLangObj.flagCode}.png`} alt="" />
+                      )}
+                      <span>{currentLang}</span>
+                      <span aria-hidden="true">›</span>
+                    </strong>
+                  </button>
+                  {langOpen && (
+                    <div data-header-lang-panel="true" data-mobile-menu-inline="true">
+                      <input
+                        ref={langSearchRef}
+                        type="text"
+                        placeholder={t("Meklēt valodu...")}
+                        value={langSearch}
+                        onChange={(event) => setLangSearch(event.target.value)}
+                        onPointerDown={(event) => handleMobileSelectorPointerDown(event, 'lang')}
+                        onPointerUp={(event) => handleMobileSelectorPointerUp(event, 'lang')}
+                        onClick={handleMobileSelectorClick}
+                      />
+                      <div>
+                        {filteredLanguages.map((language) => (
+                          <div
+                            key={language.code}
+                            data-header-selector-option="true"
+                            data-selected={currentLang === language.code ? 'true' : undefined}
+                            onPointerUp={(event) => {
+                              event.preventDefault()
+                              event.stopPropagation()
+                              setCurrentLang(language.code)
+                              localStorage.setItem('temauto-language', language.code)
+                              setLangOpen(false)
+                              setLangSearch('')
+                            }}
+                            onClick={() => {
+                              setCurrentLang(language.code)
+                                                            localStorage.setItem('temauto-language', language.code)
+                              setLangOpen(false)
+                              setLangSearch('')
+                              closeMobileMenuAfterSelectorChoice()
+                            }}
+                          >
+                            <div>
+                              <img src={`https://flagcdn.com/20x15/${language.flagCode}.png`} alt="" />
+                              <span>{language.name}</span>
+                            </div>
+                            <span>{language.code}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div data-mobile-menu-selector-row="true">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (Date.now() < mobileSelectorDismissUntil.current) return
+                      mobileSelectorReturnToMenu.current = true
+                      mobileSelectorKeyboardReady.current = 'region'
+                      langSearchRef.current?.blur()
+                      setRegionOpen(true)
+                      setLangOpen(false)
+                    }}
+                  >
+                    <span>{t("Valsts")}</span>
+                    <strong>
+                      {currentRegionObj && (
+                        <img src={`https://flagcdn.com/20x15/${currentRegionObj.flagCode}.png`} alt="" />
+                      )}
+                      <span>{t(currentRegion)}</span>
+                      <span aria-hidden="true">›</span>
+                    </strong>
+                  </button>
+                  {regionOpen && (
+                    <div data-header-region-panel="true" data-mobile-menu-inline="true">
+                      <input
+                        ref={regionSearchRef}
+                        type="text"
+                        placeholder={t("Meklēt valsti...")}
+                        value={regionSearch}
+                        onChange={(event) => setRegionSearch(event.target.value)}
+                        onPointerDown={(event) => handleMobileSelectorPointerDown(event, 'region')}
+                        onPointerUp={(event) => handleMobileSelectorPointerUp(event, 'region')}
+                        onClick={handleMobileSelectorClick}
+                      />
+                      <div>
+                        {filteredRegions.map((region) => (
+                          <div
+                            key={region.name}
+                            data-header-selector-option="true"
+                            data-selected={currentRegion === region.name ? 'true' : undefined}
+                            onPointerUp={(event) => {
+                              event.preventDefault()
+                              event.stopPropagation()
+                              selectRegion(region.name)
+                              localStorage.setItem('temauto-region', region.name)
+                              setRegionOpen(false)
+                              setRegionSearch('')
+                            }}
+                            onClick={() => {
+                              selectRegion(region.name)
+                                                            localStorage.setItem('temauto-region', region.name)
+                              setRegionOpen(false)
+                              setRegionSearch('')
+                              closeMobileMenuAfterSelectorChoice()
+                            }}
+                          >
+                            <span>{t(region.name)}</span>
+                            <img src={`https://flagcdn.com/20x15/${region.flagCode}.png`} alt="" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+<div data-mobile-theme-picker="true" role="group" aria-label={t("Ekrāna režīms")}>
+                  <button
+                    type="button"
+                    data-mobile-theme-option="day"
+                    aria-label={t("Dienas režīms")}
+                    aria-pressed={mobileTheme === 'day'}
+                    onClick={() => applyMobileTheme('day')}
+                  >
+                    <span aria-hidden="true">☀️</span>
+                    <span>{t("Diena")}</span>
+                  </button>
+                  <button
+                    type="button"
+                    data-mobile-theme-option="night"
+                    aria-label={t("Nakts režīms")}
+                    aria-pressed={mobileTheme === 'night'}
+                    onClick={() => applyMobileTheme('night')}
+                  >
+                    <span aria-hidden="true">🌙</span>
+                    <span>{t("Nakts")}</span>
+                  </button>
+                </div>
+              </div>
+              <nav aria-label={t("Informācija")}>
+                {['Lietošanas noteikumi', 'Privātuma politika', 'Drošība un krāpniecība', 'Kontakti', 'Tavi ieteikumi'].map((label) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      router.push(label === 'Lietošanas noteikumi' ? '/lietosanas-noteikumi' : label === 'Privātuma politika' ? '/privatuma-politika' : label === 'Drošība un krāpniecība' ? '/drosiba-un-krapnieciba' : label === 'Kontakti' ? '/kontakti' : '/tavi-ieteikumi')
+                    }}
+                  >
+                    {t(label)}
+                  </button>
+                ))}
+              </nav>
+              <AdvertisingSlot slot="mobile_menu" data-mobile-sponsor="true" data-mobile-menu-sponsor="true" aria-label={t("Sponsora vieta")}><strong>{t("SPONSORS")}</strong><span>{t("Vieta sadarbības partnerim")}</span></AdvertisingSlot>
+            </div>
+          )}
 
         </div>
 
@@ -481,3 +1572,4 @@ export default function Header() {
     </header>
   )
 }
+

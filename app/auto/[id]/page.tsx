@@ -1,25 +1,176 @@
 'use client'
 
+import AdvertisingSlot from '../../components/AdvertisingSlot'
+
+import { useI18n } from '../../../lib/i18n'
+import { findCountry } from '../../../lib/countries'
+
+import DemoPhoto from '../../components/DemoPhoto'
+
 import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../lib/supabase'
+import { canUseDevPreviewFallback, getAdaptedPreviewCarById, isPreviewListing } from '../../../lib/previewFallback'
+
+const FAVORITES_STORAGE_KEY = 'temauto-favorite-car-ids'
+
+const COUNTRY_FLAG_CODES: Record<string, string> = {
+  Latvija: 'lv',
+  Lietuva: 'lt',
+  Igaunija: 'ee',
+  Vācija: 'de',
+  Lielbritānija: 'gb',
+  ASV: 'us',
+  Japāna: 'jp',
+  Krievija: 'ru',
+  Zviedrija: 'se',
+  Norvēģija: 'no',
+  Polija: 'pl',
+  Somija: 'fi',
+  Dānija: 'dk',
+  Francija: 'fr',
+  Itālija: 'it',
+  Spānija: 'es',
+  Nīderlande: 'nl',
+  Ķīna: 'cn',
+  Dienvidkoreja: 'kr',
+  'Apvienotie Arābu Emirāti': 'ae',
+  Kanāda: 'ca',
+  Austrālija: 'au'
+}
+
+const getCountryFlagCode = (country: string, storedCode?: string) => {
+  const normalizedStoredCode = storedCode?.trim().toLowerCase()
+  if (normalizedStoredCode && /^[a-z]{2}$/.test(normalizedStoredCode)) return normalizedStoredCode
+  return COUNTRY_FLAG_CODES[country] || ''
+}
 
 export default function AutoLapa() {
+  const { t, matches, canonical } = useI18n()
   const params = useParams()
   const id = params?.id
 
   const [car, setCar] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [activeImage, setActiveImage] = useState<string>('')
+  const [activeImageRatio, setActiveImageRatio] = useState(16 / 9)
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false)
+  const [imageZoom, setImageZoom] = useState(1)
+  const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 })
+  const [imagePan, setImagePan] = useState({ x: 0, y: 0 })
+  const [photoSlideOffset, setPhotoSlideOffset] = useState(0)
+  const [photoSlideAnimating, setPhotoSlideAnimating] = useState(false)
+  const photoSlideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const viewerHistoryEntry = useRef(false)
+
+  const openImageViewer = () => {
+    if (window.matchMedia('(max-width: 767px)').matches && !viewerHistoryEntry.current) {
+      window.history.pushState({ ...window.history.state, temAutoImageViewer: true }, '', window.location.href)
+      viewerHistoryEntry.current = true
+    }
+    setIsImageViewerOpen(true)
+  }
+
+  const closeImageViewer = () => {
+    if (viewerHistoryEntry.current) {
+      viewerHistoryEntry.current = false
+      window.history.back()
+    }
+    setIsImageViewerOpen(false)
+    setImageZoom(1)
+    setImagePan({ x: 0, y: 0 })
+  }
+
+  useEffect(() => {
+    const handleViewerBack = () => {
+      if (!viewerHistoryEntry.current) return
+      viewerHistoryEntry.current = false
+      setIsImageViewerOpen(false)
+      setImageZoom(1)
+      setImagePan({ x: 0, y: 0 })
+    }
+    window.addEventListener('popstate', handleViewerBack)
+    return () => window.removeEventListener('popstate', handleViewerBack)
+  }, [])
+
+  useEffect(() => () => {
+    if (photoSlideTimer.current) clearTimeout(photoSlideTimer.current)
+  }, [])
 
   const [showPhone, setShowPhone] = useState(false)
   const [showEmail, setShowEmail] = useState(false)
   const [showVin, setShowVin] = useState(false)
   const [showSocialDropdown, setShowSocialDropdown] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const imageFrameRatioLocked = useRef(false)
+  const imageTouchStart = useRef<{ x: number; y: number } | null>(null)
+  const imageSwipeHandled = useRef(false)
+  const photoMouseDrag = useRef<{ pointerId: number; x: number; y: number } | null>(null)
+  const viewerMousePan = useRef<{ pointerId: number; x: number; y: number; panX: number; panY: number } | null>(null)
+  const viewerGesture = useRef<{
+    mode: 'pinch' | 'pan' | 'swipe'
+    distance: number
+    zoom: number
+    x: number
+    y: number
+    panX: number
+    panY: number
+  } | null>(null)
+
+  useEffect(() => {
+    imageFrameRatioLocked.current = false
+    setActiveImageRatio(16 / 9)
+  }, [id])
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setCurrentUserId(session?.user.id ?? null)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setCurrentUserId(session?.user.id ?? null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  useEffect(() => {
+    if (!id) return
+    try {
+      const savedFavoriteIds = JSON.parse(localStorage.getItem(FAVORITES_STORAGE_KEY) || '[]')
+      setIsFavorite(Array.isArray(savedFavoriteIds) && savedFavoriteIds.map(String).includes(String(id)))
+    } catch {
+      setIsFavorite(false)
+    }
+  }, [id])
+
+  const toggleFavorite = () => {
+    if (!id) return
+
+    let savedFavoriteIds: string[] = []
+    try {
+      const storedValue = JSON.parse(localStorage.getItem(FAVORITES_STORAGE_KEY) || '[]')
+      if (Array.isArray(storedValue)) {
+        savedFavoriteIds = storedValue.map(String)
+      }
+    } catch {
+      savedFavoriteIds = []
+    }
+
+    const normalizedId = String(id)
+    const nextFavoriteIds = savedFavoriteIds.includes(normalizedId)
+      ? savedFavoriteIds.filter(savedId => savedId !== normalizedId)
+      : [...savedFavoriteIds, normalizedId]
+
+    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(nextFavoriteIds))
+    setIsFavorite(nextFavoriteIds.includes(normalizedId))
+  }
 
   // Aizver izkrītošo lodziņu, ja noklikšķina ārpus tā
   useEffect(() => {
@@ -37,23 +188,42 @@ export default function AutoLapa() {
   }, [showSocialDropdown])
 
   useEffect(() => {
+    if (!isImageViewerOpen) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeImageViewer()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isImageViewerOpen])
+
+  useEffect(() => {
     if (!id) return
 
     async function fetchCarData() {
-      await supabase.rpc('increment_view', { car_id: id })
-
       const { data: carData, error: carError } = await supabase
         .from('cars')
         .select('*')
         .eq('id', id)
-        .single()
+        .maybeSingle()
 
-      if (carError) {
-        console.error('Kļūda ielādējot auto:', carError)
-      } else if (carData) {
+      if (!carError && carData) {
+        await supabase.rpc('increment_view', { car_id: id })
         setCar(carData)
         const mainImg = carData.image || (carData.images && carData.images[0]) || ''
         setActiveImage(mainImg)
+      } else if (canUseDevPreviewFallback()) {
+        const previewCar = getAdaptedPreviewCarById(String(id))
+        if (previewCar) {
+          setCar(previewCar)
+          const mainImg = previewCar.image || (previewCar.images && previewCar.images[0]) || ''
+          setActiveImage(mainImg)
+        }
+      } else if (carError) {
+        console.error('Kļūda ielādējot auto:', carError)
       }
       setLoading(false)
     }
@@ -63,11 +233,16 @@ export default function AutoLapa() {
 
   const allImages: string[] = []
   if (car?.image) allImages.push(car.image)
+  if (car?.image_url && !allImages.includes(car.image_url)) allImages.push(car.image_url)
   if (Array.isArray(car?.images)) {
     car.images.forEach((img: string) => {
       if (img && !allImages.includes(img)) allImages.push(img)
     })
   }
+
+  const activeImageFrameWidth = `min(100%, ${Math.round(360 * activeImageRatio)}px)`
+  const activeImageIndex = Math.max(0, allImages.indexOf(activeImage))
+  const imageCount = Math.max(1, allImages.length)
 
   const handlePrevImage = () => {
     if (allImages.length <= 1) return
@@ -81,6 +256,173 @@ export default function AutoLapa() {
     const currentIndex = allImages.indexOf(activeImage)
     const newIndex = currentIndex === allImages.length - 1 ? 0 : currentIndex + 1
     setActiveImage(allImages[newIndex])
+  }
+
+  const photoSlides = [
+    allImages[(activeImageIndex - 1 + imageCount) % imageCount] || activeImage,
+    activeImage,
+    allImages[(activeImageIndex + 1) % imageCount] || activeImage
+  ]
+
+  const finishPhotoSlide = (distanceX: number, distanceY: number, width: number) => {
+    if (photoSlideTimer.current) return
+    const changePhoto = allImages.length > 1 && Math.abs(distanceX) >= 45 && Math.abs(distanceX) > Math.abs(distanceY)
+    const direction = distanceX < 0 ? 1 : -1
+    setPhotoSlideAnimating(true)
+    setPhotoSlideOffset(changePhoto ? -direction * width : 0)
+    photoSlideTimer.current = setTimeout(() => {
+      if (changePhoto) setActiveImage(allImages[(activeImageIndex + direction + imageCount) % imageCount])
+      setPhotoSlideAnimating(false)
+      setPhotoSlideOffset(0)
+      photoSlideTimer.current = null
+    }, 240)
+  }
+
+  const handleImageTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    const start = imageTouchStart.current
+    const touch = event.touches[0]
+    if (!start || !touch || allImages.length <= 1 || photoSlideTimer.current) return
+    const dx = touch.clientX - start.x
+    if (Math.abs(dx) > Math.abs(touch.clientY - start.y)) {
+      imageSwipeHandled.current = true
+      setPhotoSlideOffset(dx)
+    }
+  }
+
+  const handleImageTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (photoSlideTimer.current) return
+    setPhotoSlideAnimating(false)
+    const touch = event.touches[0]
+    imageTouchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null
+    imageSwipeHandled.current = false
+  }
+
+  const handleImageTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const start = imageTouchStart.current
+    const touch = event.changedTouches[0]
+    imageTouchStart.current = null
+
+    if (!start || !touch) return
+
+    const distanceX = touch.clientX - start.x
+    const distanceY = touch.clientY - start.y
+
+    if (imageSwipeHandled.current || Math.abs(distanceX) >= 45) {
+      imageSwipeHandled.current = true
+      finishPhotoSlide(distanceX, distanceY, event.currentTarget.clientWidth)
+      window.setTimeout(() => { imageSwipeHandled.current = false }, 300)
+    }
+  }
+
+  const handleViewerTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (photoSlideTimer.current) return
+    setPhotoSlideAnimating(false)
+    if (event.touches.length >= 2) {
+      setPhotoSlideOffset(0)
+      const first = event.touches[0]
+      const second = event.touches[1]
+      const distance = Math.hypot(second.clientX - first.clientX, second.clientY - first.clientY)
+      const rect = event.currentTarget.getBoundingClientRect()
+      const midpointX = (first.clientX + second.clientX) / 2
+      const midpointY = (first.clientY + second.clientY) / 2
+
+      setZoomOrigin({
+        x: ((midpointX - rect.left) / rect.width) * 100,
+        y: ((midpointY - rect.top) / rect.height) * 100
+      })
+      viewerGesture.current = {
+        mode: 'pinch',
+        distance,
+        zoom: imageZoom,
+        x: midpointX,
+        y: midpointY,
+        panX: imagePan.x,
+        panY: imagePan.y
+      }
+      return
+    }
+
+    if (event.touches.length === 1) {
+      const touch = event.touches[0]
+      viewerGesture.current = {
+        mode: imageZoom > 1 ? 'pan' : 'swipe',
+        distance: 0,
+        zoom: imageZoom,
+        x: touch.clientX,
+        y: touch.clientY,
+        panX: imagePan.x,
+        panY: imagePan.y
+      }
+    }
+  }
+
+  const handleViewerTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    const gesture = viewerGesture.current
+    if (!gesture) return
+
+    event.preventDefault()
+
+    if (gesture.mode === 'pinch' && event.touches.length >= 2) {
+      const first = event.touches[0]
+      const second = event.touches[1]
+      const distance = Math.hypot(second.clientX - first.clientX, second.clientY - first.clientY)
+      const nextZoom = Math.min(4, Math.max(1, gesture.zoom * (distance / Math.max(1, gesture.distance))))
+      setImageZoom(nextZoom)
+      if (nextZoom < gesture.zoom) {
+        const remainingPan = (nextZoom - 1) / Math.max(0.001, gesture.zoom - 1)
+        setImagePan({ x: gesture.panX * remainingPan, y: gesture.panY * remainingPan })
+      }
+      if (nextZoom === 1) {
+        setImagePan({ x: 0, y: 0 })
+        setZoomOrigin({ x: 50, y: 50 })
+      }
+      return
+    }
+
+    if (gesture.mode === 'swipe' && event.touches.length === 1 && allImages.length > 1) {
+      const touch = event.touches[0]
+      const dx = touch.clientX - gesture.x
+      if (Math.abs(dx) > Math.abs(touch.clientY - gesture.y)) setPhotoSlideOffset(dx)
+    }
+
+    if (gesture.mode === 'pan' && event.touches.length === 1 && imageZoom > 1) {
+      const touch = event.touches[0]
+      setImagePan({
+        x: gesture.panX + touch.clientX - gesture.x,
+        y: gesture.panY + touch.clientY - gesture.y
+      })
+    }
+  }
+
+  const handleViewerTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (event.touches.length === 0) {
+      const gesture = viewerGesture.current
+      const touch = event.changedTouches[0]
+
+      if (gesture?.mode === 'swipe' && imageZoom === 1 && touch) {
+        const distanceX = touch.clientX - gesture.x
+        const distanceY = touch.clientY - gesture.y
+        finishPhotoSlide(distanceX, distanceY, event.currentTarget.clientWidth)
+        setImagePan({ x: 0, y: 0 })
+        setZoomOrigin({ x: 50, y: 50 })
+      }
+
+      viewerGesture.current = null
+      return
+    }
+
+    if (event.touches.length === 1 && imageZoom > 1) {
+      const touch = event.touches[0]
+      viewerGesture.current = {
+        mode: 'pan',
+        distance: 0,
+        zoom: imageZoom,
+        x: touch.clientX,
+        y: touch.clientY,
+        panX: imagePan.x,
+        panY: imagePan.y
+      }
+    }
   }
 
   const formatPrice = (price: any) => {
@@ -124,8 +466,7 @@ export default function AutoLapa() {
 
   if (loading) {
     return (
-      <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', minHeight: '600px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', fontFamily: 'sans-serif' }}>
-        Ielādē datus...
+      <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', minHeight: '600px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', fontFamily: 'sans-serif' }}>{t("Ielādē datus...")}
       </div>
     )
   }
@@ -133,8 +474,8 @@ export default function AutoLapa() {
   if (!car) {
     return (
       <div style={{ maxWidth: '1250px', margin: '40px auto', padding: '0 20px', minHeight: '600px', textAlign: 'center', fontFamily: 'sans-serif' }}>
-        <h2>Sludinājums netika atrasts!</h2>
-        <Link href="/" style={{ color: '#2563eb', textDecoration: 'underline' }}>Atpakaļ uz sarakstu</Link>
+        <h2>{t("Sludinājums netika atrasts!")}</h2>
+        <Link href="/" style={{ color: '#2563eb', textDecoration: 'underline' }}>{t("Atpakaļ uz sarakstu")}</Link>
       </div>
     )
   }
@@ -155,81 +496,491 @@ export default function AutoLapa() {
   }
 
   const finalMileage = getMileage()
+  const desktopCountryFlag = getCountryFlagCode(car.country || 'Latvija', car.country_code) || findCountry(car.country || 'Latvija')?.code
 
   return (
-    <div style={{ maxWidth: '1250px', margin: '20px auto', padding: '0 20px', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
+    <>
+      <style>{`
+        @media (min-width: 768px) {
+          [data-listing-main-photo='true'] {
+            width: min(100%, 640px) !important;
+            aspect-ratio: 16 / 9 !important;
+          }
+          [data-listing-main-photo='true'] > div > img {
+            object-fit: cover !important;
+            object-position: center !important;
+          }
+          [data-desktop-photo-arrow='true'] { display: flex !important; }
+          [data-listing-main-photo='true'] > div > img { cursor: grab !important; }
+          [data-listing-main-photo='true'] > div > img:active { cursor: grabbing !important; }
+        }
+
+        [data-listing-mobile-titlebar="true"],
+        [data-listing-year-favorite="true"] {
+          display: none;
+        }
+
+        @media (max-width: 767px) {
+          [data-listing-main-photo="true"] [data-listing-photo-price="true"] {
+            color: #ffffff !important;
+            text-decoration: none !important;
+            -webkit-text-stroke: 2px #000000 !important;
+            text-shadow: -1.5px -1.5px 0 #000000, 1.5px -1.5px 0 #000000, -1.5px 1.5px 0 #000000, 1.5px 1.5px 0 #000000 !important;
+          }
+
+          [data-listing-year-favorite="true"] {
+            display: inline-flex !important;
+          }
+          [data-listing-mobile-titlebar="true"] {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1001;
+            width: 100%;
+            height: 48px;
+            padding: 3px 14px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            background: #0f172a;
+            color: #ffffff;
+          }
+
+          [data-listing-mobile-titlebar="true"] strong {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            z-index: 1002;
+            width: calc(100% - 180px);
+            min-width: 0;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transform: translateX(-50%);
+            white-space: normal;
+            overflow-wrap: anywhere;
+            font-size: 17px;
+            line-height: 19px;
+            text-align: center;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+          }
+
+          [data-listing-home-logo="true"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1003;
+            width: 90px;
+            height: 48px;
+            margin: 0;
+            display: block;
+            color: #22c55e;
+            text-decoration: none;
+            -webkit-tap-highlight-color: transparent;
+          }
+
+          [data-listing-home-logo="true"]:active {
+            transform: scale(0.94);
+          }
+
+          [data-listing-home-logo="true"] > span:first-child {
+            position: absolute;
+            top: 5px;
+            left: 12px;
+            font-size: 19px;
+            line-height: 19px;
+            font-weight: 700;
+            white-space: nowrap;
+          }
+
+          [data-listing-home-logo="true"] > span:last-child {
+            position: absolute;
+            top: 17px;
+            left: 32px;
+            display: flex;
+            width: 42px;
+            height: 22px;
+            margin: 0;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(-3deg);
+          }
+
+          [data-listing-mobile-views="true"] {
+            position: absolute;
+            top: 0;
+            right: 14px;
+            width: max-content;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 1px;
+            font-size: 12px;
+            font-weight: 700;
+          }
+
+          [data-listing-mobile-date="true"] {
+            font-size: 10px;
+            line-height: 12px;
+            white-space: nowrap;
+          }
+
+          [data-listing-mobile-view-count="true"] {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            line-height: 14px;
+          }
+
+          [data-listing-detail-layout="true"] {
+            width: 100% !important;
+            max-width: none !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 16px 16px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 16px !important;
+            overflow: visible !important;
+          }
+
+          [data-listing-detail-header="true"] {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 1000 !important;
+            width: 100% !important;
+            height: 48px !important;
+            min-height: 48px !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            box-shadow: none !important;
+          }
+
+          [data-listing-detail-gallery="true"] {
+            order: 1;
+            position: fixed;
+            top: 48px;
+            left: 0;
+            z-index: 900;
+            width: 100vw !important;
+            max-width: none !important;
+            min-width: 0 !important;
+            margin: 0 !important;
+            background: #f3f4f6;
+          }
+
+          [data-listing-gallery-actions="true"],
+          [data-listing-gallery-info="true"],
+          [data-listing-thumbnails="true"] {
+            display: none !important;
+          }
+
+          [data-listing-main-photo="true"] {
+            width: 100% !important;
+            max-width: none !important;
+            max-height: none !important;
+            aspect-ratio: 16 / 9 !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+          }
+
+          [data-listing-main-photo="true"] > div > img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            object-position: center !important;
+          }
+
+          [data-listing-photo-edit="true"] {
+            display: inline-flex !important;
+          }
+
+          [data-listing-detail-data="true"] {
+            order: 2;
+            width: 100% !important;
+            min-width: 0 !important;
+            margin-top: calc(56.25vw + 48px) !important;
+            gap: 0 !important;
+          }
+
+          [data-listing-location-card="true"],
+          [data-listing-price-card="true"] {
+            display: none !important;
+          }
+
+          [data-listing-specifications="true"] {
+            padding: 3px 16px !important;
+            gap: 0 !important;
+            font-size: 14px !important;
+            border-radius: 10px !important;
+          }
+
+          [data-listing-specifications="true"] > div {
+            min-height: 32px;
+            padding: 3px 0 !important;
+            box-sizing: border-box;
+            align-items: center;
+          }
+
+          [data-listing-specifications="true"] > [data-listing-compact-location="true"] {
+            display: flex !important;
+            padding: 3px 8px !important;
+            margin: 2px -8px 0;
+            border-radius: 7px;
+            background-color: #f0fdf4;
+          }
+
+          [data-listing-specifications="true"] > div:last-child {
+            border-bottom: none !important;
+          }
+
+          [data-listing-specifications="true"] > div > span:last-child,
+          [data-listing-specifications="true"] > div > div:last-child {
+            text-align: right;
+          }
+
+          [data-listing-contacts="true"] {
+            margin-top: 12px;
+          }
+
+          [data-listing-detail-description="true"] {
+            order: 3;
+            width: 100% !important;
+            height: auto !important;
+            min-height: 240px !important;
+          }
+
+          [data-listing-detail-sponsors="true"] {
+            order: 4;
+            width: 100% !important;
+            height: auto !important;
+            gap: 0 !important;
+          }
+
+          [data-listing-detail-sponsors="true"] > aside:first-child {
+            min-height: 150px !important;
+            flex: none !important;
+          }
+
+          [data-listing-detail-sponsors="true"] > aside:nth-child(2) {
+            display: none !important;
+          }
+
+          html[data-temauto-theme="night"] [data-listing-specifications="true"] {
+            color: #e5e7eb !important;
+            background: #111827 !important;
+            border-color: #334155 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-listing-specifications="true"] > div {
+            border-bottom-color: #334155 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-listing-specifications="true"] span {
+            color: #e5e7eb !important;
+          }
+
+          html[data-temauto-theme="night"] [data-listing-specifications="true"] > [data-listing-compact-location="true"] {
+            background: #052e16 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-listing-specifications="true"] > [data-listing-compact-location="true"] span {
+            color: #bbf7d0 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-listing-detail-sponsors="true"] > aside {
+            color: #94a3b8 !important;
+            background: #111827 !important;
+            border-color: #475569 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-listing-detail-description="true"] {
+            color: #e5e7eb !important;
+            background: #111827 !important;
+            border-color: #334155 !important;
+          }
+
+          html[data-temauto-theme="night"] [data-listing-detail-description="true"] p {
+            color: #e5e7eb !important;
+          }
+        }
+      `}</style>
+      <div data-listing-mobile-titlebar="true">
+        <strong>{car.make} {car.model}</strong>
+        <Link
+          href="/"
+          data-listing-home-logo="true"
+          aria-label={t("Atgriezties TemAuto sākumlapā")}
+          title={t("Uz sākumlapu")}
+        >
+          <span>TemAuto</span>
+          <span aria-hidden="true">
+          <svg
+            viewBox="0 0 64 32"
+            width="42"
+            height="21"
+            role="img"
+            aria-hidden="true"
+          >
+            <path
+              d="M5 21.5 C8 20.8 8.8 16.4 11.7 14.3 C14 12.7 18.1 13 21 12.4 C24.4 8.1 27.4 6.7 33.3 6.8 C40.8 6.9 43.3 7.8 47.6 13.2 C52.4 14.2 56.5 15.8 59 18.1 C60.2 19.2 59.8 21 58.7 22"
+              fill="none"
+              stroke="#16a34a"
+              strokeWidth="4.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M5.8 22.2 C13.5 23.1 20.4 22.7 27.6 22.8 C37.8 23 48.8 22.4 58.2 22.2"
+              fill="none"
+              stroke="#22c55e"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+            />
+            <path
+              d="M6.7 20.5 C10.4 18.9 9.8 15.5 13.1 13.7 M22 11.5 C26.1 7.4 29 7.2 34 7.4 C42 7.5 43.7 9.1 47 13.7"
+              fill="none"
+              stroke="#4ade80"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+              opacity="0.9"
+            />
+            <circle cx="16" cy="23" r="3.6" fill="#0f172a" stroke="#f8fafc" strokeWidth="2.1" />
+            <circle cx="49" cy="23" r="3.6" fill="#0f172a" stroke="#f8fafc" strokeWidth="2.1" />
+            <path
+              d="M25.5 11.8 C29.8 11.1 35.2 11.2 39.7 12 M32.9 11.8 C32.5 15 32.3 18.3 31.8 21.2"
+              fill="none"
+              stroke="#ffffff"
+              strokeWidth="3.6"
+              strokeLinecap="round"
+            />
+            <path
+              d="M26.2 12.5 C30.3 11.8 35.5 11.9 39 12.5"
+              fill="none"
+              stroke="#e2e8f0"
+              strokeWidth="1"
+              strokeLinecap="round"
+              opacity="0.9"
+            />
+          </svg>
+          </span>
+        </Link>
+        <span data-listing-mobile-views="true">
+          {car.created_at && (
+            <span data-listing-mobile-date="true">
+              {new Date(car.created_at).toLocaleDateString('lv-LV')}
+            </span>
+          )}
+          <span data-listing-mobile-view-count="true" aria-label={`${t('Skatījumi')}: ${car.views ?? 0}`}>
+            <span aria-hidden="true">👁️</span>
+          <span>{car.views ?? 0}</span>
+          </span>
+        </span>
+      </div>
+      <div data-listing-detail-layout="true" style={{ width: 'calc(100% - 40px)', maxWidth: '1320px', height: 'calc(100dvh - 100px)', margin: '20px auto 0', padding: 0, fontFamily: 'sans-serif', display: 'grid', gridTemplateColumns: '320px minmax(0, 1fr) 240px', gridTemplateRows: 'auto minmax(0, 1fr)', columnGap: '24px', rowGap: '0', overflow: 'hidden', boxSizing: 'border-box' }}>
       
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', justifyContent: 'center', marginBottom: '16px' }}>
+      <div style={{ display: 'contents' }}>
         
         {/* KREISAIS STABIŅŠ */}
-        <div style={{ width: '320px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div data-listing-detail-data="true" style={{ gridColumn: '1', gridRow: '1', width: '320px', minHeight: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
           
           {/* Valsts un Pilsēta */}
           {(car.country || car.city) && (
-            <div style={{ backgroundColor: '#f0fdf4', padding: '12px 16px', borderRadius: '10px', border: '1px solid #bbf7d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-              <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.country || 'Latvija'}</span>
+            <div data-listing-location-card="true" style={{ backgroundColor: '#f0fdf4', padding: '12px 16px', borderRadius: '10px', border: '1px solid #bbf7d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+              <span style={{ color: '#166534', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '7px' }}>
+                {desktopCountryFlag && (
+                  <img
+                    src={`https://flagcdn.com/w40/${desktopCountryFlag}.png`}
+                    alt={`${car.country || t('Latvija')} ${t('karogs')}`}
+                    style={{ width: '22px', height: '15px', objectFit: 'cover', borderRadius: '2px', flexShrink: 0 }}
+                  />
+                )}
+                <span>{car.country || t('Latvija')}</span>
+              </span>
               <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.city || car.region || ''}</span>
             </div>
           )}
 
           {/* Cena */}
-          <div style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '10px', border: '1px solid #e5e7eb', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div data-listing-price-card="true" style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '10px', border: '1px solid #e5e7eb', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             <span style={{ fontSize: '28px', fontWeight: 'bold', color: '#16a34a', letterSpacing: '0.5px' }}>
               {formatPrice(car.price)}
             </span>
           </div>
 
           {/* Pārējie dati */}
-          <div style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '10px', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div data-listing-specifications="true" style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '10px', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             {car.year && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-                <span style={{ color: '#6b7280', fontWeight: '500' }}>Izlaiduma gads:</span>
-                <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.year}</span>
+                <span style={{ color: '#111827', fontSize: '17px', fontWeight: '800' }}>{car.year}</span>
+
               </div>
             )}
             {car.engine && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-                <span style={{ color: '#6b7280', fontWeight: '500' }}>Motors:</span>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("Motors:")}</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.engine}</span>
               </div>
             )}
 
             {/* Nobraukums */}
             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-              <span style={{ color: '#6b7280', fontWeight: '500' }}>Nobraukums:</span>
+              <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("Nobraukums:")}</span>
               <span style={{ color: '#111827', fontWeight: 'bold' }}>
-                {finalMileage ? `${Number(finalMileage).toLocaleString('lv-LV')} km` : 'Nav norādīts'}
+                {finalMileage ? `${Number(finalMileage).toLocaleString('lv-LV')} km` : t('Nav norādīts')}
               </span>
             </div>
 
             {car.gearbox && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-                <span style={{ color: '#6b7280', fontWeight: '500' }}>Ātrumkārba:</span>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("Ātrumkārba:")}</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.gearbox}</span>
               </div>
             )}
             {car.color && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-                <span style={{ color: '#6b7280', fontWeight: '500' }}>Krāsa:</span>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("Krāsa:")}</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.color}</span>
               </div>
             )}
             {car.body_type && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-                <span style={{ color: '#6b7280', fontWeight: '500' }}>Virsbūves tips:</span>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("Virsbūves tips:")}</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.body_type}</span>
               </div>
             )}
+            {car.steering_wheel && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("Stūre:")}</span>
+                <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.steering_wheel}</span>
+              </div>
+            )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+              <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("Salons:")}</span>
+              <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.interior_color || '–'}</span>
+            </div>
             {car.tech_inspection && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
-                <span style={{ color: '#6b7280', fontWeight: '500' }}>Tehniskā apskate:</span>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("Tehniskā apskate:")}</span>
                 <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.tech_inspection}</span>
               </div>
             )}
             
             {car.vin && (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: '#6b7280', fontWeight: '500' }}>VIN kods:</span>
+                <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("VIN kods:")}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ color: '#111827', fontWeight: 'bold', fontSize: '13px' }}>
                     {showVin ? car.vin : maskVin(car.vin)}
@@ -238,17 +989,33 @@ export default function AutoLapa() {
                     <button
                       onClick={() => setShowVin(true)}
                       style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontSize: '12px', padding: 0, textDecoration: 'underline' }}
-                    >
-                      Skatīt
+                    >{t("Skatīt")}
                     </button>
                   )}
                 </div>
               </div>
             )}
+
+            <div
+              data-listing-compact-location="true"
+              style={{ display: 'none', justifyContent: 'space-between', borderBottom: 'none' }}
+            >
+              <span style={{ color: '#166534', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '7px' }}>
+                {getCountryFlagCode(car.country || '', car.country_code) && (
+                  <img
+                    src={`https://flagcdn.com/w40/${getCountryFlagCode(car.country || '', car.country_code)}.png`}
+                    alt={`${car.country || t('Valsts')} ${t('karogs')}`}
+                    style={{ width: '22px', height: '15px', objectFit: 'cover', borderRadius: '2px', flexShrink: 0 }}
+                  />
+                )}
+                <span>{car.country || '–'}</span>
+              </span>
+              <span style={{ color: '#166534', fontWeight: 'bold' }}>{car.region || car.city || '–'}</span>
+            </div>
           </div>
 
           {/* Kontakti */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div data-listing-contacts="true" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {car.phone && (
               <div style={{ position: 'relative' }} ref={dropdownRef}>
                 {showPhone ? (
@@ -263,34 +1030,28 @@ export default function AutoLapa() {
                     onClick={() => setShowPhone(true)}
                     style={{ width: '100%', padding: '12px 16px', backgroundColor: '#16a34a', color: '#fff', borderRadius: '10px', border: 'none', fontWeight: 'bold', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '14px', cursor: 'pointer' }}
                   >
-                    📞 {maskPhone(car.phone)} (Parādīt)
+                    📞 {maskPhone(car.phone)}{t("(Parādīt)")}
                   </button>
                 )}
 
                 {/* Saziņas izlecošais logs */}
                 {showSocialDropdown && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, width: '100%', marginTop: '6px', backgroundColor: '#fff', padding: '16px', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', zIndex: 1000, border: '1px solid #e5e7eb', boxSizing: 'border-box' }}>
-                    <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', color: '#111827', textAlign: 'center' }}>Sazināties ar pārdevēju</h4>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', color: '#111827', textAlign: 'center' }}>{t("Sazināties ar pārdevēju")}</h4>
                     <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#6b7280', fontWeight: 'bold', textAlign: 'center' }}>{car.phone}</p>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
-                      <a href={`tel:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#f3f4f6', color: '#111827', borderRadius: '8px', textDecoration: 'none', fontWeight: '500', fontSize: '13px' }}>
-                        📞 Zvanīt parasto zvanu
+                      <a href={`tel:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#f3f4f6', color: '#111827', borderRadius: '8px', textDecoration: 'none', fontWeight: '500', fontSize: '13px' }}>{t("📞 Zvanīt parasto zvanu")}
                       </a>
-                      <a href={`https://wa.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#25D366', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
-                        🟢 WhatsApp čats
+                      <a href={`https://wa.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#25D366', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>{t("🟢 WhatsApp čats")}
                       </a>
-                      <a href={`https://m.me/`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#0084FF', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
-                        💙 Meta Messenger
+                      <a href={`https://m.me/`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#0084FF', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>{t("💙 Meta Messenger")}
                       </a>
-                      <a href={`viber://chat?number=${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#7360F2', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
-                        🟣 Viber ziņa
+                      <a href={`viber://chat?number=${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#7360F2', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>{t("🟣 Viber ziņa")}
                       </a>
-                      <a href={`https://t.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#229ED9', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
-                        ✈️ Telegram ziņa
+                      <a href={`https://t.me/${cleanPhone}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#229ED9', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>{t("✈️ Telegram ziņa")}
                       </a>
-                      <a href={`sms:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#4b5563', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
-                        💬 Sūtīt SMS
+                      <a href={`sms:${cleanPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#4b5563', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>{t("💬 Sūtīt SMS")}
                       </a>
                     </div>
 
@@ -298,14 +1059,13 @@ export default function AutoLapa() {
                       onClick={handleCopyPhone}
                       style={{ width: '100%', padding: '8px', backgroundColor: '#f0fdf4', border: '1px solid #16a34a', borderRadius: '8px', fontWeight: 'bold', color: '#16a34a', cursor: 'pointer', fontSize: '13px', marginBottom: '6px' }}
                     >
-                      {copied ? '✅ Numurs nokopēts!' : '📋 Kopēt telefona numuru'}
+                      {copied ? t('✅ Numurs nokopēts!') : t('📋 Kopēt telefona numuru')}
                     </button>
 
                     <button
                       onClick={() => setShowSocialDropdown(false)}
                       style={{ width: '100%', padding: '8px', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '8px', fontWeight: 'bold', color: '#374151', cursor: 'pointer', fontSize: '13px' }}
-                    >
-                      Aizvērt
+                    >{t("Aizvērt")}
                     </button>
                   </div>
                 )}
@@ -322,7 +1082,7 @@ export default function AutoLapa() {
                   onClick={() => setShowEmail(true)}
                   style={{ padding: '12px 16px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '10px', border: 'none', fontWeight: 'bold', textAlign: 'center', wordBreak: 'break-all', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '14px', cursor: 'pointer' }}
                 >
-                  ✉️ {maskEmail(car.email)} (Parādīt)
+                  ✉️ {maskEmail(car.email)}{t("(Parādīt)")}
                 </button>
               )
             )}
@@ -331,51 +1091,258 @@ export default function AutoLapa() {
         </div>
 
         {/* VIDĒJĀ DAĻA: Bildes un virsraksts */}
-        <div style={{ flex: 1, maxWidth: '750px', minWidth: 0 }}>
+        <div data-listing-detail-gallery="true" style={{ gridColumn: '2', gridRow: '1', width: '100%', maxWidth: '750px', minWidth: 0 }}>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', paddingTop: '4px' }}>
-            <Link href="/" style={{ color: '#2563eb', textDecoration: 'none', fontSize: '14px' }}>
-              ← Atpakaļ uz sarakstu
-            </Link>
-            <div>
-              <Link href={`/auto/${id}/edit`} style={{ padding: '6px 14px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold', display: 'inline-block' }}>
-                ✏️ Rediģēt
-              </Link>
+          <div data-listing-gallery-actions="true" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', paddingTop: '4px' }}>
+            <button
+              type="button"
+              onClick={() => {
+                if (window.history.length > 1) {
+                  window.history.back()
+                } else {
+                  window.location.assign('/')
+                }
+              }}
+              style={{ color: '#2563eb', background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'inherit', fontSize: '14px' }}
+            >{t("← Atpakaļ uz sarakstu")}
+            </button>
+            {!isPreviewListing(car) && Boolean(car.user_id) && car.user_id === currentUserId && (
+              <div>
+                <Link href={`/auto/${id}/edit`} style={{ padding: '6px 14px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold', display: 'inline-block' }}>{t("✏️ Rediģēt")}
+                </Link>
+              </div>
+            )}
+          </div>
+
+          <div data-listing-gallery-info="true" style={{ width: activeImageFrameWidth, margin: '0 auto' }}>
+            <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#111827' }}>
+              {car.make} {car.model}
+            </h1>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', color: '#6b7280', fontSize: '13px', marginBottom: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                {car.created_at && (
+                  <span>{t("📅 Publicēts:")} {new Date(car.created_at).toLocaleDateString('lv-LV')}</span>
+                )}
+                <span>{t("👁️ Skatījumi:")} <strong>{car.views ?? 0}</strong></span>
+              </div>
+              <button
+                type="button"
+                aria-pressed={isFavorite}
+                onClick={toggleFavorite}
+                style={{
+                  flexShrink: 0,
+                  padding: 0,
+                  background: 'none',
+                  border: 'none',
+                  color: isFavorite ? '#15803d' : '#9ca3af',
+                  fontFamily: 'inherit',
+                  fontSize: '12px',
+                  fontWeight: isFavorite ? '700' : '500',
+                  cursor: 'pointer'
+                }}
+              >{t("Mans favorīts")}
+              </button>
             </div>
           </div>
 
-          <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#111827' }}>
-            {car.make} {car.model}
-          </h1>
-
-          <div style={{ display: 'flex', gap: '16px', color: '#6b7280', fontSize: '13px', marginBottom: '10px' }}>
-            {car.created_at && (
-              <span>📅 Publicēts: {new Date(car.created_at).toLocaleDateString('lv-LV')}</span>
-            )}
-            <span>👁️ Skatījumi: <strong>{car.views ?? 0}</strong></span>
-          </div>
-
           {activeImage && (
-            <div style={{ position: 'relative', width: '100%', height: '280px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', marginBottom: '8px' }}>
-              <img src={activeImage} alt={`${car.make} ${car.model}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              
-              {allImages.length > 1 && (
-                <>
-                  <button onClick={handlePrevImage} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '36px', height: '36px', fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    ❮
+            <div
+              data-listing-main-photo="true"
+              onPointerDown={(event) => {
+                if (event.pointerType !== 'mouse' || event.button !== 0 || !window.matchMedia('(min-width: 768px)').matches || photoSlideTimer.current) return
+                const image = event.target as HTMLElement
+                if (image.tagName !== 'IMG') return
+                imageSwipeHandled.current = false
+                if (allImages.length <= 1) return
+                event.preventDefault()
+                setPhotoSlideAnimating(false)
+                photoMouseDrag.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY }
+                image.setPointerCapture(event.pointerId)
+              }}
+              onPointerMove={(event) => {
+                const drag = photoMouseDrag.current
+                if (!drag || drag.pointerId !== event.pointerId) return
+                const dx = event.clientX - drag.x
+                if (Math.abs(dx) > 8) imageSwipeHandled.current = true
+                if (imageSwipeHandled.current) {
+                  event.preventDefault()
+                  setPhotoSlideOffset(dx)
+                }
+              }}
+              onPointerUp={(event) => {
+                const drag = photoMouseDrag.current
+                if (!drag || drag.pointerId !== event.pointerId) return
+                photoMouseDrag.current = null
+                if (imageSwipeHandled.current) finishPhotoSlide(event.clientX - drag.x, event.clientY - drag.y, event.currentTarget.clientWidth)
+                const image = event.target as HTMLElement
+                if (image.hasPointerCapture(event.pointerId)) image.releasePointerCapture(event.pointerId)
+              }}
+              onPointerCancel={(event) => {
+                if (!photoMouseDrag.current || photoMouseDrag.current.pointerId !== event.pointerId) return
+                photoMouseDrag.current = null
+                finishPhotoSlide(0, 0, event.currentTarget.clientWidth)
+              }}
+              onTouchStart={handleImageTouchStart}
+              onTouchMove={handleImageTouchMove}
+              onTouchCancel={() => { imageTouchStart.current = null; setPhotoSlideOffset(0) }}
+              onTouchEnd={handleImageTouchEnd}
+              style={{ position: 'relative', width: activeImageFrameWidth, aspectRatio: String(activeImageRatio), maxHeight: '360px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#f3f4f6', margin: '0 auto 8px', touchAction: 'pan-y' }}
+            >
+              <button
+                    type="button"
+                    data-listing-year-favorite="true"
+                    aria-pressed={isFavorite}
+                    onClick={(event) => { event.stopPropagation(); toggleFavorite() }}
+                    onTouchStart={(event) => event.stopPropagation()}
+                    onTouchMove={(event) => event.stopPropagation()}
+                    onTouchEnd={(event) => event.stopPropagation()}
+                    style={{
+                      display: 'none',
+                      alignItems: 'center',
+                      padding: '5px 8px',
+                      borderRadius: '14px',
+                      border: isFavorite ? '1px solid rgba(255,255,255,0.75)' : '1px solid rgba(17,24,39,0.18)',
+                      backgroundColor: isFavorite ? 'rgba(21,128,61,0.92)' : 'rgba(255,255,255,0.86)',
+                      color: isFavorite ? '#ffffff' : '#374151',
+                      fontFamily: 'inherit',
+                      fontSize: '11px',
+                      fontWeight: isFavorite ? '700' : '600',
+                      lineHeight: 1,
+                      boxShadow: '0 1px 5px rgba(0,0,0,0.20)',
+                      position: 'absolute',
+                      top: '10px',
+                      right: '10px',
+                      zIndex: 25,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >{t("Mans favorīts")}
                   </button>
-                  <button onClick={handleNextImage} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '36px', height: '36px', fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    ❯
-                  </button>
-                </>
+              {!isPreviewListing(car) && Boolean(car.user_id) && car.user_id === currentUserId && (
+                <Link
+                  href={`/auto/${id}/edit`}
+                  data-listing-photo-edit="true"
+                  onClick={(event) => event.stopPropagation()}
+                  style={{
+                    display: 'none',
+                    position: 'absolute',
+                    top: '10px',
+                    left: '10px',
+                    zIndex: 25,
+                    minHeight: '28px',
+                    padding: '3px 8px',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#ffffff',
+                    backgroundColor: 'rgba(37, 99, 235, 0.18)',
+                    border: '1px solid rgba(255,255,255,0.78)',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 7px rgba(0,0,0,0.34)',
+                    textDecoration: 'none',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    lineHeight: 1
+                  }}
+                >{t("✏️ Rediģēt")}
+                </Link>
               )}
+              <div style={{ display: 'flex', width: '100%', height: '100%', transform: `translateX(calc(-100% + ${photoSlideOffset}px))`, transition: photoSlideAnimating ? 'transform 240ms ease-out' : 'none' }}>
+              {photoSlides.map((photo, slideIndex) => (
+              <DemoPhoto
+                key={slideIndex}
+                src={photo}
+                draggable={false}
+                aria-hidden={slideIndex !== 1}
+
+                alt={`${car.make} ${car.model}`}
+                onLoad={(event) => {
+                  const image = event.currentTarget
+                  if (slideIndex === 1 && !imageFrameRatioLocked.current && image.naturalWidth > 0 && image.naturalHeight > 0) {
+                    setActiveImageRatio(image.naturalWidth / image.naturalHeight)
+                    imageFrameRatioLocked.current = true
+                  }
+                }}
+                onClick={() => {
+                  if (imageSwipeHandled.current) return
+                  setImageZoom(1)
+        setImagePan({ x: 0, y: 0 })
+                  setZoomOrigin({ x: 50, y: 50 })
+                  openImageViewer()
+                }}
+                title={t("Atvērt foto pilnekrānā")}
+                style={{ width: '100%', minWidth: '100%', flex: '0 0 100%', height: '100%', objectFit: 'contain', cursor: 'zoom-in' }}
+              />
+              ))}
+              </div>
+              {allImages.length > 1 && ([-1, 1] as const).map((direction) => (
+                <button
+                  key={direction}
+                  type="button"
+                  data-desktop-photo-arrow="true"
+                  aria-label={direction === -1 ? t('Iepriekšējais foto') : t('Nākamais foto')}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    const frame = event.currentTarget.parentElement
+                    if (frame) finishPhotoSlide(direction === 1 ? -60 : 60, 0, frame.clientWidth)
+                  }}
+                  style={{ position: 'absolute', top: '50%', left: direction === -1 ? '10px' : undefined, right: direction === 1 ? '10px' : undefined, transform: 'translateY(-50%)', zIndex: 24, width: '36px', height: '44px', border: '1px solid rgba(255,255,255,0.5)', borderRadius: '8px', background: 'rgba(0,0,0,0.45)', color: '#fff', fontSize: '30px', cursor: 'pointer', display: 'none', alignItems: 'center', justifyContent: 'center' }}
+                >{direction === -1 ? '‹' : '›'}</button>
+              ))}
+              
+              <div
+                data-image-position="true"
+                aria-label={`${t('Foto')} ${activeImageIndex + 1} ${t('no')} ${imageCount}`}
+                style={{
+                  position: 'absolute',
+                  left: '10px',
+                  bottom: '10px',
+                  zIndex: 20,
+                  padding: '6px 10px',
+                  borderRadius: '14px',
+                  backgroundColor: 'rgba(0, 0, 0, 0.78)',
+                  color: '#ffffff',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  lineHeight: 1,
+                  boxShadow: '0 1px 4px rgba(0, 0, 0, 0.35)',
+                  pointerEvents: 'none'
+                }}
+              >
+                {activeImageIndex + 1}/{imageCount}
+              </div>
+              
+              {car.price !== null && car.price !== undefined && car.price !== '' && (
+                <div
+                  data-listing-photo-price="true"
+                  aria-label={`${t('Cena')}: ${formatPrice(car.price)}`}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    bottom: '10px',
+                    zIndex: 20,
+                    color: '#111827',
+                    fontSize: '20px',
+                    fontWeight: '800',
+                    lineHeight: 1,
+                    WebkitTextStroke: '1px rgba(255, 255, 255, 0.98)',
+                    paintOrder: 'stroke fill',
+                    textShadow: '-1px -1px 0 rgba(255,255,255,0.9), 1px -1px 0 rgba(255,255,255,0.9), -1px 1px 0 rgba(255,255,255,0.9), 1px 1px 0 rgba(255,255,255,0.9)',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {formatPrice(car.price)}
+                </div>
+              )}
+
             </div>
           )}
 
           {allImages.length > 1 && (
-            <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px' }}>
+            <div data-listing-thumbnails="true" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', paddingBottom: '2px' }}>
               {allImages.map((img, idx) => (
-                <img
+                <DemoPhoto
                   key={idx}
                   src={img}
                   alt=""
@@ -388,26 +1355,155 @@ export default function AutoLapa() {
 
         </div>
 
-        {/* LABĀ MALA: Reklāma */}
-        <div style={{ width: '240px', flexShrink: '0' }}>
-          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '360px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
-            <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Ekskluzīvs baneris šeit!<br/><span style={{ fontSize: '12px' }}>(Maksimāla uzmanība)</span></p>
-          </div>
+        {/* LABĀ MALA: divi vienādi, gari platformā integrēti sponsoru lauki */}
+        <div data-listing-detail-sponsors="true" style={{ gridColumn: '3', gridRow: '1 / span 2', width: '240px', height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {[1, 2].map((placement) => (
+            <AdvertisingSlot as="aside" slot={placement === 1 ? "desktop_1" : "desktop_2"}
+              key={placement}
+              aria-label={t("Sponsora vieta")}
+              style={{ width: '100%', minHeight: 0, flex: '1 1 0', boxSizing: 'border-box', border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}
+            >
+              <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("SPONSORS")}</span>
+              <span>{t("Vieta sadarbības partnerim")}</span>
+            </AdvertisingSlot>
+          ))}
         </div>
 
       </div>
 
       {/* APAKŠĒJĀ DAĻA: APRAKSTS (Optimizēts, nepārsniedz monitora robežas) */}
       {car.description && (
-        <div style={{ backgroundColor: '#f9fafb', padding: '16px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', maxHeight: '280px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#111827', flexShrink: 0 }}>Apraksts</h3>
+        <div data-listing-detail-description="true" style={{ gridColumn: '1 / 3', gridRow: '2', height: '100%', minHeight: 0, backgroundColor: '#f9fafb', padding: '16px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box' }}>
           <div style={{ overflowY: 'auto', flex: 1, paddingRight: '8px' }}>
             <p style={{ color: '#374151', lineHeight: '1.6', fontSize: '14px', whiteSpace: 'pre-line', margin: 0 }}>{car.description}</p>
           </div>
         </div>
       )}
 
-    </div>
+      {isImageViewerOpen && activeImage && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("Foto pilnekrāna skatītājs")}
+          onClick={() => {
+            closeImageViewer()
+          }}
+          style={{ position: 'fixed', inset: 0, zIndex: 10000, backgroundColor: 'rgba(0, 0, 0, 0.94)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}
+        >
+          <div
+            onClick={(event) => event.stopPropagation()}
+            onPointerDown={(event) => {
+              if (event.pointerType !== 'mouse' || event.button !== 0 || imageZoom <= 1 || !window.matchMedia('(min-width: 768px)').matches) return
+              const image = event.target as HTMLElement
+              if (image.tagName !== 'IMG') return
+              event.preventDefault()
+              viewerMousePan.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, panX: imagePan.x, panY: imagePan.y }
+              image.setPointerCapture(event.pointerId)
+            }}
+            onPointerMove={(event) => {
+              const drag = viewerMousePan.current
+              if (!drag || drag.pointerId !== event.pointerId) return
+              event.preventDefault()
+              setImagePan({ x: drag.panX + event.clientX - drag.x, y: drag.panY + event.clientY - drag.y })
+            }}
+            onPointerUp={(event) => {
+              if (!viewerMousePan.current || viewerMousePan.current.pointerId !== event.pointerId) return
+              viewerMousePan.current = null
+              const image = event.target as HTMLElement
+              if (image.hasPointerCapture(event.pointerId)) image.releasePointerCapture(event.pointerId)
+            }}
+            onPointerCancel={() => { viewerMousePan.current = null }}
+            onTouchStart={handleViewerTouchStart}
+            onTouchMove={handleViewerTouchMove}
+            onTouchEnd={handleViewerTouchEnd}
+            onTouchCancel={() => { viewerGesture.current = null; setPhotoSlideOffset(0) }}
+            onWheel={(event) => {
+              event.preventDefault()
+              const rect = event.currentTarget.getBoundingClientRect()
+              setZoomOrigin({
+                x: ((event.clientX - rect.left) / rect.width) * 100,
+                y: ((event.clientY - rect.top) / rect.height) * 100
+              })
+              const nextZoom = Math.min(4, Math.max(1, imageZoom + (event.deltaY < 0 ? 0.25 : -0.25)))
+              if (nextZoom < imageZoom) {
+                const remainingPan = (nextZoom - 1) / Math.max(0.001, imageZoom - 1)
+                setImagePan((current) => ({ x: current.x * remainingPan, y: current.y * remainingPan }))
+              }
+              if (nextZoom === 1) {
+                setImagePan({ x: 0, y: 0 })
+                setZoomOrigin({ x: 50, y: 50 })
+                viewerMousePan.current = null
+              }
+              setImageZoom(nextZoom)
+            }}
+            style={{ position: 'relative', width: '100vw', height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', touchAction: 'none' }}
+          >
+            <div style={{ display: 'flex', width: '100%', height: '100%', transform: `translateX(calc(-100% + ${photoSlideOffset}px))`, transition: photoSlideAnimating ? 'transform 240ms ease-out' : 'none' }}>
+            {photoSlides.map((photo, slideIndex) => (
+            <div key={slideIndex} style={{ flex: '0 0 100%', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+            <DemoPhoto
+              src={photo}
+              aria-hidden={slideIndex !== 1}
+              alt={`${car.make} ${car.model}`}
+              draggable={false}
+              onDoubleClick={(event) => {
+                const rect = event.currentTarget.getBoundingClientRect()
+                setZoomOrigin({
+                  x: ((event.clientX - rect.left) / rect.width) * 100,
+                  y: ((event.clientY - rect.top) / rect.height) * 100
+                })
+                if (imageZoom > 1) {
+                  setImagePan({ x: 0, y: 0 })
+                  setZoomOrigin({ x: 50, y: 50 })
+                  viewerMousePan.current = null
+                }
+                setImageZoom((current) => current === 1 ? 2 : 1)
+              }}
+              style={{ maxWidth: '92vw', maxHeight: '88dvh', objectFit: 'contain', transform: `translate3d(${imagePan.x}px, ${imagePan.y}px, 0) scale(${imageZoom})`, transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`, transition: 'transform 120ms ease-out', cursor: imageZoom > 1 ? 'grab' : 'zoom-in', userSelect: 'none' }}
+            />
+            </div>
+            ))}
+            </div>
+
+            {allImages.length > 1 && ([-1, 1] as const).map((direction) => (
+              <button
+                key={direction}
+                type="button"
+                data-desktop-photo-arrow="true"
+                aria-label={direction === -1 ? t('Iepriekšējais foto') : t('Nākamais foto')}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  if (photoSlideTimer.current) return
+                  setImageZoom(1)
+                  setImagePan({ x: 0, y: 0 })
+                  setZoomOrigin({ x: 50, y: 50 })
+                  const viewer = event.currentTarget.parentElement
+                  if (viewer) finishPhotoSlide(direction === 1 ? -60 : 60, 0, viewer.clientWidth)
+                }}
+                style={{ position: 'absolute', top: '50%', left: direction === -1 ? '18px' : undefined, right: direction === 1 ? '18px' : undefined, transform: 'translateY(-50%)', zIndex: 2, width: '44px', height: '52px', border: '1px solid rgba(255,255,255,0.5)', borderRadius: '8px', background: 'rgba(0,0,0,0.55)', color: '#fff', fontSize: '36px', cursor: 'pointer', display: 'none', alignItems: 'center', justifyContent: 'center' }}
+              >{direction === -1 ? '‹' : '›'}</button>
+            ))}
+
+            <button
+              type="button"
+              aria-label={t("Aizvērt foto")}
+              onClick={() => {
+                closeImageViewer()
+              }}
+              style={{ position: 'absolute', top: '18px', right: '22px', width: '44px', height: '44px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.45)', backgroundColor: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: '28px', lineHeight: 1, cursor: 'pointer' }}
+            >
+              ×
+            </button>
+
+            <div style={{ position: 'absolute', left: '50%', bottom: '20px', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', borderRadius: '24px', backgroundColor: 'rgba(0,0,0,0.68)', color: '#fff' }}>
+              <span style={{ minWidth: '52px', textAlign: 'center', fontSize: '14px' }}>{Math.round(imageZoom * 100)}%</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      </div>
+    </>
   )
 }
+
