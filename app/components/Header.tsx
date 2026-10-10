@@ -1335,7 +1335,7 @@ export default function Header() {
           </div>
 
           {/* Autentifikācija un Pievienot poga */}
-          <nav style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <nav data-mobile-menu-active={mobileMenuOpen ? 'true' : undefined} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {user ? (
               <Link
                 href="/kabinets"
@@ -1360,6 +1360,30 @@ export default function Header() {
             >
               <span aria-hidden="true">☰</span>
             </button>
+            {mobileMenuOpen && !isDesktopHeader && (
+              <div data-mobile-theme-picker="true" role="group" aria-label={t("Ekrāna režīms")}>
+                  <button
+                    type="button"
+                    data-mobile-theme-option="day"
+                    aria-label={t("Dienas režīms")}
+                    aria-pressed={mobileTheme === 'day'}
+                    onClick={() => applyMobileTheme('day')}
+                  >
+                    <span aria-hidden="true">☀️</span>
+                    <span>{t("Diena")}</span>
+                  </button>
+                  <button
+                    type="button"
+                    data-mobile-theme-option="night"
+                    aria-label={t("Nakts režīms")}
+                    aria-pressed={mobileTheme === 'night'}
+                    onClick={() => applyMobileTheme('night')}
+                  >
+                    <span aria-hidden="true">🌙</span>
+                    <span>{t("Nakts")}</span>
+                  </button>
+                </div>
+            )}
             <a
               href="/pievienot"
               data-header-add="true"
@@ -1525,28 +1549,7 @@ export default function Header() {
                     </div>
                   )}
                 </div>
-<div data-mobile-theme-picker="true" role="group" aria-label={t("Ekrāna režīms")}>
-                  <button
-                    type="button"
-                    data-mobile-theme-option="day"
-                    aria-label={t("Dienas režīms")}
-                    aria-pressed={mobileTheme === 'day'}
-                    onClick={() => applyMobileTheme('day')}
-                  >
-                    <span aria-hidden="true">☀️</span>
-                    <span>{t("Diena")}</span>
-                  </button>
-                  <button
-                    type="button"
-                    data-mobile-theme-option="night"
-                    aria-label={t("Nakts režīms")}
-                    aria-pressed={mobileTheme === 'night'}
-                    onClick={() => applyMobileTheme('night')}
-                  >
-                    <span aria-hidden="true">🌙</span>
-                    <span>{t("Nakts")}</span>
-                  </button>
-                </div>
+
               </div>
               <nav aria-label={t("Informācija")}>
                 {['Lietošanas noteikumi', 'Privātuma politika', 'Drošība un krāpniecība', 'Kontakti', 'Tavi ieteikumi'].map((label) => (

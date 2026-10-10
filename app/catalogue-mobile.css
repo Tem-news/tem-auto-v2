@@ -449,16 +449,36 @@
   }
 
   [data-mobile-theme-picker='true'] {
+    position: absolute;
+    top: 0;
+    left: -2px;
+    width: calc((100vw - 26px) * 0.575);
+    height: 34px;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 4px;
   }
 
+  body:has([data-catalogue-page='true']) [data-header-controls='true'] > nav[data-mobile-menu-active='true'] > a:first-child {
+    display: none !important;
+  }
+
   [data-mobile-theme-picker='true'] button {
-    min-height: 36px;
+    min-width: 0;
+    height: 34px;
+    min-height: 34px;
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    gap: 7px;
-    font-weight: 700;
+    gap: 4px;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    background: #1e293b;
+    color: #ffffff;
+    font: 700 12px/1.1 system-ui, sans-serif;
+    overflow-wrap: anywhere;
+    cursor: pointer;
   }
 
   [data-mobile-theme-picker='true'] button[aria-pressed='true'][data-mobile-theme-option='day'] {
@@ -979,6 +999,8 @@
   }
 
   [data-mobile-menu-sponsor='true'] {
+    height: 140px !important;
+    min-height: 140px !important;
     margin: 6px 0 0;
   }
 
