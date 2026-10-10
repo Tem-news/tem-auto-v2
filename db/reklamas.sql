@@ -8,7 +8,7 @@ insert into public.temauto_ad_admins(user_id) select id from auth.users where lo
 create table public.temauto_ads (
  id uuid primary key default gen_random_uuid(),
  title text not null check (char_length(title) between 1 and 120),
- slot text not null check (slot in ('desktop_1','desktop_2','desktop_form_1','desktop_form_2','desktop_login','desktop_form_left_1','desktop_form_left_2','mobile_menu','mobile_list','mobile_brands')),
+ slot text not null check (slot in ('desktop_1','desktop_2','desktop_form_1','desktop_form_2','desktop_login','desktop_form_left_1','desktop_form_left_2','mobile_menu','mobile_list','mobile_brands','mobile_brand_list')),
  media_path text not null check (media_path ~ '^[a-f0-9-]{36}\.(jpg|png|gif|webp|mp4|webm)$'),
  media_type text not null check (media_type in ('image','video')),
  target_url text not null check (target_url = '' or target_url ~ '^https://[^/@[:space:]]+([/?#][^[:space:]]*)?$'),

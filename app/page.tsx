@@ -2004,8 +2004,8 @@ export default function Sakumlapa() {
                           {car.price ? `${formatNumberWithSpace(car.price)} €` : ''}
                         </div>
                       </a>
-                      {(index + 1) % 5 === 0 && (
-                        <AdvertisingSlot slot="mobile_list" data-mobile-sponsor="true" aria-label={t("Sponsora vieta")}><strong>{t("SPONSORS")}</strong><span>{t("Vieta sadarbības partnerim")}</span></AdvertisingSlot>
+                      {(index + 1) % (searchMake && !showFavorites ? 10 : 5) === 0 && (
+                        <AdvertisingSlot slot={searchMake && !showFavorites ? "mobile_brand_list" : "mobile_list"} data-mobile-sponsor="true" data-brand-list-sponsor={searchMake && !showFavorites ? "true" : undefined} aria-label={t("Sponsora vieta")}><strong>{t("SPONSORS")}</strong><span>{t("Vieta sadarbības partnerim")}</span></AdvertisingSlot>
                       )}
                       </Fragment>
                     )

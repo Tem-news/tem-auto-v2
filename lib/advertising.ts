@@ -11,6 +11,7 @@ export const AD_SLOTS = {
   mobile_menu: 'Mobilā versija — Menu',
   mobile_list: 'Mobilā versija — sludinājumu saraksts',
   mobile_brands: 'Mobilā versija — marku izvēle',
+  mobile_brand_list: 'Mobilā versija — marku izvēle — markas',
 } as const
 export type AdSlot = keyof typeof AD_SLOTS
 export type Advertisement = {
