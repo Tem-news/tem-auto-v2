@@ -1850,8 +1850,8 @@ export default function Sakumlapa() {
                         </div>
                       </div>
                     </a>
-                    {(index + 1) % 5 === 0 && (
-                      <AdvertisingSlot slot="mobile_list" data-mobile-sponsor="true" aria-label={t("Sponsora vieta")}><strong>{t("SPONSORS")}</strong><span>{t("Vieta sadarbības partnerim")}</span></AdvertisingSlot>
+                    {(index + 1) % 6 === 0 && (
+                      <AdvertisingSlot slot="mobile_list" data-mobile-sponsor="true" data-main-list-sponsor="true" aria-label={t("Sponsora vieta")}><strong>{t("SPONSORS")}</strong><span>{t("Vieta sadarbības partnerim")}</span></AdvertisingSlot>
                     )}
                     </Fragment>
                   )

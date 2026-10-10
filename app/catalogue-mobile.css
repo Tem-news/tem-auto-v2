@@ -972,6 +972,12 @@
     font-size: 12px;
   }
 
+  [data-listings-grid='true'] > [data-main-list-sponsor='true'] {
+    height: 140px !important;
+    min-height: 140px !important;
+    margin: -6px 0 0;
+  }
+
   [data-mobile-menu-sponsor='true'] {
     margin: 6px 0 0;
   }
