@@ -110,6 +110,7 @@ export default function AdvertisingAdmin() {
   const fileInput = useRef<HTMLInputElement>(null)
   const [mobileCountries, setMobileCountries] = useState(false)
   const [countryPickerVersion, setCountryPickerVersion] = useState(0)
+  const [adMarket, setAdMarket] = useState('')
   useEffect(() => {
     const query = window.matchMedia('(max-width: 767px)')
     const sync = () => setMobileCountries(query.matches)
@@ -200,6 +201,16 @@ export default function AdvertisingAdmin() {
   }
   if (access === 'loading') return <main style={{ padding: 24 }}>Pārbauda piekļuvi…</main>
   if (access === 'denied') return <main style={{ padding: 24 }}><h1>Reklāmu pārvaldība</h1><p>Šī sadaļa pieejama tikai TemAuto īpašnieka kontam.</p><Link href="/login">Pieslēgties</Link></main>
+  const displayedAds = ads.filter(ad => !adMarket || (adMarket === '*' ? ad.country_codes == null : ad.country_codes == null || ad.country_codes.includes(adMarket)))
+  const adGroups = [
+    { prefix: 'desktop_', title: 'Monitora versija' },
+    { prefix: 'mobile_', title: 'Mobilā versija' },
+  ].map(group => ({
+    ...group,
+    placements: Object.entries(AD_SLOTS).filter(([slot]) => slot.startsWith(group.prefix)).map(([slot, title]) => ({
+      slot, title, ads: displayedAds.filter(ad => ad.slot === slot),
+    })).filter(placement => placement.ads.length > 0),
+  })).filter(group => group.placements.length > 0)
   const video = file ? file.type.startsWith('video/') : editing?.media_type === 'video'
   return <main data-ad-admin="true" style={{ maxWidth: 960, margin: '0 auto', padding: '24px 16px 56px' }}>
     <style>{`
@@ -214,6 +225,12 @@ export default function AdvertisingAdmin() {
       [data-ad-admin] [data-ad-countries] {min-width:0;margin:16px 0;padding:12px;border:1px solid #94a3b8;border-radius:6px}
       [data-ad-admin] [data-ad-country-options] {position:absolute;top:100%;left:0;right:0;z-index:20;max-height:260px;overflow-y:auto;overscroll-behavior:contain;background:#fff;color:#0f172a;border:1px solid #94a3b8;border-radius:6px;box-shadow:0 6px 16px #0003;touch-action:pan-y}
       @media(max-width:767px){[data-ad-admin] [data-ad-desktop-countries]{display:none}html[data-temauto-theme=night] [data-ad-admin] [data-ad-country-options]{background:#0f172a;color:#f1f5f9}}
+      [data-ad-admin] [data-ad-device-group] {margin:12px 0;border:1px solid #94a3b8;border-radius:8px}
+      [data-ad-admin] [data-ad-device-group] > summary {padding:12px;font-weight:700;cursor:pointer}
+      [data-ad-admin] [data-ad-placement-group] {margin:8px 12px;border-top:1px solid #94a3b8;padding-top:8px}
+      [data-ad-admin] [data-ad-placement-group] > summary {padding:6px 0;font-weight:600;cursor:pointer;overflow-wrap:anywhere}
+      [data-ad-admin] [data-ad-placement-group] article {overflow-wrap:anywhere}
+      [data-ad-admin] [data-ad-targets] > summary {cursor:pointer;margin:12px 0}
       [data-ad-admin] button:disabled {opacity:.5;cursor:wait}
       html[data-temauto-theme=night] [data-ad-admin] {color:#f1f5f9;background:#020617}
       html[data-temauto-theme=night] [data-ad-admin] form,html[data-temauto-theme=night] [data-ad-admin] article {background:#0f172a}
@@ -241,12 +258,28 @@ export default function AdvertisingAdmin() {
       {editing && <button type="button" disabled={busy} onClick={reset}>Atcelt rediģēšanu</button>}
     </form>
     <h2>Tavas reklāmas ({ads.length})</h2>
-    {ads.map(ad => <article key={ad.id}>
+    <label>Atlasīt pēc valsts<select value={adMarket} onChange={event => setAdMarket(event.target.value)}>
+      <option value="">Visi tirgi</option>
+      <option value="*">Reklāmas visām valstīm</option>
+      {COUNTRIES.map(country => <option key={country.code} value={country.code}>{country.name}</option>)}
+    </select></label>
+    {adMarket && <p>Rādītas {displayedAds.length} no {ads.length} reklāmām.</p>}
+    {adGroups.map(group => <details key={group.prefix} data-ad-device-group="true" open>
+      <summary>{group.title} ({group.placements.reduce((total, placement) => total + placement.ads.length, 0)})</summary>
+      {group.placements.map(placement => <details key={placement.slot} data-ad-placement-group="true">
+        <summary>{placement.title} ({placement.ads.length})</summary>
+          {placement.ads.map(ad => <article key={ad.id}>
       <h3>{ad.title}</h3><p>{AD_SLOTS[ad.slot]} · {ad.active ? 'Ieslēgta' : 'Apturēta'}</p>
       <p>{ad.starts_at ? new Date(ad.starts_at).toLocaleString('lv-LV') : 'Bez sākuma ierobežojuma'} → {ad.ends_at ? new Date(ad.ends_at).toLocaleString('lv-LV') : 'Bez beigu ierobežojuma'}</p>
-      <p>Valstis: {ad.country_codes == null ? 'Visas valstis' : COUNTRIES.filter(country => ad.country_codes?.includes(country.code)).map(country => country.name).join(', ')}</p>
+      {ad.country_codes && ad.country_codes.length > 3 ? <details data-ad-targets="true">
+        <summary>Valstis: {ad.country_codes.length}</summary>
+        <p>{COUNTRIES.filter(country => ad.country_codes?.includes(country.code)).map(country => country.name).join(', ')}</p>
+      </details> : <p>Valstis: {ad.country_codes == null ? 'Visas valstis' : COUNTRIES.filter(country => ad.country_codes?.includes(country.code)).map(country => country.name).join(', ')}</p>}
       <a href={safeAdLink(ad.target_url) || undefined} target="_blank" rel="noopener noreferrer">{ad.target_url}</a>
       <div><button disabled={busy} onClick={() => edit(ad)}>Rediģēt</button><button disabled={busy} onClick={() => change(ad)}>{ad.active ? 'Apturēt' : 'Aktivizēt'}</button><button disabled={busy} onClick={() => change(ad, true)}>Dzēst</button></div>
     </article>)}
+      </details>)}
+    </details>)}
+    {displayedAds.length === 0 && <p>{ads.length ? 'Šai valstij reklāmu nav.' : 'Vēl nav pievienotu reklāmu.'}</p>}
   </main>
 }
