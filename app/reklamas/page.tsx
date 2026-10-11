@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { COUNTRIES } from '../../lib/countries'
 import { supabase } from '../../lib/supabase'
@@ -9,7 +9,8 @@ const empty = { title: '', slot: 'desktop_1' as AdSlot, target_url: '', active: 
 const types: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp', 'video/mp4': 'mp4', 'video/webm': 'webm' }
 const localDate = (value: string | null) => value ? new Date(new Date(value).getTime() - new Date(value).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''
 
-function MobileAdvertisingCountries({ codes, onChange }: { codes: string[] | null; onChange: (codes: string[] | null) => void }) {
+function MobileAdvertisingCountries({ codes, onChange, title = 'Valstis, kurās rādīt reklāmu' }: { codes: string[] | null; onChange: (codes: string[] | null) => void; title?: string }) {
+  const optionsId = useId()
   const [phase, setPhase] = useState<0 | 1 | 2>(0)
   const [search, setSearch] = useState('')
   const input = useRef<HTMLInputElement>(null)
@@ -36,14 +37,14 @@ function MobileAdvertisingCountries({ codes, onChange }: { codes: string[] | nul
     }
   }
   return <fieldset data-ad-countries="true" data-mobile-ad-countries="true">
-    <legend>Valstis, kurās rādīt reklāmu</legend>
+    <legend>{title}</legend>
     <div style={{ position: 'relative' }}>
-      <label>Meklēt valsti<input ref={input} type="search" value={search} readOnly={phase !== 2} aria-expanded={phase > 0} aria-controls="mobile-ad-country-options"
+      <label>Meklēt valsti<input ref={input} type="search" value={search} readOnly={phase !== 2} aria-expanded={phase > 0} aria-controls={optionsId}
         placeholder="Valsts nosaukums…" style={{ scrollMarginTop: 70 }}
         onPointerDown={event => { event.preventDefault(); event.stopPropagation() }}
         onClick={event => { event.preventDefault(); event.stopPropagation(); tap() }}
         onChange={event => setSearch(event.target.value)} /></label>
-      {phase > 0 && <div id="mobile-ad-country-options" data-ad-country-options="true">
+      {phase > 0 && <div id={optionsId} data-ad-country-options="true">
         <label data-ad-country="true"><input type="checkbox" checked={codes === null} onChange={event => onChange(event.target.checked ? null : [])} /><span>Visas valstis</span></label>
         {COUNTRIES.filter(country => country.name.toLocaleLowerCase('lv').includes(search.trim().toLocaleLowerCase('lv'))).map(country => <label key={country.code} data-ad-country="true">
           <input type="checkbox" checked={codes === null || codes.includes(country.code)} onChange={event => {
@@ -58,7 +59,8 @@ function MobileAdvertisingCountries({ codes, onChange }: { codes: string[] | nul
   </fieldset>
 }
 
-function DesktopAdvertisingCountries({ codes, onChange }: { codes: string[] | null; onChange: (codes: string[] | null) => void }) {
+function DesktopAdvertisingCountries({ codes, onChange, title = 'Valstis, kurās rādīt reklāmu' }: { codes: string[] | null; onChange: (codes: string[] | null) => void; title?: string }) {
+  const optionsId = useId()
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const openBeforePointer = useRef(false)
@@ -72,9 +74,9 @@ function DesktopAdvertisingCountries({ codes, onChange }: { codes: string[] | nu
     return () => document.removeEventListener('pointerdown', closeOutside)
   }, [open])
   return <fieldset ref={container} data-ad-countries="true" data-ad-desktop-countries="true">
-    <legend>Valstis, kurās rādīt reklāmu</legend>
+    <legend>{title}</legend>
     <div style={{ position: 'relative' }}>
-      <label>Meklēt valsti<input type="search" value={search} aria-expanded={open} aria-controls="desktop-ad-country-options" placeholder="Valsts nosaukums…"
+      <label>Meklēt valsti<input type="search" value={search} aria-expanded={open} aria-controls={optionsId} placeholder="Valsts nosaukums…"
         onPointerDown={() => { openBeforePointer.current = open }}
         onFocus={() => setOpen(true)} onClick={event => {
           const next = event.detail === 0 ? !open : !openBeforePointer.current
@@ -82,7 +84,7 @@ function DesktopAdvertisingCountries({ codes, onChange }: { codes: string[] | nu
           if (!next) event.currentTarget.blur()
         }} onChange={event => { setSearch(event.target.value); setOpen(true) }}
         onKeyDown={event => { if (event.key === 'Escape') { setOpen(false); event.currentTarget.blur() } }} /></label>
-      {open && <div id="desktop-ad-country-options" data-ad-country-options="true">
+      {open && <div id={optionsId} data-ad-country-options="true">
         <label data-ad-country="true"><input type="checkbox" checked={codes === null} onChange={event => onChange(event.target.checked ? null : [])} /><span>Visas valstis</span></label>
         {COUNTRIES.filter(country => country.name.toLocaleLowerCase('lv').includes(search.trim().toLocaleLowerCase('lv'))).map(country => <label key={country.code} data-ad-country="true">
           <input type="checkbox" checked={codes === null || codes.includes(country.code)} onChange={event => {
@@ -110,7 +112,7 @@ export default function AdvertisingAdmin() {
   const fileInput = useRef<HTMLInputElement>(null)
   const [mobileCountries, setMobileCountries] = useState(false)
   const [countryPickerVersion, setCountryPickerVersion] = useState(0)
-  const [adMarket, setAdMarket] = useState('')
+  const [adMarkets, setAdMarkets] = useState<string[] | null>(null)
   useEffect(() => {
     const query = window.matchMedia('(max-width: 767px)')
     const sync = () => setMobileCountries(query.matches)
@@ -201,7 +203,7 @@ export default function AdvertisingAdmin() {
   }
   if (access === 'loading') return <main style={{ padding: 24 }}>Pārbauda piekļuvi…</main>
   if (access === 'denied') return <main style={{ padding: 24 }}><h1>Reklāmu pārvaldība</h1><p>Šī sadaļa pieejama tikai TemAuto īpašnieka kontam.</p><Link href="/login">Pieslēgties</Link></main>
-  const displayedAds = ads.filter(ad => !adMarket || (adMarket === '*' ? ad.country_codes == null : ad.country_codes == null || ad.country_codes.includes(adMarket)))
+  const displayedAds = ads.filter(ad => adMarkets === null || (adMarkets.length > 0 && (ad.country_codes == null || ad.country_codes.some(code => adMarkets.includes(code)))))
   const adGroups = [
     { prefix: 'desktop_', title: 'Monitora versija' },
     { prefix: 'mobile_', title: 'Mobilā versija' },
@@ -258,12 +260,10 @@ export default function AdvertisingAdmin() {
       {editing && <button type="button" disabled={busy} onClick={reset}>Atcelt rediģēšanu</button>}
     </form>
     <h2>Tavas reklāmas ({ads.length})</h2>
-    <label>Atlasīt pēc valsts<select value={adMarket} onChange={event => setAdMarket(event.target.value)}>
-      <option value="">Visi tirgi</option>
-      <option value="*">Reklāmas visām valstīm</option>
-      {COUNTRIES.map(country => <option key={country.code} value={country.code}>{country.name}</option>)}
-    </select></label>
-    {adMarket && <p>Rādītas {displayedAds.length} no {ads.length} reklāmām.</p>}
+    {mobileCountries
+      ? <MobileAdvertisingCountries title="Atlasīt pēc valsts" codes={adMarkets} onChange={setAdMarkets} />
+      : <DesktopAdvertisingCountries title="Atlasīt pēc valsts" codes={adMarkets} onChange={setAdMarkets} />}
+    {adMarkets !== null && <p>Rādītas {displayedAds.length} no {ads.length} reklāmām.</p>}
     {adGroups.map(group => <details key={group.prefix} data-ad-device-group="true" open>
       <summary>{group.title} ({group.placements.reduce((total, placement) => total + placement.ads.length, 0)})</summary>
       {group.placements.map(placement => <details key={placement.slot} data-ad-placement-group="true">
@@ -280,6 +280,6 @@ export default function AdvertisingAdmin() {
     </article>)}
       </details>)}
     </details>)}
-    {displayedAds.length === 0 && <p>{ads.length ? 'Šai valstij reklāmu nav.' : 'Vēl nav pievienotu reklāmu.'}</p>}
+    {displayedAds.length === 0 && <p>{ads.length ? 'Izvēlētajām valstīm reklāmu nav.' : 'Vēl nav pievienotu reklāmu.'}</p>}
   </main>
 }
