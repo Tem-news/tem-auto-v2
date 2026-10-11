@@ -6,6 +6,7 @@ const sections = [
   {
     title: 'Drošs darījums sākas ar pārbaudi',
     paragraphs: [
+      "TemAuto nodrošina pircēju un pārdevēju satikšanos un saziņu, bet nav viņu darījuma puse. Par informācijas pārbaudi, savstarpējām norunām, maksājumiem un transportlīdzekļa nodošanu atbild paši pircējs un pārdevējs. TemAuto negarantē sludinājuma patiesumu, transportlīdzekļa stāvokli vai darījuma izpildi. Tas neierobežo lietotāju likumā noteiktās tiesības un neizslēdz TemAuto atbildību, ja to paredz likums.",
       'TemAuto palīdz pircējiem un pārdevējiem atrast vienam otru, bet nav transportlīdzekļa pārdevējs, maksājumu starpnieks vai darījuma garantētājs. Par automašīnas pārbaudi, samaksu un īpašuma tiesību maiņu vienojas pircējs un pārdevējs.',
       'Nesteidzies. Krāpnieki bieži rada steidzamības sajūtu, piedāvā neticami zemu cenu vai apgalvo, ka ir vēl vairāki pircēji. Ja piedāvājums šķiet pārāk labs, lai būtu patiess, pārbaudi to īpaši rūpīgi.'
     ]

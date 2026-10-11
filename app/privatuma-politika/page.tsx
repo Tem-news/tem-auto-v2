@@ -53,6 +53,7 @@ const sections = [
   {
     title: '6. Publiski redzamā informācija',
     paragraphs: [
+      "TemAuto atbild par personas datu apstrādi platformā atbilstoši piemērojamiem tiesību aktiem. Par datiem, kurus pircējs un pārdevējs nodod viens otram ārpus platformas, un to turpmāku izmantošanu atbild attiecīgais datu saņēmējs atbilstoši piemērojamiem tiesību aktiem. Šis skaidrojums neizslēdz TemAuto likumā noteiktos pienākumus.",
       'Sludinājuma saturs un attēli ir paredzēti publiskai apskatei. Sludinājumā norādītā kontaktinformācija un VIN var tikt sākotnēji daļēji aizsegti, tomēr lietotājs tos var atvērt, lai sazinātos ar pārdevēju vai pārbaudītu transportlīdzekli.',
       'Pirms sludinājuma publicēšanas pārliecinies, ka tajā nav dokumentu, sejas attēlu, numuru zīmju vai citas informācijas, kuru nevēlies publiskot. Publiski pieejamu informāciju var saglabāt vai pārpublicēt trešās personas ārpus TemAuto kontroles.'
     ]

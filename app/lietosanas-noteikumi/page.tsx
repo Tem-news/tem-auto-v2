@@ -44,6 +44,7 @@ const sections = [
   {
     title: '5. Darījumi un drošība',
     paragraphs: [
+      "TemAuto nodrošina pircēju un pārdevēju satikšanos un saziņu, bet nav viņu darījuma puse. Par informācijas pārbaudi, savstarpējām norunām, maksājumiem un transportlīdzekļa nodošanu atbild paši pircējs un pārdevējs. TemAuto negarantē sludinājuma patiesumu, transportlīdzekļa stāvokli vai darījuma izpildi. Tas neierobežo lietotāju likumā noteiktās tiesības un neizslēdz TemAuto atbildību, ja to paredz likums.",
       'Pircējs un pārdevējs par pirkumu, cenu, samaksu, transportlīdzekļa pārbaudi, piegādi, īpašuma tiesību pāreju, nodokļiem un citiem darījuma nosacījumiem vienojas patstāvīgi. TemAuto neglabā darījuma naudu un negarantē neviena lietotāja identitāti, maksātspēju, transportlīdzekļa stāvokli, izcelsmi vai atbilstību aprakstam.',
       'Pirms darījuma iesakām klātienē apskatīt transportlīdzekli, pārbaudīt tā identifikācijas numuru un dokumentus, īpašuma tiesības, nobraukuma un negadījumu vēsturi, kā arī veikt neatkarīgu tehnisko pārbaudi. Nesūti avansa maksājumu personai, kuras identitāti un piedāvājumu neesi droši pārbaudījis.',
       'Ja pārdevējs darbojas savas saimnieciskās vai profesionālās darbības ietvaros, viņam ir pienākums ievērot attiecīgās patērētāju tiesību un komercprakses prasības. Privātpersonu savstarpējam darījumam patērētāju aizsardzības noteikumi var nebūt piemērojami.'
