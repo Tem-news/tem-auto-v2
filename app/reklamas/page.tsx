@@ -112,7 +112,7 @@ export default function AdvertisingAdmin() {
   const fileInput = useRef<HTMLInputElement>(null)
   const [mobileCountries, setMobileCountries] = useState(false)
   const [countryPickerVersion, setCountryPickerVersion] = useState(0)
-  const [adMarkets, setAdMarkets] = useState<string[] | null>(null)
+  const [adMarkets, setAdMarkets] = useState<string[] | null>([])
   useEffect(() => {
     const query = window.matchMedia('(max-width: 767px)')
     const sync = () => setMobileCountries(query.matches)
@@ -203,7 +203,7 @@ export default function AdvertisingAdmin() {
   }
   if (access === 'loading') return <main style={{ padding: 24 }}>Pārbauda piekļuvi…</main>
   if (access === 'denied') return <main style={{ padding: 24 }}><h1>Reklāmu pārvaldība</h1><p>Šī sadaļa pieejama tikai TemAuto īpašnieka kontam.</p><Link href="/login">Pieslēgties</Link></main>
-  const displayedAds = ads.filter(ad => adMarkets === null || (adMarkets.length > 0 && (ad.country_codes == null || ad.country_codes.some(code => adMarkets.includes(code)))))
+  const displayedAds = ads.filter(ad => adMarkets === null || adMarkets.length === 0 || ad.country_codes == null || ad.country_codes.some(code => adMarkets.includes(code)))
   const adGroups = [
     { prefix: 'desktop_', title: 'Monitora versija' },
     { prefix: 'mobile_', title: 'Mobilā versija' },
@@ -263,7 +263,7 @@ export default function AdvertisingAdmin() {
     {mobileCountries
       ? <MobileAdvertisingCountries title="Atlasīt pēc valsts" codes={adMarkets} onChange={setAdMarkets} />
       : <DesktopAdvertisingCountries title="Atlasīt pēc valsts" codes={adMarkets} onChange={setAdMarkets} />}
-    {adMarkets !== null && <p>Rādītas {displayedAds.length} no {ads.length} reklāmām.</p>}
+    {adMarkets !== null && adMarkets.length > 0 && <p>Rādītas {displayedAds.length} no {ads.length} reklāmām.</p>}
     {adGroups.map(group => <details key={group.prefix} data-ad-device-group="true" open>
       <summary>{group.title} ({group.placements.reduce((total, placement) => total + placement.ads.length, 0)})</summary>
       {group.placements.map(placement => <details key={placement.slot} data-ad-placement-group="true">
