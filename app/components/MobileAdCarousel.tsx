@@ -26,6 +26,19 @@ export default function MobileAdCarousel({ children }: { children: ReactNode }) 
     const timer = window.setTimeout(() => { setMotion(null); animating.current = false }, duration)
     return () => window.clearTimeout(timer)
   }, [motion])
+  useEffect(() => {
+    if (page !== 1 || informationOpen || !window.matchMedia('(max-width: 767px)').matches) return
+    const initialY = window.scrollY
+    const resetOnScroll = () => {
+      if (Math.abs(window.scrollY - initialY) < 8) return
+      setPage(0)
+      setMotion(null)
+      animating.current = false
+      gesture.current = null
+    }
+    window.addEventListener('scroll', resetOnScroll, { passive: true })
+    return () => window.removeEventListener('scroll', resetOnScroll)
+  }, [page, informationOpen])
   const paneStyle = (index: number) => ({
     transform: page === index ? 'translateX(0)' : 'translateX(100%)',
     visibility: (page === index || motion ? 'visible' : 'hidden') as 'visible' | 'hidden',
