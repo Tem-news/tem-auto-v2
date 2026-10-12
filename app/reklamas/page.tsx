@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import Link from 'next/link'
+import { cleanupAdFiles, queueFailedAdUpload } from '../../lib/adFileCleanup'
 import { COUNTRIES } from '../../lib/countries'
 import { supabase } from '../../lib/supabase'
 import { AD_BUCKET, AD_SLOTS, invalidateAds, isAdvertisingAdmin, mediaUrl, safeAdLink, type Advertisement, type AdSlot } from '../../lib/advertising'
@@ -113,6 +114,14 @@ export default function AdvertisingAdmin() {
   const [mobileCountries, setMobileCountries] = useState(false)
   const [countryPickerVersion, setCountryPickerVersion] = useState(0)
   const [adMarkets, setAdMarkets] = useState<string[] | null>([])
+  const [pendingFiles, setPendingFiles] = useState(false)
+  const cleanFiles = async () => {
+    try {
+      const remaining = await cleanupAdFiles()
+      setPendingFiles(remaining > 0)
+      return remaining === 0
+    } catch { setPendingFiles(true); return false }
+  }
   useEffect(() => {
     const query = window.matchMedia('(max-width: 767px)')
     const sync = () => setMobileCountries(query.matches)
@@ -131,7 +140,7 @@ export default function AdvertisingAdmin() {
       const allowed = await isAdvertisingAdmin()
       if (!alive) return
       setAccess(allowed ? 'allowed' : 'denied')
-      if (allowed) { try { await refresh() } catch { setMessage('Neizdevās ielādēt reklāmas. Mēģini vēlreiz.') } }
+      if (allowed) { await cleanFiles(); try { await refresh() } catch { setMessage('Neizdevās ielādēt reklāmas. Mēģini vēlreiz.') } }
     }
     void verify()
     const { data: { subscription } } = supabase.auth.onAuthStateChange(() => { window.setTimeout(() => { void verify() }, 0) })
@@ -182,10 +191,13 @@ export default function AdvertisingAdmin() {
         : await supabase.from('temauto_ads').insert(record).select('id').single()
       if (result.error) throw result.error
       uploaded = null
-      if (editing && file) await supabase.storage.from(AD_BUCKET).remove([editing.media_path])
-      invalidateAds(); reset(); await refresh(); setMessage('Reklāma saglabāta.')
+      const cleaned = await cleanFiles()
+      invalidateAds(); reset(); await refresh(); setMessage(cleaned ? 'Reklāma saglabāta.' : 'Reklāma saglabāta. Vecā faila dzēšana vēl nav pabeigta; mēģināsim atkārtoti.')
     } catch (error) {
-      if (uploaded) await supabase.storage.from(AD_BUCKET).remove([uploaded])
+      if (uploaded) {
+        try { await queueFailedAdUpload(uploaded); await cleanFiles() }
+        catch { setPendingFiles(true); setMessage('Neizdevās saglabāt reklāmu vai ieplānot augšupielādētā faila dzēšanu. Mēģini vēlreiz.'); return }
+      }
       setMessage(error instanceof Error ? error.message : 'Neizdevās saglabāt reklāmu. Pārbaudi pieslēgšanos un mēģini vēlreiz.')
     } finally { setBusy(false) }
   }
@@ -196,8 +208,9 @@ export default function AdvertisingAdmin() {
       const result = remove ? await supabase.from('temauto_ads').delete().eq('id', ad.id).select('id').single()
         : await supabase.from('temauto_ads').update({ active: !ad.active }).eq('id', ad.id).select('id').single()
       if (result.error) throw result.error
-      if (remove) { await supabase.storage.from(AD_BUCKET).remove([ad.media_path]); if (editing?.id === ad.id) reset() }
-      invalidateAds(); await refresh(); setMessage(remove ? 'Reklāma dzēsta.' : 'Reklāmas statuss mainīts.')
+      if (remove && editing?.id === ad.id) reset()
+      const cleaned = remove ? await cleanFiles() : true
+      invalidateAds(); await refresh(); setMessage(remove ? (cleaned ? 'Reklāma dzēsta.' : 'Reklāma dzēsta. Faila dzēšana vēl nav pabeigta; mēģināsim atkārtoti.') : 'Reklāmas statuss mainīts.')
     } catch { setMessage('Darbība neizdevās. Pārbaudi pieslēgšanos un mēģini vēlreiz.') }
     finally { setBusy(false) }
   }
@@ -243,6 +256,7 @@ export default function AdvertisingAdmin() {
     <h1>Reklāmu pārvaldība</h1>
     <p>Pieeja tikai Tavam kontam. Pievieno reklāmu un izvēlies esošo banera vietu.</p>
     <p role="status" aria-live="polite">{message}</p>
+    {pendingFiles && <p role="status">Iepriekšējo reklāmas failu dzēšana vēl nav pabeigta. <button type="button" disabled={busy} onClick={async () => { setBusy(true); try { setMessage(await cleanFiles() ? 'Vecie reklāmas faili izdzēsti.' : 'Dzēšana vēl nav pabeigta. Mēģini vēlreiz vēlāk.') } finally { setBusy(false) } }}>Atkārtot failu dzēšanu</button></p>}
     <form onSubmit={save}>
       <h2>{editing ? 'Rediģēt reklāmu' : 'Pievienot reklāmu'}</h2>
       <label>Reklāmas nosaukums<input required maxLength={120} value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></label>
