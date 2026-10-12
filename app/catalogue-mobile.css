@@ -804,7 +804,7 @@
     box-sizing: border-box !important;
   }
 
-  [data-makes-panel='true'] > div > button:first-child {
+  [data-makes-panel='true'] > div:not([data-mobile-sponsor='true']) > button:first-child {
     display: none !important;
   }
 
