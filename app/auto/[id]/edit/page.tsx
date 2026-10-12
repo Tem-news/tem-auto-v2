@@ -8,6 +8,7 @@ import { COUNTRIES } from '../../../../lib/countries'
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '../../../../lib/supabase'
+import { cleanupCarPhotos } from '../../../../lib/carFileCleanup'
 
 const formatPriceInput = (value: string) => {
   const digits = value.replace(/\D/g, '')
@@ -689,6 +690,7 @@ export default function RedigetAuto() {
       return
     }
 
+    await cleanupCarPhotos()
     hasUnsavedChangesRef.current = false
     allowNavigationRef.current = true
     router.push(`/auto/${id}`)
@@ -710,6 +712,7 @@ export default function RedigetAuto() {
     if (error) {
       alert(t('Kļūda dzēšot sludinājumu: ') + error.message)
     } else {
+      await cleanupCarPhotos()
       hasUnsavedChangesRef.current = false
       allowNavigationRef.current = true
       alert(t('Sludinājums veiksmīgi izdzēsts!'))

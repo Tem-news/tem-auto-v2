@@ -10,6 +10,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
+import { cleanupCarPhotos } from '../../lib/carFileCleanup'
 
 const formatPrice = (price: unknown) => {
   if (price === null || price === undefined || price === '') return '–'
@@ -170,6 +171,7 @@ export default function KabinetsPage() {
       }
 
       setUser(session.user)
+      void cleanupCarPhotos()
 
       const { data, error } = await supabase
         .from('cars')
