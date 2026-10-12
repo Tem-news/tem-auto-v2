@@ -52,7 +52,16 @@ Deno.serve(async request => {
     let userId: string | null = null
     const auth = request.headers.get('authorization') || ''
     const token = auth.replace(/^Bearer\s+/i, '')
-    if (token && token !== Deno.env.get('SUPABASE_ANON_KEY')) {
+    // The gateway verifies the JWT signature before this handler runs.
+    // Published legacy anon keys can differ from the current environment key.
+    let anonymous = token === Deno.env.get('SUPABASE_ANON_KEY')
+    if (token && !anonymous) {
+      try {
+        const claims = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
+        anonymous = claims.role === 'anon'
+      } catch { return reply(401, { ok: false }) }
+    }
+    if (token && !anonymous) {
       const response = await fetch(url + '/auth/v1/user', { headers: { apikey: key, Authorization: auth } })
       if (!response.ok) return reply(401, { ok: false })
       const user = await response.json()
