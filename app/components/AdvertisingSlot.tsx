@@ -47,8 +47,8 @@ export default function AdvertisingSlot({ slot, as: Tag = 'div', children, style
           if (!element) return
           if (paused || expanded || window.matchMedia('(prefers-reduced-motion: reduce)').matches) element.pause()
           else void element.play().catch(() => {})
-        }} src={mediaUrl(ad.media_path)} muted playsInline loop preload="metadata" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-          : <img src={mediaUrl(ad.media_path)} alt={ad.title} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />) : null
+        }} src={mediaUrl(ad.media_path)} muted playsInline loop preload="metadata" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
+          : <img src={mediaUrl(ad.media_path)} alt={ad.title} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }} />) : null
   return <Tag {...attributes} style={{ ...style, ...(ad ? { position: 'relative', overflow: 'hidden', ...(mobile ? { height: 100, minHeight: 100 } : {}) } : {}) }}>
     {ad ? <>
       {href ? <a href={href} target="_blank" rel="noopener noreferrer sponsored" aria-label={ad.title}
