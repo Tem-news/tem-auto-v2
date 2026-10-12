@@ -6,6 +6,8 @@ import { useI18n } from '../../lib/i18n'
 export default function MobileAdCarousel({ children }: { children: ReactNode }) {
   const { t } = useI18n()
   const [page, setPage] = useState(0)
+  const [motion, setMotion] = useState<{ from: number; direction: 'left' | 'right' } | null>(null)
+  const animating = useRef(false)
   const [informationOpen, setInformationOpen] = useState(false)
   const dialog = useRef<HTMLDialogElement>(null)
   const gesture = useRef<{ x: number; y: number; id: number } | null>(null)
@@ -18,12 +20,23 @@ export default function MobileAdCarousel({ children }: { children: ReactNode }) 
     dialog.current?.showModal()
     return () => { document.body.style.overflow = previous }
   }, [informationOpen])
+  useEffect(() => {
+    if (!motion) return
+    const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 240
+    const timer = window.setTimeout(() => { setMotion(null); animating.current = false }, duration)
+    return () => window.clearTimeout(timer)
+  }, [motion])
+  const paneStyle = (index: number) => ({
+    transform: page === index ? 'translateX(0)' : 'translateX(100%)',
+    visibility: (page === index || motion ? 'visible' : 'hidden') as 'visible' | 'hidden',
+    animation: motion ? `mobileAd${index === motion.from ? 'Out' : 'In'}${motion.direction === 'left' ? 'Left' : 'Right'} 220ms ease both` : undefined,
+  })
   return <>
     <div data-mobile-ad-carousel="true"
       onTouchStart={event => { if (window.matchMedia('(max-width: 767px)').matches) event.stopPropagation() }}
       onTouchMove={event => { if (window.matchMedia('(max-width: 767px)').matches) event.stopPropagation() }}
       onPointerDown={event => {
-        if (event.pointerType !== 'touch' || !window.matchMedia('(max-width: 767px)').matches) return
+        if (animating.current || event.pointerType !== 'touch' || !window.matchMedia('(max-width: 767px)').matches) return
         event.stopPropagation()
         blockClick.current = false
         gesture.current = { x: event.clientX, y: event.clientY, id: event.pointerId }
@@ -47,6 +60,8 @@ export default function MobileAdCarousel({ children }: { children: ReactNode }) 
           event.preventDefault()
           event.stopPropagation()
           blockClick.current = true
+          animating.current = true
+          setMotion({ from: page, direction: event.clientX < start.x ? 'left' : 'right' })
           setPage(value => 1 - value)
         }
       }}
@@ -56,20 +71,24 @@ export default function MobileAdCarousel({ children }: { children: ReactNode }) 
       }}
       style={{ position: 'absolute', inset: 0, overflow: 'hidden', touchAction: 'pan-y', borderRadius: 'inherit' }}>
       <style>{`
-        [data-mobile-ad-track="true"] { display:flex; width:200%; height:100%; transition:transform 220ms ease; }
-        [data-mobile-ad-pane="true"] { position:relative; flex:0 0 50%; width:50%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:3px; overflow:hidden; }
+        [data-mobile-ad-track="true"] { position:relative; width:100%; height:100%; }
+        [data-mobile-ad-pane="true"] { position:absolute; inset:0; width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:3px; overflow:hidden; }
         [data-mobile-ad-cta="true"] { width:100%; height:100%; border:0; padding:16px; background:#eff6ff; color:#1e40af; font-family:inherit;font-weight:700;font-size:16px;line-height:1.4; cursor:pointer; }
         html[data-temauto-theme="night"] [data-mobile-ad-cta="true"] { background:#172554; color:#dbeafe; }
-        @media(prefers-reduced-motion:reduce){[data-mobile-ad-track="true"]{transition:none}}
+        @keyframes mobileAdInLeft { from {transform:translateX(100%)} to {transform:translateX(0)} }
+        @keyframes mobileAdOutLeft { from {transform:translateX(0)} to {transform:translateX(-100%)} }
+        @keyframes mobileAdInRight { from {transform:translateX(-100%)} to {transform:translateX(0)} }
+        @keyframes mobileAdOutRight { from {transform:translateX(0)} to {transform:translateX(100%)} }
+        @media(prefers-reduced-motion:reduce){[data-mobile-ad-pane="true"]{animation:none!important}}
         @media(min-width:768px){
           [data-mobile-ad-track="true"]{width:100%;transform:none!important}
-          [data-mobile-ad-pane="true"]{width:100%;flex-basis:100%}
+          [data-mobile-ad-pane="true"]{width:100%;transform:none!important;visibility:visible!important;animation:none!important}
           [data-mobile-ad-pane="true"] + [data-mobile-ad-pane="true"]{display:none}
         }
       `}</style>
-      <div data-mobile-ad-track="true" style={{ transform: `translateX(-${page * 50}%)` }}>
-        <div data-mobile-ad-pane="true" ref={element => { element?.toggleAttribute('inert', page === 1) }} aria-hidden={page === 1 ? true : undefined}>{children}</div>
-        <div data-mobile-ad-pane="true" ref={element => { element?.toggleAttribute('inert', page === 0) }} aria-hidden={page === 0 ? true : undefined}>
+      <div data-mobile-ad-track="true">
+        <div data-mobile-ad-pane="true" style={paneStyle(0)} ref={element => { element?.toggleAttribute('inert', page === 1) }} aria-hidden={page === 1 ? true : undefined}>{children}</div>
+        <div data-mobile-ad-pane="true" style={paneStyle(1)} ref={element => { element?.toggleAttribute('inert', page === 0) }} aria-hidden={page === 0 ? true : undefined}>
           <button type="button" data-mobile-ad-cta="true" onClick={() => setInformationOpen(true)}>{text}</button>
         </div>
       </div>
