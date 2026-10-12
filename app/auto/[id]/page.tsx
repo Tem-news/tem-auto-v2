@@ -1502,6 +1502,9 @@ export default function AutoLapa() {
         </div>
       )}
 
+      <p style={{ textAlign: 'center', margin: '20px 0' }}>
+        <Link href={`/kontakti?tema=reports&sludinajums=${encodeURIComponent(String(id))}`} style={{ color: '#0284c7', textDecoration: 'underline' }}>{t('Ziņot par sludinājumu')}</Link>
+      </p>
       </div>
     </>
   )

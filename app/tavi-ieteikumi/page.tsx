@@ -1,5 +1,7 @@
 'use client'
 
+import MessageForm from '../components/MessageForm'
+
 import { useI18n } from '../../lib/i18n'
 
 const feedbackIdeas = [
@@ -63,11 +65,7 @@ export default function FeedbackPage() {
           </p>
         </section>
 
-        <section style={{ marginTop: '28px', padding: '18px', textAlign: 'center', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '10px' }}>
-          <h2 style={{ margin: '0 0 8px', color: '#166534', fontSize: '20px' }}>{t("Privātā ieteikumu forma tiek gatavota")}</h2>
-          <p style={{ margin: 0, color: '#166534', lineHeight: 1.6 }}>{t("Šeit būs īsa forma ieteikuma, kritikas vai problēmas aprakstam. Ziņojums nonāks TemAuto privātajā administrācijas iesūtnē, nevis publiskā komentāru sadaļā.")}
-          </p>
-        </section>
+        <MessageForm category="suggestions" />
 
         <p style={{ margin: '22px 0 0', color: '#64748b', fontSize: '14px', lineHeight: 1.6 }}>{t("Lūdzu, neraksti paroles, bankas kartes datus, internetbankas piekļuves informāciju vai citus slepenus datus.")}
         </p>

@@ -993,5 +993,13 @@
   "sludinājumi": "объявления",
   "TemAuto nodrošina pircēju un pārdevēju satikšanos un saziņu, bet nav viņu darījuma puse. Par informācijas pārbaudi, savstarpējām norunām, maksājumiem un transportlīdzekļa nodošanu atbild paši pircējs un pārdevējs. TemAuto negarantē sludinājuma patiesumu, transportlīdzekļa stāvokli vai darījuma izpildi. Tas neierobežo lietotāju likumā noteiktās tiesības un neizslēdz TemAuto atbildību, ja to paredz likums.": "TemAuto позволяет покупателям и продавцам находить друг друга и общаться, но не является стороной их сделки. За проверку информации, взаимные договорённости, платежи и передачу транспортного средства отвечают сами покупатель и продавец. TemAuto не гарантирует достоверность объявлений, состояние транспортных средств или исполнение сделок. Это не ограничивает предусмотренные законом права пользователей и не исключает ответственность TemAuto, если она предусмотрена законом.",
   "TemAuto atbild par personas datu apstrādi platformā atbilstoši piemērojamiem tiesību aktiem. Par datiem, kurus pircējs un pārdevējs nodod viens otram ārpus platformas, un to turpmāku izmantošanu atbild attiecīgais datu saņēmējs atbilstoši piemērojamiem tiesību aktiem. Šis skaidrojums neizslēdz TemAuto likumā noteiktos pienākumus.": "TemAuto отвечает за обработку персональных данных на платформе в соответствии с применимым законодательством. За данные, которые покупатель и продавец передают друг другу вне платформы, и их дальнейшее использование отвечает соответствующий получатель согласно применимому законодательству. Это пояснение не исключает установленные законом обязанности TemAuto.",
-  "Ja vēlies šeit savu reklāmu, spied!": "Хочешь разместить здесь свою рекламу? Нажми!"
+  "Ja vēlies šeit savu reklāmu, spied!": "Хочешь разместить здесь свою рекламу? Нажми!",
+  "Tēma": "Тема",
+  "Sludinājuma saite (nav obligāta)": "Ссылка на объявление (необязательно)",
+  "Nosūtīt ziņojumu": "Отправить сообщение",
+  "Ziņojums nosūtīts.": "Сообщение отправлено.",
+  "Neizdevās nosūtīt ziņojumu. Mēģini vēlreiz.": "Не удалось отправить сообщение. Попробуй ещё раз.",
+  "Pārāk daudz ziņojumu. Mēģini vēlreiz vēlāk.": "Слишком много сообщений. Попробуй позже.",
+  "Ziņot par sludinājumu": "Пожаловаться на объявление",
+  "Izvēlies savam jautājumam atbilstošo tēmu.": "Выбери тему, соответствующую твоему вопросу."
 }

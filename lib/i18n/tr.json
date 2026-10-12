@@ -993,5 +993,13 @@
   "sludinājumi": "ilanlar",
   "TemAuto nodrošina pircēju un pārdevēju satikšanos un saziņu, bet nav viņu darījuma puse. Par informācijas pārbaudi, savstarpējām norunām, maksājumiem un transportlīdzekļa nodošanu atbild paši pircējs un pārdevējs. TemAuto negarantē sludinājuma patiesumu, transportlīdzekļa stāvokli vai darījuma izpildi. Tas neierobežo lietotāju likumā noteiktās tiesības un neizslēdz TemAuto atbildību, ja to paredz likums.": "TemAuto, alıcı ve satıcıların birbirini bulmasını ve iletişim kurmasını sağlar ancak aralarındaki işlemin tarafı değildir. Bilgilerin doğrulanmasından, karşılıklı anlaşmalardan, ödemelerden ve aracın tesliminden alıcı ve satıcı kendileri sorumludur. TemAuto ilanların doğruluğunu, araçların durumunu veya işlemlerin tamamlanmasını garanti etmez. Bu açıklama kullanıcıların yasal haklarını sınırlamaz ve kanunun öngördüğü durumlarda TemAuto’nun sorumluluğunu ortadan kaldırmaz.",
   "TemAuto atbild par personas datu apstrādi platformā atbilstoši piemērojamiem tiesību aktiem. Par datiem, kurus pircējs un pārdevējs nodod viens otram ārpus platformas, un to turpmāku izmantošanu atbild attiecīgais datu saņēmējs atbilstoši piemērojamiem tiesību aktiem. Šis skaidrojums neizslēdz TemAuto likumā noteiktos pienākumus.": "TemAuto, platformdaki kişisel verilerin yürürlükteki mevzuata uygun işlenmesinden sorumludur. Alıcı ve satıcının platform dışında birbirine aktardığı verilerden ve bunların sonraki kullanımından ilgili alıcı yürürlükteki mevzuat uyarınca sorumludur. Bu açıklama TemAuto’nun yasal yükümlülüklerini ortadan kaldırmaz.",
-  "Ja vēlies šeit savu reklāmu, spied!": "Reklamını burada görmek ister misin? Dokun!"
+  "Ja vēlies šeit savu reklāmu, spied!": "Reklamını burada görmek ister misin? Dokun!",
+  "Tēma": "Konu",
+  "Sludinājuma saite (nav obligāta)": "İlan bağlantısı (isteğe bağlı)",
+  "Nosūtīt ziņojumu": "Mesaj gönder",
+  "Ziņojums nosūtīts.": "Mesaj gönderildi.",
+  "Neizdevās nosūtīt ziņojumu. Mēģini vēlreiz.": "Mesaj gönderilemedi. Tekrar dene.",
+  "Pārāk daudz ziņojumu. Mēģini vēlreiz vēlāk.": "Çok fazla mesaj. Daha sonra tekrar dene.",
+  "Ziņot par sludinājumu": "İlanı bildir",
+  "Izvēlies savam jautājumam atbilstošo tēmu.": "Soruna uygun konuyu seç."
 }

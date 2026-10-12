@@ -993,5 +993,13 @@
   "sludinājumi": "annonser",
   "TemAuto nodrošina pircēju un pārdevēju satikšanos un saziņu, bet nav viņu darījuma puse. Par informācijas pārbaudi, savstarpējām norunām, maksājumiem un transportlīdzekļa nodošanu atbild paši pircējs un pārdevējs. TemAuto negarantē sludinājuma patiesumu, transportlīdzekļa stāvokli vai darījuma izpildi. Tas neierobežo lietotāju likumā noteiktās tiesības un neizslēdz TemAuto atbildību, ja to paredz likums.": "TemAuto gjør det mulig for kjøpere og selgere å finne hverandre og kommunisere, men er ikke part i deres handel. Kjøper og selger er selv ansvarlige for å kontrollere informasjonen, sine avtaler, betalinger og overlevering av kjøretøyet. TemAuto garanterer ikke at annonsene er korrekte, kjøretøyenes tilstand eller at handelen gjennomføres. Dette begrenser ikke brukernes lovfestede rettigheter og utelukker ikke TemAutos ansvar etter loven.",
   "TemAuto atbild par personas datu apstrādi platformā atbilstoši piemērojamiem tiesību aktiem. Par datiem, kurus pircējs un pārdevējs nodod viens otram ārpus platformas, un to turpmāku izmantošanu atbild attiecīgais datu saņēmējs atbilstoši piemērojamiem tiesību aktiem. Šis skaidrojums neizslēdz TemAuto likumā noteiktos pienākumus.": "TemAuto er ansvarlig for behandling av personopplysninger på plattformen i samsvar med gjeldende lov. Den enkelte mottakeren er ansvarlig etter gjeldende lov for opplysninger kjøpere og selgere utveksler utenfor plattformen, og for videre bruk av dem. Denne presiseringen utelukker ikke TemAutos lovpålagte plikter.",
-  "Ja vēlies šeit savu reklāmu, spied!": "Vil du ha annonsen din her? Trykk!"
+  "Ja vēlies šeit savu reklāmu, spied!": "Vil du ha annonsen din her? Trykk!",
+  "Tēma": "Emne",
+  "Sludinājuma saite (nav obligāta)": "Lenke til annonsen (valgfritt)",
+  "Nosūtīt ziņojumu": "Send melding",
+  "Ziņojums nosūtīts.": "Meldingen er sendt.",
+  "Neizdevās nosūtīt ziņojumu. Mēģini vēlreiz.": "Meldingen kunne ikke sendes. Prøv igjen.",
+  "Pārāk daudz ziņojumu. Mēģini vēlreiz vēlāk.": "For mange meldinger. Prøv igjen senere.",
+  "Ziņot par sludinājumu": "Rapporter annonse",
+  "Izvēlies savam jautājumam atbilstošo tēmu.": "Velg emnet som passer henvendelsen din."
 }

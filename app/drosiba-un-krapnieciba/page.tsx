@@ -1,5 +1,7 @@
 'use client'
 
+import MessageForm from '../components/MessageForm'
+
 import { useI18n } from '../../lib/i18n'
 
 const sections = [
@@ -151,6 +153,7 @@ export default function SafetyAndFraudPage() {
             )}
           </section>
         ))}
+        <MessageForm category="reports" />
       </article>
     </div>
   )

@@ -111,6 +111,18 @@ export default function KabinetsPage() {
     isAdvertisingAdmin().then(allowed => { if (alive) setAdAdmin(allowed) })
     return () => { alive = false }
   }, [])
+  const [unreadLetters, setUnreadLetters] = useState(0)
+  useEffect(() => {
+    if (!adAdmin) return
+    let alive = true
+    const refresh = async () => {
+      const { count, error } = await supabase.from('temauto_messages').select('id', { count: 'exact', head: true }).is('read_at', null)
+      if (alive && !error) setUnreadLetters(count || 0)
+    }
+    void refresh()
+    const timer = window.setInterval(refresh, 30000)
+    return () => { alive = false; window.clearInterval(timer) }
+  }, [adAdmin])
   const [user, setUser] = useState<any>(null)
   const [cars, setCars] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -286,6 +298,9 @@ export default function KabinetsPage() {
         </h2>
 
         {adAdmin && <p style={{ margin: '0 0 16px' }}><Link href="/reklamas" style={{ color: '#0284c7', fontWeight: 600 }}>Reklāmu pārvaldība</Link></p>}
+        {adAdmin && <p style={{ margin: '0 0 16px' }}><Link href="/vestules" style={{ color: '#0284c7', fontWeight: 600 }}>
+          Vēstuļu pārvaldība <span aria-label={`Nelasītas vēstules: ${unreadLetters}`} style={{display:'inline-block',padding:'2px 8px',borderRadius:12,background:unreadLetters?'#dc2626':'#64748b',color:'#fff'}}>{unreadLetters}</span>
+        </Link></p>}
 
         {errorMessage ? (
           <div style={{ padding: '16px', borderRadius: '8px', backgroundColor: '#fee2e2', color: '#b91c1c' }}>{t(errorMessage)}</div>

@@ -71,7 +71,7 @@ export default function Header() {
   const isAddCar = pathname === '/pievienot' || /^\/auto\/[^/]+\/edit\/?$/.test(pathname)
   const isCabinet = pathname === '/kabinets'
   const infoPageTitle = INFO_PAGE_TITLES[pathname]
-  const mobileInfoPageTitle = pathname === '/reklamas' ? 'Reklāmu pārvaldība' : infoPageTitle
+  const mobileInfoPageTitle = pathname === '/reklamas' ? 'Reklāmu pārvaldība' : pathname === '/vestules' ? 'Vēstuļu pārvaldība' : infoPageTitle
   const [isDesktopHeader, setIsDesktopHeader] = useState(false)
   useEffect(() => {
     const query = window.matchMedia('(min-width: 768px)')

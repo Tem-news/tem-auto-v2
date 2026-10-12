@@ -993,5 +993,13 @@
   "sludinājumi": "anúncios",
   "TemAuto nodrošina pircēju un pārdevēju satikšanos un saziņu, bet nav viņu darījuma puse. Par informācijas pārbaudi, savstarpējām norunām, maksājumiem un transportlīdzekļa nodošanu atbild paši pircējs un pārdevējs. TemAuto negarantē sludinājuma patiesumu, transportlīdzekļa stāvokli vai darījuma izpildi. Tas neierobežo lietotāju likumā noteiktās tiesības un neizslēdz TemAuto atbildību, ja to paredz likums.": "A TemAuto permite que compradores e vendedores se encontrem e comuniquem, mas não é parte nas suas transações. Os próprios compradores e vendedores são responsáveis pela verificação das informações, pelos seus acordos, pagamentos e entrega do veículo. A TemAuto não garante a veracidade dos anúncios, o estado dos veículos ou o cumprimento das transações. Isto não limita os direitos legais dos utilizadores nem exclui a responsabilidade da TemAuto prevista na lei.",
   "TemAuto atbild par personas datu apstrādi platformā atbilstoši piemērojamiem tiesību aktiem. Par datiem, kurus pircējs un pārdevējs nodod viens otram ārpus platformas, un to turpmāku izmantošanu atbild attiecīgais datu saņēmējs atbilstoši piemērojamiem tiesību aktiem. Šis skaidrojums neizslēdz TemAuto likumā noteiktos pienākumus.": "A TemAuto é responsável pelo tratamento de dados pessoais na plataforma nos termos da legislação aplicável. O respetivo destinatário é responsável, nos termos dessa legislação, pelos dados que compradores e vendedores partilham fora da plataforma e pela sua utilização posterior. Este esclarecimento não exclui as obrigações legais da TemAuto.",
-  "Ja vēlies šeit savu reklāmu, spied!": "Queres a tua publicidade aqui? Toca!"
+  "Ja vēlies šeit savu reklāmu, spied!": "Queres a tua publicidade aqui? Toca!",
+  "Tēma": "Assunto",
+  "Sludinājuma saite (nav obligāta)": "Ligação do anúncio (opcional)",
+  "Nosūtīt ziņojumu": "Enviar mensagem",
+  "Ziņojums nosūtīts.": "Mensagem enviada.",
+  "Neizdevās nosūtīt ziņojumu. Mēģini vēlreiz.": "Não foi possível enviar a mensagem. Tenta novamente.",
+  "Pārāk daudz ziņojumu. Mēģini vēlreiz vēlāk.": "Demasiadas mensagens. Tenta novamente mais tarde.",
+  "Ziņot par sludinājumu": "Denunciar anúncio",
+  "Izvēlies savam jautājumam atbilstošo tēmu.": "Escolhe o tema correspondente à tua questão."
 }

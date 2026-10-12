@@ -993,5 +993,13 @@
   "sludinājumi": "anunțuri",
   "TemAuto nodrošina pircēju un pārdevēju satikšanos un saziņu, bet nav viņu darījuma puse. Par informācijas pārbaudi, savstarpējām norunām, maksājumiem un transportlīdzekļa nodošanu atbild paši pircējs un pārdevējs. TemAuto negarantē sludinājuma patiesumu, transportlīdzekļa stāvokli vai darījuma izpildi. Tas neierobežo lietotāju likumā noteiktās tiesības un neizslēdz TemAuto atbildību, ja to paredz likums.": "TemAuto permite cumpărătorilor și vânzătorilor să se găsească și să comunice, dar nu este parte la tranzacțiile lor. Cumpărătorul și vânzătorul sunt responsabili pentru verificarea informațiilor, propriile înțelegeri, plăți și predarea vehiculului. TemAuto nu garantează veridicitatea anunțurilor, starea vehiculelor sau executarea tranzacțiilor. Aceasta nu limitează drepturile legale ale utilizatorilor și nu exclude răspunderea TemAuto prevăzută de lege.",
   "TemAuto atbild par personas datu apstrādi platformā atbilstoši piemērojamiem tiesību aktiem. Par datiem, kurus pircējs un pārdevējs nodod viens otram ārpus platformas, un to turpmāku izmantošanu atbild attiecīgais datu saņēmējs atbilstoši piemērojamiem tiesību aktiem. Šis skaidrojums neizslēdz TemAuto likumā noteiktos pienākumus.": "TemAuto răspunde pentru prelucrarea datelor personale pe platformă conform legislației aplicabile. Destinatarul respectiv răspunde, conform legislației aplicabile, pentru datele pe care cumpărătorul și vânzătorul le schimbă în afara platformei și pentru utilizarea lor ulterioară. Această precizare nu exclude obligațiile legale ale TemAuto.",
-  "Ja vēlies šeit savu reklāmu, spied!": "Vrei reclama ta aici? Apasă!"
+  "Ja vēlies šeit savu reklāmu, spied!": "Vrei reclama ta aici? Apasă!",
+  "Tēma": "Subiect",
+  "Sludinājuma saite (nav obligāta)": "Linkul anunțului (opțional)",
+  "Nosūtīt ziņojumu": "Trimite mesaj",
+  "Ziņojums nosūtīts.": "Mesaj trimis.",
+  "Neizdevās nosūtīt ziņojumu. Mēģini vēlreiz.": "Mesajul nu a putut fi trimis. Încearcă din nou.",
+  "Pārāk daudz ziņojumu. Mēģini vēlreiz vēlāk.": "Prea multe mesaje. Încearcă din nou mai târziu.",
+  "Ziņot par sludinājumu": "Raportează anunțul",
+  "Izvēlies savam jautājumam atbilstošo tēmu.": "Alege tema potrivită întrebării tale."
 }
