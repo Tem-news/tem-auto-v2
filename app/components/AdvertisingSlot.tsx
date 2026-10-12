@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import MobileAdCarousel from './MobileAdCarousel'
+import DesktopAdCarousel from './DesktopAdCarousel'
 import { manageDesktopBannerVideo } from '../../lib/desktopBannerVideo'
 import { useI18n } from '../../lib/i18n'
 import { catalogueCountryCode } from '../../lib/catalogueCountry'
@@ -15,12 +16,13 @@ export default function AdvertisingSlot({ slot, as: Tag = 'div', children, style
   const [ad, setAd] = useState<Advertisement | null>(null)
   const [paused, setPaused] = useState(false)
   const [expanded, setExpanded] = useState(false)
+  const [invitationShown, setInvitationShown] = useState(false)
   const dialog = useRef<HTMLDialogElement>(null)
   const bannerVideo = useRef<HTMLVideoElement | null>(null)
   useEffect(() => {
     if (ad?.media_type !== 'video' || !bannerVideo.current) return
-    return manageDesktopBannerVideo(bannerVideo.current, mediaUrl(ad.media_path), paused || expanded, () => setPaused(true))
-  }, [ad?.media_path, ad?.media_type, paused, expanded])
+    return manageDesktopBannerVideo(bannerVideo.current, mediaUrl(ad.media_path), paused || expanded || invitationShown, () => setPaused(true))
+  }, [ad?.media_path, ad?.media_type, paused, expanded, invitationShown])
   useEffect(() => {
     if (!expanded) return
     const previous = document.body.style.overflow
@@ -77,7 +79,7 @@ export default function AdvertisingSlot({ slot, as: Tag = 'div', children, style
           style={{ position: 'absolute', top: 'max(12px, env(safe-area-inset-top))', right: 12, width: 44, height: 44, border: '1px solid #94a3b8', borderRadius: 8, background: 'rgba(0,0,0,.75)', color: 'white', fontSize: 28, cursor: 'pointer' }}>×</button>
       </dialog>, document.body)}
     </> : children
-  return <Tag {...attributes} style={{ ...style, ...(ad ? { position: 'relative', overflow: 'hidden', ...(mobile ? { height: 100, minHeight: 100 } : {}) } : {}), ...(mobile ? { position: 'relative', overflow: 'hidden' } : {}) }}>
-    {mobile ? <MobileAdCarousel>{content}</MobileAdCarousel> : content}
+  return <Tag {...attributes} style={{ ...style, ...(ad ? { position: 'relative', overflow: 'hidden', ...(mobile ? { height: 100, minHeight: 100 } : {}) } : {}), position: 'relative', overflow: 'hidden' }}>
+    {mobile ? <MobileAdCarousel>{content}</MobileAdCarousel> : <DesktopAdCarousel onPageChange={setInvitationShown}>{content}</DesktopAdCarousel>}
   </Tag>
 }
