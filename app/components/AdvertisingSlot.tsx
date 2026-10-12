@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { manageDesktopBannerVideo } from '../../lib/desktopBannerVideo'
 import { useI18n } from '../../lib/i18n'
 import { catalogueCountryCode } from '../../lib/catalogueCountry'
 import { advertisementForCountry, mediaUrl, publishedAds, safeAdLink, type AdSlot, type Advertisement } from '../../lib/advertising'
@@ -14,6 +15,11 @@ export default function AdvertisingSlot({ slot, as: Tag = 'div', children, style
   const [paused, setPaused] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const dialog = useRef<HTMLDialogElement>(null)
+  const bannerVideo = useRef<HTMLVideoElement | null>(null)
+  useEffect(() => {
+    if (ad?.media_type !== 'video' || !bannerVideo.current) return
+    return manageDesktopBannerVideo(bannerVideo.current, mediaUrl(ad.media_path), paused || expanded, () => setPaused(true))
+  }, [ad?.media_path, ad?.media_type, paused, expanded])
   useEffect(() => {
     if (!expanded) return
     const previous = document.body.style.overflow
@@ -44,7 +50,8 @@ export default function AdvertisingSlot({ slot, as: Tag = 'div', children, style
   const href = ad && safeAdLink(ad.target_url)
   const mobile = slot.startsWith('mobile_')
   const bannerMedia = ad ? (ad.media_type === 'video' ? <video key={ad.media_path} ref={element => {
-          if (!element) return
+          bannerVideo.current = element
+          if (!element || window.matchMedia('(min-width: 768px)').matches) return
           if (paused || expanded || window.matchMedia('(prefers-reduced-motion: reduce)').matches) element.pause()
           else void element.play().catch(() => {})
         }} src={mediaUrl(ad.media_path)} muted playsInline loop preload="metadata" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
