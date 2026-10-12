@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import MobileAdCarousel from './MobileAdCarousel'
 import { manageDesktopBannerVideo } from '../../lib/desktopBannerVideo'
 import { useI18n } from '../../lib/i18n'
 import { catalogueCountryCode } from '../../lib/catalogueCountry'
@@ -56,8 +57,8 @@ export default function AdvertisingSlot({ slot, as: Tag = 'div', children, style
           else void element.play().catch(() => {})
         }} src={mediaUrl(ad.media_path)} muted playsInline loop preload="metadata" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
           : <img src={mediaUrl(ad.media_path)} alt={ad.title} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }} />) : null
-  return <Tag {...attributes} style={{ ...style, ...(ad ? { position: 'relative', overflow: 'hidden', ...(mobile ? { height: 100, minHeight: 100 } : {}) } : {}) }}>
-    {ad ? <>
+  const content =
+    ad ? <>
       {href ? <a href={href} target="_blank" rel="noopener noreferrer sponsored" aria-label={ad.title}
         style={{ position: 'absolute', inset: 0, display: 'block', color: 'inherit' }}>
         {bannerMedia}
@@ -75,6 +76,8 @@ export default function AdvertisingSlot({ slot, as: Tag = 'div', children, style
         <button type="button" autoFocus onClick={() => setExpanded(false)} aria-label={t('Aizvērt')}
           style={{ position: 'absolute', top: 'max(12px, env(safe-area-inset-top))', right: 12, width: 44, height: 44, border: '1px solid #94a3b8', borderRadius: 8, background: 'rgba(0,0,0,.75)', color: 'white', fontSize: 28, cursor: 'pointer' }}>×</button>
       </dialog>, document.body)}
-    </> : children}
+    </> : children
+  return <Tag {...attributes} style={{ ...style, ...(ad ? { position: 'relative', overflow: 'hidden', ...(mobile ? { height: 100, minHeight: 100 } : {}) } : {}), ...(mobile ? { position: 'relative', overflow: 'hidden' } : {}) }}>
+    {mobile ? <MobileAdCarousel>{content}</MobileAdCarousel> : content}
   </Tag>
 }
