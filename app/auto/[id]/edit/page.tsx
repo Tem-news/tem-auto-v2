@@ -791,6 +791,9 @@ export default function RedigetAuto() {
   return (
     <div data-edit-page="true" style={{ maxWidth: '1150px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
       <style>{`
+        @media (min-width: 768px) {
+          [data-edit-page="true"] { max-width: 1422px !important; }
+        }
         @media (max-width: 767px) {
           [data-edit-page="true"] {
             width: 100% !important;
@@ -833,6 +836,7 @@ export default function RedigetAuto() {
           [data-edit-actions="true"] {
             flex-direction: column !important;
           }
+          [data-edit-left-ad-column="true"],
           [data-edit-ad-column="true"] {
             display: none !important;
           }
@@ -877,6 +881,18 @@ export default function RedigetAuto() {
       `}</style>
       
       <div data-edit-layout="true" style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', justifyContent: 'center' }}>
+        {/* KREISĀ PUSE - 2 Baneri */}
+        <div data-edit-left-ad-column="true" style={{ width: '240px', flexShrink: 0, position: 'sticky', top: '72px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <AdvertisingSlot slot="desktop_form_left_1" style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("REKLĀMA 1")}</span>
+            <span>{t("Sānu baneris augšējais!")}</span>
+          </AdvertisingSlot>
+          <AdvertisingSlot slot="desktop_form_left_2" style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+            <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("REKLĀMA 2")}</span>
+            <span>{t("Sānu baneris apakšējais!")}</span>
+          </AdvertisingSlot>
+        </div>
+
         
         {/* Kreisā puse: Rediģēšanas forma */}
         <div data-edit-card="true" style={{ flex: 1, maxWidth: '800px', backgroundColor: '#fff', padding: '30px', borderRadius: '15px', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb' }}>
