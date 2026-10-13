@@ -6,8 +6,8 @@
   "SPONSORS": "SPONSOR",
   "Vieta sadarbības partnerim": "Koht partnerile",
   "Informācija": "Teave",
-  "Lietošanas noteikumi": "Kasutus\u00adtingimused",
-  "Privātuma politika": "Privaatsus\u00adpoliitika",
+  "Lietošanas noteikumi": "Kasutus­tingimused",
+  "Privātuma politika": "Privaatsus­poliitika",
   "Drošība un krāpniecība": "Turvalisus ja pettused",
   "Kontakti": "Kontaktid",
   "Ieteikumi": "Ettepanekud",
@@ -1001,5 +1001,6 @@
   "Neizdevās nosūtīt ziņojumu. Mēģini vēlreiz.": "Sõnumit ei õnnestunud saata. Proovi uuesti.",
   "Pārāk daudz ziņojumu. Mēģini vēlreiz vēlāk.": "Liiga palju sõnumeid. Proovi hiljem uuesti.",
   "Ziņot par sludinājumu": "Teata kuulutusest",
-  "Izvēlies savam jautājumam atbilstošo tēmu.": "Vali oma küsimusele sobiv teema."
+  "Izvēlies savam jautājumam atbilstošo tēmu.": "Vali oma küsimusele sobiv teema.",
+  "Pagaidām nav pieejams": "Pole veel saadaval"
 }

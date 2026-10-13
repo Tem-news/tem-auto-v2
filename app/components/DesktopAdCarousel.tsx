@@ -77,6 +77,8 @@ export default function DesktopAdCarousel({ children, onPageChange }: { children
         [data-desktop-ad-pane="true"] { position:absolute; inset:0; width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:3px; overflow:hidden; }
         [data-desktop-ad-cta="true"] { width:100%; height:100%; border:0; padding:16px; background:#eff6ff; color:#1e40af; font-family:inherit;font-weight:700;font-size:16px;line-height:1.4; cursor:pointer; }
         html[data-temauto-desktop-theme="night"] [data-desktop-ad-cta="true"] { background:#172554; color:#dbeafe; }
+        [data-desktop-ad-cta="true"] [data-ad-unavailable="true"] { display:block; margin-top:8px; color:#9a3412; font-size:13px; font-weight:500; font-style:italic; }
+        html[data-temauto-desktop-theme="night"] [data-desktop-ad-cta="true"] [data-ad-unavailable="true"] { color:#fdba74; }
         @keyframes desktopAdInLeft { from {transform:translateX(100%)} to {transform:translateX(0)} }
         @keyframes desktopAdOutLeft { from {transform:translateX(0)} to {transform:translateX(-100%)} }
         @keyframes desktopAdInRight { from {transform:translateX(-100%)} to {transform:translateX(0)} }
@@ -87,7 +89,7 @@ export default function DesktopAdCarousel({ children, onPageChange }: { children
       <div data-desktop-ad-track="true">
         <div data-desktop-ad-pane="true" style={paneStyle(0)} ref={element => { element?.toggleAttribute('inert', page === 1) }} aria-hidden={page === 1 ? true : undefined}>{children}</div>
         <div data-desktop-ad-pane="true" style={paneStyle(1)} ref={element => { element?.toggleAttribute('inert', page === 0) }} aria-hidden={page === 0 ? true : undefined}>
-          <button type="button" data-desktop-ad-cta="true" onClick={() => setInformationOpen(true)}>{text}</button>
+          <button type="button" data-desktop-ad-cta="true" onClick={() => setInformationOpen(true)}><span>{text}</span><span data-ad-unavailable="true">{t('Pagaidām nav pieejams')}</span></button>
         </div>
       </div>
     </div>
