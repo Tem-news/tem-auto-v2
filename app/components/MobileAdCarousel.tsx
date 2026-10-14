@@ -46,8 +46,8 @@ export default function MobileAdCarousel({ children }: { children: ReactNode }) 
   })
   return <>
     <div data-mobile-ad-carousel="true"
-      onTouchStart={event => { if (window.matchMedia('(max-width: 767px)').matches) event.stopPropagation() }}
-      onTouchMove={event => { if (window.matchMedia('(max-width: 767px)').matches) event.stopPropagation() }}
+      onTouchStart={event => { if (window.matchMedia('(max-width: 767px)').matches && !event.currentTarget.closest('[data-mobile-menu-sponsor="true"]')) event.stopPropagation() }}
+      onTouchMove={event => { if (window.matchMedia('(max-width: 767px)').matches && !event.currentTarget.closest('[data-mobile-menu-sponsor="true"]')) event.stopPropagation() }}
       onPointerDown={event => {
         if (animating.current || event.pointerType !== 'touch' || !window.matchMedia('(max-width: 767px)').matches) return
         event.stopPropagation()
