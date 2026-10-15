@@ -10,3 +10,10 @@ export function listingBelongsToCountry(car: { country?: string; valsts?: string
   const listingCode = catalogueCountryCode(car.country || car.valsts || '') || car.country_code?.trim().toLowerCase()
   return listingCode === code
 }
+
+export function listingVisibleInCountry(car: { country?: string; valsts?: string; country_code?: string; visibility_country_codes?: string[] | null }, code: string): boolean {
+  if (Array.isArray(car.visibility_country_codes)) {
+    return car.visibility_country_codes.includes('*') || car.visibility_country_codes.includes(code.toLowerCase())
+  }
+  return listingBelongsToCountry(car, code)
+}

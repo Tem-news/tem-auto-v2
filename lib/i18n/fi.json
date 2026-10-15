@@ -1002,5 +1002,8 @@
   "Pārāk daudz ziņojumu. Mēģini vēlreiz vēlāk.": "Liian monta viestiä. Yritä myöhemmin uudelleen.",
   "Ziņot par sludinājumu": "Ilmoita ilmoituksesta",
   "Izvēlies savam jautājumam atbilstošo tēmu.": "Valitse kysymykseesi sopiva aihe.",
-  "Pagaidām nav pieejams": "Ei vielä saatavilla"
+  "Pagaidām nav pieejams": "Ei vielä saatavilla",
+  "Valstis, kurās rādīt sludinājumu": "Maat, joissa ilmoitus näytetään",
+  "Meklēt valsti": "Etsi maata",
+  "Izvēlies vismaz vienu valsti vai atzīmē “Visas valstis”.": "Valitse vähintään yksi maa tai ”Kaikki maat”."
 }

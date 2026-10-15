@@ -1002,5 +1002,8 @@
   "Pārāk daudz ziņojumu. Mēģini vēlreiz vēlāk.": "Demasiados mensajes. Inténtalo más tarde.",
   "Ziņot par sludinājumu": "Denunciar anuncio",
   "Izvēlies savam jautājumam atbilstošo tēmu.": "Elige el tema correspondiente a tu consulta.",
-  "Pagaidām nav pieejams": "Aún no disponible"
+  "Pagaidām nav pieejams": "Aún no disponible",
+  "Valstis, kurās rādīt sludinājumu": "Países donde mostrar el anuncio",
+  "Meklēt valsti": "Buscar un país",
+  "Izvēlies vismaz vienu valsti vai atzīmē “Visas valstis”.": "Selecciona al menos un país o «Todos los países»."
 }

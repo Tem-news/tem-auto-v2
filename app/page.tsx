@@ -4,7 +4,7 @@ import AdvertisingSlot from './components/AdvertisingSlot'
 
 import { useI18n } from '../lib/i18n'
 import { COUNTRIES } from '../lib/countries'
-import { catalogueCountryCode, listingBelongsToCountry } from '../lib/catalogueCountry'
+import { catalogueCountryCode, listingVisibleInCountry } from '../lib/catalogueCountry'
 
 import DemoPhoto from './components/DemoPhoto'
 import { Fragment, useEffect, useState, useMemo, useRef, useLayoutEffect } from 'react'
@@ -913,7 +913,7 @@ export default function Sakumlapa() {
 
   const selectedCountryCode = catalogueCountryCode(valsts) || (!valsts ? catalogueCountry : undefined)
   const countryCars = useMemo(() => cars.filter(car =>
-    selectedCountryCode ? listingBelongsToCountry(car, selectedCountryCode) : matches(car.country || car.valsts || '', valsts)
+    selectedCountryCode ? listingVisibleInCountry(car, selectedCountryCode) : matches(car.country || car.valsts || '', valsts)
   ), [cars, valsts, selectedCountryCode, matches])
 
   const makeCounts = useMemo(() => {
@@ -953,7 +953,7 @@ export default function Sakumlapa() {
     const matchesMinTilpums = minTilpums ? carVolume >= Number(minTilpums) : true
     const matchesMaxTilpums = maxTilpums ? carVolume <= Number(maxTilpums) : true
 
-    const matchesValsts = selectedCountryCode ? listingBelongsToCountry(car, selectedCountryCode) : matches(car.country || car.valsts || '', valsts)
+    const matchesValsts = selectedCountryCode ? listingVisibleInCountry(car, selectedCountryCode) : matches(car.country || car.valsts || '', valsts)
     const matchesRegions = regions ? matches(car.region || car.regions || '', regions) : true
     const matchesDzinejs = dzinejs ? matches(car.engine || car.dzinejs || '', dzinejs) : true
     const matchesAtrumkarba = atrumkarba ? matches(car.gearbox || car.atrumkarba || '', atrumkarba) : true

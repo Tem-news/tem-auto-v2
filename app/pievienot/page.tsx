@@ -1,6 +1,7 @@
 'use client'
 
 import AdvertisingSlot from '../components/AdvertisingSlot'
+import ListingCountries from '../components/ListingCountries'
 
 import { useI18n } from '../../lib/i18n'
 import { COUNTRIES, findCountry } from '../../lib/countries'
@@ -221,6 +222,8 @@ export default function PievienotAuto() {
   const [salonaKrasa, setSalonaKrasa] = useState('')
   
   const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0])
+  const [visibilityCountries, setVisibilityCountries] = useState<string[] | null | undefined>(undefined)
+  const listingCountries = visibilityCountries === undefined ? [selectedCountry.code] : visibilityCountries
     const [countryQuery, setCountryQuery] = useState('')
   const [region, setRegion] = useState('')
   const [description, setDescription] = useState('')
@@ -540,6 +543,12 @@ export default function PievienotAuto() {
     setLoading(true)
     setErrorMessage('')
 
+    if (listingCountries !== null && listingCountries.length === 0) {
+      setErrorMessage(t('Izvēlies vismaz vienu valsti vai atzīmē “Visas valstis”.'))
+      setLoading(false)
+      return
+    }
+
     if (!make || !model || !year) {
       setErrorMessage(t('Lūdzu, aizpildiet obligātos laukus: Marka, Modelis un Gads!'))
       setLoading(false)
@@ -595,6 +604,7 @@ export default function PievienotAuto() {
           steering_wheel: sture.trim() || 'Kreisā',
           interior_color: salonaKrasa.trim(),
           country: selectedCountry.name,
+          visibility_country_codes: listingCountries === null ? ['*'] : listingCountries,
           region: region.trim(),
           description: description.trim(),
           email: email.trim(),
@@ -1328,6 +1338,8 @@ export default function PievienotAuto() {
               </div>
 
             </div>
+
+            <ListingCountries codes={listingCountries} onChange={setVisibilityCountries} />
 
             {/* Kontakti (E-pasts un Telefons) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>

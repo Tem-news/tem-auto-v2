@@ -1002,5 +1002,8 @@
   "Pārāk daudz ziņojumu. Mēģini vēlreiz vēlāk.": "Πάρα πολλά μηνύματα. Δοκίμασε ξανά αργότερα.",
   "Ziņot par sludinājumu": "Αναφορά αγγελίας",
   "Izvēlies savam jautājumam atbilstošo tēmu.": "Επίλεξε το κατάλληλο θέμα.",
-  "Pagaidām nav pieejams": "Δεν είναι ακόμη διαθέσιμο"
+  "Pagaidām nav pieejams": "Δεν είναι ακόμη διαθέσιμο",
+  "Valstis, kurās rādīt sludinājumu": "Χώρες όπου εμφανίζεται η αγγελία",
+  "Meklēt valsti": "Αναζήτηση χώρας",
+  "Izvēlies vismaz vienu valsti vai atzīmē “Visas valstis”.": "Επίλεξε τουλάχιστον μία χώρα ή «Όλες οι χώρες»."
 }

@@ -1002,5 +1002,8 @@
   "Pārāk daudz ziņojumu. Mēģini vēlreiz vēlāk.": "Too many messages. Please try again later.",
   "Ziņot par sludinājumu": "Report listing",
   "Izvēlies savam jautājumam atbilstošo tēmu.": "Choose the topic that matches your enquiry.",
-  "Pagaidām nav pieejams": "Not available yet"
+  "Pagaidām nav pieejams": "Not available yet",
+  "Valstis, kurās rādīt sludinājumu": "Countries where the listing is shown",
+  "Meklēt valsti": "Search for a country",
+  "Izvēlies vismaz vienu valsti vai atzīmē “Visas valstis”.": "Select at least one country or choose “All countries”."
 }

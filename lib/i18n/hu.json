@@ -1002,5 +1002,8 @@
   "Pārāk daudz ziņojumu. Mēģini vēlreiz vēlāk.": "Túl sok üzenet. Próbáld újra később.",
   "Ziņot par sludinājumu": "Hirdetés jelentése",
   "Izvēlies savam jautājumam atbilstošo tēmu.": "Válaszd ki a kérdésedhez illő témát.",
-  "Pagaidām nav pieejams": "Még nem érhető el"
+  "Pagaidām nav pieejams": "Még nem érhető el",
+  "Valstis, kurās rādīt sludinājumu": "Országok, ahol a hirdetés megjelenik",
+  "Meklēt valsti": "Ország keresése",
+  "Izvēlies vismaz vienu valsti vai atzīmē “Visas valstis”.": "Válassz legalább egy országot vagy az „Összes ország” lehetőséget."
 }

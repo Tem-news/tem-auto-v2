@@ -1002,5 +1002,8 @@
   "Pārāk daudz ziņojumu. Mēģini vēlreiz vēlāk.": "For mange meldinger. Prøv igjen senere.",
   "Ziņot par sludinājumu": "Rapporter annonse",
   "Izvēlies savam jautājumam atbilstošo tēmu.": "Velg emnet som passer henvendelsen din.",
-  "Pagaidām nav pieejams": "Ikke tilgjengelig ennå"
+  "Pagaidām nav pieejams": "Ikke tilgjengelig ennå",
+  "Valstis, kurās rādīt sludinājumu": "Land der annonsen vises",
+  "Meklēt valsti": "Søk etter land",
+  "Izvēlies vismaz vienu valsti vai atzīmē “Visas valstis”.": "Velg minst ett land eller «Alle land»."
 }

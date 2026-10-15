@@ -1002,5 +1002,8 @@
   "Pārāk daudz ziņojumu. Mēģini vēlreiz vēlāk.": "Çok fazla mesaj. Daha sonra tekrar dene.",
   "Ziņot par sludinājumu": "İlanı bildir",
   "Izvēlies savam jautājumam atbilstošo tēmu.": "Soruna uygun konuyu seç.",
-  "Pagaidām nav pieejams": "Henüz kullanıma açık değil"
+  "Pagaidām nav pieejams": "Henüz kullanıma açık değil",
+  "Valstis, kurās rādīt sludinājumu": "İlanın gösterileceği ülkeler",
+  "Meklēt valsti": "Ülke ara",
+  "Izvēlies vismaz vienu valsti vai atzīmē “Visas valstis”.": "En az bir ülke veya “Tüm ülkeler” seçeneğini seç."
 }

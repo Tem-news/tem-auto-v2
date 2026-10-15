@@ -1002,5 +1002,8 @@
   "Pārāk daudz ziņojumu. Mēģini vēlreiz vēlāk.": "Preveč sporočil. Poskusi znova pozneje.",
   "Ziņot par sludinājumu": "Prijavi oglas",
   "Izvēlies savam jautājumam atbilstošo tēmu.": "Izberi temo, ki ustreza tvojemu vprašanju.",
-  "Pagaidām nav pieejams": "Še ni na voljo"
+  "Pagaidām nav pieejams": "Še ni na voljo",
+  "Valstis, kurās rādīt sludinājumu": "Države, v katerih bo oglas prikazan",
+  "Meklēt valsti": "Poišči državo",
+  "Izvēlies vismaz vienu valsti vai atzīmē “Visas valstis”.": "Izberi vsaj eno državo ali »Vse države«."
 }

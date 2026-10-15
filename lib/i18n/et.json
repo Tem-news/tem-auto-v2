@@ -1002,5 +1002,8 @@
   "Pārāk daudz ziņojumu. Mēģini vēlreiz vēlāk.": "Liiga palju sõnumeid. Proovi hiljem uuesti.",
   "Ziņot par sludinājumu": "Teata kuulutusest",
   "Izvēlies savam jautājumam atbilstošo tēmu.": "Vali oma küsimusele sobiv teema.",
-  "Pagaidām nav pieejams": "Pole veel saadaval"
+  "Pagaidām nav pieejams": "Pole veel saadaval",
+  "Valstis, kurās rādīt sludinājumu": "Riigid, kus kuulutust näidata",
+  "Meklēt valsti": "Otsi riiki",
+  "Izvēlies vismaz vienu valsti vai atzīmē “Visas valstis”.": "Vali vähemalt üks riik või märgi „Kõik riigid“."
 }
