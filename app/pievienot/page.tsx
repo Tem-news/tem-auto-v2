@@ -224,7 +224,23 @@ export default function PievienotAuto() {
   const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0])
   const [visibilityCountries, setVisibilityCountries] = useState<string[] | null | undefined>(undefined)
   const listingCountries = visibilityCountries === undefined ? [selectedCountry.code] : visibilityCountries
-    const [countryQuery, setCountryQuery] = useState('')
+  const [countryQuery, setCountryQuery] = useState('')
+  const countryEdited = useRef(false)
+  useEffect(() => {
+    const syncCountry = (value: string) => {
+      if (countryEdited.current) return
+      const country = findCountry(value)
+      if (country) { setSelectedCountry(country); setCountryQuery(country.name) }
+    }
+    syncCountry(localStorage.getItem('temauto-region') || 'Latvija')
+    const syncEvent = (event: Event) => syncCountry((event as CustomEvent<string>).detail)
+    window.addEventListener('temauto-initial-region', syncEvent)
+    window.addEventListener('temauto-catalogue-country', syncEvent)
+    return () => {
+      window.removeEventListener('temauto-initial-region', syncEvent)
+      window.removeEventListener('temauto-catalogue-country', syncEvent)
+    }
+  }, [])
   const [region, setRegion] = useState('')
   const [description, setDescription] = useState('')
   
@@ -1281,7 +1297,7 @@ export default function PievienotAuto() {
                 <input
                   type="text"
                   value={t(countryQuery)}
-                  onChange={(e) => { const value = canonical(e.target.value, COUNTRIES.map(c => c.name)); setCountryQuery(value); const country = findCountry(value); if (country) { setSelectedCountry(country); setCountryLanguage(country.name); } setActiveDropdown('country'); }}
+                  onChange={(e) => { countryEdited.current = true; const value = canonical(e.target.value, COUNTRIES.map(c => c.name)); setCountryQuery(value); const country = findCountry(value); if (country) { setSelectedCountry(country); setCountryLanguage(country.name); } setActiveDropdown('country'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'country')}
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'country')}
                   onPointerCancel={handleDropdownInputPointerCancel}
@@ -1292,7 +1308,7 @@ export default function PievienotAuto() {
 {activeDropdown === 'country' && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', zIndex: 50, maxHeight: '220px', overflowY: 'auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>                    {COUNTRIES.filter((c) => countryQuery === selectedCountry.name || matches(c.name, countryQuery)).map((c) => (
                       <div
-                        key={c.code}                        onClick={() => { setSelectedCountry(c); setCountryQuery(c.name); setCountryLanguage(c.name); setRegion(''); setActiveDropdown(null); }}
+                        key={c.code}                        onClick={() => { countryEdited.current = true; setSelectedCountry(c); setCountryQuery(c.name); setCountryLanguage(c.name); setRegion(''); setActiveDropdown(null); }}
                         style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', fontSize: '13.5px', cursor: 'pointer', borderBottom: '1px solid #f3f4f6' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
