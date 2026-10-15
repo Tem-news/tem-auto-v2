@@ -889,6 +889,50 @@ export default function RedigetAuto() {
             border-bottom-color: #334155 !important;
           }
         }
+        @media (min-width: 768px) {
+          html[data-temauto-desktop-theme="night"] body:has([data-edit-page="true"]),
+          html[data-temauto-desktop-theme="night"] [data-edit-page="true"] {
+            color: #e5e7eb !important;
+            background: #020617 !important;
+          }
+          html[data-temauto-desktop-theme="night"] [data-edit-card="true"],
+          html[data-temauto-desktop-theme="night"] [data-edit-supplemental="true"] {
+            color: #e5e7eb !important;
+            background: #111827 !important;
+            border-color: #334155 !important;
+          }
+          html[data-temauto-desktop-theme="night"] [data-edit-title="true"],
+          html[data-temauto-desktop-theme="night"] [data-edit-form="true"] label,
+          html[data-temauto-desktop-theme="night"] [data-edit-form="true"] strong {
+            color: #f8fafc !important;
+          }
+          html[data-temauto-desktop-theme="night"] [data-edit-form="true"] input,
+          html[data-temauto-desktop-theme="night"] [data-edit-form="true"] select,
+          html[data-temauto-desktop-theme="night"] [data-edit-form="true"] textarea {
+            color: #f1f5f9 !important;
+            background: #1e293b !important;
+            border-color: #475569 !important;
+          }
+          html[data-temauto-desktop-theme="night"] [data-edit-form="true"] input:disabled {
+            color: #94a3b8 !important;
+            background: #0f172a !important;
+            opacity: 1 !important;
+          }
+          html[data-temauto-desktop-theme="night"] [data-edit-suggestion-dropdown="true"] {
+            background: #0f172a !important;
+            border-color: #475569 !important;
+          }
+          html[data-temauto-desktop-theme="night"] [data-edit-suggestion-option="true"] {
+            color: #f1f5f9 !important;
+            background: #1e293b !important;
+            border-bottom-color: #334155 !important;
+          }
+          html[data-temauto-desktop-theme="night"] [data-edit-form="true"] input::placeholder,
+          html[data-temauto-desktop-theme="night"] [data-edit-form="true"] textarea::placeholder,
+          html[data-temauto-desktop-theme="night"] [data-edit-supplemental="true"] > span { color: #94a3b8 !important; }
+          html[data-temauto-desktop-theme="night"] [data-edit-left-ad-column="true"] > aside,
+          html[data-temauto-desktop-theme="night"] [data-edit-ad-column="true"] > aside { background: #111827 !important; color: #94a3b8 !important; border-color: #475569 !important; }
+        }
       `}</style>
       
       <div data-edit-layout="true" style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', justifyContent: 'center' }}>

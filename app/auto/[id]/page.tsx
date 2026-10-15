@@ -816,6 +816,28 @@ export default function AutoLapa() {
             color: #e5e7eb !important;
           }
         }
+
+        @media (min-width: 768px) {
+          html[data-temauto-desktop-theme="night"] body:has([data-listing-detail-layout="true"]) { background: #020617 !important; color: #e5e7eb !important; }
+          html[data-temauto-desktop-theme="night"] [data-listing-detail-layout="true"] { color: #e5e7eb !important; }
+          html[data-temauto-desktop-theme="night"] [data-listing-price-card="true"],
+          html[data-temauto-desktop-theme="night"] [data-listing-specifications="true"],
+          html[data-temauto-desktop-theme="night"] [data-listing-detail-description="true"],
+          html[data-temauto-desktop-theme="night"] [data-listing-detail-sponsors="true"] > aside { background: #111827 !important; border-color: #334155 !important; color: #e5e7eb !important; }
+          html[data-temauto-desktop-theme="night"] [data-listing-specifications="true"] > div { border-bottom-color: #334155 !important; }
+          html[data-temauto-desktop-theme="night"] [data-listing-specifications="true"] span,
+          html[data-temauto-desktop-theme="night"] [data-listing-gallery-info="true"] h1,
+          html[data-temauto-desktop-theme="night"] [data-listing-detail-description="true"] h3,
+          html[data-temauto-desktop-theme="night"] [data-listing-detail-description="true"] p { color: #e5e7eb !important; }
+          html[data-temauto-desktop-theme="night"] [data-listing-gallery-info="true"] > div,
+          html[data-temauto-desktop-theme="night"] [data-listing-gallery-info="true"] > div span { color: #94a3b8 !important; }
+          html[data-temauto-desktop-theme="night"] [data-listing-gallery-actions="true"] > button { color: #93c5fd !important; }
+          html[data-temauto-desktop-theme="night"] [data-listing-location-card="true"] { background: #052e16 !important; border-color: #166534 !important; }
+          html[data-temauto-desktop-theme="night"] [data-listing-location-card="true"] span { color: #bbf7d0 !important; }
+          html[data-temauto-desktop-theme="night"] [data-listing-detail-data="true"] div:has(> h4) { background: #111827 !important; border-color: #334155 !important; }
+          html[data-temauto-desktop-theme="night"] [data-listing-detail-data="true"] h4,
+          html[data-temauto-desktop-theme="night"] [data-listing-detail-data="true"] h4 + p { color: #e5e7eb !important; }
+        }
       `}</style>
       <div data-listing-mobile-titlebar="true">
         <strong>{car.make} {car.model}</strong>
