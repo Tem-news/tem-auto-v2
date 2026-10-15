@@ -2,6 +2,7 @@
 
 import AdvertisingSlot from '../../../components/AdvertisingSlot'
 import ListingCountries from '../../../components/ListingCountries'
+import { MAX_LISTING_PHOTOS } from '../../../../lib/listingPhotoLimit'
 import { catalogueCountryCode } from '../../../../lib/catalogueCountry'
 
 import { useI18n } from '../../../../lib/i18n'
@@ -652,6 +653,10 @@ export default function RedigetAuto() {
       alert(t('Izvēlies vismaz vienu valsti vai atzīmē “Visas valstis”.'))
       return
     }
+    if (images.length > MAX_LISTING_PHOTOS) {
+      alert(`${t('Fotoattēli')}: ≤ ${MAX_LISTING_PHOTOS}`)
+      return
+    }
     if (!window.confirm(t('Vai saglabāt izmaiņas?'))) return
     setSaving(true)
     
@@ -1104,7 +1109,7 @@ export default function RedigetAuto() {
 
             {/* BILŽU SADAĻA */}
             <div data-edit-images="true" style={{ marginTop: '10px', borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>{t("Bildes (pirmā ir galvenā titulbilde):")}</label>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>{t("Bildes (pirmā ir galvenā titulbilde):")} ({images.length}/{MAX_LISTING_PHOTOS})</label>
               <span style={{ fontSize: '13px', color: '#64748b', display: 'block', marginBottom: '10px' }}>{t("Izmanto bultiņas")} <b>← →</b>{t(", lai mainītu bilžu secību.")}
               </span>
               
@@ -1167,9 +1172,15 @@ export default function RedigetAuto() {
                 multiple 
                 onChange={(e) => {
                   if (e.target.files) {
+                    if (images.length + e.target.files.length > MAX_LISTING_PHOTOS) {
+                      alert(`${t('Fotoattēli')}: ≤ ${MAX_LISTING_PHOTOS}`)
+                      e.target.value = ''
+                      return
+                    }
                     const addedFiles = Array.from(e.target.files).map(file => ({ url: '', isNew: true, file }))
                     setImages([...images, ...addedFiles])
                     markUnsaved()
+                    e.target.value = ''
                   }
                 }} 
                 style={{ padding: '8px 0' }} 

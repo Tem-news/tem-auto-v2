@@ -2,6 +2,7 @@
 
 import AdvertisingSlot from '../components/AdvertisingSlot'
 import ListingCountries from '../components/ListingCountries'
+import { MAX_LISTING_PHOTOS } from '../../lib/listingPhotoLimit'
 
 import { useI18n } from '../../lib/i18n'
 import { COUNTRIES, findCountry } from '../../lib/countries'
@@ -519,6 +520,10 @@ export default function PievienotAuto() {
 
   const handleFiles = (files: FileList | File[]) => {
     const filesArray = Array.from(files)
+    if (images.length + filesArray.length > MAX_LISTING_PHOTOS) {
+      alert(`${t('Fotoattēli')}: ≤ ${MAX_LISTING_PHOTOS}`)
+      return
+    }
     const newImages: ImageItem[] = filesArray.map(file => ({
       file,
       url: URL.createObjectURL(file)
@@ -537,6 +542,7 @@ export default function PievienotAuto() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       handleFiles(e.target.files)
+      e.target.value = ''
     }
   }
 
@@ -556,6 +562,10 @@ export default function PievienotAuto() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (images.length > MAX_LISTING_PHOTOS) {
+      alert(`${t('Fotoattēli')}: ≤ ${MAX_LISTING_PHOTOS}`)
+      return
+    }
     setLoading(true)
     setErrorMessage('')
 
@@ -1406,7 +1416,7 @@ export default function PievienotAuto() {
 
             {/* Bilžu augšupielāde (sašaurināts un pacelts augstāk) */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Fotoattēli")}</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '6px' }}>{t("Fotoattēli")} ({images.length}/{MAX_LISTING_PHOTOS})</label>
               <div
                 data-add-car-upload="true"
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
