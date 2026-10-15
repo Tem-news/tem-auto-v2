@@ -58,8 +58,8 @@ export default function ListingCountries({ codes, onChange }: { codes: string[] 
       [data-listing-countries] legend { color:#374151 }
       @media(max-width:767px){html[data-temauto-theme=night] [data-listing-countries] legend { color:#e5e7eb }}
       @media(min-width:768px){html[data-temauto-desktop-theme=night] [data-listing-countries] legend { color:#e5e7eb }}
-      [data-add-car-form] [data-listing-countries] label { display:flex;align-items:center;gap:8px;padding:7px 4px;cursor:pointer;font-size:14px }
-      [data-add-car-form] [data-listing-countries] input[type=checkbox] { width:16px!important;height:16px!important;min-height:16px!important;padding:0!important;flex:0 0 16px;appearance:auto }
+      [data-add-car-form] [data-listing-countries] label, [data-edit-form] [data-listing-countries] label { display:flex;align-items:center;gap:8px;padding:7px 4px;cursor:pointer;font-size:14px }
+      [data-add-car-form] [data-listing-countries] input[type=checkbox], [data-edit-form] [data-listing-countries] input[type=checkbox] { width:16px!important;height:16px!important;min-height:16px!important;padding:0!important;flex:0 0 16px;appearance:auto }
     `}</style>
   </fieldset>
 }

@@ -1,6 +1,8 @@
 'use client'
 
 import AdvertisingSlot from '../../../components/AdvertisingSlot'
+import ListingCountries from '../../../components/ListingCountries'
+import { catalogueCountryCode } from '../../../../lib/catalogueCountry'
 
 import { useI18n } from '../../../../lib/i18n'
 import { COUNTRIES } from '../../../../lib/countries'
@@ -239,6 +241,7 @@ export default function RedigetAuto() {
   // Vienmēr rediģējamie lauki
   const [price, setPrice] = useState('')
   const [country, setCountry] = useState('')
+  const [visibilityCountries, setVisibilityCountries] = useState<string[] | null>([])
   const [region, setRegion] = useState('')
   const [description, setDescription] = useState('')
   const [phone, setPhone] = useState('')
@@ -578,6 +581,9 @@ export default function RedigetAuto() {
       setOwnerUserId(session.user.id)
       setPrice(data.price ? formatPriceInput(String(data.price)) : '')
       setCountry(data.country || data.valsts || '')
+      setVisibilityCountries(Array.isArray(data.visibility_country_codes)
+        ? data.visibility_country_codes.includes('*') ? null : data.visibility_country_codes
+        : [catalogueCountryCode(data.country || data.valsts || '') || catalogueCountryCode(localStorage.getItem('temauto-region') || '') || 'lv'])
       setRegion(data.region || data.regions || '')
       setDescription(data.description || '')
       setPhone(data.phone || '')
@@ -642,6 +648,10 @@ export default function RedigetAuto() {
       alert(t('Tev nav tiesību rediģēt šo sludinājumu!'))
       return
     }
+    if (visibilityCountries !== null && visibilityCountries.length === 0) {
+      alert(t('Izvēlies vismaz vienu valsti vai atzīmē “Visas valstis”.'))
+      return
+    }
     if (!window.confirm(t('Vai saglabāt izmaiņas?'))) return
     setSaving(true)
     
@@ -660,6 +670,7 @@ export default function RedigetAuto() {
     const updates: Record<string, string | number | null | string[]> = {
       price: price ? Number(price.replace(/\s/g, '')) : null,
       country: country.trim(),
+      visibility_country_codes: visibilityCountries === null ? ['*'] : visibilityCountries,
       region: region.trim(),
       description: description.trim(),
       phone: phone.trim(),
@@ -960,6 +971,8 @@ export default function RedigetAuto() {
               />
               {renderSuggestionDropdown('region', setRegion)}
             </div>
+
+            <ListingCountries codes={visibilityCountries} onChange={codes => { setVisibilityCountries(codes); markUnsaved() }} />
 
             <section data-edit-supplemental="true" style={{ padding: '14px', border: '1px solid #dbeafe', borderRadius: '10px', background: '#f8fafc' }}>
               <strong style={{ display: 'block', marginBottom: '4px', color: '#0f172a' }}>{t("Papildināt trūkstošo informāciju")}</strong>
