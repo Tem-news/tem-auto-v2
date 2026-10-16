@@ -1,11 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import AdvertisingSlot from '../components/AdvertisingSlot'
+
+import { useI18n } from '../../lib/i18n'
+
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../lib/supabase'
+import '../catalogue-mobile.css'
 
 export default function LoginPage() {
+  const { t, matches, canonical } = useI18n()
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -13,6 +19,11 @@ export default function LoginPage() {
   const [isRegistering, setIsRegistering] = useState(false)
   const [message, setMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const mode = new URLSearchParams(window.location.search).get('mode')
+    if (mode === 'register') setIsRegistering(true)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,7 +36,7 @@ export default function LoginPage() {
         if (error) throw error
         setMessage({
           type: 'success',
-          text: 'Reģistrācija veiksmīga! Tagad varat ielogoties.',
+          text: t('Reģistrācija veiksmīga! Tagad varat ielogoties.'),
         })
         setIsRegistering(false)
       } else {
@@ -43,29 +54,168 @@ export default function LoginPage() {
         router.refresh()
       }
     } catch (err: any) {
-      setMessage({ type: 'error', text: err.message || 'Kaut kas nogāja greizi' })
+      setMessage({ type: 'error', text: err.message || t('Kaut kas nogāja greizi') })
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+    <div data-login-page="true" style={{ maxWidth: '1000px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+      <style>{`
+        @media (max-width: 767px) {
+          html,
+          body {
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            overflow-x: hidden;
+          }
+
+          body:has([data-login-page="true"]) header[data-temauto-header="true"] {
+            position: relative !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-height: 87px !important;
+            padding: 10px 12px !important;
+            box-sizing: border-box !important;
+          }
+
+          body:has([data-login-page="true"]) [data-header-shell="true"] {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) !important;
+            grid-template-rows: auto auto !important;
+            gap: 9px 8px !important;
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+
+          body:has([data-login-page="true"]) [data-header-brand="true"],
+          body:has([data-login-page="true"]) [data-header-controls="true"] {
+            display: contents !important;
+          }
+
+          body:has([data-login-page="true"]) [data-header-brand="true"] a {
+            grid-column: 1;
+            grid-row: 1;
+            justify-self: start;
+            font-size: 20px !important;
+            white-space: nowrap;
+          }
+
+          body:has([data-login-page="true"]) [data-header-home-logo="true"] {
+            display: none !important;
+          }
+
+          body:has([data-login-page="true"]) [data-header-visitor-wrap="true"] {
+            grid-column: 1;
+            grid-row: 1;
+            justify-self: end;
+          }
+
+          body:has([data-login-page="true"]) [data-header-visitors="true"] {
+            min-height: 32px !important;
+            padding: 4px 10px !important;
+            font-size: 13px !important;
+            white-space: nowrap;
+          }
+
+          body:has([data-login-page="true"]) [data-header-controls="true"] > div:nth-child(1),
+          body:has([data-login-page="true"]) [data-header-controls="true"] > div:nth-child(2) {
+            display: contents !important;
+          }
+
+          body:has([data-login-page="true"]) [data-header-controls="true"] > div:nth-child(1) > button,
+          body:has([data-login-page="true"]) [data-header-controls="true"] > div:nth-child(2) > button {
+            display: none !important;
+          }
+
+          body:has([data-login-page="true"]) [data-header-controls="true"] > nav {
+            grid-column: 1;
+            grid-row: 2;
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) auto 44px !important;
+            align-items: center !important;
+            gap: 8px !important;
+            width: 100% !important;
+          }
+
+          body:has([data-login-page="true"]) [data-header-controls="true"] > nav > a:first-child {
+            justify-self: start;
+            white-space: nowrap;
+          }
+
+          body:has([data-login-page="true"]) [data-header-add="true"] {
+            margin: 0 !important;
+            padding: 7px 11px !important;
+            font-size: 13px !important;
+            white-space: nowrap;
+          }
+
+          body:has([data-login-page="true"]) [data-mobile-menu-toggle="true"] {
+            display: flex !important;
+          }
+
+          [data-login-page="true"] {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            margin: 0 auto !important;
+            padding: 12px 10px 18px !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+          }
+
+          [data-login-layout="true"] {
+            display: block !important;
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+
+          [data-login-card="true"] {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            padding: 18px 14px !important;
+            border-radius: 9px !important;
+            box-sizing: border-box !important;
+          }
+
+          [data-login-card="true"] h1 {
+            margin-top: 0 !important;
+            font-size: 21px !important;
+          }
+
+          [data-login-card="true"] form {
+            gap: 12px !important;
+          }
+
+          [data-login-card="true"] input,
+          [data-login-card="true"] button {
+            max-width: 100% !important;
+            min-width: 0 !important;
+            box-sizing: border-box !important;
+          }
+
+          [data-login-ad="true"] {
+            display: none !important;
+          }
+        }
+      `}</style>
       
       {/* Divu kolonnu izkārtojums: Kreisajā pusē ielogošanās forma, labajā - reklāma */}
-      <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', justifyContent: 'center' }}>
+      <div data-login-layout="true" style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', justifyContent: 'center' }}>
         
         {/* Kreisā puse: Forma */}
-        <div style={{ flex: 1, maxWidth: '480px', backgroundColor: '#ffffff', padding: '32px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb' }}>
-          <Link href="/" style={{ color: '#2563eb', textDecoration: 'none', fontSize: '14px', marginBottom: '20px', display: 'inline-block' }}>
-            ← Atpakaļ uz sākumlapu
+        <div data-login-card="true" style={{ flex: 1, maxWidth: '480px', backgroundColor: '#ffffff', padding: '32px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb' }}>
+          <Link href="/" style={{ color: '#2563eb', textDecoration: 'none', fontSize: '14px', marginBottom: '20px', display: 'inline-block' }}>{t("← Atpakaļ uz sākumlapu")}
           </Link>
 
           <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px', color: '#0f172a' }}>
-            {isRegistering ? 'Reģistrēties' : 'Ielogoties'}
+            {isRegistering ? t('Reģistrēties') : t('Ielogoties')}
           </h1>
           <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>
-            {isRegistering ? 'Izveido savu TemAuto kontu' : 'Ienāc savā kontā'}
+            {isRegistering ? t('Izveido savu TemAuto kontu') : t('Ienāc savā kontā')}
           </p>
 
           {message && (
@@ -77,28 +227,26 @@ export default function LoginPage() {
               backgroundColor: message.type === 'error' ? '#fee2e2' : '#dcfce7',
               color: message.type === 'error' ? '#dc2626' : '#15803d'
             }}>
-              {message.text}
+              {t(message.text)}
             </div>
           )}
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
-                E-pasts
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>{t("E-pasts")}
               </label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="vards@epasts.lv"
+                placeholder={t("vards@epasts.lv")}
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
               />
             </div>
 
             <div>
-              <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
-                Parole
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>{t("Parole")}
               </label>
               <div style={{ position: 'relative' }}>
                 <input
@@ -122,7 +270,7 @@ export default function LoginPage() {
                     cursor: 'pointer',
                     fontSize: '16px'
                   }}
-                  title={showPassword ? 'Paslēpt paroli' : 'Rādīt paroli'}
+                  title={showPassword ? t('Paslēpt paroli') : t('Rādīt paroli')}
                 >
                   {showPassword ? '👁️' : '🙈'}
                 </button>
@@ -143,7 +291,7 @@ export default function LoginPage() {
                 marginTop: '8px'
               }}
             >
-              {loading ? 'Lūdzu, uzgaidiet...' : isRegistering ? 'Reģistrēties' : 'Ielogoties'}
+              {loading ? t('Lūdzu, uzgaidiet...') : isRegistering ? t('Reģistrēties') : t('Ielogoties')}
             </button>
           </form>
 
@@ -155,20 +303,21 @@ export default function LoginPage() {
               }}
               style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer' }}
             >
-              {isRegistering ? 'Jau ir konts? Ielogoties' : 'Nav konta? Reģistrēties'}
+              {isRegistering ? t('Jau ir konts? Ielogoties') : t('Nav konta? Reģistrēties')}
             </button>
           </div>
         </div>
 
         {/* Labā puse: Reklāmas baneris */}
-        <div style={{ width: '260px', flexShrink: 0 }}>
-          <div style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '380px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Reklāma</span>
-            <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Ekskluzīvs baneris šeit!<br/><span style={{ fontSize: '12px' }}>(Maksimāla uzmanība)</span></p>
-          </div>
+        <div data-login-ad="true" style={{ width: '260px', flexShrink: 0 }}>
+          <AdvertisingSlot slot="desktop_login" style={{ backgroundColor: '#f9fafb', border: '2px dashed #cbd5e1', borderRadius: '10px', padding: '20px', textAlign: 'center', minHeight: '380px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>{t("Reklāma")}</span>
+            <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>{t("Ekskluzīvs baneris šeit!")}<br/><span style={{ fontSize: '12px' }}>{t("(Maksimāla uzmanība)")}</span></p>
+          </AdvertisingSlot>
         </div>
 
       </div>
     </div>
   )
 }
+
