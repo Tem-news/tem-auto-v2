@@ -219,10 +219,11 @@ export default function AdvertisingAdmin() {
   const displayedAds = ads.filter(ad => adMarkets === null || adMarkets.length === 0 || ad.country_codes == null || ad.country_codes.some(code => adMarkets.includes(code)))
   const adGroups = [
     { prefix: 'desktop_', title: 'Monitora versija' },
+    { prefix: 'desktop_cabinet_', title: 'Monitors — Mans kabinets' },
     { prefix: 'mobile_', title: 'Mobilā versija' },
   ].map(group => ({
     ...group,
-    placements: Object.entries(AD_SLOTS).filter(([slot]) => slot.startsWith(group.prefix)).map(([slot, title]) => ({
+    placements: Object.entries(AD_SLOTS).filter(([slot]) => slot.startsWith(group.prefix) && (group.prefix !== 'desktop_' || !slot.startsWith('desktop_cabinet_'))).map(([slot, title]) => ({
       slot, title, ads: displayedAds.filter(ad => ad.slot === slot),
     })).filter(placement => placement.ads.length > 0),
   })).filter(group => group.placements.length > 0)
@@ -260,7 +261,7 @@ export default function AdvertisingAdmin() {
     <form onSubmit={save}>
       <h2>{editing ? 'Rediģēt reklāmu' : 'Pievienot reklāmu'}</h2>
       <label>Reklāmas nosaukums<input required maxLength={120} value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></label>
-      <label>Reklāmas vieta<select value={form.slot} onChange={e => setForm({ ...form, slot: e.target.value as AdSlot })}>{Object.entries(AD_SLOTS).map(([key, name]) => <option key={key} value={key}>{name}</option>)}</select></label>
+      <label>Reklāmas vieta<select value={form.slot} onChange={e => setForm({ ...form, slot: e.target.value as AdSlot })}>{Object.entries(AD_SLOTS).filter(([key]) => !key.startsWith('desktop_cabinet_')).map(([key, name]) => <option key={key} value={key}>{name}</option>)}<optgroup label="Monitors — Mans kabinets">{Object.entries(AD_SLOTS).filter(([key]) => key.startsWith('desktop_cabinet_')).map(([key, name]) => <option key={key} value={key}>{name}</option>)}</optgroup></select></label>
       {mobileCountries ? <MobileAdvertisingCountries key={`${editing?.id || 'new'}-${countryPickerVersion}`} codes={form.country_codes} onChange={codes => setForm(previous => ({ ...previous, country_codes: codes }))} /> : <DesktopAdvertisingCountries key={`${editing?.id || 'new'}-${countryPickerVersion}`} codes={form.country_codes} onChange={codes => setForm(previous => ({ ...previous, country_codes: codes }))} />}
       <label>Reklāmdevēja vietne<input type="url" placeholder="https://… (nav obligāti)" value={form.target_url} onChange={e => setForm({ ...form, target_url: e.target.value })} /></label>
       <label>Attēls, GIF vai video<input ref={fileInput} type="file" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm" onChange={e => setFile(e.target.files?.[0] || null)} /></label>

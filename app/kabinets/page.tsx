@@ -1,5 +1,7 @@
 'use client'
 
+import AdvertisingSlot from '../components/AdvertisingSlot'
+
 import { useI18n } from '../../lib/i18n'
 
 import { isAdvertisingAdmin } from '../../lib/advertising'
@@ -212,9 +214,13 @@ export default function KabinetsPage() {
       <style>{`
         [data-cabinet-desktop-photo="true"],
         [data-cabinet-desktop-edit="true"] { display: none; }
+        [data-cabinet-ad-column="true"] { display: none; }
 
         @media (min-width: 768px) {
-          [data-cabinet-page="true"] { max-width: 800px !important; }
+          [data-cabinet-page="true"] { max-width: 1344px !important; display: grid; grid-template-columns: 240px minmax(0, 800px) 240px; gap: 32px; align-items: start; }
+          [data-cabinet-panel="true"] { min-width: 0; box-sizing: border-box; }
+          [data-cabinet-ad-column="true"] { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 72px; }
+          html[data-temauto-desktop-theme="night"] [data-cabinet-ad-column="true"] > div { background: #111827 !important; color: #94a3b8 !important; border-color: #475569 !important; }
           [data-cabinet-list="true"] [data-make-table-row="true"] {
             grid-template-columns: 112px minmax(0, 1fr) 60px 110px 65px !important;
             gap: 12px !important;
@@ -293,6 +299,16 @@ export default function KabinetsPage() {
           }
         }
       `}</style>
+      <div data-cabinet-ad-column="true">
+        <AdvertisingSlot slot="desktop_cabinet_left_1" style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+          <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("REKLĀMA 1")}</span>
+          <span>{t("Sānu baneris augšējais!")}</span>
+        </AdvertisingSlot>
+        <AdvertisingSlot slot="desktop_cabinet_left_2" style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+          <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("REKLĀMA 2")}</span>
+          <span>{t("Sānu baneris apakšējais!")}</span>
+        </AdvertisingSlot>
+      </div>
       <section data-cabinet-panel="true" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
         <h2 data-cabinet-title="true" style={{ margin: '0 0 16px', color: '#111827', fontSize: '18px' }}>{t("Mani sludinājumi (")}{cars.length})
         </h2>
@@ -383,6 +399,16 @@ export default function KabinetsPage() {
           </div>
         )}
       </section>
+      <div data-cabinet-ad-column="true">
+        <AdvertisingSlot slot="desktop_cabinet_right_1" style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+          <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("REKLĀMA 3")}</span>
+          <span>{t("Sānu baneris augšējais!")}</span>
+        </AdvertisingSlot>
+        <AdvertisingSlot slot="desktop_cabinet_right_2" style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', minHeight: '350px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}>
+          <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t("REKLĀMA 4")}</span>
+          <span>{t("Sānu baneris apakšējais!")}</span>
+        </AdvertisingSlot>
+      </div>
     </main>
   )
 }
