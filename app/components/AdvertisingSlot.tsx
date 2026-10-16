@@ -79,7 +79,7 @@ export default function AdvertisingSlot({ slot, as: Tag = 'div', children, style
           style={{ position: 'absolute', top: 'max(12px, env(safe-area-inset-top))', right: 12, width: 44, height: 44, border: '1px solid #94a3b8', borderRadius: 8, background: 'rgba(0,0,0,.75)', color: 'white', fontSize: 28, cursor: 'pointer' }}>×</button>
       </dialog>, document.body)}
     </> : children
-  return <Tag {...attributes} style={{ ...style, ...(ad ? { position: 'relative', overflow: 'hidden', ...(mobile ? { height: 100, minHeight: 100 } : {}) } : {}), position: 'relative', overflow: 'hidden' }}>
+  return <Tag {...attributes} data-desktop-ad-slot={mobile ? undefined : slot} data-desktop-ad-filled={!mobile && ad ? 'true' : undefined} style={{ ...style, ...(ad ? { position: 'relative', overflow: 'hidden', ...(mobile ? { height: 100, minHeight: 100 } : {}) } : {}), position: 'relative', overflow: 'hidden' }}>
     {mobile ? <MobileAdCarousel>{content}</MobileAdCarousel> : <DesktopAdCarousel onPageChange={setInvitationShown}>{content}</DesktopAdCarousel>}
   </Tag>
 }

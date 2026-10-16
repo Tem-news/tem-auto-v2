@@ -73,6 +73,27 @@ export default function DesktopAdCarousel({ children, onPageChange }: { children
       }}
       style={{ position: 'absolute', inset: 0, overflow: 'hidden', touchAction: 'pan-y', borderRadius: 'inherit', userSelect: 'none', cursor: 'grab' }}>
       <style>{`
+        @media (min-width: 768px) {
+          [data-desktop-ad-slot] {
+            width:260px!important; min-width:260px!important; max-width:260px!important;
+            height:calc((100dvh - 136px) / 2)!important;
+            min-height:calc((100dvh - 136px) / 2)!important;
+            max-height:calc((100dvh - 136px) / 2)!important;
+            flex:0 0 auto!important; box-sizing:border-box!important;
+          }
+          [data-desktop-ad-filled="true"] { border:0!important; padding:0!important; }
+          [data-desktop-ad-slot] [data-desktop-ad-pane="true"] > a > img,
+          [data-desktop-ad-slot] [data-desktop-ad-pane="true"] > a > video,
+          [data-desktop-ad-slot] [data-desktop-ad-pane="true"] > button > img,
+          [data-desktop-ad-slot] [data-desktop-ad-pane="true"] > button > video { width:100%!important; height:100%!important; object-fit:cover!important; object-position:center!important; display:block!important; }
+          [data-catalogue-layout="true"] { grid-template-columns:270px minmax(0,1fr) 260px!important; }
+          [data-add-car-layout="true"] { grid-template-columns:260px minmax(0,1fr) 260px!important; }
+          [data-edit-left-ad-column="true"], [data-edit-ad-column="true"],
+          [data-add-car-ad-rail="true"], [data-sponsor-rail="true"],
+          [data-listing-detail-sponsors="true"], [data-cabinet-ad-column="true"], [data-login-ad="true"] { width:260px!important; }
+          [data-listing-detail-layout="true"] { grid-template-columns:320px minmax(0,1fr) 260px!important; }
+          [data-cabinet-page="true"] { max-width:1384px!important; grid-template-columns:260px minmax(0,800px) 260px!important; }
+        }
         [data-desktop-ad-track="true"] { position:relative; width:100%; height:100%; }
         [data-desktop-ad-pane="true"] { position:absolute; inset:0; width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:3px; overflow:hidden; }
         [data-desktop-ad-cta="true"] { width:100%; height:100%; border:0; padding:16px; background:#eff6ff; color:#1e40af; font-family:inherit;font-weight:700;font-size:16px;line-height:1.4; cursor:pointer; }
