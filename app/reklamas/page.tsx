@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useId, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent, type MouseEvent as ReactMouseEvent } from 'react'
 import Link from 'next/link'
 import { cleanupAdFiles, queueFailedAdUpload } from '../../lib/adFileCleanup'
 import { COUNTRIES } from '../../lib/countries'
@@ -100,6 +100,20 @@ function DesktopAdvertisingCountries({ codes, onChange, title = 'Valstis, kurās
   </fieldset>
 }
 
+function mobileDateText(value: string): string {
+  const digits = value.includes('T') ? value.slice(8, 10) + value.slice(5, 7) + value.slice(0, 4) + value.slice(11, 13) + value.slice(14, 16) : value.replace(/\D/g, '').slice(0, 12)
+  return digits.slice(0, 2) + (digits.length > 2 ? '.' + digits.slice(2, 4) : '') + (digits.length > 4 ? '.' + digits.slice(4, 8) : '') + (digits.length > 8 ? ' ' + digits.slice(8, 10) : '') + (digits.length > 10 ? ':' + digits.slice(10, 12) : '')
+}
+function adLocalDate(value: string): string | null {
+  if (!value || value.includes('T')) return value
+  const digits = value.replace(/\D/g, '')
+  if (digits.length !== 12) return null
+  const day = Number(digits.slice(0, 2)), month = Number(digits.slice(2, 4)), year = Number(digits.slice(4, 8)), hour = Number(digits.slice(8, 10)), minute = Number(digits.slice(10, 12))
+  const date = new Date(year, month - 1, day, hour, minute)
+  if (year < 1000 || date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day || date.getHours() !== hour || date.getMinutes() !== minute) return null
+  return `${digits.slice(4, 8)}-${digits.slice(2, 4)}-${digits.slice(0, 2)}T${digits.slice(8, 10)}:${digits.slice(10, 12)}`
+}
+
 export default function AdvertisingAdmin() {
   const [access, setAccess] = useState<'loading' | 'allowed' | 'denied'>('loading')
   const [ads, setAds] = useState<Advertisement[]>([])
@@ -115,6 +129,22 @@ export default function AdvertisingAdmin() {
   const [countryPickerVersion, setCountryPickerVersion] = useState(0)
   const [adMarkets, setAdMarkets] = useState<string[] | null>([])
   const [pendingFiles, setPendingFiles] = useState(false)
+  const closingKeyboard = useRef<HTMLInputElement | null>(null)
+  const keyboardPointerDown = (event: ReactPointerEvent<HTMLInputElement>) => {
+    closingKeyboard.current = null
+    if (!window.matchMedia('(max-width: 767px)').matches) return
+    if (document.activeElement === event.currentTarget) {
+      event.preventDefault()
+      closingKeyboard.current = event.currentTarget
+      event.currentTarget.blur()
+    }
+  }
+  const keyboardClick = (event: ReactMouseEvent<HTMLInputElement>) => {
+    if (closingKeyboard.current !== event.currentTarget) return
+    event.preventDefault()
+    event.currentTarget.blur()
+    closingKeyboard.current = null
+  }
   const cleanFiles = async () => {
     try {
       const remaining = await cleanupAdFiles()
@@ -169,8 +199,10 @@ export default function AdvertisingAdmin() {
     if (address && !link) { setMessage('Ievadi pilnu https:// reklāmdevēja adresi bez lietotājvārda vai paroles.'); return }
     if (!file && !editing) { setMessage('Pievieno reklāmas failu.'); return }
     if (file && (!types[file.type] || file.size > 20 * 1024 * 1024)) { setMessage('Atļauts JPG, PNG, GIF, WebP, MP4 vai WebM līdz 20 MB.'); return }
-    const start = form.starts_at ? new Date(form.starts_at).toISOString() : null
-    const end = form.ends_at ? new Date(form.ends_at).toISOString() : null
+    const startLocal = adLocalDate(form.starts_at), endLocal = adLocalDate(form.ends_at)
+    if (startLocal === null || endLocal === null) { setMessage('Ievadi derīgu datumu un laiku: DD.MM.GGGG SS:MM.'); return }
+    const start = startLocal ? new Date(startLocal).toISOString() : null
+    const end = endLocal ? new Date(endLocal).toISOString() : null
     if (start && end && end <= start) { setMessage('Beigu laikam jābūt pēc sākuma laika.'); return }
     setBusy(true)
     let uploaded: string | null = null
@@ -260,15 +292,15 @@ export default function AdvertisingAdmin() {
     {pendingFiles && <p role="status">Iepriekšējo reklāmas failu dzēšana vēl nav pabeigta. <button type="button" disabled={busy} onClick={async () => { setBusy(true); try { setMessage(await cleanFiles() ? 'Vecie reklāmas faili izdzēsti.' : 'Dzēšana vēl nav pabeigta. Mēģini vēlreiz vēlāk.') } finally { setBusy(false) } }}>Atkārtot failu dzēšanu</button></p>}
     <form onSubmit={save}>
       <h2>{editing ? 'Rediģēt reklāmu' : 'Pievienot reklāmu'}</h2>
-      <label>Reklāmas nosaukums<input required maxLength={120} value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></label>
+      <label>Reklāmas nosaukums<input onPointerDown={keyboardPointerDown} onClick={keyboardClick} required maxLength={120} value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></label>
       <label>Reklāmas vieta<select value={form.slot} onChange={e => setForm({ ...form, slot: e.target.value as AdSlot })}>{Object.entries(AD_SLOTS).filter(([key]) => !key.startsWith('desktop_cabinet_')).map(([key, name]) => <option key={key} value={key}>{name}</option>)}<optgroup label="Monitors — Mans kabinets">{Object.entries(AD_SLOTS).filter(([key]) => key.startsWith('desktop_cabinet_')).map(([key, name]) => <option key={key} value={key}>{name}</option>)}</optgroup></select></label>
       {mobileCountries ? <MobileAdvertisingCountries key={`${editing?.id || 'new'}-${countryPickerVersion}`} codes={form.country_codes} onChange={codes => setForm(previous => ({ ...previous, country_codes: codes }))} /> : <DesktopAdvertisingCountries key={`${editing?.id || 'new'}-${countryPickerVersion}`} codes={form.country_codes} onChange={codes => setForm(previous => ({ ...previous, country_codes: codes }))} />}
-      <label>Reklāmdevēja vietne<input type="url" placeholder="https://… (nav obligāti)" value={form.target_url} onChange={e => setForm({ ...form, target_url: e.target.value })} /></label>
+      <label>Reklāmdevēja vietne<input onPointerDown={keyboardPointerDown} onClick={keyboardClick} type="url" placeholder="https://… (nav obligāti)" value={form.target_url} onChange={e => setForm({ ...form, target_url: e.target.value })} /></label>
       <label>Attēls, GIF vai video<input ref={fileInput} type="file" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm" onChange={e => setFile(e.target.files?.[0] || null)} /></label>
       <p>JPG, PNG, GIF, WebP, MP4 vai WebM, līdz 20 MB. Video tiek atskaņots bez skaņas. Faili tiek glabāti publiskā reklāmu glabātuvē — neaugšupielādē konfidenciālus materiālus.</p>
       {preview && <div style={{ height: 220, background: '#1e293b', borderRadius: 8 }}>{video ? <video src={preview} controls muted playsInline style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <img src={preview} alt="Reklāmas priekšskatījums" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />}</div>}
-      <label>Sākums (Tavas ierīces vietējais laiks)<input type="datetime-local" value={form.starts_at} onChange={e => setForm({ ...form, starts_at: e.target.value })} /></label>
-      <label>Beigas (Tavas ierīces vietējais laiks)<input type="datetime-local" value={form.ends_at} onChange={e => setForm({ ...form, ends_at: e.target.value })} /></label>
+      <label>Sākums (Tavas ierīces vietējais laiks)<input onPointerDown={keyboardPointerDown} onClick={keyboardClick} type={mobileCountries ? 'text' : 'datetime-local'} inputMode={mobileCountries ? 'numeric' : undefined} placeholder={mobileCountries ? 'DD.MM.GGGG SS:MM' : undefined} value={mobileCountries ? mobileDateText(form.starts_at) : adLocalDate(form.starts_at) || ''} onChange={e => setForm({ ...form, starts_at: mobileCountries ? e.target.value.replace(/\D/g, '').slice(0, 12) : e.target.value })} /></label>
+      <label>Beigas (Tavas ierīces vietējais laiks)<input onPointerDown={keyboardPointerDown} onClick={keyboardClick} type={mobileCountries ? 'text' : 'datetime-local'} inputMode={mobileCountries ? 'numeric' : undefined} placeholder={mobileCountries ? 'DD.MM.GGGG SS:MM' : undefined} value={mobileCountries ? mobileDateText(form.ends_at) : adLocalDate(form.ends_at) || ''} onChange={e => setForm({ ...form, ends_at: mobileCountries ? e.target.value.replace(/\D/g, '').slice(0, 12) : e.target.value })} /></label>
       <p>Tukšs lauks nozīmē, ka attiecīgā laika ierobežojuma nav. Vienā vietā rāda jaunāko aktīvo reklāmu, kas atbilst izvēlētajai valstij un kuras publicēšanas laiks ir spēkā.</p>
       <label><input type="checkbox" checked={form.active} onChange={e => setForm({ ...form, active: e.target.checked })} /> Publicēt reklāmu</label>
       <button type="submit" disabled={busy}>{busy ? 'Saglabā…' : 'Saglabāt'}</button>
