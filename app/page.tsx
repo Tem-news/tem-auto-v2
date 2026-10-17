@@ -1147,7 +1147,9 @@ export default function Sakumlapa() {
           [data-listings-grid="true"] > a > div[data-home-photo-frame="true"] { height: auto !important; }
           [data-home-photo-price="true"] { bottom: 18px; }
         }
+        [data-desktop-card-engine="true"] { display: none; }
         @media (min-width: 768px) {
+          [data-desktop-card-engine="true"] { display: inline; }
           [data-makes-info='true'] { margin-bottom: 12px; }
           [data-catalogue-layout="true"] [data-make-table-row="true"] > [data-cell="car"] {
             flex-direction: column;
@@ -1852,6 +1854,7 @@ export default function Sakumlapa() {
                           <span data-card-year="true">{car.year ? `${car.year} ${t('g.')}` : ''}</span>
                           <span data-card-price="true" style={{ color: '#111827', fontWeight: 'bold' }}>{car.price ? `${formatNumberWithSpace(car.price)} €` : ''}</span>
                           {cardEngineSummary && <span data-card-engine-summary="true">{cardEngineSummary}</span>}
+                          {cardEngineType && <span data-desktop-card-engine="true">{cardEngineType}</span>}
                           {normalizedCardGearbox && (
                             <span data-card-gearbox="true" style={{ order: 4, whiteSpace: 'nowrap' }}>
                               {normalizedCardGearbox}
