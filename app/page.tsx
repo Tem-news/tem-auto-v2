@@ -1140,12 +1140,11 @@ export default function Sakumlapa() {
     <div data-catalogue-page="true" ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
 
       <style>{`
-        [data-home-photo-frame="true"] { display: contents; }
-        [data-home-photo-price="true"] { display: none; }
-        @media (min-width: 768px) {
-          [data-home-photo-frame="true"] { display: block; position: relative; width: 100%; flex-shrink: 0; }
-          [data-home-photo-price="true"] { display: block; position: absolute; left: 8px; bottom: 6px; z-index: 1; pointer-events: none; color: #fff; font-size: 18px; line-height: 1.2; font-weight: 800; -webkit-text-stroke: 2px #000; paint-order: stroke fill; text-shadow: 1px 1px 1px #000, -1px -1px 1px #000; }
-          [data-listings-grid="true"] [data-card-price="true"] { display: none; }
+        [data-home-photo-frame="true"] { display: block; position: relative; width: 100%; flex-shrink: 0; }
+        [data-home-photo-price="true"] { display: block; position: absolute; left: 8px; bottom: 6px; z-index: 1; pointer-events: none; color: #fff; font-size: 18px; line-height: 1.2; font-weight: 800; -webkit-text-stroke: 2px #000; paint-order: stroke fill; text-shadow: 1px 1px 1px #000, -1px -1px 1px #000; }
+        [data-listings-grid="true"] [data-card-price="true"] { display: none; }
+        @media (max-width: 767px) {
+          [data-listings-grid="true"] > a > [data-home-photo-frame="true"] { height: auto !important; }
         }
         @media (min-width: 768px) {
           [data-makes-info='true'] { margin-bottom: 12px; }
