@@ -1140,6 +1140,13 @@ export default function Sakumlapa() {
     <div data-catalogue-page="true" ref={dropdownRef} style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '16px 12px', boxSizing: 'border-box' }}>
 
       <style>{`
+        [data-home-photo-frame="true"] { display: contents; }
+        [data-home-photo-price="true"] { display: none; }
+        @media (min-width: 768px) {
+          [data-home-photo-frame="true"] { display: block; position: relative; width: 100%; flex-shrink: 0; }
+          [data-home-photo-price="true"] { display: block; position: absolute; left: 8px; bottom: 6px; z-index: 1; pointer-events: none; color: #fff; font-size: 18px; line-height: 1.2; font-weight: 800; -webkit-text-stroke: 2px #000; paint-order: stroke fill; text-shadow: 1px 1px 1px #000, -1px -1px 1px #000; }
+          [data-listings-grid="true"] [data-card-price="true"] { display: none; }
+        }
         @media (min-width: 768px) {
           [data-makes-info='true'] { margin-bottom: 12px; }
           [data-catalogue-layout="true"] [data-make-table-row="true"] > [data-cell="car"] {
@@ -1805,7 +1812,10 @@ export default function Sakumlapa() {
                         flexDirection: 'column'
                       }}
                     >
-                      <ListingCardGallery key={`${safeCurrentPage}-${yearSort ?? ''}-${priceSort ?? ''}-${car.id}`} images={galleryImages} alt={`${car.make} ${car.model || ''}`.trim()} />
+                      <div data-home-photo-frame="true">
+                        <ListingCardGallery key={`${safeCurrentPage}-${yearSort ?? ''}-${priceSort ?? ''}-${car.id}`} images={galleryImages} alt={`${car.make} ${car.model || ''}`.trim()} />
+                        <span data-home-photo-price="true">{car.price ? `${formatNumberWithSpace(car.price)} €` : ''}</span>
+                      </div>
                       <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
                           <div data-card-title="true" style={{ fontWeight: 'bold', fontSize: '15px', color: '#1d4ed8', minWidth: 0 }}>
