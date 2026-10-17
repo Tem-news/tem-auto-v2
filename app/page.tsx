@@ -1144,7 +1144,7 @@ export default function Sakumlapa() {
         [data-home-photo-price="true"] { display: block; position: absolute; left: 8px; bottom: 6px; z-index: 1; pointer-events: none; color: #fff; font-size: 18px; line-height: 1.2; font-weight: 800; -webkit-text-stroke: 2px #000; paint-order: stroke fill; text-shadow: 1px 1px 1px #000, -1px -1px 1px #000; }
         [data-listings-grid="true"] [data-card-price="true"] { display: none; }
         @media (max-width: 767px) {
-          [data-listings-grid="true"] > a > [data-home-photo-frame="true"] { height: auto !important; }
+          [data-listings-grid="true"] > a > div[data-home-photo-frame="true"] { height: auto !important; }
           [data-home-photo-price="true"] { bottom: 18px; }
         }
         @media (min-width: 768px) {
