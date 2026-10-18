@@ -1394,7 +1394,7 @@ export default function Header() {
               onTouchStart={handleMobileMenuButtonTouchStart}
               onClick={handleMobileMenuButtonClick}
             >
-              <span aria-hidden="true">☰</span>
+              <span aria-hidden="true">{mobileMenuOpen ? '×' : '☰'}</span>
             </button>
             {mobileMenuOpen && !isDesktopHeader && (
               <div data-mobile-theme-picker="true" role="group" aria-label={t("Ekrāna režīms")}>
