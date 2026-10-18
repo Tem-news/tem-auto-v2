@@ -1317,7 +1317,7 @@ export default function AutoLapa() {
                 aria-label={`${t('Foto')} ${activeImageIndex + 1} ${t('no')} ${imageCount}`}
                 style={{
                   position: 'absolute',
-                  left: '10px',
+                  right: '10px',
                   bottom: '10px',
                   zIndex: 20,
                   padding: '6px 10px',
@@ -1340,7 +1340,7 @@ export default function AutoLapa() {
                   aria-label={`${t('Cena')}: ${formatPrice(car.price)}`}
                   style={{
                     position: 'absolute',
-                    right: '10px',
+                    left: '10px',
                     bottom: '10px',
                     zIndex: 20,
                     color: '#111827',
