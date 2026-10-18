@@ -1034,11 +1034,12 @@ export default function Sakumlapa() {
     }
   }
 
-  const totalPages = Math.max(1, Math.ceil(sortedFilteredCars.length / LISTINGS_PER_PAGE))
+  const listingsPerPage = !isMobileCatalogue && searchMake === '' && !showFavorites ? 80 : LISTINGS_PER_PAGE
+  const totalPages = Math.max(1, Math.ceil(sortedFilteredCars.length / listingsPerPage))
   const safeCurrentPage = Math.min(currentPage, totalPages)
   const paginatedCars = sortedFilteredCars.slice(
-    (safeCurrentPage - 1) * LISTINGS_PER_PAGE,
-    safeCurrentPage * LISTINGS_PER_PAGE
+    (safeCurrentPage - 1) * listingsPerPage,
+    safeCurrentPage * listingsPerPage
   )
 
   const setPageAndHistory = (page: number) => {
