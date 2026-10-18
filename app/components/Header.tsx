@@ -603,6 +603,25 @@ export default function Header() {
 
   const desktopLogoStyles = (
     <style>{`
+      header[data-temauto-header='true'] [data-header-visitor-stats='true'] {
+        position: absolute !important; top: calc(100% + 12px) !important; left: 0 !important; right: auto !important;
+        z-index: 1200; width: 340px !important; max-width: calc(100vw - 24px); padding: 16px !important;
+        box-sizing: border-box; color: #e2e8f0; background: linear-gradient(145deg, #172b48, #0f172a) !important;
+        border: 1px solid #3b597c !important; border-radius: 16px !important; box-shadow: 0 16px 40px #0005;
+      }
+      [data-visitor-heading='true'] { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; color: #fff; font-size: 15px; }
+      [data-visitor-heading='true'] button { border: 0; border-radius: 8px; background: #ffffff18; color: #fff; font-size: 20px; width: 30px; height: 30px; cursor: pointer; }
+      [data-visitor-total='true'] { display: flex; align-items: center; justify-content: space-between; padding: 12px; margin-bottom: 12px; border-radius: 10px; background: linear-gradient(110deg, #14532d, #075985); color: #fff !important; }
+      [data-visitor-total='true'] b { color: #86efac !important; font-size: 24px; font-variant-numeric: tabular-nums; }
+      [data-visitor-countries='true'] { display: block; max-height: min(420px, calc(100dvh - 230px)); overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; scrollbar-width: thin; scrollbar-color: #64748b #172b48; }
+      [data-visitor-country='true'] { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; font-size: 13px; }
+      [data-visitor-country='true']:nth-child(odd) { background: #ffffff08; }
+      [data-visitor-country='true'] img { width: 24px; height: 18px; object-fit: cover; border-radius: 3px; }
+      [data-visitor-country='true'] span { flex: 1; }
+      [data-visitor-country='true'] b { color: #7dd3fc !important; font-variant-numeric: tabular-nums; }
+      @media (max-width: 767px) {
+        header[data-temauto-header='true'] [data-header-visitor-stats='true'] { position: fixed !important; top: 52px !important; right: 12px !important; left: auto !important; }
+      }
       @media (min-width: 768px) {
         header[data-temauto-header='true'] {
           min-height: 58px !important;
@@ -1074,11 +1093,21 @@ export default function Header() {
                 onTouchCancel={() => {
                   visitorStatsTouchStart.current = null
                 }}
-                style={{ touchAction: 'none', overscrollBehavior: 'contain' }}
+                style={{ touchAction: 'pan-y', overscrollBehavior: 'contain' }}
               >
-                <strong>{t("Apmeklējumi pa reģioniem")}</strong>
-                <div><span>{t("Kopā 24h")}</span><b>{visitCount}</b></div>
-                <small>{t("Detalizēts sadalījums būs redzams pēc reģionu uzskaites pieslēgšanas.")}</small>
+                <section data-visitor-heading="true">
+                  <strong>🌍 {t("Apmeklējumi pa reģioniem")}</strong>
+                  <button type="button" aria-label={t("Aizvērt")} onClick={closeVisitorStats}>×</button>
+                </section>
+                <div data-visitor-total="true"><span>{t("Kopā 24h")}</span><b>{visitCount.toLocaleString('lv-LV')}</b></div>
+                <section data-visitor-countries="true" onTouchStart={event => event.stopPropagation()} onTouchMove={event => event.stopPropagation()} onTouchEnd={event => event.stopPropagation()}>
+                  {COUNTRIES.map(country => (
+                    <div key={country.code} data-visitor-country="true">
+                      <img src={`https://flagcdn.com/48x36/${country.code}.png`} alt="" loading="lazy" />
+                      <span>{t(country.name)}</span><b>0</b>
+                    </div>
+                  ))}
+                </section>
               </div>
             )}
           </div>
