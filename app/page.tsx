@@ -1145,7 +1145,7 @@ export default function Sakumlapa() {
         [data-listings-grid="true"] [data-card-price="true"] { display: none; }
         @media (max-width: 767px) {
           [data-listings-grid="true"] > a > div[data-home-photo-frame="true"] { height: auto !important; }
-          [data-home-photo-price="true"] { bottom: 10px; }
+          [data-home-photo-price="true"] { bottom: 6px; }
         }
         [data-desktop-card-engine="true"] { display: none; }
         @media (min-width: 768px) {
