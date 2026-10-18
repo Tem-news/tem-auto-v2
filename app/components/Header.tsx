@@ -561,8 +561,8 @@ export default function Header() {
       if (event.target instanceof Element && event.target.closest('[data-header-visitor-wrap="true"]')) return
       closeVisitorStats()
     }
-    document.addEventListener('click', dismissOutsideVisitorStats)
-    return () => document.removeEventListener('click', dismissOutsideVisitorStats)
+    document.addEventListener('click', dismissOutsideVisitorStats, true)
+    return () => document.removeEventListener('click', dismissOutsideVisitorStats, true)
   }, [visitorStatsOpen])
 
   const handleVisitorStatsTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
