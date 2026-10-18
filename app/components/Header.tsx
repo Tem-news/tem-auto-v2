@@ -554,6 +554,17 @@ export default function Header() {
     }
   }
 
+  useEffect(() => {
+    if (!visitorStatsOpen) return
+    const dismissOutsideVisitorStats = (event: MouseEvent) => {
+      if (!window.matchMedia('(min-width: 768px)').matches) return
+      if (event.target instanceof Element && event.target.closest('[data-header-visitor-wrap="true"]')) return
+      closeVisitorStats()
+    }
+    document.addEventListener('click', dismissOutsideVisitorStats)
+    return () => document.removeEventListener('click', dismissOutsideVisitorStats)
+  }, [visitorStatsOpen])
+
   const handleVisitorStatsTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
     event.stopPropagation()
     const touch = event.touches[0]
