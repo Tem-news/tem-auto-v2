@@ -582,6 +582,13 @@ export default function PievienotAuto() {
     }
 
     try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (userError || !user) {
+        sessionStorage.setItem('redirectAfterLogin', '/pievienot')
+        router.push('/login')
+        setLoading(false)
+        return
+      }
       const uploadedImageUrls: string[] = []
 
       for (const img of images) {
@@ -615,6 +622,7 @@ export default function PievienotAuto() {
 
       const { error } = await supabase.from('cars').insert([
         {
+          user_id: user.id,
           make: make.trim(),
           model: model.trim(),
           year: Number(year),
