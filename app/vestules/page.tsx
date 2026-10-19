@@ -97,7 +97,7 @@ export default function MessagesPage() {
     </button>)}</div>
     <button type="button" disabled={busy||loading} onClick={()=>{setError('');void Promise.all([loadLetters(),refreshCounts()]).catch(()=>setError('Neizdevās atjaunot iesūtni.'))}}>Atjaunot iesūtni</button>
     <p role="status" aria-live="polite">{error}</p>
-    <h2>{mailboxes[category]} — kopā: {total}</h2>
+    <h2>Izvēlētās pastkastītes vēstules — kopā: {total}</h2>
     {loading?<p>Ielādē…</p>:letters.length===0?<p>Šajā pastkastītē vēstuļu vēl nav.</p>:letters.map(letter=><button type="button" disabled={busy} data-mail-letter="true" data-mail-unread={!letter.read_at ? "true" : "false"} key={letter.id} onClick={()=>void open(letter)}>
       {!letter.read_at&&<span data-mail-unread-badge="true">Nelasīta</span>}<strong>{letter.email||'Bez e-pasta adreses'}</strong> · {new Date(letter.created_at).toLocaleString('lv-LV')}<br/>
       <span>{letter.body.slice(0,120)}{letter.body.length>120?'…':''}</span>
