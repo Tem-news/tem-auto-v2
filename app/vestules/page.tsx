@@ -31,14 +31,14 @@ export default function MessagesPage() {
     }))
     setCounts(Object.fromEntries(pairs))
   },[])
-  const loadLetters = useCallback(async () => {
+  const loadLetters = useCallback(async (background = false) => {
     const version = ++generation.current
-    setLoading(true)
+    if (!background) setLoading(true)
     try {
       const {data,count,error} = await supabase.from('temauto_messages').select('*',{count:'exact'}).eq('category',category).order('created_at',{ascending:false}).order('id').range(page*25,page*25+24)
       if(error) throw error
       if(version === generation.current){setLetters(data||[]);setTotal(count||0)}
-    } finally {if(version === generation.current)setLoading(false)}
+    } finally {if(version === generation.current && !background)setLoading(false)}
   },[category,page])
   useEffect(() => {
     let alive=true
@@ -49,16 +49,16 @@ export default function MessagesPage() {
   },[])
   useEffect(()=>{
     if(access!=='allowed')return
-    const refresh=()=>{void refreshCounts().catch(()=>setError('Neizdevās ielādēt vēstuļu skaitu.'))}
-    refresh();const timer=window.setInterval(refresh,30000)
+    const refresh=()=>{void Promise.all([loadLetters(true),refreshCounts()]).catch(()=>setError('Neizdevās atjaunot iesūtni.'))}
+    const timer=window.setInterval(refresh,30000)
     return()=>window.clearInterval(timer)
-  },[access,refreshCounts])
+  },[access,refreshCounts,loadLetters])
   useEffect(()=>{
     if(access!=='allowed')return
     setSelected(null);setError('')
-    void loadLetters().catch(()=>setError('Neizdevās ielādēt vēstules. Mēģini vēlreiz.'))
+    void Promise.all([loadLetters(),refreshCounts()]).catch(()=>setError('Neizdevās ielādēt vēstules. Mēģini vēlreiz.'))
     return()=>{generation.current++}
-  },[access,loadLetters])
+  },[access,loadLetters,refreshCounts])
   const update = async (letter:PlatformMessage, changes:{read_at?:string|null;status?:PlatformMessage['status']}) => {
     setBusy(true);setError('')
     try {
@@ -83,6 +83,8 @@ export default function MessagesPage() {
       [data-mail-admin="true"] [data-mail-box]{padding:14px;border:1px solid #94a3b8;border-radius:10px;background:#f8fafc;color:inherit;text-align:left}
       [data-mail-admin="true"] [data-mail-box][aria-pressed="true"]{background:#dbeafe;border-color:#2563eb}
       [data-mail-admin="true"] [data-mail-letter]{display:block;width:100%;padding:14px;margin-bottom:8px;border:1px solid #94a3b8;border-radius:8px;background:#fff;color:inherit;text-align:left;overflow-wrap:anywhere}
+      [data-mail-admin="true"] [data-mail-letter][data-mail-unread="true"]{border-left:5px solid #2563eb}
+      [data-mail-admin="true"] [data-mail-unread-badge]{display:inline-block;margin-right:8px;margin-bottom:4px;padding:2px 8px;border-radius:12px;background:#dc2626;color:#fff;font-size:13px;font-weight:700}
       [data-mail-admin="true"] [data-mail-detail]{padding:18px;margin-top:20px;border:1px solid #94a3b8;border-radius:10px;background:#fff;overflow-wrap:anywhere}
       @media(max-width:767px){[data-mail-admin="true"]>h1,[data-mail-admin="true"]>a{display:none}html[data-temauto-theme="night"] [data-mail-admin="true"]{color:#f1f5f9;background:#020617}html[data-temauto-theme="night"] [data-mail-admin="true"] [data-mail-box],html[data-temauto-theme="night"] [data-mail-admin="true"] [data-mail-letter],html[data-temauto-theme="night"] [data-mail-admin="true"] [data-mail-detail]{background:#0f172a}html[data-temauto-theme="night"] [data-mail-admin="true"] [data-mail-box][aria-pressed="true"]{background:#1e3a8a}}
       @media(min-width:768px){html[data-temauto-desktop-theme="night"] [data-mail-admin="true"]{color:#f1f5f9;background:#020617}html[data-temauto-desktop-theme="night"] [data-mail-admin="true"] [data-mail-box],html[data-temauto-desktop-theme="night"] [data-mail-admin="true"] [data-mail-letter],html[data-temauto-desktop-theme="night"] [data-mail-admin="true"] [data-mail-detail]{background:#0f172a}html[data-temauto-desktop-theme="night"] [data-mail-admin="true"] [data-mail-box][aria-pressed="true"]{background:#1e3a8a}}
@@ -95,9 +97,9 @@ export default function MessagesPage() {
     </button>)}</div>
     <button type="button" disabled={busy||loading} onClick={()=>{setError('');void Promise.all([loadLetters(),refreshCounts()]).catch(()=>setError('Neizdevās atjaunot iesūtni.'))}}>Atjaunot iesūtni</button>
     <p role="status" aria-live="polite">{error}</p>
-    <h2>{mailboxes[category]} ({total})</h2>
-    {loading?<p>Ielādē…</p>:letters.length===0?<p>Šajā pastkastītē vēstuļu vēl nav.</p>:letters.map(letter=><button type="button" disabled={busy} data-mail-letter="true" key={letter.id} onClick={()=>void open(letter)}>
-      <strong>{!letter.read_at?'● ':''}{letter.email||'Bez e-pasta adreses'}</strong> · {new Date(letter.created_at).toLocaleString('lv-LV')}<br/>
+    <h2>{mailboxes[category]} — kopā: {total}</h2>
+    {loading?<p>Ielādē…</p>:letters.length===0?<p>Šajā pastkastītē vēstuļu vēl nav.</p>:letters.map(letter=><button type="button" disabled={busy} data-mail-letter="true" data-mail-unread={!letter.read_at ? "true" : "false"} key={letter.id} onClick={()=>void open(letter)}>
+      {!letter.read_at&&<span data-mail-unread-badge="true">Nelasīta</span>}<strong>{letter.email||'Bez e-pasta adreses'}</strong> · {new Date(letter.created_at).toLocaleString('lv-LV')}<br/>
       <span>{letter.body.slice(0,120)}{letter.body.length>120?'…':''}</span>
     </button>)}
     {total>25&&<div style={{display:'flex',gap:12,alignItems:'center'}}>
