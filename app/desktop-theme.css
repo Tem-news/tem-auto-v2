@@ -273,3 +273,50 @@
     color: #93c5fd !important;
   }
 }
+
+/* Registration/sign-in: desktop night palette only. */
+@media (min-width: 768px) {
+  html[data-temauto-desktop-theme='night'] body:has([data-login-page='true']),
+  html[data-temauto-desktop-theme='night'] [data-login-page='true'] {
+    background-color: #020617 !important;
+    color: #e2e8f0 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-login-card='true'] {
+    background-color: #0f172a !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+    color-scheme: dark;
+  }
+  html[data-temauto-desktop-theme='night'] [data-login-card='true'] h1 {
+    color: #f1f5f9 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-login-card='true'] > p {
+    color: #94a3b8 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-login-card='true'] input {
+    background-color: #1e293b !important;
+    border-color: #475569 !important;
+    color: #f1f5f9 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-login-card='true'] input::placeholder {
+    color: #94a3b8 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-login-card='true'] :is(a, [role='status'], button:not([type])),
+  html[data-temauto-desktop-theme='night'] [data-login-card='true'] [role='status'] button {
+    color: #93c5fd !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-login-card='true'] > div[style*='background-color: rgb(254, 226, 226)'],
+  html[data-temauto-desktop-theme='night'] [data-login-card='true'] > div[style*='background-color:#fee2e2'] {
+    background-color: #450a0a !important;
+    color: #fecaca !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-login-card='true'] > div[style*='background-color: rgb(220, 252, 231)'],
+  html[data-temauto-desktop-theme='night'] [data-login-card='true'] > div[style*='background-color:#dcfce7'] {
+    background-color: #052e16 !important;
+    color: #bbf7d0 !important;
+  }
+  html[data-temauto-desktop-theme='night'] [data-login-ad='true'] [data-desktop-ad-slot] {
+    background-color: #0f172a !important;
+    border-color: #334155 !important;
+  }
+}
