@@ -232,6 +232,26 @@ export default function AutoLapa() {
     fetchCarData()
   }, [id])
 
+  useEffect(() => {
+    if (!car) return
+    const alignMobileInfo = () => {
+      if (!window.matchMedia('(max-width: 767px)').matches) return
+      const layout = document.querySelector<HTMLElement>('[data-listing-detail-layout="true"]')
+      const info = document.querySelector<HTMLElement>('[data-listing-detail-data="true"]')
+      const photo = document.querySelector<HTMLElement>('[data-listing-main-photo="true"]')
+      if (!layout || !info || !photo) return
+      const margin = parseFloat(window.getComputedStyle(info).marginTop) || 0
+      const offset = margin + photo.getBoundingClientRect().bottom - (info.getBoundingClientRect().top + window.scrollY)
+      layout.style.setProperty('--listing-mobile-info-offset', `${offset}px`)
+    }
+    const frame = window.requestAnimationFrame(alignMobileInfo)
+    window.addEventListener('resize', alignMobileInfo)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.removeEventListener('resize', alignMobileInfo)
+    }
+  }, [car?.id])
+
   const allImages: string[] = []
   if (car?.image) allImages.push(car.image)
   if (car?.image_url && !allImages.includes(car.image_url)) allImages.push(car.image_url)
@@ -722,7 +742,7 @@ export default function AutoLapa() {
             order: 2;
             width: 100% !important;
             min-width: 0 !important;
-            margin-top: calc(56.25vw + 4px) !important;
+            margin-top: var(--listing-mobile-info-offset, calc(56.25vw + 48px)) !important;
             gap: 0 !important;
           }
 
