@@ -523,6 +523,7 @@ export default function AutoLapa() {
     <>
       <style>{`
         @media (min-width: 768px) {
+          [data-listing-main-photo='true'] [data-listing-photo-price='true'] { display: none !important; }
           [data-listing-gallery-actions='true'],
           [data-listing-gallery-info='true'] {
             width: min(100%, 640px) !important;
