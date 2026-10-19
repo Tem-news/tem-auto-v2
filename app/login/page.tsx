@@ -3,6 +3,7 @@
 import AdvertisingSlot from '../components/AdvertisingSlot'
 
 import { useI18n } from '../../lib/i18n'
+import { authMessages } from '../../lib/authMessages'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -11,7 +12,8 @@ import { supabase } from '../../lib/supabase'
 import '../catalogue-mobile.css'
 
 export default function LoginPage() {
-  const { t, matches, canonical } = useI18n()
+  const { t, language } = useI18n()
+  const copy = authMessages[language]
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -19,11 +21,50 @@ export default function LoginPage() {
   const [isRegistering, setIsRegistering] = useState(false)
   const [message, setMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
   const [loading, setLoading] = useState(false)
+  const [confirmationEmail, setConfirmationEmail] = useState('')
+  const [resending, setResending] = useState(false)
+  const [resendAfter, setResendAfter] = useState(0)
+  const [resendRemaining, setResendRemaining] = useState(0)
 
   useEffect(() => {
     const mode = new URLSearchParams(window.location.search).get('mode')
     if (mode === 'register') setIsRegistering(true)
   }, [])
+
+  useEffect(() => {
+    if (!resendAfter) return
+    const update = () => setResendRemaining(Math.max(0, Math.ceil((resendAfter - Date.now()) / 1000)))
+    update()
+    const timer = window.setInterval(update, 1000)
+    return () => window.clearInterval(timer)
+  }, [resendAfter])
+
+  const finishLogin = () => {
+    const redirectUrl = sessionStorage.getItem('redirectAfterLogin')
+    sessionStorage.removeItem('redirectAfterLogin')
+    router.push(redirectUrl && redirectUrl.startsWith('/') && !redirectUrl.startsWith('//') ? redirectUrl : '/')
+    router.refresh()
+  }
+
+  const resendConfirmation = async () => {
+    if (resending || Date.now() < resendAfter || !confirmationEmail) return
+    setResending(true)
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: confirmationEmail,
+        options: { emailRedirectTo: `${window.location.origin}/login` },
+      })
+      if (error) throw error
+      setMessage({ type: 'success', text: copy[2] })
+      setResendAfter(Date.now() + 60000)
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err.message || t('Kaut kas nogāja greizi') })
+      if (err.status === 429) setResendAfter(Date.now() + 60000)
+    } finally {
+      setResending(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,27 +72,29 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
+      const normalizedEmail = email.trim()
       if (isRegistering) {
-        const { error } = await supabase.auth.signUp({ email, password })
-        if (error) throw error
-        setMessage({
-          type: 'success',
-          text: t('Reģistrācija veiksmīga! Tagad varat ielogoties.'),
+        const { data, error } = await supabase.auth.signUp({
+          email: normalizedEmail,
+          password,
+          options: { emailRedirectTo: `${window.location.origin}/login` },
         })
+        if (error) throw error
+        if (data.session) {
+          finishLogin()
+          return
+        }
+        setConfirmationEmail(normalizedEmail)
+        setMessage(null)
+        setResendAfter(Date.now() + 60000)
         setIsRegistering(false)
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password })
-        if (error) throw error
-
-        // Pārbaudām, vai ir saglabāta lapa, uz kuru lietotājs gribēja iet
-        const redirectUrl = sessionStorage.getItem('redirectAfterLogin')
-        if (redirectUrl) {
-          sessionStorage.removeItem('redirectAfterLogin') // Notīrām, lai nepaliek atmiņā
-          router.push(redirectUrl)
-        } else {
-          router.push('/')
+        const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password })
+        if (error) {
+          if (error.code === 'email_not_confirmed') setConfirmationEmail(normalizedEmail)
+          throw error
         }
-        router.refresh()
+        finishLogin()
       }
     } catch (err: any) {
       setMessage({ type: 'error', text: err.message || t('Kaut kas nogāja greizi') })
@@ -231,6 +274,17 @@ export default function LoginPage() {
             </div>
           )}
 
+          {confirmationEmail && (
+            <div role="status" style={{ marginBottom: '16px', fontSize: '14px', color: '#2563eb', overflowWrap: 'anywhere' }}>
+              <p>{copy[0]}</p>
+              <p><strong>{confirmationEmail}</strong></p>
+              <button type="button" disabled={resending || resendRemaining > 0} onClick={resendConfirmation}
+                style={{ padding: '10px', borderRadius: '6px', border: '1px solid #2563eb', background: 'transparent', color: '#2563eb', cursor: 'pointer' }}>
+                {resending ? t('Lūdzu, uzgaidiet...') : copy[1]}{resendRemaining > 0 ? ` (${resendRemaining}s)` : ''}
+              </button>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div>
               <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>{t("E-pasts")}
@@ -239,7 +293,8 @@ export default function LoginPage() {
                 type="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => { setEmail(e.target.value); setConfirmationEmail(''); setMessage(null) }}
+                autoComplete="email"
                 placeholder={t("vards@epasts.lv")}
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
               />
@@ -252,6 +307,7 @@ export default function LoginPage() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
+                  autoComplete={isRegistering ? 'new-password' : 'current-password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
