@@ -502,6 +502,16 @@ export default function AutoLapa() {
     <>
       <style>{`
         @media (min-width: 768px) {
+          [data-listing-gallery-actions='true'],
+          [data-listing-gallery-info='true'] {
+            width: min(100%, 640px) !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            box-sizing: border-box;
+          }
+          [data-listing-gallery-actions='true'] { padding-left: 12px; }
+          [data-listing-gallery-info='true'] > h1 { padding-left: 20px; }
+          [data-listing-gallery-info='true'] > div { padding-left: 28px; }
           [data-listing-main-photo='true'] {
             width: min(100%, 640px) !important;
             aspect-ratio: 16 / 9 !important;
