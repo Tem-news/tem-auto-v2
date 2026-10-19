@@ -759,7 +759,7 @@ export default function AutoLapa() {
             order: 3;
             width: 100% !important;
             height: auto !important;
-            min-height: 240px !important;
+            min-height: 0 !important;
           }
 
           [data-listing-detail-sponsors="true"] {
