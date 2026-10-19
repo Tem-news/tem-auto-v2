@@ -211,8 +211,9 @@ export default function AutoLapa() {
         .maybeSingle()
 
       if (!carError && carData) {
-        await supabase.rpc('increment_view', { car_id: id })
-        setCar(carData)
+        const { data: views, error: viewError } = await supabase.rpc('increment_view', { car_id: id })
+        if (viewError) console.error('Kļūda uzskaitot skatījumu:', viewError)
+        setCar(!viewError && typeof views === 'number' ? { ...carData, views } : carData)
         const mainImg = carData.image || (carData.images && carData.images[0]) || ''
         setActiveImage(mainImg)
       } else if (canUseDevPreviewFallback()) {
