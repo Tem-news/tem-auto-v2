@@ -722,7 +722,7 @@ export default function AutoLapa() {
             order: 2;
             width: 100% !important;
             min-width: 0 !important;
-            margin-top: calc(56.25vw + 32px) !important;
+            margin-top: calc(56.25vw + 4px) !important;
             gap: 0 !important;
           }
 
