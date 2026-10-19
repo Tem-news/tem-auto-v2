@@ -84,6 +84,33 @@ export default function Header() {
 
   const [user, setUser] = useState<any>(null)
   const [visitCount, setVisitCount] = useState<number>(0)
+  const [countryVisits, setCountryVisits] = useState<Record<string, number>>({})
+  useEffect(() => {
+    let active = true
+    let pending = false
+    async function refreshVisits() {
+      if (pending || document.visibilityState === 'hidden') return
+      pending = true
+      try {
+        const response = await fetch('/api/visits', { method: 'POST', cache: 'no-store' })
+        if (!response.ok) return
+        const data = await response.json()
+        if (active && typeof data.total === 'number' && data.countries) {
+          setVisitCount(data.total)
+          setCountryVisits(data.countries)
+        }
+      } catch { /* Keep the last successful counts during a temporary outage. */ }
+      finally { pending = false }
+    }
+    void refreshVisits()
+    const timer = window.setInterval(refreshVisits, 60000)
+    document.addEventListener('visibilitychange', refreshVisits)
+    return () => {
+      active = false
+      window.clearInterval(timer)
+      document.removeEventListener('visibilitychange', refreshVisits)
+    }
+  }, [])
 
   const currentLang = language
   const setCurrentLang = (code: string) => { if (code === 'LV' || code === 'EN' || code === 'RU' || code === 'LT' || code === 'EE' || code === 'DE' || code === 'FR' || code === 'ES' || code === 'PT' || code === 'IT' || code === 'FI' || code === 'PL' || code === 'SV' || code === 'NO' || code === 'DA' || code === 'BG' || code === 'HU' || code === 'RO' || code === 'CS' || code === 'EL' || code === 'NL' || code === 'GA' || code === 'SK' || code === 'SL' || code === 'MT' || code === 'TR') setLanguage(code) }
@@ -191,18 +218,7 @@ export default function Header() {
       setUser(session?.user ?? null)
     })
 
-    async function fetchVisits() {
-      const twentyFourHoursAgo = new Date(new Date().getTime() - 24 * 60 * 60 * 1000).toISOString()
-      const { count, error } = await supabase
-        .from('site_visits')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', twentyFourHoursAgo)
 
-      if (!error && count !== null) {
-        setVisitCount(count)
-      }
-    }
-    fetchVisits()
 
     function handleClickOutside(event: MouseEvent) {
       if (langRef.current && !langRef.current.contains(event.target as Node)) {
@@ -1115,7 +1131,7 @@ export default function Header() {
                   {COUNTRIES.map(country => (
                     <div key={country.code} data-visitor-country="true">
                       <img src={`https://flagcdn.com/48x36/${country.code}.png`} alt="" loading="lazy" />
-                      <span>{t(country.name)}</span><b>0</b>
+                      <span>{t(country.name)}</span><b>{(countryVisits[country.code] || 0).toLocaleString('lv-LV')}</b>
                     </div>
                   ))}
                 </section>
