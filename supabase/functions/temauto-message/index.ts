@@ -3,7 +3,8 @@ declare const Deno: { env: { get(name: string): string | undefined }; serve(hand
 
 Deno.serve(async request => {
   const origin = request.headers.get('origin') || ''
-  const allowed = !origin || origin === 'https://tem-auto-v2-zc4n.vercel.app' ||
+  const allowed = !origin || origin === 'https://temautoplace.com' ||
+    origin === 'https://www.temautoplace.com' || origin === 'https://tem-auto-v2-zc4n.vercel.app' ||
     /^https:\/\/tem-auto-v2-zc4n-[a-z0-9-]+-tem-news1\.vercel\.app$/.test(origin)
   const headers = { 'Access-Control-Allow-Origin': origin || '*', 'Vary': 'Origin',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
