@@ -1,4 +1,5 @@
 'use client'
+import { prepareListingPhoto } from '../../../../lib/listingPhoto'
 
 import AdvertisingSlot from '../../../components/AdvertisingSlot'
 import ListingCountries from '../../../components/ListingCountries'
@@ -663,10 +664,19 @@ export default function RedigetAuto() {
     let finalUrls = []
     for (const img of images) {
       if (img.isNew && img.file) {
-        const fileName = `${Date.now()}-${Math.random()}.jpg`
-        await supabase.storage.from('car-images').upload(fileName, img.file)
-        const { data } = supabase.storage.from('car-images').getPublicUrl(fileName)
-        finalUrls.push(data.publicUrl)
+        let photo: File
+        try {
+          photo = await prepareListingPhoto(img.file)
+          const fileName = `${Date.now()}-${crypto.randomUUID()}-${photo.name}`
+          const { error } = await supabase.storage.from('car-images').upload(fileName, photo)
+          if (error) throw error
+          const { data } = supabase.storage.from('car-images').getPublicUrl(fileName)
+          finalUrls.push(data.publicUrl)
+        } catch {
+          setSaving(false)
+          alert(t('Neizdevās augšupielādēt attēlu.'))
+          return
+        }
       } else {
         finalUrls.push(img.url)
       }

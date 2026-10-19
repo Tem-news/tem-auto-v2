@@ -1,4 +1,5 @@
 'use client'
+import { prepareListingPhoto } from '../../lib/listingPhoto'
 
 import AdvertisingSlot from '../components/AdvertisingSlot'
 import ListingCountries from '../components/ListingCountries'
@@ -593,19 +594,20 @@ export default function PievienotAuto() {
 
       for (const img of images) {
         if (img.file) {
-          const fileExt = img.file.name.split('.').pop()
+          const photo = await prepareListingPhoto(img.file)
+          const fileExt = photo.name.split('.').pop()
           const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`
 
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('car-images')
-            .upload(fileName, img.file, {
+            .upload(fileName, photo, {
               cacheControl: '3600',
               upsert: false
             })
 
           if (uploadError) {
             console.error('Kļūda augšupielādējot attēlu:', uploadError.message)
-            continue
+            throw uploadError
           }
 
           const { data: publicUrlData } = supabase.storage
