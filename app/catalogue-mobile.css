@@ -1249,9 +1249,11 @@
     grid-column: 2;
     grid-row: 2;
     display: flex !important;
-    gap: 6px;
+    gap: 3px;
     align-items: center;
     min-width: 0;
+    font-size: clamp(10px, 3vw, 12px);
+    white-space: nowrap;
   }
 
   [data-make-table-row='true'] > [data-cell='year'] > span:first-child {
@@ -1261,7 +1263,7 @@
   [data-mobile-engine-summary='true'] {
     display: block !important;
     min-width: 0;
-    word-spacing: 2px;
+    word-spacing: 0;
     overflow: hidden;
     color: #374151;
     white-space: nowrap;
@@ -1270,7 +1272,7 @@
 
   [data-mobile-engine-summary='true']::before {
     content: '|';
-    margin-right: 6px;
+    margin-right: 3px;
   }
 
   [data-make-table-row='true'] > [data-cell='price'] {
