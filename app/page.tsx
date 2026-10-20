@@ -1914,7 +1914,9 @@ export default function Sakumlapa() {
                     
                     const engineType = car.engine || car.engine_type || car.fuel_type || car.fuel || car.dzinejs || car.degviela || '-'
                     const engineVolume = car.volume !== null && car.volume !== undefined && car.volume !== '' ? `${car.volume}L` : ''
-                    const mobileEngineSummary = [engineType === '-' ? '' : engineType, engineVolume].filter(Boolean).join(' ')
+                    const mobileEngine = [engineType === '-' ? '' : engineType, engineVolume].filter(Boolean).join(' ')
+                    const mobileGearbox = car.gearbox || car.atrumkarba || car.transmission || ''
+                    const mobileEngineSummary = [mobileEngine, mobileGearbox].filter(value => value && value !== '-').join(' | ')
                     const bodyType = car.body_type || car.virsbuve || '-'
                     const carColor = car.color || car.krasa || '-'
                     const rawMileage = car.mileage || car.noobraukums || car.nobraukums
