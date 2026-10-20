@@ -1150,6 +1150,7 @@ export default function Sakumlapa() {
         }
         [data-desktop-card-engine="true"] { display: none; }
         @media (min-width: 768px) {
+          [data-listings-grid="true"] [data-card-meta="true"] { margin-top: auto; }
           [data-desktop-card-engine="true"] { display: inline; }
           [data-makes-info='true'] { margin-bottom: 12px; }
           [data-catalogue-layout="true"] [data-make-table-row="true"] > [data-cell="car"] {
