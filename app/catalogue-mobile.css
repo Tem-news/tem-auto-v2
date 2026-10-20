@@ -1252,7 +1252,8 @@
     gap: 3px;
     align-items: center;
     min-width: 0;
-    font-size: clamp(10px, 3vw, 12px);
+    font-size: 13px;
+    letter-spacing: -0.3px;
     white-space: nowrap;
   }
 
@@ -1263,7 +1264,7 @@
   [data-mobile-engine-summary='true'] {
     display: block !important;
     min-width: 0;
-    word-spacing: 0;
+    word-spacing: -1px;
     overflow: hidden;
     color: #374151;
     white-space: nowrap;
