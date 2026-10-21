@@ -8,8 +8,9 @@ export const revalidate = 31536000
 type DemoPhoto = { source: string; width: number; height: number; plates: number[][] }
 const photos: Record<string, DemoPhoto> = photoManifest
 
-export async function GET(_request: Request, { params }: { params: { name: string } }) {
-  const photo = Object.prototype.hasOwnProperty.call(photos, params.name) ? photos[params.name] : null
+export async function GET(_request: Request, { params }: { params: Promise<{ name: string }> }) {
+  const { name } = await params
+  const photo = Object.prototype.hasOwnProperty.call(photos, name) ? photos[name] : null
   if (!photo) return new Response('Photo not found', { status: 404 })
 
   try {
