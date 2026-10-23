@@ -171,20 +171,39 @@ function ListingCardGallery({ images, alt, compact = false }: { images: string[]
       galleryTouched.current = false
       placeOnFirstImage()
     }
+    let previousPageY = window.scrollY
+    const restoreCoverOnPageScroll = () => {
+      const pageY = window.scrollY
+      const movedVertically = pageY !== previousPageY
+      previousPageY = pageY
+      if (!movedVertically || compact || !galleryTouched.current ||
+        !window.matchMedia('(min-width: 768px)').matches) return
+      if (scrollEndTimer.current) clearTimeout(scrollEndTimer.current)
+      const drag = mouseDrag.current
+      mouseDrag.current = null
+      if (drag) {
+        didSwipe.current = true
+        const gallery = galleryRef.current
+        if (gallery?.hasPointerCapture(drag.pointerId)) gallery.releasePointerCapture(drag.pointerId)
+      }
+      restoreCover()
+    }
     const resizeObserver = new ResizeObserver(() => {
       if (!galleryTouched.current) placeOnFirstImage()
     })
     if (galleryRef.current) resizeObserver.observe(galleryRef.current)
     placeOnFirstImage()
+    window.addEventListener('scroll', restoreCoverOnPageScroll, { passive: true })
     window.addEventListener('pageshow', restoreCover)
     window.addEventListener('resize', placeOnFirstImage)
     return () => {
+      window.removeEventListener('scroll', restoreCoverOnPageScroll)
       window.removeEventListener('resize', placeOnFirstImage)
       window.removeEventListener('pageshow', restoreCover)
       resizeObserver.disconnect()
       if (scrollEndTimer.current) clearTimeout(scrollEndTimer.current)
     }
-  }, [isLooping, images.join('|')])
+  }, [isLooping, images.join('|'), compact])
 
   const handleScroll = () => {
     if (!isLooping || !galleryRef.current || mouseDrag.current) return
