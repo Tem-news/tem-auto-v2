@@ -1880,7 +1880,7 @@ export default function Sakumlapa() {
                 {/* Nekustīgā zaļā galvenes strīpa */}
                 <div data-make-table-header="true" style={{ 
                   display: 'grid', 
-                  gridTemplateColumns: '110px 160px 60px 80px 90px 90px 80px 100px 1fr 110px', 
+                  gridTemplateColumns: searchMake && !showFavorites ? '110px 160px 60px 80px 90px 90px 80px 100px 1fr 110px' : '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
                   backgroundColor: '#15803d', 
                   color: '#ffffff', 
                   padding: '10px 12px', 
@@ -1895,7 +1895,7 @@ export default function Sakumlapa() {
                   <div>{t("Automobilis")}</div>
                   <div>{t("Gads")}</div>
                   <div>{t("Dzinējs")}</div>
-                  <div data-desktop-table-gearbox="true" style={{ display: 'none' }}>{t("Ātrumkārba")}</div>
+                  {searchMake && !showFavorites && <div data-desktop-table-gearbox="true" style={{ display: 'none' }}>{t("Ātrumkārba")}</div>}
                   <div>{t("Virsbūve")}</div>
                   <div>{t("Krāsa")}</div>
                   <div>{t("Nobraukums")}</div>
@@ -1940,7 +1940,7 @@ export default function Sakumlapa() {
                         data-make-table-row="true"
                         style={{ 
                           display: 'grid', 
-                          gridTemplateColumns: '110px 160px 60px 80px 90px 90px 80px 100px 1fr 110px', 
+                          gridTemplateColumns: searchMake && !showFavorites ? '110px 160px 60px 80px 90px 90px 80px 100px 1fr 110px' : '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
                           alignItems: 'center', 
                           padding: '10px 12px', 
                           borderBottom: '1px solid #e5e7eb', 
@@ -2000,9 +2000,9 @@ export default function Sakumlapa() {
                           {engineType}
                         </div>
 
-                        <div data-cell="gearbox" data-desktop-table-gearbox="true" style={{ display: 'none', color: '#374151' }}>
+                        {searchMake && !showFavorites && <div data-cell="gearbox" data-desktop-table-gearbox="true" style={{ display: 'none', color: '#374151' }}>
                           {mobileGearbox || '-'}
-                        </div>
+                        </div>}
 
                         {/* 5. Virsbūve */}
                         <div data-cell="body" style={{ color: '#374151' }}>
