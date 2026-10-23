@@ -1152,6 +1152,7 @@ export default function Sakumlapa() {
         @media (min-width: 768px) {
           [data-listings-grid="true"] [data-card-meta="true"] { margin-top: auto; }
           [data-desktop-card-engine="true"] { display: inline; }
+          [data-desktop-table-gearbox="true"] { display: block !important; overflow-wrap: anywhere; }
           [data-makes-info='true'] { margin-bottom: 12px; }
           [data-catalogue-layout="true"] [data-make-table-row="true"] > [data-cell="car"] {
             flex-direction: column;
@@ -1879,7 +1880,7 @@ export default function Sakumlapa() {
                 {/* Nekustīgā zaļā galvenes strīpa */}
                 <div data-make-table-header="true" style={{ 
                   display: 'grid', 
-                  gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
+                  gridTemplateColumns: '110px 160px 60px 80px 90px 90px 80px 100px 1fr 110px', 
                   backgroundColor: '#15803d', 
                   color: '#ffffff', 
                   padding: '10px 12px', 
@@ -1894,6 +1895,7 @@ export default function Sakumlapa() {
                   <div>{t("Automobilis")}</div>
                   <div>{t("Gads")}</div>
                   <div>{t("Dzinējs")}</div>
+                  <div data-desktop-table-gearbox="true" style={{ display: 'none' }}>{t("Ātrumkārba")}</div>
                   <div>{t("Virsbūve")}</div>
                   <div>{t("Krāsa")}</div>
                   <div>{t("Nobraukums")}</div>
@@ -1938,7 +1940,7 @@ export default function Sakumlapa() {
                         data-make-table-row="true"
                         style={{ 
                           display: 'grid', 
-                          gridTemplateColumns: '110px 220px 80px 110px 100px 100px 100px 1fr 110px', 
+                          gridTemplateColumns: '110px 160px 60px 80px 90px 90px 80px 100px 1fr 110px', 
                           alignItems: 'center', 
                           padding: '10px 12px', 
                           borderBottom: '1px solid #e5e7eb', 
@@ -1996,6 +1998,10 @@ export default function Sakumlapa() {
                         {/* 4. Dzinējs */}
                         <div data-cell="engine" style={{ color: '#374151' }}>
                           {engineType}
+                        </div>
+
+                        <div data-cell="gearbox" data-desktop-table-gearbox="true" style={{ display: 'none', color: '#374151' }}>
+                          {mobileGearbox || '-'}
                         </div>
 
                         {/* 5. Virsbūve */}
