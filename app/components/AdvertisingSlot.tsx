@@ -8,11 +8,20 @@ import { useI18n } from '../../lib/i18n'
 import { catalogueCountryCode } from '../../lib/catalogueCountry'
 import { advertisementForCountry, mediaUrl, publishedAds, safeAdLink, type AdSlot, type Advertisement } from '../../lib/advertising'
 
-export default function AdvertisingSlot({ slot, as: Tag = 'div', children, style, ...attributes }: {
-  slot: AdSlot; as?: 'div' | 'aside'; children: ReactNode; style?: CSSProperties;
+export default function AdvertisingSlot({ slot, as: Tag = 'div', children, style, mobileCarousel = false, ...attributes }: {
+  slot: AdSlot; as?: 'div' | 'aside'; children: ReactNode; style?: CSSProperties; mobileCarousel?: boolean;
   [key: string]: unknown;
 }) {
   const { t } = useI18n()
+  const [mobileViewport, setMobileViewport] = useState(false)
+  useEffect(() => {
+    if (!mobileCarousel) return
+    const query = window.matchMedia('(max-width: 767px)')
+    const update = () => setMobileViewport(query.matches)
+    update()
+    query.addEventListener('change', update)
+    return () => query.removeEventListener('change', update)
+  }, [mobileCarousel])
   const [ad, setAd] = useState<Advertisement | null>(null)
   const [paused, setPaused] = useState(false)
   const [expanded, setExpanded] = useState(false)
@@ -80,6 +89,6 @@ export default function AdvertisingSlot({ slot, as: Tag = 'div', children, style
       </dialog>, document.body)}
     </> : children
   return <Tag {...attributes} data-desktop-ad-slot={mobile ? undefined : slot} data-desktop-ad-filled={!mobile && ad ? 'true' : undefined} style={{ ...style, ...(ad ? { position: 'relative', overflow: 'hidden', ...(mobile ? { height: 100, minHeight: 100 } : {}) } : {}), position: 'relative', overflow: 'hidden' }}>
-    {mobile ? <MobileAdCarousel>{content}</MobileAdCarousel> : <DesktopAdCarousel onPageChange={setInvitationShown}>{content}</DesktopAdCarousel>}
+    {mobile || (mobileCarousel && mobileViewport) ? <MobileAdCarousel>{content}</MobileAdCarousel> : <DesktopAdCarousel onPageChange={setInvitationShown}>{content}</DesktopAdCarousel>}
   </Tag>
 }

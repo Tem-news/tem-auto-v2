@@ -1414,6 +1414,7 @@ export default function AutoLapa() {
           {[1, 2].map((placement) => (
             <AdvertisingSlot as="aside" slot={placement === 1 ? "desktop_1" : "desktop_2"}
               key={placement}
+              mobileCarousel={placement === 1}
               aria-label={t("Sponsora vieta")}
               style={{ width: '100%', minHeight: 0, flex: '1 1 0', boxSizing: 'border-box', border: '2px dashed #d1d5db', borderRadius: '8px', padding: '20px', textAlign: 'center', backgroundColor: '#f9fafb', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#6b7280', fontSize: '13px' }}
             >
