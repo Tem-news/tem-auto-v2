@@ -1128,7 +1128,7 @@ export default function Header() {
                 </section>
                 <div data-visitor-total="true"><span>{t("Kopā 24h")}</span><b>{visitCount.toLocaleString('lv-LV')}</b></div>
                 <section data-visitor-countries="true" onTouchStart={event => event.stopPropagation()} onTouchMove={event => event.stopPropagation()} onTouchEnd={event => event.stopPropagation()}>
-                  {COUNTRIES.map(country => (
+                  {[...COUNTRIES].sort((a, b) => (countryVisits[b.code] || 0) - (countryVisits[a.code] || 0)).map(country => (
                     <div key={country.code} data-visitor-country="true">
                       <img src={`https://flagcdn.com/48x36/${country.code}.png`} alt="" loading="lazy" />
                       <span>{t(country.name)}</span><b>{(countryVisits[country.code] || 0).toLocaleString('lv-LV')}</b>
