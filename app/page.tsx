@@ -1170,6 +1170,7 @@ export default function Sakumlapa() {
         [data-desktop-card-engine="true"] { display: none; }
         @media (min-width: 768px) {
           [data-listings-grid="true"] [data-card-meta="true"] { margin-top: auto; }
+          [data-listings-grid="true"] [data-card-title="true"] + [role="button"] { align-self: flex-start; }
           [data-desktop-card-engine="true"] { display: inline; }
           [data-desktop-table-gearbox="true"] { display: block !important; overflow-wrap: anywhere; }
           [data-makes-info='true'] { margin-bottom: 12px; }
