@@ -791,6 +791,7 @@ export default function PievienotAuto() {
           }
 
           [data-add-car-form="true"] textarea {
+            font-size: 16px !important;
             min-height: 110px !important;
             padding: 8px !important;
             color: #111827 !important;
@@ -1417,9 +1418,6 @@ export default function PievienotAuto() {
                 placeholder={t("Papildus informācija par auto stāvokli, komplektāciju...")}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                onPointerDown={(event) => handleDropdownInputPointerDown(event, 'description')}
-                onPointerUp={(event) => handleDropdownInputPointerUp(event, 'description')}
-                onPointerCancel={handleDropdownInputPointerCancel}
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', resize: 'vertical' }}
               />
             </div>
