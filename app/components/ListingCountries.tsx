@@ -3,17 +3,39 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { COUNTRIES } from '../../lib/countries'
 import { useI18n } from '../../lib/i18n'
 
-export default function ListingCountries({ codes, onChange }: { codes: string[] | null; onChange: (codes: string[] | null) => void }) {
+export default function ListingCountries({ codes, onChange, mobileBack = false }: { codes: string[] | null; onChange: (codes: string[] | null) => void; mobileBack?: boolean }) {
   const { t, matches } = useI18n()
   const [phase, setPhase] = useState<0 | 1 | 2>(0)
   const [search, setSearch] = useState('')
   const container = useRef<HTMLFieldSetElement>(null)
   const input = useRef<HTMLInputElement>(null)
   const id = useId()
+  const mobileHistoryArmed = useRef(false)
+  const closeList = () => {
+    setPhase(0)
+    setSearch('')
+    input.current?.blur()
+    if (mobileHistoryArmed.current) {
+      mobileHistoryArmed.current = false
+      window.history.back()
+    }
+  }
+  useEffect(() => {
+    if (!mobileBack) return
+    const handleBack = () => {
+      if (!mobileHistoryArmed.current) return
+      mobileHistoryArmed.current = false
+      setPhase(0)
+      setSearch('')
+      input.current?.blur()
+    }
+    window.addEventListener('popstate', handleBack)
+    return () => window.removeEventListener('popstate', handleBack)
+  }, [mobileBack])
   useEffect(() => {
     if (!phase) return
     const close = (event: PointerEvent) => {
-      if (!container.current?.contains(event.target as Node)) { setPhase(0); setSearch(''); input.current?.blur() }
+      if (!container.current?.contains(event.target as Node)) { closeList() }
     }
     document.addEventListener('pointerdown', close)
     return () => document.removeEventListener('pointerdown', close)
@@ -27,13 +49,17 @@ export default function ListingCountries({ codes, onChange }: { codes: string[] 
   const toggle = () => {
     const mobile = window.matchMedia('(max-width: 767px)').matches
     if (!phase) {
+      if (mobile && mobileBack && !mobileHistoryArmed.current) {
+        window.history.pushState({ ...window.history.state, temautoListingCountries: id }, '', window.location.href)
+        mobileHistoryArmed.current = true
+      }
       if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
       setPhase(mobile ? 1 : 2)
       if (!mobile && input.current) { input.current.readOnly = false; input.current.focus() }
     } else if (mobile && phase === 1) {
       if (input.current) { input.current.readOnly = false; input.current.focus({ preventScroll: true }) }
       setPhase(2)
-    } else { setPhase(0); setSearch(''); input.current?.blur() }
+    } else { closeList() }
   }
   const summary = codes === null ? t('Visas valstis') : COUNTRIES.filter(country => codes.includes(country.code)).map(country => t(country.name)).join(', ')
   return <fieldset ref={container} data-listing-countries style={{ margin: 0, padding: 0, border: 0, minWidth: 0 }}>

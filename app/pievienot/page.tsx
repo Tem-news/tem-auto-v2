@@ -1376,7 +1376,7 @@ export default function PievienotAuto() {
 
             </div>
 
-            <ListingCountries codes={listingCountries} onChange={setVisibilityCountries} />
+            <ListingCountries mobileBack codes={listingCountries} onChange={setVisibilityCountries} />
 
             {/* Kontakti (E-pasts un Telefons) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
