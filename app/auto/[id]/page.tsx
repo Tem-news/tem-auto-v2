@@ -985,7 +985,7 @@ export default function AutoLapa() {
             {car.engine && (
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
                 <span style={{ color: '#6b7280', fontWeight: '500' }}>{t("Motors:")}</span>
-                <span style={{ color: '#111827', fontWeight: 'bold' }}>{car.engine}</span>
+                <span style={{ color: '#111827', fontWeight: 'bold' }}>{Boolean(car.volume) && <span>{Number.isInteger(Number(car.volume)) ? Number(car.volume).toFixed(1) : car.volume}L </span>}{car.engine}</span>
               </div>
             )}
 
