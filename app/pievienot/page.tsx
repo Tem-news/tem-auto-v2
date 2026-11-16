@@ -1118,7 +1118,7 @@ export default function PievienotAuto() {
                 <input
                   type="text"
                   placeholder={t("Izvēlieties kārbu...")}
-                  value={t(gearbox)}
+                  value={t(gearbox).replace(/^Manuālā$/, 'Manuāla')}
                   onChange={(e) => { setGearbox(canonical(e.target.value, GEARBOX_TYPES)); setActiveDropdown('gearbox'); }}
                   onPointerDown={(event) => handleDropdownInputPointerDown(event, 'gearbox')}
                   onPointerUp={(event) => handleDropdownInputPointerUp(event, 'gearbox')}
@@ -1137,7 +1137,7 @@ export default function PievienotAuto() {
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
                       >
-                        {t(gt)}
+                        {t(gt).replace(/^Manuālā$/, 'Manuāla')}
                       </div>
                     ))}
                   </div>
