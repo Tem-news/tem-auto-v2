@@ -420,6 +420,9 @@ export default function RedigetAuto() {
     const isMobileTouch = window.matchMedia('(max-width: 767px)').matches && event.pointerType !== 'mouse'
     if (!isMobileTouch) return
 
+    mobileDropdownPointerStart.current = null
+    if (!mobileSuggestionFields.has(name) || document.activeElement === event.currentTarget) return
+
     event.preventDefault()
     mobileDropdownPointerStart.current = { name, x: event.clientX, y: event.clientY }
   }
