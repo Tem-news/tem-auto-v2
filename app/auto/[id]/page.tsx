@@ -8,7 +8,7 @@ import { findCountry } from '../../../lib/countries'
 import DemoPhoto from '../../components/DemoPhoto'
 
 import { useEffect, useState, useRef } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../lib/supabase'
 import { canUseDevPreviewFallback, getAdaptedPreviewCarById, isPreviewListing } from '../../../lib/previewFallback'
@@ -49,7 +49,15 @@ const getCountryFlagCode = (country: string, storedCode?: string) => {
 export default function AutoLapa() {
   const { t, matches, canonical } = useI18n()
   const params = useParams()
+  const router = useRouter()
   const id = params?.id
+
+  const openMobileEditor = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.stopPropagation()
+    if (!window.matchMedia('(max-width: 767px)').matches) return
+    event.preventDefault()
+    router.replace(`/auto/${id}/edit`)
+  }
 
   const [car, setCar] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -1162,7 +1170,7 @@ export default function AutoLapa() {
             </button>
             {!isPreviewListing(car) && Boolean(car.user_id) && car.user_id === currentUserId && (
               <div>
-                <Link href={`/auto/${id}/edit`} style={{ padding: '6px 14px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold', display: 'inline-block' }}>{t("✏️ Rediģēt")}
+                <Link href={`/auto/${id}/edit`} onClick={openMobileEditor} style={{ padding: '6px 14px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold', display: 'inline-block' }}>{t("✏️ Rediģēt")}
                 </Link>
               </div>
             )}
@@ -1277,7 +1285,7 @@ export default function AutoLapa() {
                 <Link
                   href={`/auto/${id}/edit`}
                   data-listing-photo-edit="true"
-                  onClick={(event) => event.stopPropagation()}
+                  onClick={openMobileEditor}
                   style={{
                     display: 'none',
                     position: 'absolute',

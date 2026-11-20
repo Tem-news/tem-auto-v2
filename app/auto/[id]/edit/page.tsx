@@ -719,7 +719,8 @@ export default function RedigetAuto() {
     await cleanupCarPhotos()
     hasUnsavedChangesRef.current = false
     allowNavigationRef.current = true
-    router.push(`/auto/${id}`)
+    if (window.matchMedia('(max-width: 767px)').matches) router.replace(`/auto/${id}`)
+    else router.push(`/auto/${id}`)
   }
 
   // Dzēst visu sludinājumu no rediģēšanas lapas
