@@ -1,0 +1,2 @@
+ALTER TABLE public.temauto_ads DROP CONSTRAINT temauto_ads_slot_check;
+ALTER TABLE public.temauto_ads ADD CONSTRAINT temauto_ads_slot_check CHECK (slot IN ('desktop_1','desktop_2','desktop_form_1','desktop_form_2','desktop_form_left_1','desktop_form_left_2','desktop_login','mobile_menu','mobile_list','mobile_brands','mobile_brand_list','desktop_cabinet_left_1','desktop_cabinet_left_2','desktop_cabinet_right_1','desktop_cabinet_right_2'));
