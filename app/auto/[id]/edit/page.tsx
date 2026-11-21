@@ -265,7 +265,7 @@ export default function RedigetAuto() {
   const mobileFormPopHandled = useRef(false)
   const mobileActiveField = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null)
   const mobileActiveFieldName = useRef<string | null>(null)
-  const mobileDropdownPointerStart = useRef<{ name: string; x: number; y: number } | null>(null)
+  const mobileDropdownPointerStart = useRef<{ name: string; x: number; y: number; startedAt: number; focused: boolean } | null>(null)
 
   const mobileSuggestionFields = new Set([
     'country', 'region', 'make', 'model', 'year', 'engine', 'volume',
@@ -396,6 +396,7 @@ export default function RedigetAuto() {
     name: string,
     behavior: ScrollBehavior = 'smooth'
   ) => {
+    if (mobileDropdownPointerStart.current) return
     const hasSuggestions = mobileSuggestionFields.has(name)
     const anchorElement = hasSuggestions
       ? field.closest('.dropdown-container') as HTMLElement | null
@@ -420,11 +421,13 @@ export default function RedigetAuto() {
     const isMobileTouch = window.matchMedia('(max-width: 767px)').matches && event.pointerType !== 'mouse'
     if (!isMobileTouch) return
 
-    mobileDropdownPointerStart.current = null
-    if (!mobileSuggestionFields.has(name) || document.activeElement === event.currentTarget) return
-
+    const focused = document.activeElement === event.currentTarget
+    mobileDropdownPointerStart.current = {
+      name, x: event.clientX, y: event.clientY, startedAt: Date.now(), focused
+    }
+    // Keep native selection and paste available in editable text fields.
+    if (focused || !mobileSuggestionFields.has(name)) return
     event.preventDefault()
-    mobileDropdownPointerStart.current = { name, x: event.clientX, y: event.clientY }
   }
 
   const handleDropdownInputPointerUp = (
@@ -436,12 +439,12 @@ export default function RedigetAuto() {
     if (!start || start.name !== name) return
 
     const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y)
-    if (moved > 10) return
+    if (moved > 10 || Date.now() - start.startedAt >= 400) return
 
     mobileActiveField.current = event.currentTarget
     mobileActiveFieldName.current = name
 
-    if (mobileKeyboardReady.current === name && document.activeElement === event.currentTarget) {
+    if (mobileKeyboardReady.current === name && start.focused) {
       event.currentTarget.blur()
       mobileKeyboardReady.current = null
       setActiveDropdown(null)
