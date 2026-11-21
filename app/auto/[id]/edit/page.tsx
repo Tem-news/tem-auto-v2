@@ -1182,7 +1182,9 @@ export default function RedigetAuto() {
               </div>
 
               <input 
-                type="file" 
+                type="file"
+                id="edit-photo-upload"
+                accept="image/*"
                 multiple 
                 onChange={(e) => {
                   if (e.target.files) {
@@ -1197,8 +1199,12 @@ export default function RedigetAuto() {
                     e.target.value = ''
                   }
                 }} 
-                style={{ padding: '8px 0' }} 
+                style={{ display: 'none' }}
               />
+              <label htmlFor="edit-photo-upload" style={{ cursor: 'pointer', display: 'block', padding: '12px 8px', border: '2px dashed #cbd5e1', borderRadius: '8px', textAlign: 'center' }}>
+                <span style={{ display: 'block', color: '#2563eb', fontSize: '13.5px', fontWeight: '500', marginBottom: '2px' }}>{t("Izvēlēties failus")}</span>
+                <span style={{ fontSize: '11.5px', color: '#6b7280' }}>{t("PNG, JPG vai WEBP")}</span>
+              </label>
             </div>
 
             {/* Saglabāšanas un Dzēšanas pogas */}
