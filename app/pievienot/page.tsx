@@ -1429,7 +1429,7 @@ export default function PievienotAuto() {
                   if (window.matchMedia('(max-width: 767px)').matches && event.pointerType === 'touch' && document.activeElement !== event.currentTarget) {
                     event.currentTarget.focus({ preventScroll: true })
                   }
-                }
+                }}
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', resize: 'vertical' }}
               />
             </div>
