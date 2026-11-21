@@ -259,7 +259,7 @@ export default function PievienotAuto() {
   const mobileIgnoreNextPopstate = useRef(false)
   const mobileActiveField = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null)
   const mobileActiveFieldName = useRef<string | null>(null)
-  const mobileDropdownPointerStart = useRef<{ name: string; x: number; y: number; startedAt: number; focused: boolean } | null>(null)
+  const mobileDropdownPointerStart = useRef<{ name: string; x: number; y: number } | null>(null)
   
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -389,8 +389,6 @@ export default function PievienotAuto() {
     name: string,
     behavior: ScrollBehavior = 'smooth'
   ) => {
-    if (document.activeElement instanceof HTMLTextAreaElement && document.activeElement !== field) return
-    if (mobileDropdownPointerStart.current) return
     const hasSuggestions = mobileSuggestionFields.has(name)
     const anchorElement = hasSuggestions
       ? field.closest('.dropdown-container') as HTMLElement | null
@@ -412,13 +410,12 @@ export default function PievienotAuto() {
     const isMobileTouch = window.matchMedia('(max-width: 767px)').matches && event.pointerType !== 'mouse'
     if (!isMobileTouch) return
 
-    const focused = document.activeElement === event.currentTarget
-    mobileDropdownPointerStart.current = {
-      name, x: event.clientX, y: event.clientY, startedAt: Date.now(), focused
-    }
-    // Keep native selection and paste available in editable text fields.
-    if (focused || !mobileSuggestionFields.has(name)) return
     event.preventDefault()
+    mobileDropdownPointerStart.current = {
+      name,
+      x: event.clientX,
+      y: event.clientY
+    }
   }
 
   const handleDropdownInputPointerUp = (event: React.PointerEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
@@ -427,14 +424,14 @@ export default function PievienotAuto() {
     if (!start || start.name !== name) return
 
     const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y)
-    if (moved > 10 || Date.now() - start.startedAt >= 400) return
+    if (moved > 10) return
 
     mobileActiveField.current = event.currentTarget
     mobileActiveFieldName.current = name
 
     if (
       mobileKeyboardReady.current === name &&
-      start.focused
+      document.activeElement === event.currentTarget
     ) {
       event.currentTarget.blur()
       mobileKeyboardReady.current = null
@@ -1421,9 +1418,6 @@ export default function PievienotAuto() {
                 placeholder={t("Papildus informācija par auto stāvokli, komplektāciju...")}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                onPointerDown={(event) => handleDropdownInputPointerDown(event, 'description')}
-                onPointerUp={(event) => handleDropdownInputPointerUp(event, 'description')}
-                onPointerCancel={handleDropdownInputPointerCancel}
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', resize: 'vertical' }}
               />
             </div>
