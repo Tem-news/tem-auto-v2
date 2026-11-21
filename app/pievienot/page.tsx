@@ -389,6 +389,7 @@ export default function PievienotAuto() {
     name: string,
     behavior: ScrollBehavior = 'smooth'
   ) => {
+    if (document.activeElement instanceof HTMLTextAreaElement && document.activeElement !== field) return
     const hasSuggestions = mobileSuggestionFields.has(name)
     const anchorElement = hasSuggestions
       ? field.closest('.dropdown-container') as HTMLElement | null
@@ -409,6 +410,12 @@ export default function PievienotAuto() {
   const handleDropdownInputPointerDown = (event: React.PointerEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
     const isMobileTouch = window.matchMedia('(max-width: 767px)').matches && event.pointerType !== 'mouse'
     if (!isMobileTouch) return
+
+    mobileDropdownPointerStart.current = null
+    if (!mobileSuggestionFields.has(name) || document.activeElement === event.currentTarget) {
+      if (document.activeElement !== event.currentTarget) event.currentTarget.focus({ preventScroll: true })
+      return
+    }
 
     event.preventDefault()
     mobileDropdownPointerStart.current = {
@@ -1418,6 +1425,11 @@ export default function PievienotAuto() {
                 placeholder={t("Papildus informācija par auto stāvokli, komplektāciju...")}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                onPointerDown={(event) => {
+                  if (window.matchMedia('(max-width: 767px)').matches && event.pointerType === 'touch' && document.activeElement !== event.currentTarget) {
+                    event.currentTarget.focus({ preventScroll: true })
+                  }
+                }
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff', resize: 'vertical' }}
               />
             </div>
