@@ -743,6 +743,16 @@ export default function AutoLapa() {
             object-position: center !important;
           }
 
+          [data-listing-gallery-actions="true"][data-listing-without-photo="true"] {
+            display: flex !important;
+            justify-content: flex-end !important;
+            margin-bottom: 0 !important;
+            padding: 10px !important;
+          }
+          [data-listing-gallery-actions="true"][data-listing-without-photo="true"] > button {
+            display: none !important;
+          }
+
           [data-listing-photo-edit="true"] {
             display: inline-flex !important;
           }
@@ -1155,7 +1165,7 @@ export default function AutoLapa() {
         {/* VIDĒJĀ DAĻA: Bildes un virsraksts */}
         <div data-listing-detail-gallery="true" style={{ gridColumn: '2', gridRow: '1', width: '100%', maxWidth: '750px', minWidth: 0 }}>
           
-          <div data-listing-gallery-actions="true" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', paddingTop: '4px' }}>
+          <div data-listing-gallery-actions="true" data-listing-without-photo={!activeImage ? 'true' : undefined} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', paddingTop: '4px' }}>
             <button
               type="button"
               onClick={() => {
