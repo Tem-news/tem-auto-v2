@@ -83,6 +83,7 @@ export default function Header() {
   const desktopPageTitle = infoPageTitle || (isCabinet ? 'Mans kabinets' : isAddCar ? (pathname.includes('/edit') ? 'Rediģēt sludinājumu' : 'Pievienot sludinājumu') : isListingDetail ? 'Sludinājums' : pathname === '/login' ? 'Reģistrācija / Ienākt' : '')
 
   const [user, setUser] = useState<any>(null)
+  const canViewVisitorStats = user?.id === '6129ac66-bca4-49bf-8a55-b308c647e10c'
   const [visitCount, setVisitCount] = useState<number>(0)
   const [countryVisits, setCountryVisits] = useState<Record<string, number>>({})
   useEffect(() => {
@@ -92,7 +93,11 @@ export default function Header() {
       if (pending || document.visibilityState === 'hidden') return
       pending = true
       try {
-        const response = await fetch('/api/visits', { method: 'POST', cache: 'no-store' })
+        const { data: { session } } = await supabase.auth.getSession()
+        const response = await fetch('/api/visits', {
+          method: 'POST', cache: 'no-store',
+          headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+        })
         if (!response.ok) return
         const data = await response.json()
         if (active && typeof data.total === 'number' && data.countries) {
@@ -110,7 +115,7 @@ export default function Header() {
       window.clearInterval(timer)
       document.removeEventListener('visibilitychange', refreshVisits)
     }
-  }, [])
+  }, [user?.id])
 
   const currentLang = language
   const setCurrentLang = (code: string) => { if (code === 'LV' || code === 'EN' || code === 'RU' || code === 'LT' || code === 'EE' || code === 'DE' || code === 'FR' || code === 'ES' || code === 'PT' || code === 'IT' || code === 'FI' || code === 'PL' || code === 'SV' || code === 'NO' || code === 'DA' || code === 'BG' || code === 'HU' || code === 'RO' || code === 'CS' || code === 'EL' || code === 'NL' || code === 'GA' || code === 'SK' || code === 'SL' || code === 'MT' || code === 'TR') setLanguage(code) }
@@ -1087,7 +1092,7 @@ export default function Header() {
             )}
           </Link>
 
-          <div data-header-visitor-wrap="true" style={{ position: 'relative' }}>
+          {canViewVisitorStats && (<div data-header-visitor-wrap="true" style={{ position: 'relative' }}>
             <button
               type="button"
               data-header-visitors="true"
@@ -1137,7 +1142,7 @@ export default function Header() {
                 </section>
               </div>
             )}
-          </div>
+          </div>)}
         </div>
 
         {/* LABĀ PUSE: Valodas, Reģioni un Navigācija */}

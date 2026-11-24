@@ -6,14 +6,19 @@ export const dynamic = 'force-dynamic'
 const COOKIE = 'temauto-visitor'
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
-function database() {
+function database(request: NextRequest) {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
     auth: { persistSession: false, autoRefreshToken: false },
+    global: { headers: request.headers.get('authorization')?.startsWith('Bearer ')
+      ? { Authorization: request.headers.get('authorization')! } : {} },
   })
 }
 
-export async function GET() {
-  const { data, error } = await database().rpc('temauto_visit_stats')
+export async function GET(request: NextRequest) {
+  const { data, error } = await database(request).rpc('temauto_visit_stats')
+  if (!error && typeof data?.total !== 'number') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403, headers: { 'Cache-Control': 'private, no-store' } })
+  }
   return NextResponse.json(error ? { error: 'Statistics unavailable' } : data, {
     status: error ? 503 : 200, headers: { 'Cache-Control': 'private, no-store' },
   })
@@ -27,7 +32,7 @@ export async function POST(request: NextRequest) {
   const previous = request.cookies.get(COOKIE)?.value
   const visitor = previous && UUID.test(previous) ? previous : randomUUID()
   const country = request.headers.get('x-vercel-ip-country')?.toLowerCase()
-  const { data, error } = await database().rpc('temauto_record_visit', {
+  const { data, error } = await database(request).rpc('temauto_record_visit', {
     p_visitor_id: visitor, p_country: country && /^[a-z]{2}$/.test(country) ? country : null,
   })
   const response = NextResponse.json(error ? { error: 'Statistics unavailable' } : data, {
