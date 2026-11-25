@@ -7,27 +7,30 @@ export async function initializeVisitorLocale(
   fallbackLanguage: Language,
   signal: AbortSignal,
   request: typeof fetch = fetch,
+  initialCountry?: string,
 ): Promise<{ region: string; language: Language } | null> {
   const hasPreferences = () => storage.getItem('temauto-region') !== null || storage.getItem('temauto-language') !== null
   if (hasPreferences() || signal.aborted) return null
-  let country = COUNTRIES.find(item => item.code === 'lv')!
-  let language = fallbackLanguage
+  let country = COUNTRIES.find(item => item.code === initialCountry?.toLowerCase())
+  let language = country?.language ?? fallbackLanguage
   try {
-    const response = await request('/api/visitor-country', { cache: 'no-store', signal })
-    if (response.ok) {
-      const data = await response.json()
-      const detected = typeof data.country === 'string'
-        ? COUNTRIES.find(item => item.code === data.country.toLowerCase())
-        : undefined
-      if (detected) {
-        country = detected
-        language = detected.language
+    if (!country) {
+      const response = await request('/api/visitor-country', { cache: 'no-store', signal })
+      if (response.ok) {
+        const data = await response.json()
+        const detected = typeof data.country === 'string'
+          ? COUNTRIES.find(item => item.code === data.country.toLowerCase())
+          : undefined
+        if (detected) {
+          country = detected
+          language = detected.language
+        }
       }
     }
   } catch {
-    // If detection is unavailable, keep and save the existing browser defaults.
+    // Keep the browser language, but retry country detection on the next visit.
   }
-  if (signal.aborted || hasPreferences()) return null
+  if (signal.aborted || hasPreferences() || !country) return null
   const region = `${country.name} (${country.currency})`
   storage.setItem('temauto-region', region)
   storage.setItem('temauto-language', language)

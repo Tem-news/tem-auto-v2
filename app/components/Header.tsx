@@ -63,7 +63,7 @@ const REGIONS = COUNTRIES.map(country => ({
   subregions: country.headerRegions,
 }))
 
-export default function Header() {
+export default function Header({ initialRegion }: { initialRegion?: string }) {
   const { t, matches, canonical, language, setLanguage, setCountryLanguage } = useI18n()
   const router = useRouter()
   const pathname = usePathname()
@@ -119,7 +119,7 @@ export default function Header() {
 
   const currentLang = language
   const setCurrentLang = (code: string) => { if (code === 'LV' || code === 'EN' || code === 'RU' || code === 'LT' || code === 'EE' || code === 'DE' || code === 'FR' || code === 'ES' || code === 'PT' || code === 'IT' || code === 'FI' || code === 'PL' || code === 'SV' || code === 'NO' || code === 'DA' || code === 'BG' || code === 'HU' || code === 'RO' || code === 'CS' || code === 'EL' || code === 'NL' || code === 'GA' || code === 'SK' || code === 'SL' || code === 'MT' || code === 'TR') setLanguage(code) }
-  const [currentRegion, setCurrentRegion] = useState('Latvija (EUR)')
+  const [currentRegion, setCurrentRegion] = useState(initialRegion ?? 'Latvija (EUR)')
   useEffect(() => {
     const code = catalogueCountryCode(currentRegion)
     if (!code) return

@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
-import { findCountry, translatedCountryName } from '../countries'
+import { COUNTRIES, findCountry, translatedCountryName } from '../countries'
 import { initializeVisitorLocale } from '../visitorLocale'
 import english from './en.json'
 import russian from './ru.json'
@@ -46,15 +46,16 @@ export function translateText(text: string, language: Language): string {
   return translatedCountryName(text, language) ?? text
 }
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, updateLanguage] = useState<Language>('LV')
+export function LanguageProvider({ children, initialCountry }: { children: React.ReactNode; initialCountry?: string }) {
+  const countryLanguage = COUNTRIES.find(item => item.code === initialCountry)?.language
+  const [language, updateLanguage] = useState<Language>(countryLanguage ?? 'LV')
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
     const preferred = navigator.language.toLowerCase()
     const initialLanguage: Language = saved === 'EN' || saved === 'RU' || saved === 'LT' || saved === 'EE' || saved === 'DE' || saved === 'FR' || saved === 'ES' || saved === 'PT' || saved === 'IT' || saved === 'FI' || saved === 'PL' || saved === 'SV' || saved === 'NO' || saved === 'DA' || saved === 'BG' || saved === 'HU' || saved === 'RO' || saved === 'CS' || saved === 'EL' || saved === 'NL' || saved === 'GA' || saved === 'SK' || saved === 'SL' || saved === 'MT' || saved === 'TR' || saved === 'LV' ? saved : !saved && preferred.startsWith('tr') ? 'TR' : !saved && preferred.startsWith('mt') ? 'MT' : !saved && preferred.startsWith('sl') ? 'SL' : !saved && preferred.startsWith('sk') ? 'SK' : !saved && preferred.startsWith('ga') ? 'GA' : !saved && preferred.startsWith('nl') ? 'NL' : !saved && preferred.startsWith('el') ? 'EL' : !saved && preferred.startsWith('cs') ? 'CS' : !saved && preferred.startsWith('ro') ? 'RO' : !saved && preferred.startsWith('hu') ? 'HU' : !saved && preferred.startsWith('bg') ? 'BG' : !saved && preferred.startsWith('da') ? 'DA' : !saved && (preferred.startsWith('no') || preferred.startsWith('nb')) ? 'NO' : !saved && preferred.startsWith('sv') ? 'SV' : !saved && preferred.startsWith('pl') ? 'PL' : !saved && preferred.startsWith('fi') ? 'FI' : !saved && preferred.startsWith('it') ? 'IT' : !saved && preferred.startsWith('pt') ? 'PT' : !saved && preferred.startsWith('es') ? 'ES' : !saved && preferred.startsWith('fr') ? 'FR' : !saved && preferred.startsWith('de') ? 'DE' : !saved && preferred.startsWith('et') ? 'EE' : !saved && preferred.startsWith('lt') ? 'LT' : !saved && preferred.startsWith('ru') ? 'RU' : !saved && preferred.startsWith('en') ? 'EN' : 'LV'
-    updateLanguage(initialLanguage)
+    updateLanguage(saved ? initialLanguage : countryLanguage ?? initialLanguage)
     const controller = new AbortController()
-    initializeVisitorLocale(localStorage, initialLanguage, controller.signal).then(locale => {
+    initializeVisitorLocale(localStorage, initialLanguage, controller.signal, fetch, initialCountry).then(locale => {
       if (!locale) return
       updateLanguage(locale.language)
       window.dispatchEvent(new CustomEvent('temauto-initial-region', { detail: locale.region }))
